@@ -15,6 +15,7 @@ cursor =conn.cursor()
 cursor.execute("SELECT * from pv_tyres WHERE QUANTITY>0")
 data = list(cursor.fetchall())
 
-@app.route("/")
+@app.route("/data", methods = ['GET'])
 def hello_world():
-    return jsonify(data)
+   return jsonify(data)
+
