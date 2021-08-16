@@ -12,7 +12,7 @@ app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 
 conn = mysql.connect()
 cursor =conn.cursor()
-cursor.execute("SELECT * from pv_tyres WHERE QUANTITY>0")
+cursor.execute("SELECT * from pv_tyres")
 data = list(cursor.fetchall())
 
 @app.route("/data", methods = ['GET'])
