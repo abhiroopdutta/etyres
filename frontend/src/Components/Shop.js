@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from 'react';
+import './Shop.css';
 
 //object deconstruction **
 function Shop() {
@@ -28,8 +29,8 @@ function Shop() {
 
   //udnerstand the below code
   return (
-    <div>
-        <input type="text" onChange={handleChange} value={input} />
+    <div className="tyres">
+        <input type="text" onChange={handleChange} value={input} placeholder="Enter tyre size"/>
         {tyreData.map(
           (tyre, index)=>{
             return(
@@ -37,7 +38,7 @@ function Shop() {
               <div key={index}> 
                 <ul>                  
                   <li> desc:{tyre[1]} taxable_CP:{tyre[8]} total_CP:{tyre[12]} </li>                  
-                  <input type="submit" value="add" />
+                  <button type="button"> Add to cart</button>
                 </ul>
               </div>
             )
