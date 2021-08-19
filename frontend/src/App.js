@@ -1,66 +1,23 @@
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import './App.css';
-import React, {useState, useEffect} from 'react';
-
-//object deconstruction **
-function Tyres({tyreData}) {
-
-  let nba = [{name:"1009017"}, {name:"1459017"}, {name:"1559017"}]
-
-
-  const [input, setInput] = useState("");
-  const handleChange = (e) =>{
-    e.preventDefault(); //why use this
-    setInput(e.target.value);
-  };
-
-  if(input.length>0){
-    tyreData= tyreData.filter((i)=>{
-      return i[2].toString().match(input);
-    })
-  }
-
-  //udnerstand the below code
-  return (
-    <div>
-        <input type="text" onChange={handleChange} value={input} />
-        {tyreData.map(
-          (tyre, index)=>{
-            return(
-              //why use key here?
-              <div key={index}> 
-                <ul>
-                  <li>
-                    desc:{tyre[1]} taxable_CP:{tyre[8]} total_CP:{tyre[12]} 
-                  </li>
-                </ul>
-              </div>
-            )
-          }
-        )
-      }
-    </div>
-    
-  );
-}
+import Shop from './Components/Shop'; 
+import Navbar from './Components/Navbar';
 
 function App() {
-
-  const [tyres, setTyres] = useState([]);
-
-  useEffect(
-    ()=>{
-      fetch('/data')
-      .then(res=>res.json())
-      .then(data=>setTyres(data))
-    }, 
-  []);
-
- 
-
   return (
-    <div className="App">
-      <Tyres tyreData={tyres}/>
-    </div>
+    <Router>
+      <div className="App">
+        <Navbar/>
+        <Switch>
+          <Route path="/create_order"> <Shop/> </Route>
+          <Route path="/update_stock"> Update Stock is under construction </Route>
+          <Route path="/update_price"> Update Price is under construction </Route>
+          <Route path="/sales_report"> Sales Report is under construction </Route> 
+        </Switch>
+
+      </div>
+    </Router>
   );
 }
+
 export default App;
