@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
+import Tyre from './Tyre';
 import './Shop.css';
 
-//object deconstruction **
 function Shop() {
 
   const [tyres, setTyres] = useState([]);
@@ -27,26 +27,14 @@ function Shop() {
     })
   }
 
-  //udnerstand the below code
+  //udnerstand the live search feature rendering order
   return (
     <div className="tyres">
         <input type="text" onChange={handleChange} value={input} placeholder="Enter tyre size"/>
-        {tyreData.map(
-          (tyre, index)=>{
-            return(
-              //why use key here?
-              <div key={index}> 
-                <ul>                  
-                  <li> desc:{tyre[1]} taxable_CP:{tyre[8]} total_CP:{tyre[12]} </li>                  
-                  <button type="button"> Add to cart</button>
-                </ul>
-              </div>
-            )
-          }
-        )
-      }
-    </div>
-    
+        {
+          tyreData.map( (tyre, index)=> <Tyre tyreData={tyre} key={index}/> )
+        }
+    </div>    
   );
 }
 

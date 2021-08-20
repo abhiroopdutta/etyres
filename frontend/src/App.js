@@ -14,7 +14,6 @@ function App() {
           <Route path="/update_price"> Update Price is under construction </Route>
           <Route path="/sales_report"> Sales Report is under construction </Route> 
         </Switch>
-
       </div>
     </Router>
   );
