@@ -1,26 +1,39 @@
-import React, {useContext} from 'react';
+import React, {useContext, useState} from 'react';
 import { CartContext } from './CartContext';
 
 
 //object deconstruction in props
-function CartTyre({tyreData}){
+function CartTyre({cartTyreData}){
 
     const [cart, setCart] = useContext(CartContext);
-    const removeFromCart = (tyreData) => {
+    const[SP, setSP] = useState(0);
+    const removeFromCart = (cartTyreData) => {
         
         //understand the filter code below
         let cartCopy = [...cart];
-        cartCopy = cartCopy.filter(cartItem => cartItem[3]!== tyreData[3])
+        cartCopy = cartCopy.filter(cartItem => cartItem.id!== cartTyreData.id)
 
         //understand this line of code
         setCart(cartCopy); //understand the spread, rest syntax
     }
 
+    const handleSP = (e) =>{
+        e.preventDefault(); //why use this
+        setSP(e.target.value);
+        cartTyreData.price = e.target.value;
+        let cartCopy = [...cart];
+        setCart(cartCopy);
+        
+    }; 
+
     return(
         <div>
-            <h4>{tyreData[1]}</h4>
-            <h5>total_CP: {tyreData[12]}</h5>
-            <button onClick={()=>removeFromCart(tyreData)}>Remove</button>
+            <h4>{cartTyreData.desc}</h4> 
+            <span>CP: {cartTyreData.CP}</span> 
+            <span>SP: </span> <input type="text" onChange={handleSP} value={SP}/>
+            <br/>
+            <span>Quantity: {cartTyreData.quantity}</span>
+            <button onClick={()=>removeFromCart(cartTyreData)}>Remove</button>
             <hr/>
         </div>
     );
