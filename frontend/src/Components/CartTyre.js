@@ -21,6 +21,8 @@ function CartTyre({cartTyreData}){
         e.preventDefault(); //why use this
         setSP(e.target.value);
         cartTyreData.price = e.target.value;
+
+        //forcefully update the cart context, to render the parent(i.e. cart)
         let cartCopy = [...cart];
         setCart(cartCopy);
         
