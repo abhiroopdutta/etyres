@@ -6,7 +6,7 @@ import { CartContext } from './CartContext';
 function CartTyre({cartTyreData}){
 
     const [cart, setCart] = useContext(CartContext);
-    const[SP, setSP] = useState(0);
+
     const removeFromCart = (cartTyreData) => {
         
         //understand the filter code below
@@ -17,9 +17,8 @@ function CartTyre({cartTyreData}){
         setCart(cartCopy); //understand the spread, rest syntax
     }
 
-    const handleSP = (e) =>{
+    const handlePrice = (e) =>{
         e.preventDefault(); //why use this
-        setSP(e.target.value);
         cartTyreData.price = e.target.value;
 
         //forcefully update the cart context, to render the parent(i.e. cart)
@@ -28,13 +27,27 @@ function CartTyre({cartTyreData}){
         
     }; 
 
+    const handleFocus = (e) => e.target.select();
+
+   
+    const handleQuantity = (e) =>{
+        e.preventDefault(); //why use this
+        cartTyreData.quantity = e.target.value;
+
+        //forcefully update the cart context, to render the parent(i.e. cart)
+        let cartCopy = [...cart];
+        setCart(cartCopy);
+        
+    };
+
     return(
         <div>
             <h4>{cartTyreData.desc}</h4> 
             <span>CP: {cartTyreData.CP}</span> 
-            <span>SP: </span> <input type="text" onChange={handleSP} value={SP}/>
+            <span>price: </span> <input type="text" value={cartTyreData.price} onChange={handlePrice} onFocus={handleFocus}/>
             <br/>
-            <span>Quantity: {cartTyreData.quantity}</span>
+            <span>Quantity: </span>
+            <input type="number" step="1" min="1" value={cartTyreData.quantity} onChange={handleQuantity} onFocus={handleFocus}/>
             <button onClick={()=>removeFromCart(cartTyreData)}>Remove</button>
             <hr/>
         </div>

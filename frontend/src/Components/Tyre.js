@@ -9,7 +9,7 @@ function Tyre({tyreData}){
 
         //create cart tyre object
         const cartTyreData = {id:tyreData[3], desc:tyreData[1], 
-            CP:tyreData[12], price:tyreData[12], quantity:1};
+            CP:tyreData[12], price:0, quantity:1};
 
         //check if item already in cart
         let foundItem = cart.find(cartTyre=>cartTyre.id === tyreData[3]);
@@ -21,12 +21,13 @@ function Tyre({tyreData}){
         }
         else{
             console.log("item exists in cart already")
-            foundItem.quantity = foundItem.quantity+1;
+            foundItem.quantity = parseInt(foundItem.quantity)+1;
 
             //find the index of the item where it exists in cart
             let foundItemIndex = cart.findIndex(cartTyre=>cartTyre.id === tyreData[3]);
             let cartCopy = [...cart];
             cartCopy[foundItemIndex] = foundItem;
+            console.log(foundItem.quantity )
             setCart(cartCopy);
         }
         
@@ -35,8 +36,7 @@ function Tyre({tyreData}){
     return(
         <div>
             <h4>{tyreData[1]}</h4>
-            <span class="WebRupee">&#x20B9;</span>
-            <h5>CP: {tyreData[12]}</h5>
+            <span > CP: &#x20B9;{tyreData[12]}</span> <br/>
             <button onClick={()=>addToCart(tyreData)}>Add to cart</button>
             <hr/>
         </div>

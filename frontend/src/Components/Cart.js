@@ -8,89 +8,60 @@ function Cart(){
 
     // eslint-disable-next-line 
     const [cart, setCart]= useContext(CartContext);
-    const [fitting, setFitting] = useState(0);
-    const [fittingQuantity, setFittingQuantity] = useState(1);
-    const [valves, setValves] = useState(0);
-    const [valvesQuantity, setValvesQuantity] = useState(1);
-    const [balancing, setBalancing] = useState(0);
-    const [balancingQuantity, setBalancingQuantity] = useState(1);
-    const [weights, setWeights] = useState(0);
-    const [alignment, setAlignment] = useState(0);
+    const [services, setServices] = useState([
+        {name:"fitting", price:0, quantity:0}, 
+        {name:"valves", price:0, quantity:0}, 
+        {name:"balancing", price:0, quantity:0},
+        {name:"weights", price:0, quantity:0}, 
+        {name:"alignment", price:0, quantity:0}])
 
 
-    const handleFitting = (e) =>{
+    const handleServicesPrice = (index, e) =>{
         e.preventDefault(); //why use this
-        setFitting(e.target.value);
-      };
-    
-    const handleFittingQuantity = (e) =>{
-        e.preventDefault(); //why use this
-        setFittingQuantity(e.target.value);
-    };
+        let servicesCopy = [...services];
+        servicesCopy[index].price = e.target.value;
+        setServices(servicesCopy);        
+    }; 
 
 
-    const handleValves = (e) =>{
+    const handleServicesQuantity = (index, e) =>{
         e.preventDefault(); //why use this
-        setValves(e.target.value);
-      };
+        let servicesCopy = [...services];
+        servicesCopy[index].quantity = e.target.value;
+        setServices(servicesCopy);        
+    }; 
 
-    const handleValvesQuantity = (e) =>{
-        e.preventDefault(); //why use this
-        setValvesQuantity(e.target.value);
-    };
-
-    const handleBalancingQuantity = (e) =>{
-        e.preventDefault(); //why use this
-        setBalancingQuantity(e.target.value);
-    };
-
-    const handleBalancing = (e) =>{
-        e.preventDefault(); //why use this
-        setBalancing(e.target.value);
-    };
-
-    const handleWeights = (e) =>{
-        e.preventDefault(); //why use this
-        setWeights(e.target.value);
-      };
-
-    const handleAlignment = (e) =>{
-        e.preventDefault(); //why use this
-        setAlignment(e.target.value);
-    };  
+    const handleFocus = (e) => e.target.select();
 
     let tyresPrice = 0;
     for(let i=0; i<cart.length; i++){
         tyresPrice = tyresPrice+cart[i].price*cart[i].quantity;
     }  
 
-    const totalPrice = parseFloat(tyresPrice)+
-    parseInt(fitting)*parseInt(fittingQuantity)+
-    parseInt(valves)*parseInt(valvesQuantity)+
-    parseInt(balancing)*parseInt(balancingQuantity)+
-    parseInt(weights)+
-    parseInt(alignment);
+    let servicesPrice=0;
+    for(let i=0; i<services.length; i++){
+        servicesPrice = servicesPrice+services[i].price*services[i].quantity;
+    }
+
+    let totalPrice = tyresPrice+servicesPrice;
+
 
     return(
         <div className="Cart"> 
-            <img src={CartIcon} alt="Girl in a jacket" width="50" height="50"/> <br/>
+            <img src={CartIcon} alt="Cart" width="50" height="50"/> <br/>
             {cart.map( (tyre, index)=> <CartTyre cartTyreData={tyre} key={index}/> )}  
+
+            {services.map( (service, index)=>
+            <div key={index}>
+                <span>{service.name}:</span> 
+                <span>price:</span> 
+                <input type="text" value={service.price} onChange={(e)=>handleServicesPrice(index,e)} onFocus={handleFocus}/>
+                <span>Quantity: </span>
+                <input type="number" step="1" min="0" value={service.quantity} onChange={(e)=>handleServicesQuantity(index,e)} onFocus={handleFocus}/>
+            </div>
+            )}
             
-            <span>Tyre fitting: </span> <input type="text" onChange={handleFitting} value={fitting}/>
-            <span>Quantity: </span> <input type="text" onChange={handleFittingQuantity} value={fittingQuantity}/>
-            <br/>
-            <span>Valves: </span> <input type="text" onChange={handleValves} value={valves}/>
-            <span>Quantity: </span> <input type="text" onChange={handleValvesQuantity} value={valvesQuantity}/>
-            <br/>
-            <span>Balancing: </span> <input type="text" onChange={handleBalancing} value={balancing}/>
-            <span>Quantity: </span> <input type="text" onChange={handleBalancingQuantity} value={balancingQuantity}/>
-            <br/>
-            <span>Balancing Weights: </span> <input type="text" onChange={handleWeights} value={weights}/>
-            <br/>
-            <span>Alignment: </span> <input type="text" onChange={handleAlignment} value={alignment}/>
-            <br/>
-            <br/>
-            <span>Total price: {totalPrice}</span>
+            <span>Total price: &#x20B9;{totalPrice}</span>
             <br/>
             <button>Generate invoice </button>
         </div>
