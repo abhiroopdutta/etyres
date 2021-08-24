@@ -3,6 +3,7 @@ import { CartContext } from './CartContext';
 import CartTyre from './CartTyre';
 import './Cart.css';
 import CartIcon from './cart-icon.png'
+import { Link } from 'react-router-dom';
 
 function Cart(){
 
@@ -22,7 +23,6 @@ function Cart(){
         servicesCopy[index].price = e.target.value;
         setServices(servicesCopy);        
     }; 
-
 
     const handleServicesQuantity = (index, e) =>{
         e.preventDefault(); //why use this
@@ -63,7 +63,7 @@ function Cart(){
             
             <span>Total price: &#x20B9;{totalPrice}</span>
             <br/>
-            <button>Generate invoice </button>
+            <Link to="/invoice">Preview invoice</Link> 
         </div>
     );
 
