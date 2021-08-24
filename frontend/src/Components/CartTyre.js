@@ -3,15 +3,17 @@ import { CartContext } from './CartContext';
 
 
 //object deconstruction in props
-function CartTyre({cartTyreData}){
+function CartTyre({tyreData}){
 
-    const [cart, setCart] = useContext(CartContext);
-
-    const removeFromCart = (cartTyreData) => {
+    const {tyresContext, servicesContext} = useContext(CartContext);
+    const [cart, setCart] = tyresContext;
+    const [services, setServices] = servicesContext;
+  
+    const removeFromCart = (tyreData) => {
         
         //understand the filter code below
         let cartCopy = [...cart];
-        cartCopy = cartCopy.filter(cartItem => cartItem.id!== cartTyreData.id)
+        cartCopy = cartCopy.filter(cartItem => cartItem.id!== tyreData.id)
 
         //understand this line of code
         setCart(cartCopy); //understand the spread, rest syntax
@@ -19,9 +21,10 @@ function CartTyre({cartTyreData}){
 
     const handlePrice = (e) =>{
         e.preventDefault(); //why use this
-        cartTyreData.price = e.target.value;
+        tyreData.price = e.target.value;
 
-        //forcefully update the cart context, to render the parent(i.e. cart)
+        //forcefully update the cart context, to render the parent(i.e. Cart)
+        //since totalPrice (part of parent Cart) is affected by tyreData price
         let cartCopy = [...cart];
         setCart(cartCopy);
         
@@ -32,7 +35,7 @@ function CartTyre({cartTyreData}){
    
     const handleQuantity = (e) =>{
         e.preventDefault(); //why use this
-        cartTyreData.quantity = e.target.value;
+        tyreData.quantity = e.target.value;
 
         //forcefully update the cart context, to render the parent(i.e. cart)
         let cartCopy = [...cart];
@@ -42,13 +45,13 @@ function CartTyre({cartTyreData}){
 
     return(
         <div>
-            <h4>{cartTyreData.desc}</h4> 
-            <span>CP: {cartTyreData.CP}</span> 
-            <span>price: </span> <input type="text" value={cartTyreData.price} onChange={handlePrice} onFocus={handleFocus}/>
+            <h4>{tyreData.desc}</h4> 
+            <span>CP: {tyreData.CP}</span> 
+            <span>price: </span> <input type="text" value={tyreData.price} onChange={handlePrice} onFocus={handleFocus}/>
             <br/>
             <span>Quantity: </span>
-            <input type="number" step="1" min="1" value={cartTyreData.quantity} onChange={handleQuantity} onFocus={handleFocus}/>
-            <button onClick={()=>removeFromCart(cartTyreData)}>Remove</button>
+            <input type="number" step="1" min="1" value={tyreData.quantity} onChange={handleQuantity} onFocus={handleFocus}/>
+            <button onClick={()=>removeFromCart(tyreData)}>Remove</button>
             <hr/>
         </div>
     );

@@ -8,14 +8,9 @@ import { Link } from 'react-router-dom';
 function Cart(){
 
     // eslint-disable-next-line 
-    const [cart, setCart]= useContext(CartContext);
-    const [services, setServices] = useState([
-        {name:"fitting", price:0, quantity:0}, 
-        {name:"valves", price:0, quantity:0}, 
-        {name:"balancing", price:0, quantity:0},
-        {name:"weights", price:0, quantity:0}, 
-        {name:"alignment", price:0, quantity:0}])
-
+    const {tyresContext, servicesContext} = useContext(CartContext);
+    const [cart, setCart] = tyresContext;
+    const [services, setServices] = servicesContext;
 
     const handleServicesPrice = (index, e) =>{
         e.preventDefault(); //why use this
@@ -49,7 +44,7 @@ function Cart(){
     return(
         <div className="Cart"> 
             <img src={CartIcon} alt="Cart" width="50" height="50"/> <br/>
-            {cart.map( (tyre, index)=> <CartTyre cartTyreData={tyre} key={index}/> )}  
+            {cart.map( (tyre, index)=> <CartTyre tyreData={tyre} key={index}/> )}  
 
             {services.map( (service, index)=>
             <div key={index}>

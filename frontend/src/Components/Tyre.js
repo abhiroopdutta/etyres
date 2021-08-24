@@ -4,7 +4,10 @@ import { CartContext } from './CartContext';
 //object deconstruction in props
 function Tyre({tyreData}){
 
-    const [cart, setCart] = useContext(CartContext);
+    const {tyresContext, servicesContext} = useContext(CartContext);
+    const [cart, setCart] = tyresContext;
+    const [services, setServices] = servicesContext;
+
     const addToCart = (tyreData) => {
 
         //create cart tyre object
@@ -27,7 +30,6 @@ function Tyre({tyreData}){
             let foundItemIndex = cart.findIndex(cartTyre=>cartTyre.id === tyreData[3]);
             let cartCopy = [...cart];
             cartCopy[foundItemIndex] = foundItem;
-            console.log(foundItem.quantity )
             setCart(cartCopy);
         }
         
