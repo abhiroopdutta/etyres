@@ -6,6 +6,7 @@ function Tyre({tyreData}){
 
     const {tyresContext, servicesContext} = useContext(CartContext);
     const [cart, setCart] = tyresContext;
+    // eslint-disable-next-line 
     const [services, setServices] = servicesContext;
 
     const addToCart = (tyreData) => {

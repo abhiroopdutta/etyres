@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext} from 'react';
 import { CartContext } from './CartContext';
 import CartTyre from './CartTyre';
 import './Cart.css';
@@ -7,8 +7,9 @@ import { Link } from 'react-router-dom';
 
 function Cart(){
 
-    // eslint-disable-next-line 
+    
     const {tyresContext, servicesContext} = useContext(CartContext);
+    // eslint-disable-next-line 
     const [cart, setCart] = tyresContext;
     const [services, setServices] = servicesContext;
 
