@@ -1,0 +1,11 @@
+.cart-tyre{ 
+    /* background-color: yellow; */
+    margin:0px 40px 20px 40px; 
+}
+
+.cart-tyre-name{
+    /* background-color: yellow; */
+    margin:0px 0px 0px 0px;
+    font-weight:700;
+    color:rgb(41, 40, 40);
+}

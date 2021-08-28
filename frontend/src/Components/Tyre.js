@@ -1,5 +1,7 @@
 import React, {useContext} from 'react';
 import { CartContext } from './CartContext';
+import './Tyre.css'
+import TyreImg from './tyre-img.png'
 
 //object deconstruction in props
 function Tyre({tyreData}){
@@ -37,12 +39,25 @@ function Tyre({tyreData}){
     }
 
     return(
-        <div>
-            <h4>{tyreData[1]}</h4>
-            <span > CP: &#x20B9;{tyreData[12]}</span> <br/>
-            <button onClick={()=>addToCart(tyreData)}>Add to cart</button>
-            <hr/>
-        </div>
+            <article className="product">
+
+                <div class="product-info">
+                    <div class="product-title">
+                        <span>{tyreData[1]}</span>
+                    </div>
+                    <img src={TyreImg} width="80" height="120"/>
+
+                    <div class="product-details">
+                        <span > Cost Price: &#x20B9;{tyreData[12]}</span> 
+                        <br/>
+                        <span > Increased Price: &#x20B9;{tyreData[12]}</span>
+                        <br/>
+                        <span > Items in stock:{tyreData[13]}</span>
+                        <br/>
+                        <button onClick={()=>addToCart(tyreData)}>Add to cart</button>
+                    </div>
+                </div>
+            </article>            
     );
 }
 

@@ -29,9 +29,11 @@ function Products() {
   
     //udnerstand the live search feature rendering order
     return (
-      <div className="tyres">
+      <div className="products">
           <input type="text" onChange={handleChange} value={input} placeholder="Enter tyre size"/>
-          {tyreData.map( (tyre, index)=> <Tyre tyreData={tyre} key={index}/> )}  
+        <main className="grid-container">
+          {tyreData.map( (tyre, index)=> <Tyre tyreData={tyre} key={index}/> )}      
+        </main>  
       </div>    
     );
   }

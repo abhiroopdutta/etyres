@@ -1,5 +1,6 @@
 import React, {useContext} from 'react';
 import { CartContext } from './CartContext';
+import './CartTyre.css'
 
 
 //object deconstruction in props
@@ -45,15 +46,16 @@ function CartTyre({tyreData}){
     };
 
     return(
-        <div>
-            <h4>{tyreData.desc}</h4> 
-            <span>CP: {tyreData.CP}</span> 
-            <span>price: </span> <input type="text" value={tyreData.price} onChange={handlePrice} onFocus={handleFocus}/>
-            <br/>
+        <div className="cart-tyre">
+            <div className="cart-tyre-name">{tyreData.desc}</div> 
+            <span className="cart-tyre-CP">CP:{tyreData.CP}</span> 
+            <span className="cart-tyre-price">
+                Price:
+                <input type="text" value={tyreData.price} onChange={handlePrice} onFocus={handleFocus}/>
+            </span>
             <span>Quantity: </span>
             <input type="number" step="1" min="1" value={tyreData.quantity} onChange={handleQuantity} onFocus={handleFocus}/>
             <button onClick={()=>removeFromCart(tyreData)}>Remove</button>
-            <hr/>
         </div>
     );
 }

@@ -6,11 +6,11 @@ export const CartProvider = (props) => {
 
     const [cart, setCart] = useState([]);
     const [services, setServices] = useState([
-        {name:"fitting", price:0, quantity:0}, 
-        {name:"valves", price:0, quantity:0}, 
-        {name:"balancing", price:0, quantity:0},
-        {name:"weights", price:0, quantity:0}, 
-        {name:"alignment", price:0, quantity:0}])
+        {name:"Fitting", price:0, quantity:0}, 
+        {name:"Valves", price:0, quantity:0}, 
+        {name:"Balancing", price:0, quantity:0},
+        {name:"Weights", price:0, quantity:0},
+        {name:"Alignment", price:0, quantity:0}])
     return(
         <CartContext.Provider value={ {tyresContext:[cart, setCart], servicesContext:[services, setServices]} }>
             {props.children}

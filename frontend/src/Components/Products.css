@@ -1,5 +1,8 @@
+.products{
+    background-color: rgb(255, 255, 255);
+}
 
-.tyres input{
+.products input{
     margin:25px 40px;
     border: 3px solid #000000;
     padding: 5px;
@@ -7,3 +10,22 @@
     outline: none;
     color: #000000;
 }
+
+.products input:focus{
+    background-color: rgb(252, 252, 166);
+}
+
+.products input:hover{
+    background-color: rgb(252, 252, 166);
+}
+
+.grid-container{
+    padding-left: 40px;
+    display: grid;
+    grid-template-columns: repeat(2, 310px);
+    grid-auto-rows: minmax(80px, auto);
+    grid-column-gap: 20px;
+    grid-row-gap: -20px;
+   
+}
+

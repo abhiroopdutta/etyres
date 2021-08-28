@@ -43,21 +43,49 @@ function Cart(){
 
 
     return(
-        <div className="Cart"> 
-            <img src={CartIcon} alt="Cart" width="50" height="50"/> <br/>
+        <div className="cart"> 
+
+            <div className="cart-title"> 
+                CART SUMMARY
+            </div>
+            
+            
             {cart.map( (tyre, index)=> <CartTyre tyreData={tyre} key={index}/> )}  
 
-            {services.map( (service, index)=>
-            <div key={index}>
-                <span>{service.name}:</span> 
-                <span>price:</span> 
-                <input type="text" value={service.price} onChange={(e)=>handleServicesPrice(index,e)} onFocus={handleFocus}/>
-                <span>Quantity: </span>
-                <input type="number" step="1" min="0" value={service.quantity} onChange={(e)=>handleServicesQuantity(index,e)} onFocus={handleFocus}/>
+            <div className="service"> 
+                {services.map( (service, index)=>
+                <div key={index}>
+                    <div className="service-name">{service.name}:</div> 
+                
+                    <div classname="service-grid-container">
+                        <div className="service-CP"> 
+                            <span class>CP: </span>
+                            <input type="text"/>
+                        </div>
+
+                        <div className="service-price">
+                            Price:
+                            <input type="text" value={service.price} onChange={(e)=>handleServicesPrice(index,e)} onFocus={handleFocus}/>
+                        </div>
+
+                        <div className="service-quantity">
+                            <span>Quantity: </span>
+                            <input type="number" step="1" min="0" value={service.quantity} onChange={(e)=>handleServicesQuantity(index,e)} onFocus={handleFocus}/>
+                        </div>
+                        
+                    </div>
+                    
+                     
+                    
+                     
+                    
+                    
+                </div>
+                )}
             </div>
-            )}
             
-            <span>Total price: &#x20B9;{totalPrice}</span>
+            
+            <div className="total-price">Total price: &#x20B9;{totalPrice}</div>
             <br/>
             <Link to="/invoice">Preview invoice</Link> 
         </div>
