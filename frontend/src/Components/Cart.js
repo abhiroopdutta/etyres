@@ -57,29 +57,20 @@ function Cart(){
                 <div key={index}>
                     <div className="service-name">{service.name}:</div> 
                 
-                    <div classname="service-grid-container">
-                        <div className="service-CP"> 
+                        <span className="service-CP"> 
                             <span class>CP: </span>
                             <input type="text"/>
-                        </div>
+                        </span>
 
-                        <div className="service-price">
-                            Price:
+                        <span className="service-price">
+                            <span>Price: </span>
                             <input type="text" value={service.price} onChange={(e)=>handleServicesPrice(index,e)} onFocus={handleFocus}/>
-                        </div>
+                        </span>
 
-                        <div className="service-quantity">
+                        <span className="service-quantity">
                             <span>Quantity: </span>
                             <input type="number" step="1" min="0" value={service.quantity} onChange={(e)=>handleServicesQuantity(index,e)} onFocus={handleFocus}/>
-                        </div>
-                        
-                    </div>
-                    
-                     
-                    
-                     
-                    
-                    
+                        </span>                    
                 </div>
                 )}
             </div>
@@ -87,7 +78,7 @@ function Cart(){
             
             <div className="total-price">Total price: &#x20B9;{totalPrice}</div>
             <br/>
-            <Link to="/invoice">Preview invoice</Link> 
+            <Link className="invoice-button" to="/invoice">Preview invoice</Link> 
         </div>
     );
 

@@ -37,7 +37,7 @@
 
 .product-details button{
     margin: 10px 0px 0px 0px;
-    background-color: rgb(138, 135, 135);
+    background-color: rgb(83, 81, 81);
     border: 1px solid transparent;
     padding:7px;
     border-radius: 10px;
@@ -46,5 +46,5 @@
 }
 
 .product-details button:hover{
-    background-color: rgb(83, 81, 81); 
+    background-color: rgb(44, 43, 43); 
 }

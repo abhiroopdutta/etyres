@@ -9,3 +9,17 @@
     font-weight:700;
     color:rgb(41, 40, 40);
 }
+.cart-tyre-CP{
+    display: inline-block;
+    width: 140px;
+}
+
+.cart-tyre-price{
+    display: inline-block;
+    width: 160px;
+}
+
+.cart-tyre-quantity{
+    display: inline-block;
+    width: 180px;
+}

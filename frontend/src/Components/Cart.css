@@ -24,11 +24,8 @@
     border-bottom: 3px solid rgb(175, 169, 169);
 }
 
-.service-grid-container{
-    display:grid;
-    grid-template-columns: repeat(3,20px);
-    grid-column-gap: 5px;
-
+.service{
+    padding:0px 0px 0px 40px;
 }
 
 .service-name{
@@ -36,15 +33,26 @@
     font-weight:700;
 }
 
+.service-CP{
+    display: inline-block;
+    width: 140px;
+}
+
+.service-price{
+    display: inline-block;
+    width: 160px;
+}
 
 .cart input{
     border: 1px solid transparent;
     width: 80px;
     margin:5px 0px;
     outline: none;
-    background-color: rgb(250, 250, 231);
+    background-color: rgb(233, 225, 225);
     padding: 3px;
     color: #000000;
+    font-size:medium;   
+    font-weight:500;
 }
 
 .cart input:focus{
@@ -64,3 +72,9 @@
     
 }
 
+.invoice-button {
+    text-decoration: none;
+    margin-left:40px;
+    color:rgb(24, 23, 23);
+    font-weight: 700;   
+}

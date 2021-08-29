@@ -50,11 +50,13 @@ function CartTyre({tyreData}){
             <div className="cart-tyre-name">{tyreData.desc}</div> 
             <span className="cart-tyre-CP">CP:{tyreData.CP}</span> 
             <span className="cart-tyre-price">
-                Price:
+                <span>Price: </span>
                 <input type="text" value={tyreData.price} onChange={handlePrice} onFocus={handleFocus}/>
             </span>
-            <span>Quantity: </span>
-            <input type="number" step="1" min="1" value={tyreData.quantity} onChange={handleQuantity} onFocus={handleFocus}/>
+            <span className="cart-tyre-quantity">
+                <span>Quantity: </span>
+                <input type="number" step="1" min="1" value={tyreData.quantity} onChange={handleQuantity} onFocus={handleFocus}/>
+            </span>
             <button onClick={()=>removeFromCart(tyreData)}>Remove</button>
         </div>
     );
