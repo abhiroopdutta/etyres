@@ -1,8 +1,7 @@
-import React, {useContext} from 'react';
+import React, {useContext, useState} from 'react';
 import { CartContext } from './CartContext';
 import CartTyre from './CartTyre';
 import './Cart.css';
-import CartIcon from './cart-icon.png'
 import { Link } from 'react-router-dom';
 
 function Cart(){
@@ -13,21 +12,33 @@ function Cart(){
     const [cart, setCart] = tyresContext;
     const [services, setServices] = servicesContext;
 
+    const [servicesLocal, setServicesLocal] = useState([
+        {name:"Fitting", price:50, quantity:0}, 
+        {name:"Valves", price:50, quantity:0}, 
+        {name:"Balancing", price:50, quantity:0},
+        {name:"Weights", price:0, quantity:0},
+        {name:"Alignment", price:0, quantity:0}])
+
     const handleServicesPrice = (index, e) =>{
         e.preventDefault(); //why use this
-        let servicesCopy = [...services];
+        let servicesCopy = [...servicesLocal];
         servicesCopy[index].price = e.target.value;
-        setServices(servicesCopy);        
+        setServicesLocal(servicesCopy);
+        console.log(e.target.value)        
     }; 
 
     const handleServicesQuantity = (index, e) =>{
         e.preventDefault(); //why use this
-        let servicesCopy = [...services];
+        let servicesCopy = [...servicesLocal];
         servicesCopy[index].quantity = e.target.value;
-        setServices(servicesCopy);        
+        setServicesLocal(servicesCopy);        
     }; 
 
     const handleFocus = (e) => e.target.select();
+
+    const handleInvoice = () =>{
+        setServices(servicesLocal);
+    }
 
     let tyresPrice = 0;
     for(let i=0; i<cart.length; i++){
@@ -35,8 +46,8 @@ function Cart(){
     }  
 
     let servicesPrice=0;
-    for(let i=0; i<services.length; i++){
-        servicesPrice = servicesPrice+services[i].price*services[i].quantity;
+    for(let i=0; i<servicesLocal.length; i++){
+        servicesPrice = servicesPrice+servicesLocal[i].price*servicesLocal[i].quantity;
     }
 
     let totalPrice = tyresPrice+servicesPrice;
@@ -53,14 +64,9 @@ function Cart(){
             {cart.map( (tyre, index)=> <CartTyre tyreData={tyre} key={index}/> )}  
 
             <div className="service"> 
-                {services.map( (service, index)=>
+                {servicesLocal.map( (service, index)=>
                 <div key={index}>
                     <div className="service-name">{service.name}:</div> 
-                
-                        <span className="service-CP"> 
-                            <span class>CP: </span>
-                            <input type="text"/>
-                        </span>
 
                         <span className="service-price">
                             <span>Price: </span>
@@ -78,7 +84,7 @@ function Cart(){
             
             <div className="total-price">Total price: &#x20B9;{totalPrice}</div>
             <br/>
-            <Link className="invoice-button" to="/invoice">Preview invoice</Link> 
+            <Link className="invoice-button" onClick={handleInvoice} to="/invoice">Preview invoice</Link> 
         </div>
     );
 

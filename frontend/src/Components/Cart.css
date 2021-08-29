@@ -1,7 +1,12 @@
 
 
 .cart{
-    float:right;
+    /* float:right; */
+    position:fixed;
+    max-height: 500px;
+    overflow-y: auto;
+    right:0;
+
     width:46%; 
     margin:30px 15px 0px 0px;
     padding:20px 0px 20px 0px;
@@ -33,19 +38,19 @@
     font-weight:700;
 }
 
-.service-CP{
+.service-price{
     display: inline-block;
-    width: 140px;
+    width: 138px;
 }
 
-.service-price{
+.service-quantity{
     display: inline-block;
     width: 160px;
 }
 
-.cart input{
+.service input{
     border: 1px solid transparent;
-    width: 80px;
+    width: 60px;
     margin:5px 0px;
     outline: none;
     background-color: rgb(233, 225, 225);
@@ -55,13 +60,17 @@
     font-weight:500;
 }
 
-.cart input:focus{
+.service input:focus{
     border:0.5px dotted rgb(117, 117, 117);
     background-color: rgb(252, 252, 166);
 }
 
-.cart input:hover{
+.service input:hover{
     background-color: rgb(252, 252, 166);
+}
+
+.service-quantity input{
+    width: 50px;
 }
 
 .total-price{

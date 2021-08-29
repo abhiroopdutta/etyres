@@ -3,7 +3,7 @@ import React, {useContext} from 'react';
 import { CartContext } from './CartContext';
 import './Invoice.css';
 
-//to-do: date should update by chance invoice creation takes place near midnight
+//to-do: date should update real time by chance invoice creation takes place near midnight
 function getCurrentDate(separator=''){
 
   let newDate = new Date();
@@ -13,6 +13,11 @@ function getCurrentDate(separator=''){
   
   return `${date}${separator}${month<10?`0${month}`:`${month}`}${separator}${year}`;
   };
+
+function roundToTwo(num) {
+    return +(Math.round(num + "e+2")  + "e-2");
+}
+
 
 function Invoice() {
 
@@ -57,14 +62,12 @@ function Invoice() {
           <th>HSN-Code</th>
           <th>Quantity</th>
           <th>Rate per Item</th>
-          <th>Discount</th>
           <th>Taxable value</th>
           <th colspan="2" scope="colgroup">CGST</th>
           <th colspan="2" scope="colgroup">SGST</th>
           <th>Value</th>
         </tr>
         <tr>
-          <th></th>
           <th></th>
           <th></th>
           <th></th>
@@ -83,13 +86,12 @@ function Invoice() {
             <td>{tyre.desc}</td>
             <td>HSN-Code not yet available</td>
             <td>{tyre.quantity}</td>
-            <td>&#x20B9;{parseFloat(tyre.price)/1.28}</td>
-            <td>&#x20B9;discount not yet decided</td>
-            <td>{parseFloat(tyre.price)*parseInt(tyre.quantity)/1.28}</td>
+            <td>{roundToTwo(parseFloat(tyre.price)/1.28)}</td>
+            <td>{roundToTwo(parseFloat(tyre.price)*parseInt(tyre.quantity)/1.28)}</td>
             <td>14%</td>
-            <td>{(0.14*parseFloat(tyre.price)*parseInt(tyre.quantity))/1.28}</td>
+            <td>{roundToTwo((0.14*parseFloat(tyre.price)*parseInt(tyre.quantity))/1.28)}</td>
             <td>14%</td>
-            <td>{(0.14*parseFloat(tyre.price)*parseInt(tyre.quantity))/1.28}</td>
+            <td>{roundToTwo((0.14*parseFloat(tyre.price)*parseInt(tyre.quantity))/1.28)}</td>
             <td>&#x20B9;{parseFloat(tyre.price)*parseInt(tyre.quantity)}</td>
           </tr>
         )}
@@ -100,13 +102,12 @@ function Invoice() {
               <td>{service.name}</td>
               <td>HSN-Code not yet available</td>
               <td>{service.quantity}</td>
-              <td>&#x20B9;{parseFloat(service.price)/1.18}</td>
-              <td>&#x20B9;discount not yet decided</td>
-              <td>{parseFloat(service.price)*parseInt(service.quantity)/1.18}</td>
+              <td>{roundToTwo((parseFloat(service.price)/1.18))}</td>
+              <td>{roundToTwo(parseFloat(service.price)*parseInt(service.quantity)/1.18)}</td>
               <td>9%</td>
-              <td>{(0.09*parseFloat(service.price)*parseInt(service.quantity))/1.18}</td>
+              <td>{roundToTwo((0.09*parseFloat(service.price)*parseInt(service.quantity))/1.18)}</td>
               <td>9%</td>
-              <td>{(0.09*parseFloat(service.price)*parseInt(service.quantity))/1.18}</td>
+              <td>{roundToTwo((0.09*parseFloat(service.price)*parseInt(service.quantity))/1.18)}</td>
               <td>&#x20B9;{parseFloat(service.price)*parseInt(service.quantity)}</td>
 
             </tr>);

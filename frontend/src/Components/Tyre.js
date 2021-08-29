@@ -41,13 +41,13 @@ function Tyre({tyreData}){
     return(
             <article className="product">
 
-                <div class="product-info">
-                    <div class="product-title">
+                <div className="product-info">
+                    <div className="product-title">
                         <span>{tyreData[1]}</span>
                     </div>
                     <img src={TyreImg} width="80" height="120"/>
 
-                    <div class="product-details">
+                    <div className="product-details">
                         <span > Cost Price: &#x20B9;{tyreData[12]}</span> 
                         <br/>
                         <span > Increased Price: &#x20B9;{tyreData[12]}</span>
