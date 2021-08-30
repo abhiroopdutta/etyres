@@ -56,9 +56,8 @@ function Cart(){
     return(
         <div className="cart"> 
 
-            <div className="cart-title"> 
-                CART SUMMARY
-            </div>
+            <div className="cart-title">CART SUMMARY</div>
+            <Link className="invoice-button" onClick={handleInvoice} to="/invoice">Preview invoice</Link>
             
             
             {cart.map( (tyre, index)=> <CartTyre tyreData={tyre} key={index}/> )}  
@@ -84,7 +83,7 @@ function Cart(){
             
             <div className="total-price">Total price: &#x20B9;{totalPrice}</div>
             <br/>
-            <Link className="invoice-button" onClick={handleInvoice} to="/invoice">Preview invoice</Link> 
+             
         </div>
     );
 

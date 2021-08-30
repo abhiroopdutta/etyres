@@ -21,12 +21,10 @@ function Tyre({tyreData}){
         let foundItem = cart.find(cartTyre=>cartTyre.id === tyreData[3]);
 
         if(!foundItem){
-            console.log("item doesn't exist in cart already")
             //understand this line of code
             setCart(current => [...current, cartTyreData]); //understand the spread, rest syntax
         }
         else{
-            console.log("item exists in cart already")
             foundItem.quantity = parseInt(foundItem.quantity)+1;
 
             //find the index of the item where it exists in cart
@@ -49,8 +47,6 @@ function Tyre({tyreData}){
 
                     <div className="product-details">
                         <span > Cost Price: &#x20B9;{tyreData[12]}</span> 
-                        <br/>
-                        <span > Increased Price: &#x20B9;{tyreData[12]}</span>
                         <br/>
                         <span > Items in stock:{tyreData[13]}</span>
                         <br/>

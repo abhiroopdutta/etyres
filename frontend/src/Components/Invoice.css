@@ -1,4 +1,6 @@
-table {
+ 
+  
+  table {
     font-family: arial, sans-serif;
     border-collapse: collapse;
     width: 60%;
@@ -14,5 +16,30 @@ table {
     text-align: left;
     padding: 8px;
   }
+
+  @media print{
+
+    .navBar, .print-button, a, hr{
+      display: none;
+    }
+
+    print
+
+    table {
+      font-family: arial, sans-serif;
+      width: 60%;
+    }
+    
+    th {
+      background-color: #dddddd;
+      border: 2px solid #00000038;
+    }
   
+    td {
+      border: 2px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
   
+}
+

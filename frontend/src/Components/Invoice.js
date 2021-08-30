@@ -25,10 +25,15 @@ function Invoice() {
   const [cart, setCart] = tyresContext;
   const [services, setServices] = servicesContext;
 
+  const handlePrint = () =>{
+    window.print();
+  }
+
   //write a function to query the database for invoice number
 
   return (
     <div>
+       <button className="print-button" onClick={handlePrint}>PRINT</button>
       <div className="date">Invoice Date: {getCurrentDate("/")}</div>
       <div className="invoice_no">Invoice #: 002</div>
       <div className="our_GSTIN">
