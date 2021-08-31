@@ -14,7 +14,7 @@ function Tyre({tyreData}){
     const addToCart = (tyreData) => {
 
         //create cart tyre object
-        const cartTyreData = {id:tyreData[3], desc:tyreData[1], 
+        const cartTyreData = {id:tyreData[3], HSN:"0000", desc:tyreData[1], 
             CP:tyreData[12], price:0, quantity:1};
 
         //check if item already in cart
@@ -43,7 +43,7 @@ function Tyre({tyreData}){
                     <div className="product-title">
                         <span>{tyreData[1]}</span>
                     </div>
-                    <img src={TyreImg} width="80" height="120"/>
+                    <img src={TyreImg} alt="tyre" width="80" height="120"/>
 
                     <div className="product-details">
                         <span > Cost Price: &#x20B9;{tyreData[12]}</span> 

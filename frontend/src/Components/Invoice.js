@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import React, {useContext} from 'react';
+import React, {useContext, useState} from 'react';
 import { CartContext } from './CartContext';
 import './Invoice.css';
 
@@ -22,11 +22,52 @@ function roundToTwo(num) {
 function Invoice() {
 
   const {tyresContext, servicesContext} = useContext(CartContext);
+  // eslint-disable-next-line
   const [cart, setCart] = tyresContext;
+  // eslint-disable-next-line
   const [services, setServices] = servicesContext;
 
+  const [purchasedProducts, setPurchasedProducts] = useState(cart.map((product)=>{
+    return {
+      type:"product",
+      id:product.id,
+      HSN:product.HSN,
+      desc:product.desc,
+      CP:parseFloat(product.CP),
+      price:parseFloat(product.price),
+      quantity:product.quantity,
+      CGST:0.14,
+      SGST:0.14,
+      IGST:0
+    };
+  }));
+
+  
   const handlePrint = () =>{
     window.print();
+  }
+
+  const handleIGST = (index, e) =>{
+    let purchasedProductsCopy = [...purchasedProducts];
+
+    if(!e.target.value || e.target.value==0){
+      purchasedProductsCopy[index].IGST = 0;
+      purchasedProductsCopy[index].CGST = 0.14;
+      purchasedProductsCopy[index].SGST = 0.14;
+    }
+
+    else{
+      purchasedProductsCopy[index].IGST = parseFloat(e.target.value);
+      purchasedProductsCopy[index].CGST = 0;
+      purchasedProductsCopy[index].SGST = 0;
+    }
+ 
+    //comment the below line and state is still updated IGST value, how???!!
+    setPurchasedProducts(purchasedProductsCopy);
+
+    
+
+    console.log(purchasedProducts[index])
   }
 
   //write a function to query the database for invoice number
@@ -76,29 +117,40 @@ function Invoice() {
            <th className="Qty" rowSpan="2">Qty</th>
            <th className="Rate-per-item" rowSpan="2">Rate per Item</th>
            <th className="taxable-value" rowSpan="2">Taxable value</th>
-           <th colspan="2" scope="colgroup">CGST</th>
-           <th colspan="2" scope="colgroup">SGST</th>
+           <th colSpan="2" scope="colgroup">CGST</th>
+           <th colSpan="2" scope="colgroup">SGST</th>
+           <th colSpan="2" scope="colgroup">IGST</th>
            <th className="value" rowSpan="2">Value</th>
          </tr>
          <tr>
            <th scope="col">Rate</th>
-           <th scope="col">Amount</th>
+           <th scope="col">Amt</th>
            <th scope="col">Rate</th>
-           <th scope="col">Amount</th>
+           <th scope="col">Amt</th>
+           <th scope="col">Rate</th>
+           <th scope="col">Amt</th>
          </tr>
  
-         {cart.map( (tyre, index) =>
+         {purchasedProducts.map( (tyre, index) =>
            <tr key={index}>
              <td>{tyre.desc}</td>
-             <td>0000</td>
+             <td>{tyre.HSN}</td>
              <td>{tyre.quantity}</td>
-             <td>{roundToTwo(parseFloat(tyre.price)/1.28)}</td>
-             <td>{roundToTwo(parseFloat(tyre.price)*parseInt(tyre.quantity)/1.28)}</td>
-             <td>14%</td>
-             <td>{roundToTwo((0.14*parseFloat(tyre.price)*parseInt(tyre.quantity))/1.28)}</td>
-             <td>14%</td>
-             <td>{roundToTwo((0.14*parseFloat(tyre.price)*parseInt(tyre.quantity))/1.28)}</td>
-             <td>&#x20B9;{parseFloat(tyre.price)*parseInt(tyre.quantity)}</td>
+             <td>{tyre.IGST===0?
+             roundToTwo(parseFloat(tyre.price)/1.28):
+             roundToTwo(parseFloat(tyre.price)/(1.0+(tyre.IGST/100.0)))}</td>
+             <td>{tyre.IGST===0?
+             roundToTwo(parseFloat(tyre.price)*parseInt(tyre.quantity)/1.28):
+             roundToTwo(parseFloat(tyre.price)*parseInt(tyre.quantity)/(1.0+(tyre.IGST/100.0)))}</td>
+             <td>{tyre.CGST}%</td>
+             <td>{roundToTwo((tyre.CGST*parseFloat(tyre.price)*parseInt(tyre.quantity))/1.28)}</td>
+             <td>{tyre.SGST}%</td>
+             <td>{roundToTwo((tyre.SGST*parseFloat(tyre.price)*parseInt(tyre.quantity))/1.28)}</td>
+             <td className="IGST-cell"><input className="IGST-rate-input" value={tyre.IGST} onChange={(e)=>handleIGST(index, e)} type="text"/>%</td>
+             <td> {(tyre.IGST===0)?0:
+             roundToTwo(((tyre.IGST/100.0)*parseFloat(tyre.price)*parseInt(tyre.quantity))/(1.0+(tyre.IGST/100.0)))} 
+              </td>
+             <td>{parseFloat(tyre.price)*parseInt(tyre.quantity)}</td>
            </tr>
          )}
  
@@ -114,6 +166,8 @@ function Invoice() {
                <td>{roundToTwo((0.09*parseFloat(service.price)*parseInt(service.quantity))/1.18)}</td>
                <td>9%</td>
                <td>{roundToTwo((0.09*parseFloat(service.price)*parseInt(service.quantity))/1.18)}</td>
+               <td>-</td>
+               <td>-</td>
                <td>&#x20B9;{parseFloat(service.price)*parseInt(service.quantity)}</td>
  
              </tr>);
@@ -125,6 +179,8 @@ function Invoice() {
            
          )}
          
+
+
        </table> 
      </div>  
     </div>

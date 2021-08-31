@@ -10,6 +10,7 @@ function Cart(){
     const {tyresContext, servicesContext} = useContext(CartContext);
     // eslint-disable-next-line 
     const [cart, setCart] = tyresContext;
+    // eslint-disable-next-line
     const [services, setServices] = servicesContext;
 
     const [servicesLocal, setServicesLocal] = useState([
