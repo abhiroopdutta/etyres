@@ -49,7 +49,7 @@
 }
 
 .service input{
-    border: 1px solid transparent;
+    border: 0.5px solid transparent;
     width: 60px;
     margin:5px 0px;
     outline: none;

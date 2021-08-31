@@ -1,45 +1,139 @@
- 
+* {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+}
+
+.print-button{
+  position:fixed;
+  left:200px;
+  bottom:260px;
+}
+
+
+.back-to-shop{
+  position:fixed;
+  right:140px;
+  bottom:260px;
+  color:black;
+  text-decoration: none;
+}  
   
+
+.invoice-component{
+  background-color: #f2f3f5;
+}
+
+.invoice-body {
+  width: 210mm;
+  height: 297mm;
+  margin: 0mm auto;
+  background: rgb(255, 255, 255);
+  box-shadow: 0 0 0.5cm rgba(99, 98, 98, 0.5);
+  padding:40px 40px;
+}
+
+.shop-name, .shop-description, .shop-address-1, .shop-address-2{
+  float: left;
+}
+
+.invoice-no, .invoice-date, .shop-GSTIN, .shop-GSTIN-area{
+  float:right;
+}
+
+ .customer-details input{ 
+  outline: none;
+  border: 0.5px solid transparent;
+  width: 400px;
+  background-color: rgb(255, 255, 255);
+  color: #000000;
+  font-size:16px;   
+  font-weight:500;
+}
+
+.customer-details input:hover{
+  
+  background-color: rgb(255, 255, 198);
+}
+
+.customer-details input:focus{
+  border:0.5px dotted rgb(117, 117, 117);
+  background-color:  rgb(255, 255, 198);
+}
+
+.customer-details input:nth-of-type(3){
+  width: 360px;
+}
+.customer-details input:nth-of-type(4){
+  width: 388px;
+}
+  
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th {
+  background-color: #dddddd;
+  border: 1px solid #00000038;
+  padding:2px 4px;  
+}
+
+td {
+  border: 1px solid #dddddd;
+  text-align: center;
+  padding: 4px;
+}
+
+@page {
+  size: A4;
+}
+
+@media print{
+
+  .navBar, .print-button, a, hr{
+    display: none;
+  }
+
+  .invoice-body {
+    /* margin: 0; */
+    /* border: initial; */
+    /* border-radius: initial; */
+    /* width: initial; */
+    /* min-height: initial; */
+    box-shadow: initial;
+    padding:10px 10px;
+    /* background: initial; */
+ 
+  }
+
+  hr {
+    display: block;
+    height: 1px;
+    background: transparent;
+    width: 100%;
+    border: none;
+    border-top: solid 1px #aaa;
+}
+
   table {
-    font-family: arial, sans-serif;
+    font-family: sans-serif;
     border-collapse: collapse;
-    width: 60%;
+    width: 100%;
   }
   
   th {
-    background-color: #dddddd;
-    border: 1px solid #00000038;
+    color:#222121;
+    border: 1px solid #464646;
+    padding:2px 4px;  
   }
 
   td {
-    border: 1px solid #dddddd;
-    text-align: left;
-    padding: 8px;
+    border: 1px solid #464646;
+    text-align: center;
+    padding: 4px;
+    color:#222121;
   }
 
-  @media print{
-
-    .navBar, .print-button, a, hr{
-      display: none;
-    }
-
-    print
-
-    table {
-      font-family: arial, sans-serif;
-      width: 60%;
-    }
-    
-    th {
-      background-color: #dddddd;
-      border: 2px solid #00000038;
-    }
-  
-    td {
-      border: 2px solid #dddddd;
-      text-align: left;
-      padding: 8px;
-    }
-  
 }
 
