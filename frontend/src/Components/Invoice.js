@@ -35,39 +35,68 @@ function Invoice() {
       desc:product.desc,
       CP:parseFloat(product.CP),
       price:parseFloat(product.price),
-      quantity:product.quantity,
+      quantity:parseInt(product.quantity),
       CGST:0.14,
       SGST:0.14,
       IGST:0
     };
   }));
 
+
+  //render different tables depending on IGST customer or not
+  const [IGSTRender, SetIGSTRender] = useState(false);
+
   
   const handlePrint = () =>{
     window.print();
   }
 
-  const handleIGST = (index, e) =>{
+  //if customer GSTIN doesn't start with 09, then IGST
+  const handleIGST = (e) =>{
     let purchasedProductsCopy = [...purchasedProducts];
 
-    if(!e.target.value || e.target.value==0){
-      purchasedProductsCopy[index].IGST = 0;
-      purchasedProductsCopy[index].CGST = 0.14;
-      purchasedProductsCopy[index].SGST = 0.14;
+    if(e.target.value==="0"||e.target.value.startsWith("09")||!e.target.value){
+      for(let i=0; i<purchasedProductsCopy.length; i++){    
+        purchasedProductsCopy[i].IGST = 0;
+        purchasedProductsCopy[i].CGST = parseFloat(0.14);
+        purchasedProductsCopy[i].SGST = parseFloat(0.14);
+      }
+      SetIGSTRender(false);
     }
 
     else{
-      purchasedProductsCopy[index].IGST = parseFloat(e.target.value);
-      purchasedProductsCopy[index].CGST = 0;
-      purchasedProductsCopy[index].SGST = 0;
+      for(let i=0; i<purchasedProductsCopy.length; i++){    
+        purchasedProductsCopy[i].IGST = parseFloat(0.28);
+        purchasedProductsCopy[i].CGST = parseFloat(0);
+        purchasedProductsCopy[i].SGST = parseFloat(0);
+      }
+      SetIGSTRender(true);
     }
  
     //comment the below line and state is still updated IGST value, how???!!
     setPurchasedProducts(purchasedProductsCopy);
+  }
 
-    
-
-    console.log(purchasedProducts[index])
+  let totalProductQuantity = 0;
+  let totalProductTaxableValue = 0;
+  let totalProductCGST = 0;
+  let totalProductSGST = 0;
+  let totalProductIGST = 0;
+  let totalProductValue = 0;
+  for(let i=0; i<purchasedProducts.length; i++){
+    totalProductQuantity+= purchasedProducts[i].quantity;
+    if(IGSTRender){
+      console.log("IGST")
+      totalProductTaxableValue += roundToTwo(parseFloat(purchasedProducts[i].price)*parseInt(purchasedProducts[i].quantity)/(1.0+(purchasedProducts[i].IGST)));
+    }
+    else{
+      console.log("GST")
+      totalProductTaxableValue +=roundToTwo(parseFloat(purchasedProducts[i].price)*parseInt(purchasedProducts[i].quantity)/1.28);
+    }
+    totalProductIGST += roundToTwo(((purchasedProducts[i].IGST)*parseFloat(purchasedProducts[i].price)*parseInt(purchasedProducts[i].quantity))/(1.0+(purchasedProducts[i].IGST)));
+    totalProductCGST += roundToTwo((purchasedProducts[i].CGST*parseFloat(purchasedProducts[i].price)*parseInt(purchasedProducts[i].quantity))/1.28);
+    totalProductSGST += roundToTwo((purchasedProducts[i].SGST*parseFloat(purchasedProducts[i].price)*parseInt(purchasedProducts[i].quantity))/1.28);
+    totalProductValue += parseFloat(purchasedProducts[i].price)*parseInt(purchasedProducts[i].quantity);
   }
 
   //write a function to query the database for invoice number
@@ -76,8 +105,6 @@ function Invoice() {
     <div className="invoice-component">
       <button className="print-button" onClick={handlePrint}>PRINT</button>
       <Link className = "back-to-shop" to="/create_order">Go back to shop</Link>
-
-      
 
       <div className="invoice-body">
           
@@ -94,6 +121,7 @@ function Invoice() {
           <div className="shop-GSTIN-area">State: Uttar Pradesh, Code-09</div> 
         </div>
 
+        {/*this div only required for css float left and right for above lines*/}
         <div style={{clear:"both"}}></div>
        
       
@@ -103,85 +131,153 @@ function Invoice() {
        <div className="customer-details">
         Bill To: <input type="text" placeholder="customer name"/>
         <br/>
-        GSTIN: <input type="text" placeholder="Customer GSTIN"/>
+        GSTIN: <input type="text" onChange={handleIGST} placeholder="Customer GSTIN"/>
         <br/>
         Vehicle No. : <input type="text" placeholder="AS01BV6235"/>
         <br/>
         Contact: <input type="text" placeholder="Customer phone no."/>
        </div>
        <br/>
-       <table>
-         <tr>
-           <th className="particulars" rowSpan="2">Particulars</th>
-           <th className="HSNCode" rowSpan="2">HSN-Code</th>
-           <th className="Qty" rowSpan="2">Qty</th>
-           <th className="Rate-per-item" rowSpan="2">Rate per Item</th>
-           <th className="taxable-value" rowSpan="2">Taxable value</th>
-           <th colSpan="2" scope="colgroup">CGST</th>
-           <th colSpan="2" scope="colgroup">SGST</th>
-           <th colSpan="2" scope="colgroup">IGST</th>
-           <th className="value" rowSpan="2">Value</th>
+
+      {IGSTRender?
+        <table className="IGST-table">
+       <tr>
+         <th className="particulars" rowSpan="2">Particulars</th>
+         <th className="HSNCode" rowSpan="2">HSN-Code</th>
+         <th className="Qty" rowSpan="2">Qty</th>
+         <th className="Rate-per-item" rowSpan="2">Rate per Item</th>
+         <th className="taxable-value" rowSpan="2">Taxable value</th>
+         <th colSpan="2" scope="colgroup">IGST</th>
+         <th className="value" rowSpan="2">Value</th>
+       </tr>
+       <tr>
+         <th scope="col">Rate</th>
+         <th scope="col">Amt</th>
+       </tr>
+
+       {purchasedProducts.map( (tyre, index) =>
+         <tr key={index}>
+           <td>{tyre.desc}</td>
+           <td>{tyre.HSN}</td>
+           <td>{tyre.quantity}</td>
+           <td>{roundToTwo(parseFloat(tyre.price)/(1.0+(tyre.IGST)))}</td>
+           <td>{
+           roundToTwo(parseFloat(tyre.price)*parseInt(tyre.quantity)/(1.0+(tyre.IGST)))}</td>
+
+           <td className="IGST-cell">{roundToTwo(tyre.IGST)}%</td>
+           <td> {
+           roundToTwo(((tyre.IGST)*parseFloat(tyre.price)*parseInt(tyre.quantity))/(1.0+(tyre.IGST)))} 
+            </td>
+           <td>{parseFloat(tyre.price)*parseInt(tyre.quantity)}</td>
          </tr>
-         <tr>
-           <th scope="col">Rate</th>
-           <th scope="col">Amt</th>
-           <th scope="col">Rate</th>
-           <th scope="col">Amt</th>
-           <th scope="col">Rate</th>
-           <th scope="col">Amt</th>
-         </tr>
- 
-         {purchasedProducts.map( (tyre, index) =>
-           <tr key={index}>
-             <td>{tyre.desc}</td>
-             <td>{tyre.HSN}</td>
-             <td>{tyre.quantity}</td>
-             <td>{tyre.IGST===0?
-             roundToTwo(parseFloat(tyre.price)/1.28):
-             roundToTwo(parseFloat(tyre.price)/(1.0+(tyre.IGST/100.0)))}</td>
-             <td>{tyre.IGST===0?
-             roundToTwo(parseFloat(tyre.price)*parseInt(tyre.quantity)/1.28):
-             roundToTwo(parseFloat(tyre.price)*parseInt(tyre.quantity)/(1.0+(tyre.IGST/100.0)))}</td>
-             <td>{tyre.CGST}%</td>
-             <td>{roundToTwo((tyre.CGST*parseFloat(tyre.price)*parseInt(tyre.quantity))/1.28)}</td>
-             <td>{tyre.SGST}%</td>
-             <td>{roundToTwo((tyre.SGST*parseFloat(tyre.price)*parseInt(tyre.quantity))/1.28)}</td>
-             <td className="IGST-cell"><input className="IGST-rate-input" value={tyre.IGST} onChange={(e)=>handleIGST(index, e)} type="text"/>%</td>
-             <td> {(tyre.IGST===0)?0:
-             roundToTwo(((tyre.IGST/100.0)*parseFloat(tyre.price)*parseInt(tyre.quantity))/(1.0+(tyre.IGST/100.0)))} 
-              </td>
-             <td>{parseFloat(tyre.price)*parseInt(tyre.quantity)}</td>
-           </tr>
-         )}
- 
-         {services.map( (service, index) => {
-           if(service.quantity>0){
-             return(<tr key={index}>
-               <td>{service.name}</td>
-               <td>0000</td>
-               <td>{service.quantity}</td>
-               <td>{roundToTwo((parseFloat(service.price)/1.18))}</td>
-               <td>{roundToTwo(parseFloat(service.price)*parseInt(service.quantity)/1.18)}</td>
-               <td>9%</td>
-               <td>{roundToTwo((0.09*parseFloat(service.price)*parseInt(service.quantity))/1.18)}</td>
-               <td>9%</td>
-               <td>{roundToTwo((0.09*parseFloat(service.price)*parseInt(service.quantity))/1.18)}</td>
-               <td>-</td>
-               <td>-</td>
-               <td>&#x20B9;{parseFloat(service.price)*parseInt(service.quantity)}</td>
- 
-             </tr>);
- 
-           
-           }
-           return null;
+       )}
+
+       {services.map( (service, index) => {
+         if(service.quantity>0){
+           return(<tr key={index}>
+             <td>{service.name}</td>
+             <td>0000</td>
+             <td>{service.quantity}</td>
+             <td>{roundToTwo((parseFloat(service.price)/1.18))}</td>
+             <td>{roundToTwo(parseFloat(service.price)*parseInt(service.quantity)/1.18)}</td>
+             <td>-</td>
+             <td>-</td>
+             <td>&#x20B9;{parseFloat(service.price)*parseInt(service.quantity)}</td>
+
+           </tr>);         
          }
-           
-         )}
+         return null;
+       }
          
+       )}
 
+       <tr>
+         <td>Total</td>
+         <td>-</td>
+         <td>{totalProductQuantity}</td>
+         <td>-</td>
+         <td>{totalProductTaxableValue}</td>
+         <td>-</td>
+         <td>{totalProductIGST}</td>
+         <td>{totalProductValue}</td>
+       </tr>
 
-       </table> 
+     </table>
+     
+        :
+        <table className="GST-table">
+       <tr>
+         <th className="particulars" rowSpan="2">Particulars</th>
+         <th className="HSNCode" rowSpan="2">HSN-Code</th>
+         <th className="Qty" rowSpan="2">Qty</th>
+         <th className="Rate-per-item" rowSpan="2">Rate per Item</th>
+         <th className="taxable-value" rowSpan="2">Taxable value</th>
+         <th colSpan="2" scope="colgroup">CGST</th>
+         <th colSpan="2" scope="colgroup">SGST</th>
+         <th className="value" rowSpan="2">Value</th>
+       </tr>
+       <tr>
+         <th scope="col">Rate</th>
+         <th scope="col">Amt</th>
+         <th scope="col">Rate</th>
+         <th scope="col">Amt</th>
+       </tr>
+
+       {purchasedProducts.map( (tyre, index) =>
+         <tr key={index}>
+           <td>{tyre.desc}</td>
+           <td>{tyre.HSN}</td>
+           <td>{tyre.quantity}</td>
+           <td>{roundToTwo(parseFloat(tyre.price)/1.28)}</td>
+           <td>{roundToTwo(parseFloat(tyre.price)*parseInt(tyre.quantity)/1.28)}</td>
+           <td>{roundToTwo(tyre.CGST*100)}%</td>
+           <td>{roundToTwo((tyre.CGST*parseFloat(tyre.price)*parseInt(tyre.quantity))/1.28)}</td>
+           <td>{roundToTwo(tyre.SGST*100)}%</td>
+           <td>{roundToTwo((tyre.SGST*parseFloat(tyre.price)*parseInt(tyre.quantity))/1.28)}</td>
+           <td>{parseFloat(tyre.price)*parseInt(tyre.quantity)}</td>
+         </tr>
+       )}
+
+       {services.map( (service, index) => {
+         if(service.quantity>0){
+           return(<tr key={index}>
+             <td>{service.name}</td>
+             <td>0000</td>
+             <td>{service.quantity}</td>
+             <td>{roundToTwo((parseFloat(service.price)/1.18))}</td>
+             <td>{roundToTwo(parseFloat(service.price)*parseInt(service.quantity)/1.18)}</td>
+             <td>9%</td>
+             <td>{roundToTwo((0.09*parseFloat(service.price)*parseInt(service.quantity))/1.18)}</td>
+             <td>9%</td>
+             <td>{roundToTwo((0.09*parseFloat(service.price)*parseInt(service.quantity))/1.18)}</td>
+             <td>&#x20B9;{parseFloat(service.price)*parseInt(service.quantity)}</td>
+
+           </tr>);
+
+         
+         }
+         return null;
+       }
+         
+       )}
+
+        <tr>
+         <th>Total</th>
+         <td>-</td>
+         <td>{totalProductQuantity}</td>
+         <td>-</td>
+         <td>{totalProductTaxableValue}</td>
+         <td>-</td>
+         <td>{totalProductCGST}</td>
+         <td>-</td>
+         <td>{totalProductSGST}</td>
+         <td>{totalProductValue}</td>
+        </tr>
+
+     </table>
+
+      }
+       
      </div>  
     </div>
    
