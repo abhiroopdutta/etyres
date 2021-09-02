@@ -46,7 +46,7 @@
   width: 400px;
   background-color: rgb(255, 255, 255);
   color: #000000;
-  font-size:16px;   
+  font-size:17px;   
   font-weight:500;
 }
 
@@ -60,11 +60,31 @@
   background-color:  rgb(255, 255, 198);
 }
 
-.customer-details input:nth-of-type(3){
-  width: 360px;
+.customer-details input:nth-of-type(1){
+  width: 550px;
 }
+
+.customer-details input:nth-of-type(2){
+  width: 535px;
+}
+.customer-details input:nth-of-type(3){
+  width: 549px;
+}
+
 .customer-details input:nth-of-type(4){
-  width: 388px;
+  width: 50px;
+}
+
+.customer-details input:nth-of-type(5){
+  width: 460px;
+}
+
+.customer-details input:nth-of-type(6){
+  width: 510px;
+}
+
+.customer-details input:nth-of-type(7){
+  width: 539px;
 }
   
 table {
@@ -85,30 +105,18 @@ td {
   padding: 4px;
 }
 
-.IGST-rate-input{
-  width:35px;
-  outline: none;
-  border:0.5px solid transparent;
-  color: #000000;
-  font-size:16px;   
-  font-weight:500;
-  text-align: center;
-}
-
-.IGST-rate-input:hover{
-  
-  background-color: rgb(255, 255, 198);
-}
-
-.IGST-rate-input:focus{
-  border:0.5px dotted rgb(117, 117, 117);
-  background-color:  rgb(255, 255, 198);
-}
-
-
 .IGST-cell{
   width:70px;
 }
+
+.bank-name, .bank-details, .eoe{
+  float: left;
+}
+
+.signatory-name, .signature, .signatory{
+  float:right;
+}
+
 @page {
   size: A4;
 }
