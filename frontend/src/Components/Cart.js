@@ -13,19 +13,13 @@ function Cart(){
     // eslint-disable-next-line
     const [services, setServices] = servicesContext;
 
-    const [servicesLocal, setServicesLocal] = useState([
-        {name:"Fitting", price:50, quantity:0}, 
-        {name:"Valves", price:50, quantity:0}, 
-        {name:"Balancing", price:50, quantity:0},
-        {name:"Weights", price:0, quantity:0},
-        {name:"Alignment", price:0, quantity:0}])
+    const [servicesLocal, setServicesLocal] = useState(services);
 
     const handleServicesPrice = (index, e) =>{
         e.preventDefault(); //why use this
         let servicesCopy = [...servicesLocal];
         servicesCopy[index].price = e.target.value;
-        setServicesLocal(servicesCopy);
-        console.log(e.target.value)        
+        setServicesLocal(servicesCopy);   
     }; 
 
     const handleServicesQuantity = (index, e) =>{

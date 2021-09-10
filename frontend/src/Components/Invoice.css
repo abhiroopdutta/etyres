@@ -109,6 +109,19 @@ td {
   width:70px;
 }
 
+.rounding-table {
+  width:30%;
+  float:right;
+}
+
+.rounding-table th{
+  width:150px;
+}
+.rounding-table td{
+  width:150px;
+}
+
+
 .bank-name, .bank-details, .eoe{
   float: left;
 }

@@ -1,0 +1,11 @@
+input data format- 
+product_code, product_type, desc, ndp, product discount, net_ndp, freight, HSN
+
+
+product_type
+PCR, TWOWHEEL, valve,
+
+inventory format - 
+item code, desc, size, quantity
+
+add valves also when building the inventory for the first time
