@@ -1,6 +1,7 @@
 #pip uninstall sql packages
 from flask import Flask, render_template,jsonify, request, redirect, url_for
 from flask_mongoengine import MongoEngine
+# from update_price import update_price
 
 app = Flask(__name__)
 app.config['MONGODB_SETTINGS'] = {
@@ -27,9 +28,10 @@ class Product(db.Document):
 def update_price():
     uploaded_file = request.files['file']
     if uploaded_file.filename != '':
-        uploaded_file.save(uploaded_file.filename)
+        filepath = "./temp/"+uploaded_file.filename
+        uploaded_file.save(filepath)
         return jsonify("we got it")
-    return jsonify("hello")
+    return jsonify("we didn't get it")
 
 
 @app.route("/data", methods = ['GET'])

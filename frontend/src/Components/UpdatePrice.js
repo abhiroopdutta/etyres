@@ -1,14 +1,12 @@
-import React, {useContext, useState} from 'react';
+import React, {useState} from 'react';
 
 function UpdatePrice() {
 
     const [selectedFile, setSelectedFile] = useState();
-    const [isSelected, setIsSelected] = useState();
+    const [successMsg, setSuccessMsg] = useState("");
 
 	const changeHandler = (event) => {
-
 		setSelectedFile(event.target.files[0]);
-		setIsSelected(true);
 
 	};
 
@@ -26,7 +24,7 @@ function UpdatePrice() {
             )
             .then((response) => response.json())
 			.then((result) => {
-				console.log('Success:', result);
+                setSuccessMsg(result);
 			})
 			.catch((error) => {
 				console.error('Error:', error);
@@ -37,26 +35,12 @@ function UpdatePrice() {
 	};
 
     return (
-        // <div>
-        //     <input type="file" name="file" onChange={changeHandler} />
-
-        //     {isSelected 
-        //     ? 
-        //     <div>
-        //         <p>Filename: {selectedFile.name}</p>
-        //         <p>Size in bytes: {selectedFile.size}</p>
-        //     </div>
-
-        //     : 
-        //     <p>Select a file to show details</p>
-        //     }
-        //     <button onClick={handleSubmission}>Submit</button>    
-        // </div>
         <div>
-            <h1>File Upload</h1>
+            <h3>Upload price list xlsx to update price or add new items in inventory</h3>
             <form method="POST" action="" encType="multipart/form-data" >
             <p><input type="file" name="file" onChange={changeHandler}/></p>
             <p><input type="submit" value="Submit" onClick={handleSubmission}/></p>
+            <p>{successMsg}</p>
             </form>
         </div>
         
