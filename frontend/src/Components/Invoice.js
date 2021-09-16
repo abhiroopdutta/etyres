@@ -31,10 +31,12 @@ function Invoice() {
   const [purchasedProducts, setPurchasedProducts] = useState(cart.map((product)=>{
     return {
       type:"product",
-      desc:product.desc,
-      id:product.id,
-      HSN:product.HSN,
-      CP:parseFloat(product.CP),
+      item_desc:product.item_desc,
+      item_code:product.item_code,
+      hsn:product.hsn,
+      category:product.category,
+      size:product.size,
+      cost_price:parseFloat(product.cost_price),
       ratePerItem:roundToTwo(parseFloat(product.price)/1.28),
       quantity:parseInt(product.quantity),
       CGST:parseFloat(0.14),
@@ -48,7 +50,7 @@ function Invoice() {
     return {
       type:"service",
       name:service.name,
-      HSN:service.HSN,
+      hsn:service.hsn,
       ratePerItem:roundToTwo((parseFloat(service.price)/1.18)),
       quantity:parseInt(service.quantity),
       CGST:0.09,
@@ -95,8 +97,8 @@ function Invoice() {
   let productsTable = [];
   for(let i=0; i<purchasedProducts.length; i++){
     productsTable.push({
-      desc:purchasedProducts[i].desc,
-      HSN:purchasedProducts[i].HSN,
+      item_desc:purchasedProducts[i].item_desc,
+      hsn:purchasedProducts[i].hsn,
       quantity:purchasedProducts[i].quantity,
       ratePerItem:purchasedProducts[i].ratePerItem,
       taxableValue:roundToTwo(purchasedProducts[i].ratePerItem*purchasedProducts[i].quantity),
@@ -124,7 +126,7 @@ function Invoice() {
   for(let i=0; i<purchasedServices.length; i++){
     servicesTable.push({
       name:purchasedServices[i].name,
-      HSN:purchasedServices[i].HSN,
+      hsn:purchasedServices[i].hsn,
       quantity:parseInt(purchasedServices[i].quantity),
       ratePerItem:purchasedServices[i].ratePerItem,
       taxableValue:roundToTwo(parseFloat(purchasedServices[i].ratePerItem)*purchasedServices[i].quantity),
@@ -256,8 +258,8 @@ function Invoice() {
 
             {productsTable.map( (tyre, index) =>
             <tr key={index}>
-              <td>{tyre.desc}</td>
-              <td>{tyre.HSN}</td>
+              <td>{tyre.item_desc}</td>
+              <td>{tyre.hsn}</td>
               <td>{tyre.quantity}</td>
               <td>{tyre.ratePerItem}</td>
               <td>{tyre.taxableValue}</td>
@@ -315,8 +317,8 @@ function Invoice() {
 
             {productsTable.map( (tyre, index) =>
             <tr key={index}>
-              <td>{tyre.desc}</td>
-              <td>{tyre.HSN}</td>
+              <td>{tyre.item_desc}</td>
+              <td>{tyre.hsn}</td>
               <td>{tyre.quantity}</td>
               <td>{tyre.ratePerItem}</td>
               <td>{tyre.taxableValue}</td>
@@ -331,7 +333,7 @@ function Invoice() {
             {servicesTable.map( (service, index) => {if(service.quantity>0){return(
             <tr key={index}>
               <td>{service.name}</td>
-              <td>{service.HSN}</td>
+              <td>{service.hsn}</td>
               <td>{service.quantity}</td>
               <td>{service.ratePerItem}</td>
               <td>{service.taxableValue}</td>

@@ -14,11 +14,11 @@ function Tyre({tyreData}){
     const addToCart = (tyreData) => {
 
         //create cart tyre object
-        const cartTyreData = {id:tyreData[3], HSN:"0000", desc:tyreData[1], 
-            CP:tyreData[12], price:0, quantity:1};
+        const cartTyreData = {item_desc:tyreData.item_desc, item_code:tyreData.item_code, hsn:tyreData.hsn,  
+            category:tyreData.category, size:tyreData.size, cost_price:tyreData.cost_price, price:0, quantity:1};
 
         //check if item already in cart
-        let foundItem = cart.find(cartTyre=>cartTyre.id === tyreData[3]);
+        let foundItem = cart.find(cartTyre=>cartTyre.item_code === tyreData.item_code);
 
         if(!foundItem){
             //understand this line of code
@@ -28,7 +28,7 @@ function Tyre({tyreData}){
             foundItem.quantity = parseInt(foundItem.quantity)+1;
 
             //find the index of the item where it exists in cart
-            let foundItemIndex = cart.findIndex(cartTyre=>cartTyre.id === tyreData[3]);
+            let foundItemIndex = cart.findIndex(cartTyre=>cartTyre.item_code === tyreData.item_code);
             let cartCopy = [...cart];
             cartCopy[foundItemIndex] = foundItem;
             setCart(cartCopy);
@@ -41,14 +41,14 @@ function Tyre({tyreData}){
 
                 <div className="product-info">
                     <div className="product-title">
-                        <span>{tyreData[1]}</span>
+                        <span>{tyreData.item_desc}</span>
                     </div>
                     <img src={TyreImg} alt="tyre" width="80" height="120"/>
 
                     <div className="product-details">
-                        <span > Cost Price: &#x20B9;{tyreData[12]}</span> 
+                        <span > Cost Price: &#x20B9;{tyreData.cost_price}</span> 
                         <br/>
-                        <span > Items in stock:{tyreData[13]}</span>
+                        <span > Items in stock:{tyreData.stock}</span>
                         <br/>
                         <button onClick={()=>addToCart(tyreData)}>Add to cart</button>
                     </div>

@@ -15,7 +15,7 @@ function CartTyre({tyreData}){
         
         //understand the filter code below
         let cartCopy = [...cart];
-        cartCopy = cartCopy.filter(cartItem => cartItem.id!== tyreData.id)
+        cartCopy = cartCopy.filter(cartItem => cartItem.item_code!== tyreData.item_code)
 
         //understand this line of code
         setCart(cartCopy); //understand the spread, rest syntax
@@ -47,8 +47,8 @@ function CartTyre({tyreData}){
 
     return(
         <div className="cart-tyre">
-            <div className="cart-tyre-name">{tyreData.desc}</div> 
-            <span className="cart-tyre-CP">CP:{tyreData.CP}</span> 
+            <div className="cart-tyre-name">{tyreData.item_desc}</div> 
+            <span className="cart-tyre-CP">CP:{tyreData.cost_price}</span> 
             <span className="cart-tyre-price">
                 <span>Price: </span>
                 <input type="text" value={tyreData.price} onChange={handlePrice} onFocus={handleFocus}/>

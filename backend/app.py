@@ -1,7 +1,8 @@
 #pip uninstall sql packages
-from flask import Flask, render_template,jsonify, request, redirect, url_for
-from flask_mongoengine import MongoEngine
-# from update_price import update_price
+from flask import Flask, render_template,jsonify, request, redirect, url_for, Response
+from db import initialize_db
+from update_price import update_price
+from models import Product
 
 app = Flask(__name__)
 app.config['MONGODB_SETTINGS'] = {
@@ -9,32 +10,21 @@ app.config['MONGODB_SETTINGS'] = {
     'host': 'localhost',
     'port': 27017
 }
-db = MongoEngine()
-db.init_app(app)
-
-class Product(db.Document):
-    item_description = db.StringField(required=True)
-    item_code = db.StringField(required=True)
-    ndp = db.FloatField()
-    frt = db.FloatField()
-    spd = db.FloatField()
-    plsd = db.FloatField()
-    tax_val = db.FloatField()
-    gst = db.FloatField()
-    total = db.FloatField()
-    stock = db.IntField()
+initialize_db(app)
 
 @app.route("/update_price", methods=['POST'])
-def update_price():
+def update_inventory():
     uploaded_file = request.files['file']
     if uploaded_file.filename != '':
-        filepath = "./temp/"+uploaded_file.filename
+        filepath = "./tempdata/"+uploaded_file.filename
         uploaded_file.save(filepath)
+        update_price(filepath)
         return jsonify("we got it")
     return jsonify("we didn't get it")
 
 
 @app.route("/data", methods = ['GET'])
 def hello_world():
-   return jsonify("hello")
+    products = Product.objects().to_json()
+    return Response(products, mimetype="application/json", status=200)
 

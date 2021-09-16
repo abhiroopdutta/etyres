@@ -1,10 +1,12 @@
 import openpyxl
 import re 
+from models import Product
+
 
 pv_vehicle_type = {
 	"passenger car":{"tyre_freight":20, "tube_freight":3, "spd":0.015, "plsd":0.05, "gst":0.28}, 
-	"2 wheeler":{"tyre_freight":20, "tube_freight":3, "spd":0.015, "plsd":0.05, "gst":0.28}, 
-	"3 wheeler":{"tyre_freight":20, "tube_freight":3, "spd":0.015, "plsd":0.05, "gst":0.28}
+	"2 wheeler":{"tyre_freight":6, "tube_freight":3, "spd":0.015, "plsd":0.05, "gst":0.28}, 
+	"3 wheeler":{"tyre_freight":8, "tube_freight":3, "spd":0.015, "plsd":0.05, "gst":0.28}
 	}
 other_vehicle_type = ["truck and bus", "farm", "lcv", "scv", "tt", "industrial", "earthmover", "jeep", "loose tube/flaps"]
 vehicle = ""
@@ -25,8 +27,14 @@ def set_vehicle_type(cell):
 	else:
 		return False
 
-def compute(item_code, net_ndp):
+def is_tube(item_code):
 	if(item_code[1] in ["U", "W", "Y"]):
+		return True
+	else:
+		return False
+
+def compute_price(item_code, net_ndp):
+	if(is_tube(item_code)):
 		frt = float(pv_vehicle_type[vehicle]["tube_freight"])
 	else:
 		frt = float(pv_vehicle_type[vehicle]["tyre_freight"])
@@ -39,10 +47,40 @@ def compute(item_code, net_ndp):
 
 	return cost_price
 	
+def compute_size(item_desc):
+	split_words = item_desc.split(' ', 2)
+	size= re.sub("[^0-9]", "", split_words[0])
+	if "R" in split_words[1]:
+		size= re.sub("[^0-9]", "", split_words[0]+split_words[1])
+	return size
+
+def compute_hsn(item_code):
+	if(is_tube(item_code)):
+		return "4013"
+	else:
+		return "4011"
+
+def categorize(item_code):
+	if(is_tube(item_code)):
+		return vehicle+" tube"
+	else:
+		return vehicle+" tyre"
+
+def load_to_db(item_desc, item_code, cost_price):
+	#if item already exists then update the price only
+	if(Product.objects(item_code=item_code).first()):
+		Product.objects(item_code=item_code).first().update(cost_price=cost_price)
+	#else compute all fields and add the item
+	else:
+		size = compute_size(item_desc)
+		hsn = compute_hsn(item_code)
+		category = categorize(item_code)
+		Product(item_desc=item_desc, item_code=item_code, hsn=hsn, category=category, size=size, cost_price=cost_price, stock=0).save()
+
 def update_price(file):
 	global vehicle
 	#change the parameter to file
-	wb = openpyxl.load_workbook("price_list.xlsx", data_only='True')
+	wb = openpyxl.load_workbook(file, data_only='True')
 	tyres_xl = wb['Sheet1']	
 	n_rows = tyres_xl.max_row
 
@@ -59,16 +97,12 @@ def update_price(file):
 				item_desc = str(tyres_xl.cell(row=i, column=1).value)
 				item_code = str(tyres_xl.cell(row=i, column=2).value)
 				net_ndp = float(tyres_xl.cell(row=i, column=3).value)
-				cost_price = compute(item_code, net_ndp)
+				cost_price = compute_price(item_code, net_ndp)
+
+				load_to_db(item_desc, item_code, cost_price)
 				
-				split_words = item_desc.split(' ', 2)
-				size= re.sub("[^0-9]", "", split_words[0])
-				if "R" in split_words[1]:
-					size= re.sub("[^0-9]", "", split_words[0]+split_words[1])
-				
-				print(item_desc, size)
 		
-update_price("hey")	
+
 	
 
 

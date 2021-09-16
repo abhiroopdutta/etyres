@@ -23,7 +23,7 @@ function Products() {
   
     if(input.length>0){
       tyreData= tyreData.filter((i)=>{
-        return i[2].toString().match(input);
+        return i.size.toString().match(input);
       })
     }
   
