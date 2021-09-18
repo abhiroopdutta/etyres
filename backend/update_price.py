@@ -11,7 +11,7 @@ pv_vehicle_type = {
 other_vehicle_type = ["truck and bus", "farm", "lcv", "scv", "tt", "industrial", "earthmover", "jeep", "loose tube/flaps"]
 vehicle = ""
 
-#returns true if vehicle has changed value
+#returns true if vehicle segment has changed value while processing the xlxs file
 def set_vehicle_type(cell):
 	global vehicle
 	column_a = cell.lower().strip()
@@ -27,12 +27,14 @@ def set_vehicle_type(cell):
 	else:
 		return False
 
+#returns true if item is a tube
 def is_tube(item_code):
 	if(item_code[1] in ["U", "W", "Y"]):
 		return True
 	else:
 		return False
 
+#calculates cost_price based on item_code and net_ndp
 def compute_price(item_code, net_ndp):
 	if(is_tube(item_code)):
 		frt = float(pv_vehicle_type[vehicle]["tube_freight"])
@@ -46,7 +48,8 @@ def compute_price(item_code, net_ndp):
 	cost_price = round(float(taxable_val+gst),2)
 
 	return cost_price
-	
+
+#fix this for tubes containing D, 215 D tube..
 def compute_size(item_desc):
 	split_words = item_desc.split(' ', 2)
 	size= re.sub("[^0-9]", "", split_words[0])
@@ -54,18 +57,21 @@ def compute_size(item_desc):
 		size= re.sub("[^0-9]", "", split_words[0]+split_words[1])
 	return size
 
+#returns HSN Code depending on item_code
 def compute_hsn(item_code):
 	if(is_tube(item_code)):
 		return "4013"
 	else:
 		return "4011"
 
+#categorizes items into segment+tyre or segment+tube
 def categorize(item_code):
 	if(is_tube(item_code)):
 		return vehicle+" tube"
 	else:
 		return vehicle+" tyre"
 
+#check if item exists, then update the price, else insert the item as new item by computing all columns
 def load_to_db(item_desc, item_code, cost_price):
 	#if item already exists then update the price only
 	if(Product.objects(item_code=item_code).first()):

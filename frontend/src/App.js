@@ -3,6 +3,7 @@ import './App.css';
 import Navbar from './Components/Navbar';
 import CreateOrder from './Components/CreateOrder';
 import UpdatePrice from './Components/UpdatePrice';
+import UpdateStock from './Components/UpdateStock';
 
 function App() {
   return (
@@ -11,7 +12,7 @@ function App() {
         <Navbar/>
         <Switch>
           <Route path="/create_order" component={CreateOrder}></Route>
-          <Route path="/update_stock"> Update Stock is under construction </Route>
+          <Route path="/update_stock" component={UpdateStock}></Route>
           <Route path="/update_price" component={UpdatePrice}></Route>
           <Route path="/sales_report"> Sales Report is under construction </Route> 
         </Switch>

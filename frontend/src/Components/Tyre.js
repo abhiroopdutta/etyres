@@ -15,7 +15,7 @@ function Tyre({tyreData}){
 
         //create cart tyre object
         const cartTyreData = {item_desc:tyreData.item_desc, item_code:tyreData.item_code, hsn:tyreData.hsn,  
-            category:tyreData.category, size:tyreData.size, cost_price:tyreData.cost_price, price:0, quantity:1};
+            category:tyreData.category, size:tyreData.size, cost_price:tyreData.cost_price, price:tyreData.cost_price, quantity:1};
 
         //check if item already in cart
         let foundItem = cart.find(cartTyre=>cartTyre.item_code === tyreData.item_code);

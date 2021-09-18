@@ -4,6 +4,11 @@ import CartTyre from './CartTyre';
 import './Cart.css';
 import { Link } from 'react-router-dom';
 
+function roundToTwo(num) {
+    return +(Math.round(num + "e+2")  + "e-2");
+}
+
+
 function Cart(){
 
     
@@ -45,7 +50,7 @@ function Cart(){
         servicesPrice = servicesPrice+servicesLocal[i].price*servicesLocal[i].quantity;
     }
 
-    let totalPrice = tyresPrice+servicesPrice;
+    let totalPrice = roundToTwo(tyresPrice+servicesPrice);
 
 
     return(
