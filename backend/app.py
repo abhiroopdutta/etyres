@@ -47,6 +47,12 @@ def process_invoice():
     return jsonify("stock updated, invoice saved")
 
 
+@app.route("/place_order", methods = ['POST'])
+def stock_out():
+    invoice = request.get_json()
+    print(invoice)
+    return jsonify("stock updated, invoice saved")
+
 @app.route("/data", methods = ['GET'])
 def hello_world():
     products = Product.objects().to_json()

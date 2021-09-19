@@ -27,6 +27,16 @@ function Invoice() {
   // eslint-disable-next-line
   const [services, setServices] = servicesContext;
 
+  const [customerDetails, setCustomerDetails] = useState({
+    name: "",
+    address: "",
+    GSTIN:"",
+    stateCode:"",
+    state:"",
+    vehicleNumber:"",
+    contact:""
+  })
+
   //store rate per item in backend
   const [purchasedProducts, setPurchasedProducts] = useState(cart.map((product)=>{
     return {
@@ -46,7 +56,8 @@ function Invoice() {
   }));
 
   //give unique id for each service
-  const [purchasedServices, setPurchasedServices] = useState(services.map((service)=>{
+  const [purchasedServices, setPurchasedServices] = useState(services.filter((service)=>{
+    return service.quantity>0;}).map((service)=>{
     return {
       type:"service",
       name:service.name,
@@ -58,17 +69,24 @@ function Invoice() {
     };
   }));
 
-
   //render different tables depending on IGST customer or not
   const [IGSTRender, SetIGSTRender] = useState(false);
 
-  
-  const handlePrint = () =>{
-    window.print();
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const handleCustomerDetails = (e) => {
+    setCustomerDetails({
+      ...customerDetails,
+      [e.target.name]: e.target.value
+    })
   }
 
   //if customer GSTIN doesn't start with 09, then IGST
   const handleIGST = (e) =>{
+    setCustomerDetails({
+      ...customerDetails,
+      [e.target.name]: e.target.value
+    })
     let purchasedProductsCopy = [...purchasedProducts];
 
     if(e.target.value==="0"||e.target.value.startsWith("09")||!e.target.value){
@@ -194,17 +212,48 @@ function Invoice() {
 
   //calculate absolute total(will be used only for GST since IGST will have total only for tyres)
   let totalQuantity = totalProductQuantity + totalServiceQuantity;
-  let totalTaxableValue =  roundToTwo(totalProductTaxableValue + totalServiceTaxableValue);
-  let totalCGST =  roundToTwo(totalProductCGST + totalServiceCGST);
-  let totalSGST =  roundToTwo(totalProductSGST + totalServiceSGST);
-  let totalValueForGST =  roundToTwo(totalProductValueForGST + totalServiceValue);
+  let totalTaxableValue = roundToTwo(totalProductTaxableValue + totalServiceTaxableValue);
+  let totalCGST = roundToTwo(totalProductCGST + totalServiceCGST);
+  let totalSGST = roundToTwo(totalProductSGST + totalServiceSGST);
+  let totalValueForGST = roundToTwo(totalProductValueForGST + totalServiceValue);
+
+  const handlePrint = () =>{
+    
+    //prepare full invoice data to send to backend
+    let invoiceData = {
+      invoiceNumber: 1,
+      customerDetails: customerDetails,
+      products: purchasedProducts
+    }
+    if(!IGSTRender){
+      invoiceData['services'] = purchasedServices;
+      invoiceData['invoice_total'] = totalValueForGST;
+      invoiceData['roundOff'] = roundToTwo(Math.round(totalValueForGST)-roundToTwo(totalValueForGST));
+    }
+    else{
+      invoiceData['invoice_total']  = totalProductValueForIGST;
+      invoiceData['roundOff'] = roundToTwo(Math.round(totalProductValueForIGST)-totalProductValueForIGST);
+    }
+
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(invoiceData)
+    };
+    fetch("/place_order", requestOptions)
+      .then(response => response.json())
+      .then(result => setSuccessMessage(result));
+
+    console.log(invoiceData);
+    window.print();
+  }
 
 
   //write a function to query the database for invoice number
 
   return (
     <div className="invoice-component">
-      <button className="print-button" onClick={handlePrint}>PRINT</button>
+      <button className="print-button" onClick={handlePrint}>CONFIRM ORDER</button>
       <Link className = "back-to-shop" to="/create_order">Go back to shop</Link>
       <div className="invoice-body">          
         <div className="invoice-details">
@@ -224,18 +273,19 @@ function Invoice() {
         <hr/>
         <br/>
         <br/>
-        <div className="customer-details">Bill To: <input type="text" />
+        <div className="customer-details">
+          Bill To: <input name="name" type="text" value={customerDetails.name} onChange={handleCustomerDetails}/>
           <br/>
-          Address: <input type="text" />
+          Address: <input name="address" type="text" value={customerDetails.address} onChange={handleCustomerDetails}/>
           <br/>
-          GSTIN: <input type="text" maxlength="15" onChange={handleIGST} />
+          GSTIN: <input type="text" maxLength="15" name="GSTIN" value={customerDetails.GSTIN} onChange={handleIGST} />
           <br/>
-          Code: <input type="text" maxlength="2"/>
-          State: <input type="text" />
+          Code: <input type="text" name="stateCode" value={customerDetails.stateCode} onChange={handleCustomerDetails} maxLength="2"/>
+          State: <input type="text" name="state" value={customerDetails.state} onChange={handleCustomerDetails}/>
           <br/>
-          Vehicle No. : <input type="text" />
+          Vehicle No. : <input type="text" name="vehicleNumber" value={customerDetails.vehicleNumber} onChange={handleCustomerDetails}/>
           <br/>
-          Contact: <input type="text" />
+          Contact: <input type="text" name="contact" value={customerDetails.contact} onChange={handleCustomerDetails}/>
         </div>
         <br/>
 
