@@ -2,7 +2,7 @@
 from flask import Flask, render_template,jsonify, request, redirect, url_for, Response
 from db import initialize_db
 from update_price import update_price
-from update_stock import read_invoice
+from update_stock import read_invoice, update_stock
 from models import Product
 
 app = Flask(__name__)
@@ -25,9 +25,8 @@ def update_inventory():
 
 
 
-@app.route("/update_stock", methods = ['POST'])
-def update_inventory_stock():
-    
+@app.route("/read_invoice", methods = ['POST'])
+def invoice_status():
     if 'files[]' not in request.files:
             return jsonify("we didn't get it")
 
@@ -39,6 +38,13 @@ def update_inventory_stock():
 
     invoices = read_invoice("./tempdata/update_stock/")  
     return jsonify(invoices)
+
+@app.route("/update_stock", methods = ['POST'])
+def process_invoice():
+
+    invoices = request.get_json()
+    update_stock(invoices) 
+    return jsonify("stock updated, invoice saved")
 
 
 @app.route("/data", methods = ['GET'])
