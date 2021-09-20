@@ -74,14 +74,14 @@ def categorize(item_code):
 #check if item exists, then update the price, else insert the item as new item by computing all columns
 def load_to_db(item_desc, item_code, cost_price):
 	#if item already exists then update the price only
-	if(Product.objects(item_code=item_code).first()):
-		Product.objects(item_code=item_code).first().update(cost_price=cost_price)
+	if(Product.objects(itemCode=item_code).first()):
+		Product.objects(itemCode=item_code).first().update(costPrice=cost_price)
 	#else compute all fields and add the item
 	else:
 		size = compute_size(item_desc)
 		hsn = compute_hsn(item_code)
 		category = categorize(item_code)
-		Product(item_desc=item_desc, item_code=item_code, hsn=hsn, category=category, size=size, cost_price=cost_price, stock=0).save()
+		Product(itemDesc=item_desc, itemCode=item_code, HSN=hsn, category=category, size=size, costPrice=cost_price, stock=0).save()
 
 def update_price(file):
 	global vehicle

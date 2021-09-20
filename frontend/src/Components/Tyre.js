@@ -14,11 +14,11 @@ function Tyre({tyreData}){
     const addToCart = (tyreData) => {
 
         //create cart tyre object
-        const cartTyreData = {item_desc:tyreData.item_desc, item_code:tyreData.item_code, hsn:tyreData.hsn,  
-            category:tyreData.category, size:tyreData.size, cost_price:tyreData.cost_price, price:tyreData.cost_price, quantity:1};
+        const cartTyreData = {itemDesc:tyreData.itemDesc, itemCode:tyreData.itemCode, HSN:tyreData.HSN,  
+            category:tyreData.category, size:tyreData.size, costPrice:tyreData.costPrice, price:tyreData.costPrice, quantity:1};
 
         //check if item already in cart
-        let foundItem = cart.find(cartTyre=>cartTyre.item_code === tyreData.item_code);
+        let foundItem = cart.find(cartTyre=>cartTyre.itemCode === tyreData.itemCode);
 
         if(!foundItem){
             //understand this line of code
@@ -28,7 +28,7 @@ function Tyre({tyreData}){
             foundItem.quantity = parseInt(foundItem.quantity)+1;
 
             //find the index of the item where it exists in cart
-            let foundItemIndex = cart.findIndex(cartTyre=>cartTyre.item_code === tyreData.item_code);
+            let foundItemIndex = cart.findIndex(cartTyre=>cartTyre.itemCode === tyreData.itemCode);
             let cartCopy = [...cart];
             cartCopy[foundItemIndex] = foundItem;
             setCart(cartCopy);
@@ -41,12 +41,12 @@ function Tyre({tyreData}){
 
                 <div className="product-info">
                     <div className="product-title">
-                        <span>{tyreData.item_desc}</span>
+                        <span>{tyreData.itemDesc}</span>
                     </div>
                     <img src={TyreImg} alt="tyre" width="80" height="120"/>
 
                     <div className="product-details">
-                        <span > Cost Price: &#x20B9;{tyreData.cost_price}</span> 
+                        <span > Cost Price: &#x20B9;{tyreData.costPrice}</span> 
                         <br/>
                         <span > Items in stock:{tyreData.stock}</span>
                         <br/>

@@ -3,7 +3,8 @@ from flask import Flask, render_template,jsonify, request, redirect, url_for, Re
 from db import initialize_db
 from update_price import update_price
 from update_stock import read_invoice, update_stock
-from models import Product
+from create_order import create_order
+from models import Product, Purchase, Sale
 
 app = Flask(__name__)
 app.config['MONGODB_SETTINGS'] = {
@@ -46,12 +47,19 @@ def process_invoice():
     update_stock(invoices) 
     return jsonify("stock updated, invoice saved")
 
-
 @app.route("/place_order", methods = ['POST'])
 def stock_out():
     invoice = request.get_json()
-    print(invoice)
+    create_order(invoice)
     return jsonify("stock updated, invoice saved")
+
+@app.route("/sales_invoice_number", methods = ['GET'])
+def sales_invoice_number():
+    if(Sale.objects().order_by('-invoiceDate').first() is not None):
+        invoice_number = Sale.objects().order_by('-invoiceDate').first().invoiceNumber + 1
+    else:
+        invoice_number = 1
+    return jsonify(invoice_number)
 
 @app.route("/data", methods = ['GET'])
 def hello_world():

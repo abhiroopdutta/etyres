@@ -1,32 +1,70 @@
+from enum import unique
 from db import db
 import datetime
 
 class Product(db.Document):
-    item_desc = db.StringField(required=True)
-    item_code = db.StringField(required=True)
-    hsn = db.StringField(required=True)
+    itemDesc = db.StringField(required=True)
+    itemCode = db.StringField(required=True)
+    HSN = db.StringField(required=True)
     category = db.StringField(required=True)
     size = db.StringField(required=True)
-    cost_price = db.FloatField(required=True)
+    costPrice = db.FloatField(required=True)
     stock = db.IntField(required=True)
 
 class PurchaseItem(db.EmbeddedDocument):
-    item_desc = db.StringField(required=True)
-    item_code = db.StringField(required=True)
-    hsn = db.StringField(required=True)
+    itemDesc = db.StringField(required=True)
+    itemCode = db.StringField(required=True)
+    HSN = db.StringField(required=True)
     category = db.StringField(required=True)
     size = db.StringField(required=True)
     quantity = db.IntField(required=True)
-    taxable_value = db.FloatField(required=True)
+    taxableValue = db.FloatField(required=True)
     tax = db.FloatField(required=True)
-    cost_price = db.FloatField(required=True)
+    itemTotal = db.FloatField(required=True)
  
 class Purchase(db.Document):
-    invoice_number = db.StringField(required=True)
-    invoice_date = db.DateTimeField(required=True, default=datetime.datetime.utcnow)    
-    claim_invoice = db.BooleanField(Required=True)
-    claim_number = db.StringField(required=True)
-    invoice_total = db.FloatField(required=True)
+    invoiceNumber = db.StringField(required=True, unique=True)
+    invoiceDate = db.DateTimeField(required=True, default=datetime.datetime.utcnow)    
+    claimInvoice = db.BooleanField(Required=True)
+    claimNumber = db.StringField(required=True)
+    invoiceTotal = db.FloatField(required=True)
     items = db.ListField(db.EmbeddedDocumentField(PurchaseItem))
 
-    
+class CustomerDetail(db.EmbeddedDocument):
+    name = db.StringField()
+    address = db.StringField()
+    GSTIN = db.StringField()
+    stateCode = db.StringField()
+    state = db.StringField()
+    vehicleNumber = db.StringField()
+    contact = db.StringField()
+
+class ProductItem(db.EmbeddedDocument):
+    itemDesc = db.StringField(required=True)
+    itemCode = db.StringField(required=True)
+    HSN = db.StringField(required=True)
+    category = db.StringField(required=True)
+    size = db.StringField(required=True)
+    costPrice = db.FloatField(required=True)
+    ratePerItem = db.FloatField(required=True)
+    quantity = db.IntField(required=True)
+    CGST = db.FloatField(required=True)
+    SGST = db.FloatField(required=True)
+    IGST = db.FloatField(required=True)
+
+class ServiceItem(db.EmbeddedDocument):
+    name = db.StringField(required=True)
+    HSN = db.StringField(required=True)
+    ratePerItem = db.FloatField(required=True)
+    quantity = db.IntField(required=True)
+    CGST = db.FloatField(required=True)
+    SGST = db.FloatField(required=True)
+
+class Sale(db.Document):
+    invoiceNumber = db.IntField(required=True, unique=True) 
+    invoiceDate = db.DateTimeField(required=True, default=datetime.datetime.utcnow)
+    invoiceTotal = db.FloatField(required=True)
+    invoiceRoundOff = db.FloatField(required=True)
+    customerDetails = db.EmbeddedDocumentField(CustomerDetail)
+    productItems =  db.ListField(db.EmbeddedDocumentField(ProductItem))
+    serviceItems = db.ListField(db.EmbeddedDocumentField(ServiceItem))

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import React, {useContext, useState} from 'react';
+import React, {useContext, useState, useEffect} from 'react';
 import { CartContext } from './CartContext';
 import './Invoice.css';
 
@@ -41,12 +41,12 @@ function Invoice() {
   const [purchasedProducts, setPurchasedProducts] = useState(cart.map((product)=>{
     return {
       type:"product",
-      item_desc:product.item_desc,
-      item_code:product.item_code,
-      hsn:product.hsn,
+      itemDesc:product.itemDesc,
+      itemCode:product.itemCode,
+      HSN:product.HSN,
       category:product.category,
       size:product.size,
-      cost_price:parseFloat(product.cost_price),
+      costPrice:parseFloat(product.costPrice),
       ratePerItem:roundToTwo(parseFloat(product.price)/1.28),
       quantity:parseInt(product.quantity),
       CGST:parseFloat(0.14),
@@ -61,7 +61,7 @@ function Invoice() {
     return {
       type:"service",
       name:service.name,
-      hsn:service.hsn,
+      HSN:service.HSN,
       ratePerItem:roundToTwo((parseFloat(service.price)/1.18)),
       quantity:parseInt(service.quantity),
       CGST:0.09,
@@ -73,6 +73,17 @@ function Invoice() {
   const [IGSTRender, SetIGSTRender] = useState(false);
 
   const [successMessage, setSuccessMessage] = useState("");
+
+  const [invoiceNumber, setInvoiceNumber] = useState();
+
+  useEffect(
+    ()=>{
+      fetch('/sales_invoice_number')
+      .then(res=>res.json())
+      .then(number=>setInvoiceNumber(number))
+    }, 
+  []);
+
 
   const handleCustomerDetails = (e) => {
     setCustomerDetails({
@@ -115,8 +126,8 @@ function Invoice() {
   let productsTable = [];
   for(let i=0; i<purchasedProducts.length; i++){
     productsTable.push({
-      item_desc:purchasedProducts[i].item_desc,
-      hsn:purchasedProducts[i].hsn,
+      itemDesc:purchasedProducts[i].itemDesc,
+      HSN:purchasedProducts[i].HSN,
       quantity:purchasedProducts[i].quantity,
       ratePerItem:purchasedProducts[i].ratePerItem,
       taxableValue:roundToTwo(purchasedProducts[i].ratePerItem*purchasedProducts[i].quantity),
@@ -144,7 +155,7 @@ function Invoice() {
   for(let i=0; i<purchasedServices.length; i++){
     servicesTable.push({
       name:purchasedServices[i].name,
-      hsn:purchasedServices[i].hsn,
+      HSN:purchasedServices[i].HSN,
       quantity:parseInt(purchasedServices[i].quantity),
       ratePerItem:purchasedServices[i].ratePerItem,
       taxableValue:roundToTwo(parseFloat(purchasedServices[i].ratePerItem)*purchasedServices[i].quantity),
@@ -221,18 +232,18 @@ function Invoice() {
     
     //prepare full invoice data to send to backend
     let invoiceData = {
-      invoiceNumber: 1,
+      invoiceNumber: invoiceNumber,
       customerDetails: customerDetails,
-      products: purchasedProducts
+      products: purchasedProducts,
+      services : purchasedServices
     }
     if(!IGSTRender){
-      invoiceData['services'] = purchasedServices;
-      invoiceData['invoice_total'] = totalValueForGST;
-      invoiceData['roundOff'] = roundToTwo(Math.round(totalValueForGST)-roundToTwo(totalValueForGST));
+      invoiceData['invoiceTotal'] = totalValueForGST;
+      invoiceData['invoiceRoundOff'] = roundToTwo(Math.round(totalValueForGST)-roundToTwo(totalValueForGST));
     }
     else{
-      invoiceData['invoice_total']  = totalProductValueForIGST;
-      invoiceData['roundOff'] = roundToTwo(Math.round(totalProductValueForIGST)-totalProductValueForIGST);
+      invoiceData['invoiceTotal']  = totalProductValueForIGST;
+      invoiceData['invoiceRoundOff'] = roundToTwo(Math.round(totalProductValueForIGST)-totalProductValueForIGST);
     }
 
     const requestOptions = {
@@ -258,7 +269,7 @@ function Invoice() {
       <div className="invoice-body">          
         <div className="invoice-details">
           <div className="shop-name">EUREKA TYRES</div>
-          <div className="invoice-no"> Tax Invoice #: 002</div>
+          <div className="invoice-no"> Tax Invoice #: {invoiceNumber}</div>
           <br/>
           <div className="shop-description">APOLLO PV ZONE</div>
           <div className="invoice-date">Invoice Date: {getCurrentDate("/")}</div>
@@ -308,8 +319,8 @@ function Invoice() {
 
             {productsTable.map( (tyre, index) =>
             <tr key={index}>
-              <td>{tyre.item_desc}</td>
-              <td>{tyre.hsn}</td>
+              <td>{tyre.itemDesc}</td>
+              <td>{tyre.HSN}</td>
               <td>{tyre.quantity}</td>
               <td>{tyre.ratePerItem}</td>
               <td>{tyre.taxableValue}</td>
@@ -367,8 +378,8 @@ function Invoice() {
 
             {productsTable.map( (tyre, index) =>
             <tr key={index}>
-              <td>{tyre.item_desc}</td>
-              <td>{tyre.hsn}</td>
+              <td>{tyre.itemDesc}</td>
+              <td>{tyre.HSN}</td>
               <td>{tyre.quantity}</td>
               <td>{tyre.ratePerItem}</td>
               <td>{tyre.taxableValue}</td>
@@ -383,7 +394,7 @@ function Invoice() {
             {servicesTable.map( (service, index) => {if(service.quantity>0){return(
             <tr key={index}>
               <td>{service.name}</td>
-              <td>{service.hsn}</td>
+              <td>{service.HSN}</td>
               <td>{service.quantity}</td>
               <td>{service.ratePerItem}</td>
               <td>{service.taxableValue}</td>
