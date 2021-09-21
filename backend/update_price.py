@@ -6,7 +6,8 @@ from models import Product
 pv_vehicle_type = {
 	"passenger car":{"tyre_freight":20, "tube_freight":3, "spd":0.015, "plsd":0.05, "gst":0.28}, 
 	"2 wheeler":{"tyre_freight":6, "tube_freight":3, "spd":0.015, "plsd":0.05, "gst":0.28}, 
-	"3 wheeler":{"tyre_freight":8, "tube_freight":3, "spd":0.015, "plsd":0.05, "gst":0.28}
+	"3 wheeler":{"tyre_freight":8, "tube_freight":3, "spd":0.015, "plsd":0.05, "gst":0.28},
+	"tubeless valve":{ "valve_freight":0, "spd":0.0, "plsd":0.0,"gst":0.18}
 	}
 other_vehicle_type = ["truck and bus", "farm", "lcv", "scv", "tt", "industrial", "earthmover", "jeep", "loose tube/flaps"]
 vehicle = ""
@@ -28,16 +29,21 @@ def set_vehicle_type(cell):
 		return False
 
 #returns true if item is a tube
-def is_tube(item_code):
+def product_type(item_code):
 	if(item_code[1] in ["U", "W", "Y"]):
-		return True
+		return "tube"
+	elif(item_code == "RR100TR414A01"):
+		return "valve"
 	else:
-		return False
+		return "tyre"
+
 
 #calculates cost_price based on item_code and net_ndp
 def compute_price(item_code, net_ndp):
-	if(is_tube(item_code)):
+	if(product_type(item_code) == "tube"):
 		frt = float(pv_vehicle_type[vehicle]["tube_freight"])
+	elif(product_type(item_code) == "valve"):
+		frt = float(pv_vehicle_type[vehicle]["valve_freight"])
 	else:
 		frt = float(pv_vehicle_type[vehicle]["tyre_freight"])
 
@@ -51,25 +57,32 @@ def compute_price(item_code, net_ndp):
 
 #fix this for tubes containing D, 215 D tube..
 def compute_size(item_desc):
-	split_words = item_desc.split(' ', 2)
-	size= re.sub("[^0-9]", "", split_words[0])
-	if "R" in split_words[1]:
-		size= re.sub("[^0-9]", "", split_words[0]+split_words[1])
-	return size
+	if(item_desc == "TR 414 TUBELES TYRE VALVE -D"):
+		return "valve"
+	else:
+		split_words = item_desc.split(' ', 2)
+		size= re.sub("[^0-9]", "", split_words[0])
+		if "R" in split_words[1]:
+			size= re.sub("[^0-9]", "", split_words[0]+split_words[1])
+		return size
 
 #returns HSN Code depending on item_code
 def compute_hsn(item_code):
-	if(is_tube(item_code)):
+	if(product_type(item_code)=="tube"):
 		return "4013"
+	elif(product_type(item_code) == "valve"):
+		return "8481"
 	else:
 		return "4011"
 
 #categorizes items into segment+tyre or segment+tube
 def categorize(item_code):
-	if(is_tube(item_code)):
-		return vehicle+" tube"
+	if(product_type(item_code) == "tube"):
+		return vehicle.replace(" ", "_")+"_tube"
+	elif(product_type(item_code) == "valve"):
+		return vehicle.replace(" ", "_")
 	else:
-		return vehicle+" tyre"
+		return vehicle.replace(" ", "_")+"_tyre"
 
 #check if item exists, then update the price, else insert the item as new item by computing all columns
 def load_to_db(item_desc, item_code, cost_price):
@@ -101,8 +114,8 @@ def update_price(file):
 				continue
 			if(vehicle in pv_vehicle_type):
 				item_desc = str(tyres_xl.cell(row=i, column=1).value)
-				item_code = str(tyres_xl.cell(row=i, column=2).value)
-				net_ndp = float(tyres_xl.cell(row=i, column=3).value)
+				item_code = str(tyres_xl.cell(row=i, column=2).value).strip()
+				net_ndp = float(tyres_xl.cell(row=i, column=5).value)
 				cost_price = compute_price(item_code, net_ndp)
 
 				load_to_db(item_desc, item_code, cost_price)
