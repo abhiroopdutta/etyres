@@ -94,7 +94,8 @@ def load_to_db(item_desc, item_code, cost_price):
 		size = compute_size(item_desc)
 		hsn = compute_hsn(item_code)
 		category = categorize(item_code)
-		Product(itemDesc=item_desc, itemCode=item_code, HSN=hsn, category=category, size=size, costPrice=cost_price, stock=0).save()
+		gst = float(pv_vehicle_type[vehicle]["gst"])
+		Product(itemDesc=item_desc, itemCode=item_code, HSN=hsn, GST=gst, category=category, size=size, costPrice=cost_price, stock=0).save()
 
 def update_price(file):
 	global vehicle
@@ -113,7 +114,7 @@ def update_price(file):
 			if(set_vehicle_type(column_a)):
 				continue
 			if(vehicle in pv_vehicle_type):
-				item_desc = str(tyres_xl.cell(row=i, column=1).value)
+				item_desc = str(tyres_xl.cell(row=i, column=1).value).strip()
 				item_code = str(tyres_xl.cell(row=i, column=2).value).strip()
 				net_ndp = float(tyres_xl.cell(row=i, column=5).value)
 				cost_price = compute_price(item_code, net_ndp)

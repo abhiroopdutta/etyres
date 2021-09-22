@@ -14,7 +14,7 @@ function Tyre({tyreData}){
     const addToCart = (tyreData) => {
 
         //create cart tyre object
-        const cartTyreData = {itemDesc:tyreData.itemDesc, itemCode:tyreData.itemCode, HSN:tyreData.HSN,  
+        const cartTyreData = {itemDesc:tyreData.itemDesc, itemCode:tyreData.itemCode, HSN:tyreData.HSN,  GST:tyreData.GST,
             category:tyreData.category, size:tyreData.size, costPrice:tyreData.costPrice, price:tyreData.costPrice, quantity:1};
 
         //check if item already in cart

@@ -6,6 +6,7 @@ class Product(db.Document):
     itemDesc = db.StringField(required=True)
     itemCode = db.StringField(required=True)
     HSN = db.StringField(required=True)
+    GST = db.FloatField(required=True)
     category = db.StringField(required=True)
     size = db.StringField(required=True)
     costPrice = db.FloatField(required=True)

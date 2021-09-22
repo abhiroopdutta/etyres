@@ -47,10 +47,10 @@ function Invoice() {
       category:product.category,
       size:product.size,
       costPrice:parseFloat(product.costPrice),
-      ratePerItem:roundToTwo(parseFloat(product.price)/1.28),
+      ratePerItem:roundToTwo(parseFloat(product.price)/(parseFloat(product.GST)+parseFloat(1))),
       quantity:parseInt(product.quantity),
-      CGST:parseFloat(0.14),
-      SGST:parseFloat(0.14),
+      CGST:roundToTwo(parseFloat(parseFloat(product.GST)/2)),
+      SGST:roundToTwo(parseFloat(parseFloat(product.GST)/2)),
       IGST:parseFloat(0)
     };
   }));
@@ -103,15 +103,15 @@ function Invoice() {
     if(e.target.value==="0"||e.target.value.startsWith("09")||!e.target.value){
       for(let i=0; i<purchasedProductsCopy.length; i++){    
         purchasedProductsCopy[i].IGST = parseFloat(0);
-        purchasedProductsCopy[i].CGST = parseFloat(0.14);
-        purchasedProductsCopy[i].SGST = parseFloat(0.14);
+        purchasedProductsCopy[i].CGST = roundToTwo(parseFloat(parseFloat(cart[i].GST)/2));
+        purchasedProductsCopy[i].SGST = roundToTwo(parseFloat(parseFloat(cart[i].GST)/2));
       }
       SetIGSTRender(false);
     }
 
     else{
       for(let i=0; i<purchasedProductsCopy.length; i++){    
-        purchasedProductsCopy[i].IGST = parseFloat(0.28);
+        purchasedProductsCopy[i].IGST = roundToTwo(parseFloat(cart[i].GST));
         purchasedProductsCopy[i].CGST = parseFloat(0);
         purchasedProductsCopy[i].SGST = parseFloat(0);
       }
