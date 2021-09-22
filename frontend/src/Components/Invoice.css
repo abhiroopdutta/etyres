@@ -169,12 +169,12 @@ td {
   
   th {
     color:#222121;
-    border: 1px solid #464646;
+    border: 2px solid #a7a7a7;
     padding:2px 4px;  
   }
 
   td {
-    border: 1px solid #464646;
+    border: 2px solid #a7a7a7;
     text-align: center;
     padding: 4px;
     color:#222121;

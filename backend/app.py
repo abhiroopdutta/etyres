@@ -5,6 +5,7 @@ from update_price import update_price
 from update_stock import read_invoice, update_stock
 from create_order import create_order
 from models import Product, Purchase, Sale
+from datetime import date, datetime
 
 app = Flask(__name__)
 app.config['MONGODB_SETTINGS'] = {
@@ -18,7 +19,8 @@ initialize_db(app)
 def update_inventory():
     uploaded_file = request.files['file']
     if uploaded_file.filename != '':
-        filepath = "./tempdata/"+uploaded_file.filename
+        new_name = str(datetime.now())+uploaded_file.filename
+        filepath = "./tempdata/"+new_name
         uploaded_file.save(filepath)
         update_price(filepath)
         return jsonify("we got it")
@@ -34,7 +36,8 @@ def invoice_status():
     files = request.files.getlist('files[]')
     for file in files:
         if file:
-            filepath = "./tempdata/update_stock/"+file.filename
+            new_name = str(datetime.now())+file.filename
+            filepath = "./tempdata/update_stock/"+new_name
             file.save(filepath)
 
     invoices = read_invoice("./tempdata/update_stock/")  
