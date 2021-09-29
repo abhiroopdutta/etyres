@@ -19,7 +19,7 @@ function UpdateStock() {
         
 
 		fetch(
-			"/read_invoice",
+			"/api/read_invoice",
 			{
 				method: 'POST',
 				body: formData,
@@ -65,7 +65,7 @@ function UpdateStock() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(invoices)
             };
-            fetch("/update_stock", requestOptions)
+            fetch("/api/update_stock", requestOptions)
                 .then(response => response.json())
                 .then(result => setSuccessMessage(result));
         }

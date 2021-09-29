@@ -6,16 +6,18 @@ from update_stock import read_invoice, update_stock
 from create_order import create_order
 from models import Product, Purchase, Sale
 from datetime import date, datetime
+import os
 
 app = Flask(__name__)
 app.config['MONGODB_SETTINGS'] = {
     'db': 'etyresdb',
-    'host': 'localhost',
+    'host': os.environ['MONGODB_HOST'],
+    #'host': 'localhost',
     'port': 27017
 }
 initialize_db(app)
 
-@app.route("/update_price", methods=['POST'])
+@app.route("/api/update_price", methods=['POST'])
 def update_inventory():
     uploaded_file = request.files['file']
     if uploaded_file.filename != '':
@@ -26,9 +28,7 @@ def update_inventory():
         return jsonify("we got it")
     return jsonify("we didn't get it")
 
-
-
-@app.route("/read_invoice", methods = ['POST'])
+@app.route("/api/read_invoice", methods = ['POST'])
 def invoice_status():
     if 'files[]' not in request.files:
             return jsonify("we didn't get it")
@@ -43,20 +43,20 @@ def invoice_status():
     invoices = read_invoice("./tempdata/update_stock/")  
     return jsonify(invoices)
 
-@app.route("/update_stock", methods = ['POST'])
+@app.route("/api/update_stock", methods = ['POST'])
 def process_invoice():
 
     invoices = request.get_json()
     update_stock(invoices) 
     return jsonify("stock updated, invoice saved")
 
-@app.route("/place_order", methods = ['POST'])
+@app.route("/api/place_order", methods = ['POST'])
 def stock_out():
     invoice = request.get_json()
     create_order(invoice)
     return jsonify("stock updated, invoice saved")
 
-@app.route("/sales_invoice_number", methods = ['GET'])
+@app.route("/api/sales_invoice_number", methods = ['GET'])
 def sales_invoice_number():
     if(Sale.objects().order_by('-invoiceDate').first() is not None):
         invoice_number = Sale.objects().order_by('-invoiceDate').first().invoiceNumber + 1
@@ -64,8 +64,10 @@ def sales_invoice_number():
         invoice_number = 1
     return jsonify(invoice_number)
 
-@app.route("/data", methods = ['GET'])
+@app.route("/api/data", methods = ['GET'])
 def hello_world():
     products = Product.objects().to_json()
     return Response(products, mimetype="application/json", status=200)
 
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)

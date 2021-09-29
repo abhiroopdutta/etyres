@@ -1,0 +1,57 @@
+version: '3.7'
+
+services:
+  react-app:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: react-app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+    environment:
+      TZ: "Asia/Kolkata"
+    profiles: ["dev"]
+
+  react-app-prod:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    container_name: react-app-prod
+    ports:
+      - "3000:80"
+    environment:
+      TZ: "Asia/Kolkata"
+    profiles: ["prod"]
+    
+
+  flask-api:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    command: gunicorn --bind 0.0.0.0:5000 app:app
+    container_name: flask-api
+    ports:
+      - "5000:5000"
+    environment:
+      MONGODB_HOST: mongodb
+      TZ: "Asia/Kolkata"
+    volumes:
+      - ./backend:/app
+    depends_on: 
+      - mongodb
+
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    environment:
+      MONGODB_DATA_DIR: /data/db
+      TZ: "Asia/Kolkata"
+    ports:
+      - 27017:27017
+      # - 27018:27018
+      # - 27019:27019
+    volumes:
+      - /data/db:/data/db
+    

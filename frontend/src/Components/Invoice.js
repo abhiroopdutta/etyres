@@ -78,7 +78,7 @@ function Invoice() {
 
   useEffect(
     ()=>{
-      fetch('/sales_invoice_number')
+      fetch('/api/sales_invoice_number')
       .then(res=>res.json())
       .then(number=>setInvoiceNumber(number))
     }, 
@@ -251,7 +251,7 @@ function Invoice() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(invoiceData)
     };
-    fetch("/place_order", requestOptions)
+    fetch("/api/place_order", requestOptions)
       .then(response => response.json())
       .then(result => setSuccessMessage(result));
 

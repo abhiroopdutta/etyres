@@ -16,7 +16,7 @@ function UpdatePrice() {
 		formData.append('file', selectedFile);
 
 		fetch(
-			'/update_price',
+			'/api/update_price',
 			{
 				method: 'POST',
 				body: formData,

@@ -10,7 +10,7 @@ function Products() {
     let tyreData = tyres;
     useEffect(
       ()=>{
-        fetch('/data')
+        fetch('/api/data')
         .then(res=>res.json())
         .then(data=>setTyres(data))
       }, 
