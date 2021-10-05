@@ -25,7 +25,7 @@ class PurchaseItem(db.EmbeddedDocument):
  
 class Purchase(db.Document):
     invoiceNumber = db.StringField(required=True, unique=True)
-    invoiceDate = db.DateTimeField(required=True, default=datetime.datetime.utcnow)    
+    invoiceDate = db.DateTimeField(required=True, default=datetime.datetime.now)    
     claimInvoice = db.BooleanField(Required=True)
     claimNumber = db.StringField(required=True)
     invoiceTotal = db.FloatField(required=True)
@@ -63,7 +63,7 @@ class ServiceItem(db.EmbeddedDocument):
 
 class Sale(db.Document):
     invoiceNumber = db.IntField(required=True, unique=True) 
-    invoiceDate = db.DateTimeField(required=True, default=datetime.datetime.utcnow)
+    invoiceDate = db.DateTimeField(required=True, default=datetime.datetime.now)
     invoiceTotal = db.FloatField(required=True)
     invoiceRoundOff = db.FloatField(required=True)
     customerDetails = db.EmbeddedDocumentField(CustomerDetail)

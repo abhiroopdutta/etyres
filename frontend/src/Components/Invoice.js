@@ -4,15 +4,12 @@ import { CartContext } from './CartContext';
 import './Invoice.css';
 
 //to-do: date should update real time by chance invoice creation takes place near midnight
-function getCurrentDate(separator=''){
+function getCurrentDate(){
+  let today_date = new Date().toISOString().slice(0, 10).split("-");
+  let date = today_date[2]+"-"+today_date[1]+"-"+today_date[0];
+  return date;
+}
 
-  let newDate = new Date();
-  let date = newDate.getDate();
-  let month = newDate.getMonth() + 1;
-  let year = newDate.getFullYear();
-  
-  return `${date}${separator}${month<10?`0${month}`:`${month}`}${separator}${year}`;
-  };
 
 function roundToTwo(num) {
     return +(Math.round(num + "e+2")  + "e-2");
@@ -71,10 +68,11 @@ function Invoice() {
 
   //render different tables depending on IGST customer or not
   const [IGSTRender, SetIGSTRender] = useState(false);
-
   const [successMessage, setSuccessMessage] = useState("");
-
   const [invoiceNumber, setInvoiceNumber] = useState();
+  //manual invoice date entry for initial setup of software 
+  const [invoiceDate, setInvoiceDate] = useState(getCurrentDate());
+  const [initialSetup, setInitialSetup] = useState(false);
 
   useEffect(
     ()=>{
@@ -84,6 +82,18 @@ function Invoice() {
     }, 
   []);
 
+  const handleInvoiceDate = (e) => {
+    let input_value = e.target.value.split("-");
+    let date = input_value[2]+"-"+input_value[1]+"-"+input_value[0];
+    setInvoiceDate(date);
+  }
+
+  const handleInitialSetup = () => {
+    if(initialSetup){
+      setInvoiceDate(getCurrentDate());
+    }
+    setInitialSetup(!initialSetup);
+  }
 
   const handleCustomerDetails = (e) => {
     setCustomerDetails({
@@ -232,17 +242,20 @@ function Invoice() {
     
     //prepare full invoice data to send to backend
     let invoiceData = {
+      initialSetup: initialSetup,
       invoiceNumber: invoiceNumber,
+      invoiceDate: invoiceDate,
       customerDetails: customerDetails,
       products: purchasedProducts,
-      services : purchasedServices
     }
     if(!IGSTRender){
       invoiceData['invoiceTotal'] = totalValueForGST;
+      invoiceData['services'] = purchasedServices;
       invoiceData['invoiceRoundOff'] = roundToTwo(Math.round(totalValueForGST)-roundToTwo(totalValueForGST));
     }
     else{
       invoiceData['invoiceTotal']  = totalProductValueForIGST;
+      invoiceData['services'] = []
       invoiceData['invoiceRoundOff'] = roundToTwo(Math.round(totalProductValueForIGST)-totalProductValueForIGST);
     }
 
@@ -259,11 +272,16 @@ function Invoice() {
     window.print();
   }
 
-
+  
   //write a function to query the database for invoice number
 
   return (
     <div className="invoice-component">
+      <div className="initial-setup">
+        <input type="checkbox" id="intial-setup" name="initial-setup" value="true" onChange={handleInitialSetup}/>
+          <label for="initial-setup">Initial Setup</label>
+      </div>
+      {initialSetup?<div className="manual-invoice-date">Invoice Date: <input type="date" onChange={(e)=>handleInvoiceDate(e)}/></div>:null}
       <button className="print-button" onClick={handlePrint}>CONFIRM ORDER</button>
       <Link className = "back-to-shop" to="/create_order">Go back to shop</Link>
       <div className="invoice-body">          
@@ -272,7 +290,7 @@ function Invoice() {
           <div className="invoice-no"> Tax Invoice #: {invoiceNumber}</div>
           <br/>
           <div className="shop-description">APOLLO PV ZONE</div>
-          <div className="invoice-date">Invoice Date: {getCurrentDate("/")}</div>
+          <div className="invoice-date">Invoice Date: {invoiceDate}</div>
           <br/>
           <div className="shop-address-1">52/42/6A, Tashkand Marg, Civil Lines, Allahabad</div>
           <div className="shop-GSTIN">GSTIN: 09FWTPD4101B1ZT</div>

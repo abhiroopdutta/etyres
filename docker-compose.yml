@@ -1,49 +1,40 @@
 version: '3.7'
 
 services:
-  react-app:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: react-app
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./frontend:/app
-    environment:
-      TZ: "Asia/Kolkata"
-    profiles: ["dev"]
 
   react-app-prod:
     build:
       context: ./frontend
       dockerfile: Dockerfile.prod
-    container_name: react-app-prod
+    #the line below just names the image and tags it
+    image: abhiroopdutta/etyres:react-prod-v1.0.0
+    container_name: react-app
     ports:
       - "3000:80"
     environment:
       TZ: "Asia/Kolkata"
     profiles: ["prod"]
     
-
-  flask-api:
+  flask-api-prod:
     build: 
       context: ./backend
       dockerfile: Dockerfile
     command: gunicorn --bind 0.0.0.0:5000 app:app
+    image: abhiroopdutta/etyres:flask-prod-v1.0.0
     container_name: flask-api
     ports:
       - "5000:5000"
     environment:
       MONGODB_HOST: mongodb
       TZ: "Asia/Kolkata"
-    volumes:
-      - ./backend:/app
     depends_on: 
-      - mongodb
+      - mongodb-prod
+    volumes:
+      - flaskproddata:/app/tempdata
+    profiles: ["prod"]
 
-  mongodb:
-    image: mongo
+  mongodb-prod:
+    image: mongo:5.0.3
     container_name: mongodb
     environment:
       MONGODB_DATA_DIR: /data/db
@@ -53,5 +44,65 @@ services:
       # - 27018:27018
       # - 27019:27019
     volumes:
-      - /data/db:/data/db
+      - mongoproddata:/data/db
+    profiles: ["prod"]
+
+  react-app:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: abhiroopdutta/etyres:react-dev
+    container_name: react-app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+    environment:
+      TZ: "Asia/Kolkata"
+    profiles: ["dev"]
+
+  flask-api:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    image: abhiroopdutta/etyres:flask-dev
+    command: gunicorn --reload --bind 0.0.0.0:5000 app:app
+    container_name: flask-api
+    ports:
+      - "5000:5000"
+    environment:
+      MONGODB_HOST: mongodb
+      TZ: "Asia/Kolkata"
+    volumes:
+      - ./backend:/app
+      - flaskdevdata:/app/tempdata 
+    depends_on: 
+      - mongodb
+    profiles: ["dev"]
+
+  mongodb:
+    image: mongo:5.0.3
+    container_name: mongodb
+    environment:
+      MONGODB_DATA_DIR: /data/db
+      TZ: "Asia/Kolkata"
+    ports:
+      - 27017:27017
+      # - 27018:27018
+      # - 27019:27019
+    volumes:
+      - mongodevdata:/data/db
+    profiles: ["dev"]
     
+volumes:
+  flaskproddata:
+    driver: local
+  flaskdevdata:
+    driver: local
+  mongoproddata:
+    driver: local
+  mongodevdata:
+    driver: local
+
+
+  

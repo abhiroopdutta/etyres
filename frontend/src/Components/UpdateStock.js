@@ -3,8 +3,25 @@ import React, {useState, useEffect} from 'react';
 function UpdateStock() {
 
     const [selectedFiles, setSelectedFiles] = useState();
-    const [invoices, setinvoices] = useState([]);
+    const [invoices, setInvoices] = useState([]);
     const [successMessage, setSuccessMessage] = useState("");
+    const [initialSetup, setInitialSetup] = useState(false);
+
+    const handleInitialSetup = () => {
+        let invoicesCopy = [...invoices];
+        if(!initialSetup){
+            for(let i=0; i<invoicesCopy.length; i++){
+                invoicesCopy[i].initial_setup = true;
+            }
+        }
+        else {
+            for(let i=0; i<invoicesCopy.length; i++){
+                invoicesCopy[i].initial_setup = false;
+            }
+        }
+        setInvoices(invoicesCopy);
+        setInitialSetup(!initialSetup);
+      }
 
 	const changeHandler = (event) => {
 		setSelectedFiles(event.target.files);
@@ -27,7 +44,7 @@ function UpdateStock() {
             )
             .then((response) => response.json())
 			.then((invoices) => {
-                setinvoices(invoices);
+                setInvoices(invoices);
 			})
 			.catch((error) => {
 				console.error('Error:', error);
@@ -40,26 +57,39 @@ function UpdateStock() {
         if(e.target.value === "claim"){
             invoicesCopy[index].claim_invoice = true;
             invoicesCopy[index].overwrite_price_list = false;
-            setinvoices(invoicesCopy);
+            setInvoices(invoicesCopy);
         }        
         else{
             invoicesCopy[index].claim_invoice = false;
             invoicesCopy[index].overwrite_price_list = true;
-            setinvoices(invoicesCopy);
+            setInvoices(invoicesCopy);
         }
     }
     
 
     const handleUpdateInventory = ()=>{
+
+        //if price not matching, and user hasn't selected claim or overwrite price, then do not post
         let selectOneError = false;
+        let selectDateError = false;
         for(let i=0; i<invoices.length; i++){
             if((!invoices[i].price_list_tally)&&(!invoices[i].claim_invoice)&&(!invoices[i].overwrite_price_list)){
                 selectOneError = true;
+                console.log("select either claim invoice or overwrite price list");
                 break;
             }
         }
 
-        if(!selectOneError){
+        //if initial setup and any invoice date field is empty, then do not post
+        for(let i=0; i<invoices.length; i++){
+            if(initialSetup && (invoices[i].invoice_date === "")){
+                selectDateError = true;
+                console.log("please fill the invoice date");
+                break;
+            }
+        }
+
+        if( (!selectOneError) && (!selectDateError) ){
             const requestOptions = {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -75,9 +105,16 @@ function UpdateStock() {
     const handleClaimNumber = (index, e) => {
         let invoicesCopy = [...invoices];
         invoicesCopy[index].claim_number = e.target.value;
-        setinvoices(invoicesCopy);
+        setInvoices(invoicesCopy);
         
     }
+
+    const handleInvoiceDate = (index, e) => {
+        let invoicesCopy = [...invoices];
+        invoicesCopy[index].invoice_date = e.target.value;
+        setInvoices(invoicesCopy);
+    }
+
     return (
         <div>
             <h3>Upload invoice to update stock</h3>
@@ -85,11 +122,15 @@ function UpdateStock() {
             <p><input type="file" name="files" multiple onChange={changeHandler}/></p>
             <p><input type="submit" value="Submit"  onClick={handleSubmission}/></p>
             </form>
-
+            <div className="first-date">
+                <input type="checkbox" id="initial-setup" name="initial-setup" value="true" onChange={handleInitialSetup}/>
+                <label for="initial-setup">Initial Setup</label>
+            </div>
             {invoices.map( (invoice, index)=>
                 <div key={index}>
-                    <h4 className="invoice-number">Invoice no. {invoice.invoice_number}</h4> 
+                    <h4 >Invoice no. {invoice.invoice_number}</h4> 
                     {invoice.already_exists?<div>Invoice already exists in database</div>:null}
+                    {initialSetup?<div >Invoice Date: <input type="date" onChange={(e)=>handleInvoiceDate(index, e)}/></div>:null}
                     {invoice.price_list_tally?
                     <div>
                         price is matching   &#9989; 
@@ -112,7 +153,9 @@ function UpdateStock() {
                 )}
                 {invoices.length!==0?<button onClick={handleUpdateInventory}>Update inventory and save invoices</button>:null}
                 <br/>
+
                 {successMessage!==""?<h4>{successMessage} !</h4>:null}
+                <br/>
         </div>
         
     );

@@ -9,6 +9,17 @@
   bottom:260px;
 }
 
+.initial-setup{
+  position:fixed;
+  left:145px;
+  bottom:400px;
+}
+
+.manual-invoice-date{
+  position:fixed;
+  left:40px;
+  bottom:300px;
+}
 
 .back-to-shop{
   position:fixed;
@@ -136,7 +147,7 @@ td {
 
 @media print{
 
-  .navBar, .print-button, a, hr{
+  .navBar, .print-button, a, hr, .manual-invoice-date, .initial-setup{
     display: none;
   }
 

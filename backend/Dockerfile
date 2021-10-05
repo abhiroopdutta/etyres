@@ -1,5 +1,5 @@
-# Create our image based on Python 3.8
-FROM python:3.8-slim-buster
+# Create our image based on Python 3.9
+FROM python:3.9-slim-buster
 
 #setup working dir
 WORKDIR /app

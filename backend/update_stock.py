@@ -1,7 +1,7 @@
 import csv	
 from models import Product, Purchase, PurchaseItem
 import glob, os
-
+import datetime
 
 def read_invoice(directory):
     invoices=[]
@@ -40,7 +40,9 @@ def read_invoice(directory):
             if(Purchase.objects(invoiceNumber=invoice_number).first()):
                 already_exists = True
             invoices.append({
+                "initial_setup":False,
                 "invoice_number":invoice_number,
+                "invoice_date": "",
                 "already_exists":already_exists,
                 "claim_invoice":False,
                 "claim_number":"",
@@ -101,8 +103,13 @@ def update_stock(invoices):
             claim_invoice = invoice["claim_invoice"]
             claim_number = invoice["claim_number"]
             invoice_total = invoice["invoice_total"]
+            if(invoice["initial_setup"]):
+                invoice_date = datetime.datetime.strptime(invoice["invoice_date"] + " " + "11:30:00", '%Y-%m-%d %H:%M:%S')
+            else:
+                invoice_date = datetime.datetime.now()
 
             purchase_invoice = Purchase(
+                invoiceDate =  invoice_date,
                 invoiceNumber = invoice_number, 
                 claimInvoice = claim_invoice,
                 claimNumber = claim_number,

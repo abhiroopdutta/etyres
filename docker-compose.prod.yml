@@ -1,0 +1,45 @@
+version: '3.7'
+
+services:
+
+  react-app:
+	  image: abhiroopdutta/etyres:react-prod-v1.0.0
+    container_name: react-app
+    ports:
+      - "3000:80"
+    environment:
+      TZ: "Asia/Kolkata"
+    
+  flask-api:
+	  image: abhiroopdutta/etyres:flask-prod-v1.0.0
+    command: gunicorn --bind 0.0.0.0:5000 app:app
+    container_name: flask-api
+    ports:
+      - "5000:5000"
+    environment:
+      MONGODB_HOST: mongodb
+      TZ: "Asia/Kolkata"
+    depends_on: 
+      - mongodb
+    volumes:
+      - flaskdata:/app/tempdata
+
+  mongodb:
+    image: mongo:5.0.3
+    container_name: mongodb
+    environment:
+      MONGODB_DATA_DIR: /data/db
+      TZ: "Asia/Kolkata"
+    ports:
+      - 27017:27017
+      # - 27018:27018
+      # - 27019:27019
+    volumes:
+      - mongodata:/data/db
+    
+volumes:
+  flaskdata:
+    driver: local
+  mongodata:
+    driver: local
+
