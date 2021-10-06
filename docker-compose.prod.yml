@@ -3,7 +3,7 @@ version: '3.7'
 services:
 
   react-app:
-	  image: abhiroopdutta/etyres:react-prod-v1.0.0
+    image: abhiroopdutta/etyres:react-prod-v1.0.0
     container_name: react-app
     ports:
       - "3000:80"
@@ -11,7 +11,7 @@ services:
       TZ: "Asia/Kolkata"
     
   flask-api:
-	  image: abhiroopdutta/etyres:flask-prod-v1.0.0
+    image: abhiroopdutta/etyres:flask-prod-v1.0.0
     command: gunicorn --bind 0.0.0.0:5000 app:app
     container_name: flask-api
     ports:
