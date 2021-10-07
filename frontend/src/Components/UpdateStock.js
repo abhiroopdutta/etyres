@@ -65,7 +65,7 @@ function UpdateStock() {
             setInvoices(invoicesCopy);
         }
     }
-    
+    console.log(invoices)
 
     const handleUpdateInventory = ()=>{
 
@@ -139,8 +139,8 @@ function UpdateStock() {
                     :        
                     <div onChange={(e)=>handleClaimOverwrite(index,e)}>
                         <div>price difference detected   &#10060;</div>
-                        <input type="radio" value="claim" name="claim_overwrite" required/> Mark as claim invoice
-                        <input type="radio" value="overwrite" name="claim_overwrite" required/> Overwrite price list
+                        <input type="radio" value="claim" name={"claim_overwrite"+index} required/> Mark as claim invoice
+                        <input type="radio" value="overwrite" name={"claim_overwrite"+index} required/> Overwrite price list
                     </div>   
                     }
                     <br/>
@@ -151,11 +151,12 @@ function UpdateStock() {
                                                     
                 </div>
                 )}
-                {invoices.length!==0?<button onClick={handleUpdateInventory}>Update inventory and save invoices</button>:null}
-                <br/>
 
-                {successMessage!==""?<h4>{successMessage} !</h4>:null}
-                <br/>
+            {invoices.length!==0?<button onClick={handleUpdateInventory}>Update inventory and save invoices</button>:null}
+            <br/>
+
+            {successMessage!==""?<h4>{successMessage} !</h4>:null}
+            <br/>
         </div>
         
     );
