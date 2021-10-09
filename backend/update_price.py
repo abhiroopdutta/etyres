@@ -54,11 +54,8 @@ def compute_size(item_desc):
 	if(item_desc == "TR 414 TUBELES TYRE VALVE -D"):
 		return "valve"
 	else:
-		split_words = item_desc.split(' ', 2)
-		size= re.sub("[^0-9]", "", split_words[0])
-		if "R" in split_words[1]:
-			size= re.sub("[^0-9]", "", split_words[0]+split_words[1])
-		return size
+		digits = re.findall('\d+', item_desc)
+		return "".join(digits)
 
 #returns HSN Code depending on item_code
 def compute_hsn(item_code):
