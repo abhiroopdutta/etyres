@@ -66,7 +66,17 @@ def sales_invoice_number():
 
 @app.route("/api/data", methods = ['GET'])
 def hello_world():
-    products = Product.objects().to_json()
+    products = Product.objects(category__in=[
+        "passenger_car_tyre", 
+        "passenger_car_tube", 
+        "2_wheeler_tyre",
+        "2_wheeler_tube",
+        "3_wheeler_tyre",
+        "3_wheeler_tube",
+        "scv_tyre",
+        "scv_tube",
+        "tubeless_valve"
+        ]).to_json()
     return Response(products, mimetype="application/json", status=200)
 
 if __name__ == '__main__':
