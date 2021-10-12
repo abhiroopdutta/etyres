@@ -1,9 +1,12 @@
 #pip uninstall sql packages
 from flask import Flask, render_template,jsonify, request, redirect, url_for, Response
+from flask import send_from_directory, abort
+
 from db import initialize_db
 from update_price import update_price
 from update_stock import read_invoice, update_stock
 from create_order import create_order
+from sales_report import sales_report
 from initial_setup import initial_setup
 from models import Product, Purchase, Sale
 from datetime import date, datetime
@@ -17,6 +20,8 @@ app.config['MONGODB_SETTINGS'] = {
     'port': 27017
 }
 initialize_db(app)
+
+app.config["CLIENT_CSV"] = "./"
 
 @app.route("/api/update_price", methods=['POST'])
 def update_inventory():
@@ -79,6 +84,22 @@ def hello_world():
         "tubeless_valve"
         ]).to_json()
     return Response(products, mimetype="application/json", status=200)
+
+
+
+@app.route("/api/sales_report", methods = ['POST'])
+def sales_report_excel():
+    date_range = request.get_json()
+    filename = sales_report(date_range)
+    return jsonify(filename)
+
+@app.route("/api/download", methods = ['GET'])
+def download():
+    filename = request.args["name"]
+    try:
+        return send_from_directory(app.config["CLIENT_CSV"], filename, as_attachment=True)
+    except FileNotFoundError:
+        abort(404)
 
 @app.route("/api/initial_setup", methods = ['GET'])
 def initial_setup_date():
