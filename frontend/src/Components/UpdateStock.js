@@ -6,6 +6,7 @@ function UpdateStock() {
     const [invoices, setInvoices] = useState([]);
     const [successMessage, setSuccessMessage] = useState("");
     const [initialSetup, setInitialSetup] = useState(false);
+    const [dateUpdateMessage, setDateUpdateMessage] = useState("")
 
     const handleInitialSetup = () => {
         let invoicesCopy = [...invoices];
@@ -115,17 +116,39 @@ function UpdateStock() {
         setInvoices(invoicesCopy);
     }
 
+    const handleDateFile = (e) => {
+        e.preventDefault();
+
+		fetch("/api/initial_setup")
+            .then((response) => response.json())
+			.then((message) => {
+                setDateUpdateMessage(message);
+			})
+			.catch((error) => {
+				console.error('Error:', error);
+			});
+            
+	};
+
+
+
     return (
         <div>
+            <button onClick={handleDateFile}>run date update funtion</button>
+            <div> {dateUpdateMessage} </div>
+
             <h3>Upload invoice to update stock</h3>
             <form method="POST" action="" encType="multipart/form-data" >
             <p><input type="file" name="files" multiple onChange={changeHandler}/></p>
             <p><input type="submit" value="Submit"  onClick={handleSubmission}/></p>
             </form>
+
+            {invoices.length!==0?
             <div className="first-date">
                 <input type="checkbox" id="initial-setup" name="initial-setup" value="true" onChange={handleInitialSetup}/>
                 <label for="initial-setup">Initial Setup</label>
             </div>
+            :null}
             {invoices.map( (invoice, index)=>
                 <div key={index}>
                     <h4 >Invoice no. {invoice.invoice_number}</h4> 
@@ -136,7 +159,7 @@ function UpdateStock() {
                         price is matching   &#9989; 
                     </div>
                     
-                    :        
+                    :      
                     <div onChange={(e)=>handleClaimOverwrite(index,e)}>
                         <div>price difference detected   &#10060;</div>
                         <input type="radio" value="claim" name={"claim_overwrite"+index} required/> Mark as claim invoice

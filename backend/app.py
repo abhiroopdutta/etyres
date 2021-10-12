@@ -4,6 +4,7 @@ from db import initialize_db
 from update_price import update_price
 from update_stock import read_invoice, update_stock
 from create_order import create_order
+from initial_setup import initial_setup
 from models import Product, Purchase, Sale
 from datetime import date, datetime
 import os
@@ -78,6 +79,12 @@ def hello_world():
         "tubeless_valve"
         ]).to_json()
     return Response(products, mimetype="application/json", status=200)
+
+@app.route("/api/initial_setup", methods = ['GET'])
+def initial_setup_date():
+    return jsonify(initial_setup())
+
+    
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
