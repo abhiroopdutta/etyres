@@ -21,7 +21,7 @@ app.config['MONGODB_SETTINGS'] = {
 }
 initialize_db(app)
 
-app.config["CLIENT_CSV"] = "./"
+app.config["CLIENT_CSV"] = "./tempdata/sales_report"
 
 @app.route("/api/update_price", methods=['POST'])
 def update_inventory():

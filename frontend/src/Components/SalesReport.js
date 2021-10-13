@@ -1,14 +1,5 @@
-import React, {useContext, useState} from 'react';
-
-
-// //to-do: date should update real time by chance invoice creation takes place near midnight
-// function getCurrentDate(){
-//     let today_date = new Date().toISOString().slice(0, 10).split("-");
-//     let date = today_date[2]+"-"+today_date[1]+"-"+today_date[0];
-//     return date;
-//   }
+import React, {useState} from 'react';
   
-
 function SalesReport(){
 
     const [dateFrom, setDateFrom] = useState("");
@@ -44,7 +35,7 @@ function SalesReport(){
                 fetch('/api/download?name=' + filename, {
                     method: 'GET',
                     headers: {
-                      'Content-Type': 'application/vnd.ms-excel',
+                      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                     },
                   })
                   .then((response) => response.blob())
@@ -57,7 +48,7 @@ function SalesReport(){
                     link.href = url;
                     link.setAttribute(
                       'download',
-                      `sales_report.xls`,
+                      `sales_report.xlsx`,
                     );
                 
                     // Append to html link element page
