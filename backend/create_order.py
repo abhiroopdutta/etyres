@@ -5,7 +5,8 @@ import datetime
 def create_order(invoice):
     invoice_number = invoice["invoiceNumber"]
     if(invoice["initialSetup"]):
-        invoice_date = datetime.datetime.strptime(invoice["invoiceDate"]+ " " + "19:00:00", '%d-%m-%Y %H:%M:%S')
+        manual_time = "19:" + datetime.datetime.now().strftime("%M:%S")
+        invoice_date = datetime.datetime.strptime(invoice["invoiceDate"]+ " " + manual_time, "%d-%m-%Y %H:%M:%S")
     else:
         invoice_date = datetime.datetime.now()
     invoice_total = invoice["invoiceTotal"]
