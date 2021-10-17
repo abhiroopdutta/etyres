@@ -57,31 +57,31 @@ function Cart(){
         <div className="cart"> 
 
             <div className="cart-title">CART SUMMARY</div>
-            <Link className="invoice-button" onClick={handleInvoice} to="/invoice">Preview invoice</Link>
+            <div className="cart-invoice">
+                <Link className="invoice-button" onClick={handleInvoice} to="/invoice">Preview invoice</Link>
+            </div>
             
+            <div className="cart-products">{cart.map( (tyre, index)=> <CartTyre tyreData={tyre} key={index}/> )} </div>
             
-            {cart.map( (tyre, index)=> <CartTyre tyreData={tyre} key={index}/> )}  
-
-            <div className="service"> 
+            <div className="cart-services">
                 {servicesLocal.map( (service, index)=>
-                <div key={index}>
+                <div className="service" key={index}>
                     <div className="service-name">{service.name}:</div> 
 
-                        <span className="service-price">
-                            <span>Price: </span>
-                            <input type="text" value={service.price} onChange={(e)=>handleServicesPrice(index,e)} onFocus={handleFocus}/>
-                        </span>
+                    <div className="service-price">
+                        Price:
+                        <input type="text" value={service.price} onChange={(e)=>handleServicesPrice(index,e)} onFocus={handleFocus}/>
+                    </div>
 
-                        <span className="service-quantity">
-                            <span>Quantity: </span>
-                            <input type="number" step="1" min="0" value={service.quantity} onChange={(e)=>handleServicesQuantity(index,e)} onFocus={handleFocus}/>
-                        </span>                    
+                    <div className="service-quantity">
+                        Qty:
+                        <input type="number" step="1" min="0" value={service.quantity} onChange={(e)=>handleServicesQuantity(index,e)} onFocus={handleFocus}/>
+                    </div>                    
                 </div>
                 )}
             </div>
             
-            
-            <div className="total-price">Total price: &#x20B9;{totalPrice}</div>
+            <div className="cart-total">Total price: &#x20B9;{totalPrice}</div>
             <br/>
              
         </div>

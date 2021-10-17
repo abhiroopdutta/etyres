@@ -1,11 +1,11 @@
 .products{
-    background-color: rgb(255, 255, 255);
+    display:flex;
+    flex-direction: column;
+    row-gap: 30px;
 }
 
 .products input{
-    margin:30px 40px;
     border: 3px solid #000000;
-    padding: 5px;
     border-radius: 5px 5px;
     outline: none;
     color: #000000;
@@ -19,13 +19,20 @@
     background-color: rgb(252, 252, 166);
 }
 
-.grid-container{
-    padding-left: 40px;
-    display: grid;
-    grid-template-columns: repeat(2, 310px);
-    grid-auto-rows: minmax(80px, auto);
-    grid-column-gap: 20px;
-    grid-row-gap: -20px;
-   
+.product-filters{
+    display: flex;
+    /* background-color: lime; */
+    justify-content: flex-start;
+    padding-left: 23px;
+}
+
+.product-items{
+    /* background-color: rgb(240, 72, 72); */
+    display: flex;
+    padding-left: 23px;
+    justify-content:flex-start;
+    flex-wrap: wrap;
+    row-gap: 20px;
+    column-gap: 30px;
 }
 

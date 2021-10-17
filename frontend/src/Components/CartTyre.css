@@ -1,36 +1,46 @@
 .cart-tyre{ 
     /* background-color: yellow; */
-    margin:0px 40px 20px 40px; 
+    padding-top: 16px;
+    display: grid;
+    grid-template-columns: 120px 140px 140px 60px;
 }
 
 .cart-tyre-name{
     /* background-color: yellow; */
-    margin:0px 0px 0px 0px;
+    grid-row: 1/2;
+    grid-column: 1/5;
     font-weight:700;
     color:rgb(41, 40, 40);
 }
 .cart-tyre-CP{
-    display: inline-block;
-    width: 140px;
+    /* background-color: rgb(0, 255, 179); */
+    grid-row:2/3;
+    grid-column: 1/2;
+    
 }
 
 .cart-tyre-price{
-    display: inline-block;
-    width: 160px;
+    /* background-color: rgb(255, 123, 0); */
+    grid-row:2/3;
+    grid-column: 2/3;
 }
 
 .cart-tyre-quantity {
-    display: inline-block;
-    width: 165px;
+    /* background-color: rgb(145, 255, 0); */
+    grid-row:2/3;
+    grid-column: 3/4;
+}
+
+.cart-tyre-button{
+    /* background-color: blueviolet; */
+    grid-row: 2/3;
+    grid-column: 4/5;
 }
 
 .cart-tyre input{
     border: 1px solid transparent;
-    width: 80px;
-    margin:5px 0px;
     outline: none;
     background-color: rgb(255, 255, 210);
-    padding: 3px;
     color: #000000;
     font-size:medium;   
     font-weight:500;
@@ -45,6 +55,10 @@
     background-color: rgb(252, 252, 166);
 }
 
+.cart-tyre input{
+    width: 60%;
+}
+
 .cart-tyre-quantity input{
-    width: 50px;
+    width:43%;
 }

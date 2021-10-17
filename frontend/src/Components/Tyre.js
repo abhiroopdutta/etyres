@@ -37,23 +37,13 @@ function Tyre({tyreData}){
     }
 
     return(
-            <article className="product">
-
-                <div className="product-info">
-                    <div className="product-title">
-                        <span>{tyreData.itemDesc}</span>
-                    </div>
-                    <img src={TyreImg} alt="tyre" width="80" height="120"/>
-
-                    <div className="product-details">
-                        <span > Cost Price: &#x20B9;{tyreData.costPrice}</span> 
-                        <br/>
-                        <span > Items in stock:{tyreData.stock}</span>
-                        <br/>
-                        <button onClick={()=>addToCart(tyreData)}>Add to cart</button>
-                    </div>
-                </div>
-            </article>            
+            <div className="product">
+                    <div className="product-title">{tyreData.itemDesc}</div>
+                    <div className="product-image"><img  src={TyreImg} alt="tyre" width="80" height="120"/></div> 
+                    <div className="product-cost-price"> Cost Price: &#x20B9;{tyreData.costPrice}</div>
+                    <div className="product-stock">Items in stock:{tyreData.stock}</div>
+                    <div className="product-button"><button onClick={()=>addToCart(tyreData)}>Add to cart</button></div>
+            </div>            
     );
 }
 

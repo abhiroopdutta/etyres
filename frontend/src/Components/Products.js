@@ -5,7 +5,7 @@ import './Products.css';
 function Products() {
 
     const [tyres, setTyres] = useState([]);
-    const [inStock, setInStock] = useState(false);
+    const [inStock, setInStock] = useState(true);
   
     let tyreData = tyres;
     useEffect(
@@ -41,12 +41,15 @@ function Products() {
     //udnerstand the live search feature rendering order
     return (
       <div className="products">
+        <div className="product-filters">
           <input type="text" onChange={handleChange} value={input} placeholder="Enter tyre size"/>
-          <input type="checkbox" id="in_stock" name="in_stock" value="true" onChange={handleInStock}/>
+          <input type="checkbox" id="in_stock" name="in_stock" defaultChecked={inStock} onChange={handleInStock}/>
             <label for="in_stock">In Stock</label>
-        <main className="grid-container">
+        </div>
+        <div className="product-items">
           {tyreData.map( (tyre, index)=> <Tyre tyreData={tyre} key={index}/> )}      
-        </main>  
+        </div>  
+        
       </div>    
     );
   }

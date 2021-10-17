@@ -1,0 +1,17 @@
+.shop-container{
+    display: flex;
+    align-items:flex-start;
+    padding:22px;
+    column-gap: 10px;
+}
+
+.products{
+    flex:1.8;
+    /* background-color: yellow; */
+}
+
+.cart{
+    flex:1;
+    /* background-color: lightcoral; */
+    border-radius: 12px;
+}
