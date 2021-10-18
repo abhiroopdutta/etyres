@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import './SalesReport.css'
   
 function SalesReport(){
 
@@ -68,7 +69,7 @@ function SalesReport(){
 
 
     return(
-        <div>
+        <div className="sales-report">
             <h3>select date range - </h3>
             <input type="date" name="from" onChange={handleDateRange}/>
             <input type="date" name="to" onChange={handleDateRange}/>

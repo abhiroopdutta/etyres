@@ -6,12 +6,15 @@
 }
 
 .products{
-    flex:1.8;
+    flex:1.2;
     /* background-color: yellow; */
 }
 
 .cart{
-    flex:1;
     /* background-color: lightcoral; */
+    top:10px;
     border-radius: 12px;
+    position: sticky;
+    max-height: 90vh;
+    overflow-y: scroll; 
 }

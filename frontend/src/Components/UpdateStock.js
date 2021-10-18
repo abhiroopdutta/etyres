@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from 'react';
+import './UpdateStock.css'
 
 function UpdateStock() {
 
@@ -133,7 +134,7 @@ function UpdateStock() {
 
 
     return (
-        <div>
+        <div className="update-stock">
             <button onClick={handleDateFile}>run date update funtion</button>
             <div> {dateUpdateMessage} </div>
 

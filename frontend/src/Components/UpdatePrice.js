@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import './UpdatePrice.css'
 
 function UpdatePrice() {
 
@@ -35,7 +36,7 @@ function UpdatePrice() {
 	};
 
     return (
-        <div>
+        <div className="update-price">
             <h3>Upload price list xlsx to update price or add new items in inventory</h3>
             <form method="POST" action="" encType="multipart/form-data" >
             <p><input type="file" name="file" onChange={changeHandler}/></p>

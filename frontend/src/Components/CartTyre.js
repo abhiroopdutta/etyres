@@ -48,18 +48,24 @@ function CartTyre({tyreData}){
     return(
         <div className="cart-tyre">
             <div className="cart-tyre-name">{tyreData.itemDesc}</div> 
-            <div className="cart-tyre-CP">CP:{tyreData.costPrice}</div> 
-            <div className="cart-tyre-price">
-                Price:
-                <input type="text" value={tyreData.price} onChange={handlePrice} onFocus={handleFocus}/>
+            <div className="cart-tyre-details">
+                <div className="cart-tyre-CP">CP:{tyreData.costPrice}</div> 
+                <div className="cart-tyre-price">
+                    <label> Price:
+                    <input type="text" value={tyreData.price} onChange={handlePrice} onFocus={handleFocus}/>
+                    </label>
+                </div>
+                <div className="cart-tyre-quantity">
+                    <label> 
+                    Qty: 
+                        <input type="number" step="1" min="1" value={tyreData.quantity} onChange={handleQuantity} onFocus={handleFocus}/>
+                    </label>          
+                </div>
+                <div className="cart-tyre-button">
+                    <button onClick={()=>removeFromCart(tyreData)}>Remove</button>
+                </div>
             </div>
-            <div className="cart-tyre-quantity">
-                Qty: 
-                <input type="number" step="1" min="1" value={tyreData.quantity} onChange={handleQuantity} onFocus={handleFocus}/>
-            </div>
-            <div className="cart-tyre-button">
-                <button onClick={()=>removeFromCart(tyreData)}>Remove</button>
-            </div>
+            
             
         </div>
     );

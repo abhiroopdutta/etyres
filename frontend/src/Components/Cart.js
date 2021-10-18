@@ -55,10 +55,11 @@ function Cart(){
 
     return(
         <div className="cart"> 
-
-            <div className="cart-title">CART SUMMARY</div>
-            <div className="cart-invoice">
-                <Link className="invoice-button" onClick={handleInvoice} to="/invoice">Preview invoice</Link>
+            <div className="cart-header"> 
+                <div className="cart-title">CART SUMMARY</div>
+                <div className="cart-invoice">
+                    <Link className="invoice-button" onClick={handleInvoice} to="/invoice">Preview invoice</Link>
+                </div>
             </div>
             
             <div className="cart-products">{cart.map( (tyre, index)=> <CartTyre tyreData={tyre} key={index}/> )} </div>
@@ -68,15 +69,18 @@ function Cart(){
                 <div className="service" key={index}>
                     <div className="service-name">{service.name}:</div> 
 
-                    <div className="service-price">
-                        Price:
-                        <input type="text" value={service.price} onChange={(e)=>handleServicesPrice(index,e)} onFocus={handleFocus}/>
-                    </div>
+                    <div className="service-details">   
+                        <div className="service-price">
+                            Price:
+                            <input type="text" value={service.price} onChange={(e)=>handleServicesPrice(index,e)} onFocus={handleFocus}/>
+                        </div>
 
-                    <div className="service-quantity">
-                        Qty:
-                        <input type="number" step="1" min="0" value={service.quantity} onChange={(e)=>handleServicesQuantity(index,e)} onFocus={handleFocus}/>
-                    </div>                    
+                        <div className="service-quantity">
+                            Qty:
+                            <input type="number" step="1" min="0" value={service.quantity} onChange={(e)=>handleServicesQuantity(index,e)} onFocus={handleFocus}/>
+                        </div> 
+                    </div>
+                                      
                 </div>
                 )}
             </div>
