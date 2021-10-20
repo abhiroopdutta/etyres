@@ -27,7 +27,7 @@ app.config["CLIENT_CSV"] = "./tempdata/sales_report"
 def update_inventory():
     uploaded_file = request.files['file']
     if uploaded_file.filename != '':
-        new_name = str(datetime.now())+uploaded_file.filename
+        new_name = str(datetime.now()).replace(" ", "_")+uploaded_file.filename
         filepath = "./tempdata/"+new_name
         uploaded_file.save(filepath)
         update_price(filepath)
@@ -40,13 +40,15 @@ def invoice_status():
             return jsonify("we didn't get it")
 
     files = request.files.getlist('files[]')
+    dir = "./tempdata/update_stock/"+str(datetime.now()).replace(" ", "_")+"/"
+    os.mkdir(dir)
     for file in files:
         if file:
-            new_name = str(datetime.now())+file.filename
-            filepath = "./tempdata/update_stock/"+new_name
+            new_name = str(datetime.now()).replace(" ", "_")+file.filename
+            filepath = dir+new_name
             file.save(filepath)
 
-    invoices = read_invoice("./tempdata/update_stock/")  
+    invoices = read_invoice(dir)  
     return jsonify(invoices)
 
 @app.route("/api/update_stock", methods = ['POST'])

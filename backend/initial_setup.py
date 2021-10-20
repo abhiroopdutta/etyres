@@ -4,7 +4,7 @@ from models import Product, Purchase, PurchaseItem
 
 #this function is designed to use only on the initial software setup 
 #it takes a csv containing invoice number, invoice total and invoice date 
-#and updates the invoice date in existing invoices already stored in db
+#and updates the invoice date in existing invoices(already stored in db)
 def initial_setup():
     with open("./initial_setup/input.xls") as f:
         reader = csv.DictReader(f, delimiter="\t")
