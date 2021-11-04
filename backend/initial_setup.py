@@ -19,14 +19,15 @@ def initial_setup():
                 invoice_total = float(str(row["Invoice Amt."]).replace(",", ""))
                 if(invoice_in_db.invoiceTotal != invoice_total):
                     return (row["Invoice No."] + " " + row["Inv. Date"] + " invoice total not matching with existing invoice in db" 
-                    + "\ninvoice total found in db: " + invoice_in_db.invoiceTotal + " invoice total in input file: " + invoice_total)
+                    + "\ninvoice total found in db: " + str(invoice_in_db.invoiceTotal) + " invoice total in input file: " + str(invoice_total))
                 
                 #update the invoicedate in existing invoice in db
                 invoice_date = datetime.datetime.strptime(str(row["Inv. Date"]).strip() + " " + "11:30:00", '%m/%d/%Y %H:%M:%S')
                 invoice_in_db.update(invoiceDate =  invoice_date)
-                return "success, invoice date updated"
+                print("Invoice No. - " + row["Invoice No."] + "date successfully updated")
  
             #else report it to user that invoice hasn't been uploaded 
             else:
-                return (row["Invoice No."] + " " + row["Inv. Date"] + " " + "invoice not found in db")
-    return 0
+                return ("Invoice No. - " + row["Invoice No."] + " " + row["Inv. Date"] + " " + "invoice not found in db")
+            
+    return "success, invoice date updated"
