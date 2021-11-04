@@ -18,7 +18,8 @@ other_vehicle_type = {
 	"industrial":{"tyre_freight":0, "tube_freight":0, "spd":0.0, "plsd":0.0, "gst":0.28}, 
 	"earthmover":{"tyre_freight":0, "tube_freight":0, "spd":0.0, "plsd":0.0, "gst":0.28}, 
 	"jeep":{"tyre_freight":0, "tube_freight":0, "spd":0.0, "plsd":0.0, "gst":0.28}, 
-	"loose tube/flaps":{"tyre_freight":0, "tube_freight":0, "spd":0.0, "plsd":0.0, "gst":0.28}
+	"loose tube/flaps":{"tyre_freight":0, "tube_freight":0, "spd":0.0, "plsd":0.0, "gst":0.28},
+	"adv":{"tyre_freight":0, "tube_freight":0, "spd":0.0, "plsd":0.0, "gst":0.28}
 	}
 
 #returns true if vehicle segment has changed value while processing the xlxs file
@@ -112,6 +113,7 @@ def update_price(file):
 		#only the process the row if column A is not empty
 		if(column_a):
 			column_a = str(column_a)
+			print("row", i, "column1", column_a)
 
 			#if this row is a category row, skip this row after getting the vehicle type
 			if(find_vehicle_type(column_a) in pv_vehicle_type) or (find_vehicle_type(column_a) in other_vehicle_type):
