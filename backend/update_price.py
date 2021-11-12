@@ -4,8 +4,8 @@ from models import Product
 
 
 pv_vehicle_type = {
-	"passenger car":{"tyre_freight":20, "tube_freight":3, "spd":0.015, "plsd":0.05, "gst":0.28}, 
-	"2 wheeler":{"tyre_freight":6, "tube_freight":3, "spd":0.015, "plsd":0.05, "gst":0.28}, 
+	"passenger car":{"tyre_freight":20, "tube_freight":3, "spd":0.015, "plsd":0.025, "gst":0.28}, 
+	"2 wheeler":{"tyre_freight":6, "tube_freight":3, "spd":0.015, "plsd":0.025, "gst":0.28}, 
 	"3 wheeler":{"tyre_freight":8, "tube_freight":3, "spd":0.015, "plsd":0.05, "gst":0.28},
 	"scv":{"tyre_freight":40, "tube_freight":3, "spd":0.014, "plsd":0.025, "gst":0.28},
 	"tubeless valve":{ "valve_freight":0, "spd":0.0, "plsd":0.0,"gst":0.18}
@@ -58,6 +58,7 @@ def compute_price(vehicle_type, item_code, net_ndp):
 	gst = taxable_val*float(pv_vehicle_type[vehicle_type]["gst"])
 	cost_price = round(float(taxable_val+gst),2)
 
+	print("\nfrieght ", frt, "spd ", spd, "plsd ", plsd, "total discount", spd+plsd,"taxable val ", taxable_val, "gst ", gst, "cost price ", cost_price)
 	return cost_price
 
 def compute_size(item_desc):
