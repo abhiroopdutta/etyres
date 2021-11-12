@@ -6,7 +6,7 @@ from db import initialize_db
 from update_price import update_price
 from update_stock import read_invoice, update_stock
 from create_order import create_order
-from sales_report import sales_report
+from sales_report import report_handler
 from initial_setup import initial_setup
 from models import Product, Purchase, Sale
 from datetime import date, datetime
@@ -91,8 +91,8 @@ def hello_world():
 
 @app.route("/api/sales_report", methods = ['POST'])
 def sales_report_excel():
-    date_range = request.get_json()
-    filename = sales_report(date_range)
+    report_req_info = request.get_json()
+    filename = report_handler(report_req_info)
     return jsonify(filename)
 
 @app.route("/api/download", methods = ['GET'])
@@ -107,7 +107,6 @@ def download():
 def initial_setup_date():
     return jsonify(initial_setup())
 
-    
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

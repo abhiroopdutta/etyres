@@ -1,18 +1,36 @@
+from openpyxl.worksheet import worksheet
 from models import Sale
 from mongoengine import Q
 import datetime
 import openpyxl
+from openpyxl.styles import Border, Side, PatternFill, Font
 wb = openpyxl.Workbook() 
 
-def sales_report(date_range):
-    start = datetime.datetime.strptime(date_range["dateFrom"]+ " " + "05:30:00", '%Y-%m-%d %H:%M:%S')
-    end = datetime.datetime.strptime(date_range["dateTo"]+ " " + "22:30:00", '%Y-%m-%d %H:%M:%S')
+def report_handler(report_req_info):
+    start = datetime.datetime.strptime(report_req_info["dateFrom"]+ " " + "05:30:00", '%Y-%m-%d %H:%M:%S')
+    end = datetime.datetime.strptime(report_req_info["dateTo"]+ " " + "22:30:00", '%Y-%m-%d %H:%M:%S')
+    if report_req_info["reportType"] == "sale":
+        return sales_report(start, end)
+    elif report_req_info["reportType"] == "purchase":
+        return purchase_report(start, end)
+    elif report_req_info["reportType"] == "stock":
+        return stock_report(start, end)
+
+def sales_report(start, end):  
     invoices = Sale.objects((Q(invoiceDate__gte=start) & Q(invoiceDate__lte=end)))
     file_base_dir = "./tempdata/sales_report/"
     filename = str(datetime.datetime.now())+"sales_report.xlsx"
     wb = openpyxl.Workbook() 
     sheet = wb.active
+    sheet.freeze_panes = 'A2'
+
     column_headers = ["Invoice No.", "Invoice Date", "Item Description", "HSN", "Rate per Item", "Qty", "Taxable Val", "CGST Rate", "CGST Amt", "SGST Rate", "SGST Amt", "IGST Rate", "IGST Amt", "Total", "Customer Name", "GSTIN"]
+    
+    #Aplly style to header row
+    sheet.row_dimensions[1].fill = PatternFill("solid", fgColor="C5C5C5")
+    sheet.row_dimensions[1].border = Border(left=Side(border_style="thin"),right=Side(border_style="thin"),top=Side(border_style="thin"),bottom=Side(border_style="thin"))
+    sheet.row_dimensions[1].font = Font(name="Calibri", bold=True)
+
     for i, column_header in enumerate(column_headers):
         sheet.cell(row=1, column=i+1).value = column_header
 
@@ -73,6 +91,10 @@ def sales_report(date_range):
 
     total_row_index = sheet.max_row
     
+    #apply styles to final row
+    sheet.row_dimensions[total_row_index+1].fill = PatternFill("solid", fgColor="C5C5C5")
+    sheet.row_dimensions[total_row_index+1].border = Border(left=Side(border_style="thin"),right=Side(border_style="thin"),top=Side(border_style="thin"),bottom=Side(border_style="thin"))
+    sheet.row_dimensions[total_row_index+1].font = Font(name="Calibri", bold=True)
     # total row label
     sheet.cell(row=total_row_index+1, column=2).value = "TOTAL"
     # total quantity
@@ -94,5 +116,21 @@ def sales_report(date_range):
     total = '= SUM(N2:N'+str(total_row_index)+')'
     sheet.cell(row=total_row_index+1, column=14).value = total
 
+    wb.save(file_base_dir+filename)
+    return filename
+
+def purchase_report(start, end):
+    file_base_dir = "./tempdata/sales_report/"
+    filename = str(datetime.datetime.now())+"purchase_report.xlsx"
+    wb = openpyxl.Workbook() 
+    sheet = wb.active
+    wb.save(file_base_dir+filename)
+    return filename
+
+def stock_report(start, end):
+    file_base_dir = "./tempdata/sales_report/"
+    filename = str(datetime.datetime.now())+"stock_report.xlsx"
+    wb = openpyxl.Workbook() 
+    sheet = wb.active
     wb.save(file_base_dir+filename)
     return filename
