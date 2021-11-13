@@ -1,5 +1,5 @@
 from openpyxl.worksheet import worksheet
-from models import Sale
+from models import Purchase, Sale, Product
 from mongoengine import Q
 import datetime
 import openpyxl
@@ -8,13 +8,14 @@ wb = openpyxl.Workbook()
 
 def report_handler(report_req_info):
     start = datetime.datetime.strptime(report_req_info["dateFrom"]+ " " + "05:30:00", '%Y-%m-%d %H:%M:%S')
-    end = datetime.datetime.strptime(report_req_info["dateTo"]+ " " + "22:30:00", '%Y-%m-%d %H:%M:%S')
-    if report_req_info["reportType"] == "sale":
+    if report_req_info["reportType"] == "stock":
+        return stock_report(start)
+    elif report_req_info["reportType"] == "sale":
+        end = datetime.datetime.strptime(report_req_info["dateTo"]+ " " + "22:30:00", '%Y-%m-%d %H:%M:%S')
         return sales_report(start, end)
     elif report_req_info["reportType"] == "purchase":
+        end = datetime.datetime.strptime(report_req_info["dateTo"]+ " " + "22:30:00", '%Y-%m-%d %H:%M:%S')
         return purchase_report(start, end)
-    elif report_req_info["reportType"] == "stock":
-        return stock_report(start, end)
 
 def sales_report(start, end):  
     invoices = Sale.objects((Q(invoiceDate__gte=start) & Q(invoiceDate__lte=end)))
@@ -27,7 +28,7 @@ def sales_report(start, end):
     column_headers = ["Invoice No.", "Invoice Date", "Item Description", "HSN", "Rate per Item", "Qty", "Taxable Val", "CGST Rate", "CGST Amt", "SGST Rate", "SGST Amt", "IGST Rate", "IGST Amt", "Total", "Customer Name", "GSTIN"]
     
     #Aplly style to header row
-    sheet.row_dimensions[1].fill = PatternFill("solid", fgColor="C5C5C5")
+    sheet.row_dimensions[1].fill = PatternFill("solid", fgColor="b4f05c")
     sheet.row_dimensions[1].border = Border(left=Side(border_style="thin"),right=Side(border_style="thin"),top=Side(border_style="thin"),bottom=Side(border_style="thin"))
     sheet.row_dimensions[1].font = Font(name="Calibri", bold=True)
 
@@ -92,7 +93,7 @@ def sales_report(start, end):
     total_row_index = sheet.max_row
     
     #apply styles to final row
-    sheet.row_dimensions[total_row_index+1].fill = PatternFill("solid", fgColor="C5C5C5")
+    sheet.row_dimensions[total_row_index+1].fill = PatternFill("solid", fgColor="b4f05c")
     sheet.row_dimensions[total_row_index+1].border = Border(left=Side(border_style="thin"),right=Side(border_style="thin"),top=Side(border_style="thin"),bottom=Side(border_style="thin"))
     sheet.row_dimensions[total_row_index+1].font = Font(name="Calibri", bold=True)
     # total row label
@@ -116,21 +117,136 @@ def sales_report(start, end):
     total = '= SUM(N2:N'+str(total_row_index)+')'
     sheet.cell(row=total_row_index+1, column=14).value = total
 
+        #this adjusts the font and column width of the whole sheet
+    dims = {}
+    for row in sheet.rows:
+        for cell in row:
+            if cell.value:
+                dims[cell.column_letter] = max((dims.get(cell.column_letter, 0), (len(str(cell.value)))*1.2))    
+    for col, value in dims.items():
+        sheet.column_dimensions[col].width = value
+    ####
+
     wb.save(file_base_dir+filename)
     return filename
 
 def purchase_report(start, end):
+    purchases = Purchase.objects((Q(invoiceDate__gte=start) & Q(invoiceDate__lte=end)))
     file_base_dir = "./tempdata/sales_report/"
     filename = str(datetime.datetime.now())+"purchase_report.xlsx"
     wb = openpyxl.Workbook() 
     sheet = wb.active
+
+    sheet.freeze_panes = 'A2'
+
+    column_headers = ["Invoice No.", "Invoice Date", "Claim Invoice", "Claim Number", "Item Description", "Item Code", "HSN", "Qty", "Taxable Val", "Tax", "Total"]
+    
+    #Aplly style to header row
+    sheet.row_dimensions[1].fill = PatternFill("solid", fgColor="C5C5C5")
+    sheet.row_dimensions[1].border = Border(left=Side(border_style="thin"),right=Side(border_style="thin"),top=Side(border_style="thin"),bottom=Side(border_style="thin"))
+    sheet.row_dimensions[1].font = Font(name="Calibri", bold=True)
+
+    for i, column_header in enumerate(column_headers):
+        sheet.cell(row=1, column=i+1).value = column_header
+
+    #find a better way to do the following, instead of using base index, use sheet.max_row ?
+    base_index = 0
+    for invoice in purchases:
+        total_items = len(invoice.items)
+        for i, product in enumerate(invoice.items):
+            row_index = i+2+base_index
+            sheet.cell(row = row_index, column = 1).value = invoice.invoiceNumber
+            sheet.cell(row = row_index, column = 2).value = invoice.invoiceDate.strftime("%d/%m/%Y")
+            sheet.cell(row = row_index, column = 3).value = "No" if invoice.claimInvoice ==0 else "Yes"
+            sheet.cell(row = row_index, column = 4).value = invoice.claimNumber
+            sheet.cell(row = row_index, column = 5).value = product.itemDesc
+            sheet.cell(row = row_index, column = 6).value = product.itemCode
+            sheet.cell(row = row_index, column = 7).value = product.HSN
+            sheet.cell(row = row_index, column = 8).value = product.quantity
+            sheet.cell(row = row_index, column = 9).value = product.taxableValue
+            sheet.cell(row = row_index, column = 10).value = product.tax
+            sheet.cell(row = row_index, column = 11).value = product.itemTotal
+        base_index += total_items
+
+    total_row_index = sheet.max_row
+    
+    #apply styles to final row
+    sheet.row_dimensions[total_row_index+1].fill = PatternFill("solid", fgColor="C5C5C5")
+    sheet.row_dimensions[total_row_index+1].border = Border(left=Side(border_style="thin"),right=Side(border_style="thin"),top=Side(border_style="thin"),bottom=Side(border_style="thin"))
+    sheet.row_dimensions[total_row_index+1].font = Font(name="Calibri", bold=True)
+    # total row label
+    sheet.cell(row=total_row_index+1, column=2).value = "TOTAL"
+    # total quantity
+    total_quantity = '= SUM(H2:H'+str(total_row_index)+')'
+    sheet.cell(row=total_row_index+1, column=8).value = total_quantity
+    # total taxable val
+    total_taxable_val = '= SUM(I2:I'+str(total_row_index)+')'
+    sheet.cell(row=total_row_index+1, column=9).value = total_taxable_val
+    # total CGST
+    total_tax = '= SUM(J2:J'+str(total_row_index)+')'
+    sheet.cell(row=total_row_index+1, column=10).value = total_tax
+    # total 
+    total = '= SUM(K2:K'+str(total_row_index)+')'
+    sheet.cell(row=total_row_index+1, column=11).value = total
+
+    #this adjusts the font and column width of the whole sheet
+    dims = {}
+    for row in sheet.rows:
+        for cell in row:
+            if cell.value:
+                dims[cell.column_letter] = max((dims.get(cell.column_letter, 0), (len(str(cell.value))+1)*1.2))    
+    for col, value in dims.items():
+        sheet.column_dimensions[col].width = value
+    ####
+
     wb.save(file_base_dir+filename)
     return filename
 
-def stock_report(start, end):
+def stock_report(start):
+    category_required_list = [
+    "passenger_car_tyre", 
+    "passenger_car_tube", 
+    "2_wheeler_tyre",
+    "2_wheeler_tube",
+    "3_wheeler_tyre",
+    "3_wheeler_tube",
+    "scv_tyre",
+    "scv_tube",
+    "tubeless_valve"
+    ]
+    products = Product.objects(Q(category__in=category_required_list)&Q(stock__ne=0))
     file_base_dir = "./tempdata/sales_report/"
     filename = str(datetime.datetime.now())+"stock_report.xlsx"
     wb = openpyxl.Workbook() 
     sheet = wb.active
+
+    sheet.freeze_panes = 'A2'
+    column_headers = ["Item Description", "Item Code", "Cost Price", "Stock"]
+    
+    #Aplly style to header row
+    sheet.row_dimensions[1].fill = PatternFill("solid", fgColor="fcfa8e")
+    sheet.row_dimensions[1].border = Border(left=Side(border_style="thin"),right=Side(border_style="thin"),top=Side(border_style="thin"),bottom=Side(border_style="thin"))
+    sheet.row_dimensions[1].font = Font(bold=True)
+
+    for i, column_header in enumerate(column_headers):
+        sheet.cell(row=1, column=i+1).value = column_header
+
+    for i, product in enumerate(products):
+        sheet.cell(row = i+2, column = 1).value = product.itemDesc
+        sheet.cell(row = i+2, column = 2).value = product.itemCode
+        sheet.cell(row = i+2, column = 3).value = product.costPrice
+        sheet.cell(row = i+2, column = 4).value = product.stock
+
+
+    #this adjusts the font and column width of the whole sheet
+    dims = {}
+    for row in sheet.rows:
+        for cell in row:
+            if cell.value:
+                dims[cell.column_letter] = max((dims.get(cell.column_letter, 0), (len(str(cell.value))+0)*1.2))    
+    for col, value in dims.items():
+        sheet.column_dimensions[col].width = value
+    ####
+
     wb.save(file_base_dir+filename)
     return filename
