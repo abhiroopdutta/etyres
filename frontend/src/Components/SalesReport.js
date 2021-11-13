@@ -79,7 +79,7 @@ function SalesReport(){
         <div className="report" key={index}>
           <h3>{report} Report - select date -</h3>
           <input type="date" name={report+"DateFrom"} onChange={handleDateRange}/>
-          {report!="stock"?
+          {report!=="stock"?
           <input type="date" name={report+"DateTo"} onChange={handleDateRange}/>
           :null}
           <button name={report} onClick={handleGenerateFile}> Generate {report} report excel </button>
