@@ -58,7 +58,7 @@ def compute_price(vehicle_type, item_code, net_ndp):
 	gst = taxable_val*float(pv_vehicle_type[vehicle_type]["gst"])
 	cost_price = round(float(taxable_val+gst),2)
 
-	print("\nfrieght ", frt, "spd ", spd, "plsd ", plsd, "total discount", spd+plsd,"taxable val ", taxable_val, "gst ", gst, "cost price ", cost_price)
+	print("\n net ndp: ", net_ndp, "frieght: ", frt, "spd: ", spd, "plsd: ", plsd, "total discount:", spd+plsd,"taxable val: ", taxable_val, "gst: ", gst, "cost price: ", cost_price)
 	return cost_price
 
 def compute_size(item_desc):
@@ -114,7 +114,7 @@ def update_price(file):
 		#only the process the row if column A is not empty
 		if(column_a):
 			column_a = str(column_a)
-			print("row", i, "column1", column_a)
+			print("\nrow", i, "column1", column_a)
 
 			#if this row is a category row, skip this row after getting the vehicle type
 			if(find_vehicle_type(column_a) in pv_vehicle_type) or (find_vehicle_type(column_a) in other_vehicle_type):
@@ -123,7 +123,7 @@ def update_price(file):
 			if(vehicle_type in pv_vehicle_type):
 				item_desc = str(tyres_xl.cell(row=i, column=1).value).strip()
 				item_code = str(tyres_xl.cell(row=i, column=2).value).strip()
-				net_ndp = float(str(tyres_xl.cell(row=i, column=5).value))
+				net_ndp = round(float(str(tyres_xl.cell(row=i, column=5).value)))
 				cost_price = compute_price(vehicle_type, item_code, net_ndp)
 				load_to_db(vehicle_type, item_desc, item_code, cost_price)
 			
