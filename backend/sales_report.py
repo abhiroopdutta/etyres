@@ -250,3 +250,18 @@ def stock_report(start):
 
     wb.save(file_base_dir+filename)
     return filename
+
+def reset_stock():
+    for product in Product.objects(stock__ne=0):
+        product.update(stock = 0)
+
+    for invoice in Purchase.objects:
+        for product in invoice.items:
+            new_stock = Product.objects(itemCode=product.itemCode).first().stock + product.quantity
+            Product.objects(itemCode=product.itemCode).first().update(stock=new_stock) 
+    
+    for invoice in Sale.objects:
+        for product in invoice.productItems:
+            new_stock = Product.objects(itemCode=product.itemCode).first().stock - product.quantity
+            Product.objects(itemCode=product.itemCode).first().update(stock=new_stock) 
+    return True

@@ -6,7 +6,7 @@ from db import initialize_db
 from update_price import update_price
 from update_stock import read_invoice, update_stock
 from create_order import create_order
-from sales_report import report_handler
+from sales_report import report_handler, reset_stock
 from initial_setup import initial_setup
 from models import Product, Purchase, Sale
 from datetime import date, datetime
@@ -88,6 +88,10 @@ def hello_world():
     return Response(products, mimetype="application/json", status=200)
 
 
+@app.route("/api/reset_stock", methods = ['GET'])
+def stock_reset():
+    status = reset_stock()
+    return jsonify(status)
 
 @app.route("/api/sales_report", methods = ['POST'])
 def sales_report_excel():

@@ -52,6 +52,7 @@
 }
 
 .service{
+    padding-bottom: 7px;
     display: flex;
     flex-direction: column;
 }
@@ -63,6 +64,7 @@
 }
 
 .service-details{
+    padding-top: 3px;
     display: flex;
     flex-wrap: wrap;
 }
