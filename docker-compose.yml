@@ -45,6 +45,7 @@ services:
       # - 27019:27019
     volumes:
       - mongoproddata:/data/db
+      - mongoprodconfig:/data/configdb  
     profiles: ["prod"]
 
   react-app:
@@ -92,6 +93,7 @@ services:
       # - 27019:27019
     volumes:
       - mongodevdata:/data/db
+      - mongodevconfig:/data/configdb  
     profiles: ["dev"]
     
 volumes:
@@ -101,7 +103,11 @@ volumes:
     driver: local
   mongoproddata:
     driver: local
+  mongoprodconfig:
+    driver: local
   mongodevdata:
+    driver: local
+  mongodevconfig:
     driver: local
 
 
