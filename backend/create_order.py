@@ -1,7 +1,8 @@
-from models import CustomerDetail, Product, ProductItem, Sale, ServiceItem
+from models import CustomerDetail, Product, ProductItem, Purchase, PurchaseItem, Sale, ServiceItem
 import datetime
+import openpyxl
 
-#if services in cart and IGST invoice, then error, fix this in future
+# if services in cart and IGST invoice, then error, fix this in future
 def create_order(invoice):
     invoice_number = invoice["invoiceNumber"]
     if(invoice["initialSetup"]):
@@ -70,3 +71,54 @@ def create_order(invoice):
         serviceItems = service_items
 
         ).save()
+
+
+# read invoices from sales report and upload to db
+def fix():
+    wb = openpyxl.load_workbook('./fix_purchase.xlsx', data_only='True')
+    sheet = wb.active
+
+    invoice_number = ""
+    invoice_date = "#N/A"
+    claim_number = ""
+    claim_invoice = False
+    invoice_total = 0
+    for row in sheet.values:
+        current_invoice_number, *_ = row
+        if current_invoice_number != invoice_number:
+
+            if(invoice_date != "#N/A"):
+                print(invoice_number, invoice_date, claim_number, claim_invoice, round(invoice_total))
+                Purchase(
+                    invoiceDate =  invoice_date,
+                    invoiceNumber = str(invoice_number), 
+                    claimInvoice = claim_invoice,
+                    claimNumber = claim_number,
+                    invoiceTotal = invoice_total,
+                    items = items
+                    ).save()
+
+            invoice_number, invoice_date, claim_invoice, claim_number, *_ = row
+            if(invoice_date == "#N/A"):
+                continue
+            claim_invoice = True if claim_invoice == "Yes" else False
+            claim_number = "" if claim_number is None else claim_number
+            invoice_total = 0
+            manual_time = "19:" + datetime.datetime.now().strftime("%M:%S:%f")
+            invoice_date = datetime.datetime.strptime(invoice_date+ " " + manual_time, "%d.%m.%Y %H:%M:%S:%f")
+            items = []
+
+        *_, item_desc, item_code, hsn, quantity, taxable_val, tax, item_total = row
+        invoice_total += item_total
+        new_item = PurchaseItem(
+            itemDesc = item_desc,
+            itemCode = item_code,
+            HSN = hsn,
+            quantity = quantity, 
+            taxableValue = taxable_val,
+            tax = tax,
+            itemTotal = item_total
+        )
+        items.append(new_item)
+
+    return "success"

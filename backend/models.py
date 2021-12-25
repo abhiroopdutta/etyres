@@ -16,8 +16,6 @@ class PurchaseItem(db.EmbeddedDocument):
     itemDesc = db.StringField(required=True)
     itemCode = db.StringField(required=True)
     HSN = db.StringField(required=True)
-    category = db.StringField(required=True)
-    size = db.StringField(required=True)
     quantity = db.IntField(required=True)
     taxableValue = db.FloatField(required=True)
     tax = db.FloatField(required=True)

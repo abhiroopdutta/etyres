@@ -89,8 +89,6 @@ def update_stock(invoices):
                         itemDesc = item_desc, 
                         itemCode = item_code, 
                         HSN=hsn, 
-                        category=category, 
-                        size=size, 
                         quantity=quantity, 
                         taxableValue=taxable_value, 
                         tax=tax, 
