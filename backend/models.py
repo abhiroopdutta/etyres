@@ -12,6 +12,7 @@ class Product(db.Document):
     costPrice = db.FloatField(required=True)
     stock = db.IntField(required=True)
 
+# add special discount attribute
 class PurchaseItem(db.EmbeddedDocument):
     itemDesc = db.StringField(required=True)
     itemCode = db.StringField(required=True)
@@ -22,7 +23,7 @@ class PurchaseItem(db.EmbeddedDocument):
     itemTotal = db.FloatField(required=True)
  
 class Purchase(db.Document):
-    invoiceNumber = db.StringField(required=True, unique=True)
+    invoiceNumber = db.IntField(required=True, unique=True)
     invoiceDate = db.DateTimeField(required=True, default=datetime.datetime.now)    
     claimInvoice = db.BooleanField(Required=True)
     claimNumber = db.StringField(required=True)
@@ -42,8 +43,6 @@ class ProductItem(db.EmbeddedDocument):
     itemDesc = db.StringField(required=True)
     itemCode = db.StringField(required=True)
     HSN = db.StringField(required=True)
-    category = db.StringField(required=True)
-    size = db.StringField(required=True)
     costPrice = db.FloatField(required=True)
     ratePerItem = db.FloatField(required=True)
     quantity = db.IntField(required=True)
@@ -62,7 +61,7 @@ class ServiceItem(db.EmbeddedDocument):
 class Sale(db.Document):
     invoiceNumber = db.IntField(required=True, unique=True) 
     invoiceDate = db.DateTimeField(required=True, default=datetime.datetime.now)
-    invoiceTotal = db.FloatField(required=True)
+    invoiceTotal = db.IntField(required=True)
     invoiceRoundOff = db.FloatField(required=True)
     customerDetails = db.EmbeddedDocumentField(CustomerDetail)
     productItems =  db.ListField(db.EmbeddedDocumentField(ProductItem))
