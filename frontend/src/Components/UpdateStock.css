@@ -1,3 +1,16 @@
 .update-stock{
-    padding: 26px 44px 44px 44px;
+    padding: 10px 44px 44px 44px;
+}
+
+.invoice-items{
+    padding-top: 20px;
+    display: flex;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    row-gap: 20px;
+    column-gap: 30px;
+}
+
+.update-inventory{
+    margin-top: 20px;
 }

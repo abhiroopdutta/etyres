@@ -1,5 +1,5 @@
 import csv	
-from models import Product, Purchase, PurchaseItem
+from models import ClaimItem, Product, Purchase, PurchaseItem
 import glob, os
 import datetime
 
@@ -9,6 +9,7 @@ def read_invoice(directory):
     for file in files:
         with open(file) as f:
             reader = csv.reader(f, delimiter="\t")
+            claim_items = []
             items=[]
             invoice_total = 0
             price_list_total = 0
@@ -19,6 +20,7 @@ def read_invoice(directory):
                     invoice_number = str(row[0])
                     items.append({
                         "item_code":str(row[2]), 
+                        "item_desc":str(row[3]),
                         "quantity":int(row[4]),
                         "taxable_value":float(row[5].replace(",", "")),
                         "tax":float(row[6].replace(",", "")),
@@ -39,13 +41,34 @@ def read_invoice(directory):
 
             if(Purchase.objects(invoiceNumber=invoice_number).first()):
                 already_exists = True
+
+            # claim_items will be populated, even though it is still unknown whether
+            # this is a claim invoice or not, after getting the information of
+            # from frontend (user), we decide whether to ignore the claim_items
+            # or not.
+            # claim_items contains a list of products(not identified by product code),
+            # identified by their claim number, every phsyical product has a 
+            # unique claim number 
+            for item in items:
+                for i in range(item["quantity"]):
+                    claim_items.append({
+                        "item_code":item["item_code"], 
+                        "item_desc":item["item_desc"],
+                        "claim_number":0,
+                        "quantity":1,
+                        "taxable_value":round(item["taxable_value"]/item["quantity"], 2),
+                        "tax":round(item["tax"]/item["quantity"], 2),
+                        "item_total":round(item["item_total"]/item["quantity"], 2)
+                    })
+            
             invoices.append({
                 "initial_setup":False,
                 "invoice_number":invoice_number,
-                "invoice_date": "",
+                "invoice_date": datetime.datetime.now().strftime("%Y-%m-%d"),
+                "special_discount": "",
                 "already_exists":already_exists,
                 "claim_invoice":False,
-                "claim_number":"",
+                "claim_items": claim_items,
                 "overwrite_price_list":False,
                 "items":items,
                 "invoice_total":invoice_total,
@@ -62,6 +85,7 @@ def update_stock(invoices):
         #only process this invoice if it doesn't exist in DB
         if(Purchase.objects(invoiceNumber=invoice["invoice_number"]).first() is None):
             items = []
+            claim_items = []
             for item in invoice["items"]:
 
                     #update products table first
@@ -99,8 +123,17 @@ def update_stock(invoices):
 
             invoice_number = invoice["invoice_number"]
             claim_invoice = invoice["claim_invoice"]
-            claim_number = invoice["claim_number"]
+            if claim_invoice:
+                for claim_item in invoice["claim_items"]:
+                    new_claim_item = ClaimItem(
+                        itemDesc = Product.objects(itemCode=claim_item["item_code"]).first().itemDesc,
+                        itemCode = claim_item["item_code"],
+                        claimNumber = claim_item["claim_number"]
+                    )
+                    claim_items.append(new_claim_item)
+
             invoice_total = invoice["invoice_total"]
+            special_discount = invoice["special_discount"]
             if(invoice["initial_setup"]):
                 invoice_date = datetime.datetime.strptime(invoice["invoice_date"] + " " + "11:30:00", '%Y-%m-%d %H:%M:%S')
             else:
@@ -109,8 +142,9 @@ def update_stock(invoices):
             purchase_invoice = Purchase(
                 invoiceDate =  invoice_date,
                 invoiceNumber = invoice_number, 
+                specialDiscount = special_discount,
                 claimInvoice = claim_invoice,
-                claimNumber = claim_number,
+                claimItems = claim_items,
                 invoiceTotal = invoice_total,
                 items = items
                 ).save()

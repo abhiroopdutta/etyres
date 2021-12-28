@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
-import './UpdateStock.css'
+import './UpdateStock.css';
+import PurchaseInvoice from './PurchaseInvoice';
 
 function UpdateStock() {
 
@@ -54,16 +55,16 @@ function UpdateStock() {
             
 	};
 
-    const handleClaimOverwrite = (index, e) => {
+    const handleClaimOverwrite = (invoice_index, e) => {
         let invoicesCopy = [...invoices];
         if(e.target.value === "claim"){
-            invoicesCopy[index].claim_invoice = true;
-            invoicesCopy[index].overwrite_price_list = false;
+            invoicesCopy[invoice_index].claim_invoice = true;
+            invoicesCopy[invoice_index].overwrite_price_list = false;
             setInvoices(invoicesCopy);
         }        
         else{
-            invoicesCopy[index].claim_invoice = false;
-            invoicesCopy[index].overwrite_price_list = true;
+            invoicesCopy[invoice_index].claim_invoice = false;
+            invoicesCopy[invoice_index].overwrite_price_list = true;
             setInvoices(invoicesCopy);
         }
     }
@@ -104,16 +105,16 @@ function UpdateStock() {
 
     }
 
-    const handleClaimNumber = (index, e) => {
+    const handleClaimNumber = (invoice_index, claim_item_index, e) => {
         let invoicesCopy = [...invoices];
-        invoicesCopy[index].claim_number = e.target.value;
+        invoicesCopy[invoice_index].claim_items[claim_item_index].claim_number = e.target.value;
         setInvoices(invoicesCopy);
         
     }
 
-    const handleInvoiceDate = (index, e) => {
+    const handleInvoiceDate = (invoice_index, e) => {
         let invoicesCopy = [...invoices];
-        invoicesCopy[index].invoice_date = e.target.value;
+        invoicesCopy[invoice_index].invoice_date = e.target.value;
         setInvoices(invoicesCopy);
     }
 
@@ -131,17 +132,21 @@ function UpdateStock() {
             
 	};
 
+    const handleSpecialDiscount = (invoice_index, e) => {
+        let invoicesCopy = [...invoices];
+        invoicesCopy[invoice_index].special_discount = e.target.value;
+        setInvoices(invoicesCopy);
+    }
 
 
     return (
         <div className="update-stock">
-            <button onClick={handleDateFile}>run date update funtion</button>
-            <div> {dateUpdateMessage} </div>
-
+            {/* <button onClick={handleDateFile}>run date update funtion</button>
+            <div> {dateUpdateMessage} </div> */}
             <h3>Upload invoice to update stock</h3>
             <form method="POST" action="" encType="multipart/form-data" >
-            <p><input type="file" name="files" multiple onChange={changeHandler}/></p>
-            <p><input type="submit" value="Submit"  onClick={handleSubmission}/></p>
+                <p><input type="file" name="files" multiple onChange={changeHandler}/></p>
+                <p><input type="submit" value="Submit"  onClick={handleSubmission}/></p>
             </form>
 
             {invoices.length!==0?
@@ -150,33 +155,26 @@ function UpdateStock() {
                 <label for="initial-setup">Initial Setup</label>
             </div>
             :null}
-            {invoices.map( (invoice, index)=>
-                <div key={index}>
-                    <h4 >Invoice no. {invoice.invoice_number}</h4> 
-                    {invoice.already_exists?<div>Invoice already exists in database</div>:null}
-                    {initialSetup?<div >Invoice Date: <input type="date" onChange={(e)=>handleInvoiceDate(index, e)}/></div>:null}
-                    {invoice.price_list_tally?
-                    <div>
-                        price is matching   &#9989; 
-                    </div>
-                    
-                    :      
-                    <div onChange={(e)=>handleClaimOverwrite(index,e)}>
-                        <div>price difference detected   &#10060;</div>
-                        <input type="radio" value="claim" name={"claim_overwrite"+index} required/> Mark as claim invoice
-                        <input type="radio" value="overwrite" name={"claim_overwrite"+index} required/> Overwrite price list
-                    </div>   
-                    }
-                    <br/>
-                    {invoice.claim_invoice?
-                    <input type="text" placeholder="claim number" onChange={(e)=>handleClaimNumber(index,e)}/>:null}
-                    <br/>
-                    <hr/>
-                                                    
-                </div>
+            <div className="invoice-items">
+                {invoices.map( (invoice, invoice_index)=> 
+                <PurchaseInvoice 
+                    invoice={invoice} 
+                    key={invoice_index}
+                    invoice_index={invoice_index}
+                    initialSetup={initialSetup}
+                    handleInvoiceDate={handleInvoiceDate}
+                    handleClaimOverwrite={handleClaimOverwrite}
+                    handleClaimNumber={handleClaimNumber}
+                    handleSpecialDiscount={handleSpecialDiscount}
+                />
                 )}
+            </div>
 
-            {invoices.length!==0?<button onClick={handleUpdateInventory}>Update inventory and save invoices</button>:null}
+            {invoices.length!==0?
+                <button className="update-inventory" onClick={handleUpdateInventory}>
+                    Update inventory and save invoices
+                </button>
+            :null}
             <br/>
 
             {successMessage!==""?<h4>{successMessage} !</h4>:null}
