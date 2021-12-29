@@ -93,10 +93,11 @@ def fix_purchase():
             if(invoice_date != "#N/A"):
                 print(invoice_number, invoice_date, claim_number, claim_invoice, round(invoice_total))
                 Purchase(
-                    invoiceDate =  invoice_date,
                     invoiceNumber = invoice_number, 
+                    invoiceDate =  invoice_date,
+                    specialDiscount = "",
                     claimInvoice = claim_invoice,
-                    claimNumber = claim_number,
+                    claimItems = [],
                     invoiceTotal = round(invoice_total),
                     items = items
                     ).save()
