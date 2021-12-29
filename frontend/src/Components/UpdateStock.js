@@ -43,11 +43,19 @@ function UpdateStock() {
         if(e.target.value === "claim"){
             invoicesCopy[invoice_index].claim_invoice = true;
             invoicesCopy[invoice_index].overwrite_price_list = false;
+            invoicesCopy[invoice_index].special_discount = "";
             setInvoices(invoicesCopy);
         }        
-        else{
+        else if(e.target.value === "overwrite"){
             invoicesCopy[invoice_index].claim_invoice = false;
             invoicesCopy[invoice_index].overwrite_price_list = true;
+            invoicesCopy[invoice_index].special_discount = "";
+            setInvoices(invoicesCopy);
+        }
+        else if(e.target.value === "special_discount"){
+            invoicesCopy[invoice_index].claim_invoice = false;
+            invoicesCopy[invoice_index].overwrite_price_list = false;
+            invoicesCopy[invoice_index].special_discount = "DISCOUNT_NAME";
             setInvoices(invoicesCopy);
         }
     }
@@ -59,9 +67,9 @@ function UpdateStock() {
         let selectOneError = false;
         let selectDateError = false;
         for(let i=0; i<invoices.length; i++){
-            if((invoices[i].price_difference)&&(!invoices[i].claim_invoice)&&(!invoices[i].overwrite_price_list)){
+            if((invoices[i].price_difference)&&(!invoices[i].claim_invoice)&&(!invoices[i].overwrite_price_list)&&(!invoices[i].special_discount)){
                 selectOneError = true;
-                console.log("select either claim invoice or overwrite price list");
+                alert("select either claim invoice or special discount or overwrite price list");
                 break;
             }
         }

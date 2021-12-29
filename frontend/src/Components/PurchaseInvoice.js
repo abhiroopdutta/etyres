@@ -12,8 +12,8 @@ function PurchaseInvoice({invoice, invoice_index, handleInvoiceDate, handleClaim
             <hr/>
             
             {invoice.already_exists?<p className="invoice-exists">Invoice already exists in database &#8252;</p>:null}
-            {invoice.price_difference?
-            <div className="special-discount">Special discount:
+            {(invoice.price_difference&&invoice.special_discount)?
+            <div className="special-discount">Discount Type:
                 <input type="text" value={invoice.special_discount} onChange={(e)=>handleSpecialDiscount(invoice_index, e)} /> 
             </div>
             :null
@@ -22,6 +22,7 @@ function PurchaseInvoice({invoice, invoice_index, handleInvoiceDate, handleClaim
             <section className="claim-overwrite" onChange={(e)=>handleClaimOverwrite(invoice_index,e)}>
                 <input type="radio" value="claim" name={"claim_overwrite"+invoice_index} required/> Claim Invoice
                 <input type="radio" value="overwrite" name={"claim_overwrite"+invoice_index} required/> Overwrite price list
+                <input type="radio" value="special_discount" name={"claim_overwrite"+invoice_index} required/> Special Discount
             </section>   
             :null
             }
