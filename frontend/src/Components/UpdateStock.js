@@ -7,24 +7,7 @@ function UpdateStock() {
     const [selectedFiles, setSelectedFiles] = useState();
     const [invoices, setInvoices] = useState([]);
     const [successMessage, setSuccessMessage] = useState("");
-    const [initialSetup, setInitialSetup] = useState(false);
     const [dateUpdateMessage, setDateUpdateMessage] = useState("")
-
-    const handleInitialSetup = () => {
-        let invoicesCopy = [...invoices];
-        if(!initialSetup){
-            for(let i=0; i<invoicesCopy.length; i++){
-                invoicesCopy[i].initial_setup = true;
-            }
-        }
-        else {
-            for(let i=0; i<invoicesCopy.length; i++){
-                invoicesCopy[i].initial_setup = false;
-            }
-        }
-        setInvoices(invoicesCopy);
-        setInitialSetup(!initialSetup);
-      }
 
 	const changeHandler = (event) => {
 		setSelectedFiles(event.target.files);
@@ -76,21 +59,13 @@ function UpdateStock() {
         let selectOneError = false;
         let selectDateError = false;
         for(let i=0; i<invoices.length; i++){
-            if((!invoices[i].price_list_tally)&&(!invoices[i].claim_invoice)&&(!invoices[i].overwrite_price_list)){
+            if((invoices[i].price_difference)&&(!invoices[i].claim_invoice)&&(!invoices[i].overwrite_price_list)){
                 selectOneError = true;
                 console.log("select either claim invoice or overwrite price list");
                 break;
             }
         }
 
-        //if initial setup and any invoice date field is empty, then do not post
-        for(let i=0; i<invoices.length; i++){
-            if(initialSetup && (invoices[i].invoice_date === "")){
-                selectDateError = true;
-                console.log("please fill the invoice date");
-                break;
-            }
-        }
 
         if( (!selectOneError) && (!selectDateError) ){
             const requestOptions = {
@@ -149,19 +124,12 @@ function UpdateStock() {
                 <p><input type="submit" value="Submit"  onClick={handleSubmission}/></p>
             </form>
 
-            {invoices.length!==0?
-            <div className="first-date">
-                <input type="checkbox" id="initial-setup" name="initial-setup" value="true" onChange={handleInitialSetup}/>
-                <label for="initial-setup">Initial Setup</label>
-            </div>
-            :null}
             <div className="invoice-items">
                 {invoices.map( (invoice, invoice_index)=> 
                 <PurchaseInvoice 
                     invoice={invoice} 
                     key={invoice_index}
                     invoice_index={invoice_index}
-                    initialSetup={initialSetup}
                     handleInvoiceDate={handleInvoiceDate}
                     handleClaimOverwrite={handleClaimOverwrite}
                     handleClaimNumber={handleClaimNumber}

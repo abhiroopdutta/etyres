@@ -13,7 +13,7 @@ def read_invoice(directory):
             items=[]
             invoice_total = 0
             price_list_total = 0
-            price_list_tally = True
+            price_difference = 0
             already_exists = False
             for i, row in enumerate(reader):
                 if(i>0):
@@ -36,8 +36,8 @@ def read_invoice(directory):
                 invoice_total += item["item_total"]
                 price_list_total += Product.objects(itemCode=item["item_code"]).first().costPrice*item["quantity"]
 
-            if(abs(round(invoice_total)-round(price_list_total))):
-                price_list_tally = False
+ 
+            price_difference = abs(round(invoice_total)-round(price_list_total))
 
             if(Purchase.objects(invoiceNumber=invoice_number).first()):
                 already_exists = True
@@ -62,7 +62,6 @@ def read_invoice(directory):
                     })
             
             invoices.append({
-                "initial_setup":False,
                 "invoice_number":invoice_number,
                 "invoice_date": datetime.datetime.now().strftime("%Y-%m-%d"),
                 "special_discount": "",
@@ -72,7 +71,7 @@ def read_invoice(directory):
                 "overwrite_price_list":False,
                 "items":items,
                 "invoice_total":invoice_total,
-                "price_list_tally":price_list_tally
+                "price_difference":price_difference
             })
 
         os.remove(file)
@@ -102,8 +101,6 @@ def update_stock(invoices):
                     item_desc = Product.objects(itemCode=item["item_code"]).first().itemDesc
                     item_code = item["item_code"]
                     hsn = Product.objects(itemCode=item["item_code"]).first().HSN
-                    category = Product.objects(itemCode=item["item_code"]).first().category
-                    size = Product.objects(itemCode=item["item_code"]).first().size
                     quantity = item["quantity"]
                     taxable_value = item["taxable_value"]
                     tax = item["tax"]
@@ -134,10 +131,7 @@ def update_stock(invoices):
 
             invoice_total = invoice["invoice_total"]
             special_discount = invoice["special_discount"]
-            if(invoice["initial_setup"]):
-                invoice_date = datetime.datetime.strptime(invoice["invoice_date"] + " " + "11:30:00", '%Y-%m-%d %H:%M:%S')
-            else:
-                invoice_date = datetime.datetime.now()
+            invoice_date = datetime.datetime.strptime(invoice["invoice_date"] + " " + "11:30:00", '%Y-%m-%d %H:%M:%S')
 
             purchase_invoice = Purchase(
                 invoiceDate =  invoice_date,

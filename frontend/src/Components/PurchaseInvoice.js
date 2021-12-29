@@ -1,28 +1,29 @@
 import React from 'react';
 import './PurchaseInvoice.css';
 
-function PurchaseInvoice({invoice, invoice_index, initialSetup, handleInvoiceDate, handleClaimOverwrite, handleClaimNumber, handleSpecialDiscount}){
+function PurchaseInvoice({invoice, invoice_index, handleInvoiceDate, handleClaimOverwrite, handleClaimNumber, handleSpecialDiscount}){
 
     return(
         <div className="purchase-invoice">
             <header>
                 <strong className="invoice-number">Invoice no. {invoice.invoice_number}</strong> 
-                {initialSetup?<strong className="invoice-date">Invoice Date: <input type="date" value={invoice.invoice_date} required="required" onChange={(e)=>handleInvoiceDate(invoice_index, e)}/></strong>:null}
+                {<strong className="invoice-date">Invoice Date: <input type="date" value={invoice.invoice_date} required="required" onChange={(e)=>handleInvoiceDate(invoice_index, e)}/></strong>}
             </header>
             <hr/>
             
             {invoice.already_exists?<p className="invoice-exists">Invoice already exists in database &#8252;</p>:null}
+            {invoice.price_difference?
             <div className="special-discount">Special discount:
                 <input type="text" value={invoice.special_discount} onChange={(e)=>handleSpecialDiscount(invoice_index, e)} /> 
             </div>
-            {invoice.price_list_tally?
-            <div className="invoice-price-difference">Price match  &#9989; </div>       
-            :      
-            <section className="invoice-price-difference" onChange={(e)=>handleClaimOverwrite(invoice_index,e)}>
-                <div>Price difference detected   &#10060;</div>
+            :null
+            }
+            {invoice.price_difference?     
+            <section className="claim-overwrite" onChange={(e)=>handleClaimOverwrite(invoice_index,e)}>
                 <input type="radio" value="claim" name={"claim_overwrite"+invoice_index} required/> Claim Invoice
                 <input type="radio" value="overwrite" name={"claim_overwrite"+invoice_index} required/> Overwrite price list
             </section>   
+            :null
             }
 
             <table className="invoice-item-headers">
@@ -60,7 +61,13 @@ function PurchaseInvoice({invoice, invoice_index, initialSetup, handleInvoiceDat
                 </tr>
  
             </table>
-            <br/>
+
+            <section className="invoice-price-difference">
+                {invoice.price_difference?    
+                <div>Price difference of &#8377; {invoice.price_difference} detected   &#10060;</div>            
+                :<div>Price match  &#9989; </div>}
+            </section>
+
             <br/>                           
         </div>
     )
