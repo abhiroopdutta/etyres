@@ -11,7 +11,7 @@ from initial_setup import initial_setup
 from models import Product, Purchase, Sale
 from datetime import date, datetime
 import os
-from create_order import fix
+from create_order import fix_purchase, fix_sale
 
 app = Flask(__name__)
 app.config['MONGODB_SETTINGS'] = {
@@ -114,7 +114,7 @@ def initial_setup_date():
 
 @app.route("/api/load", methods = ['GET'])
 def load():
-    return jsonify(fix())
+    return jsonify("hello")
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
