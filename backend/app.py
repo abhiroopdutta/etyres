@@ -32,7 +32,7 @@ def update_inventory():
         filepath = "./tempdata/"+new_name
         uploaded_file.save(filepath)
         update_price(filepath)
-        return jsonify("we got it")
+        return jsonify("Price List Updated")
     return jsonify("we didn't get it")
 
 @app.route("/api/read_invoice", methods = ['POST'])

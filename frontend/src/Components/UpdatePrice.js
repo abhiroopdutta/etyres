@@ -5,14 +5,15 @@ function UpdatePrice() {
 
     const [selectedFile, setSelectedFile] = useState();
     const [successMsg, setSuccessMsg] = useState("");
+    const [toggleLoader, setToggleLoader] = useState(false);
 
 	const changeHandler = (event) => {
 		setSelectedFile(event.target.files[0]);
-
 	};
 
     const handleSubmission = (e) => {
         e.preventDefault();
+        setToggleLoader(true);
 		const formData = new FormData();
 		formData.append('file', selectedFile);
 
@@ -26,6 +27,7 @@ function UpdatePrice() {
             .then((response) => response.json())
 			.then((result) => {
                 setSuccessMsg(result);
+                setToggleLoader(false);
 			})
 			.catch((error) => {
 				console.error('Error:', error);
@@ -42,6 +44,9 @@ function UpdatePrice() {
             <p><input type="file" name="file" onChange={changeHandler}/></p>
             <p><input type="submit" value="Submit" onClick={handleSubmission}/></p>
             <p>{successMsg}</p>
+            {toggleLoader?
+            <div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+            :null}
             </form>
         </div>
         
