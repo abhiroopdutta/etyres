@@ -15,6 +15,7 @@ function SalesReport(){
     const [stockResetMsg, setStockResetStatus] = useState(false);
 
     const reports = ["sale", "purchase", "stock"];
+    const [toggleLoader, setToggleLoader] = useState(false);
 
     const handleDateRange = (e, report) => {
       setDateRange({
@@ -77,9 +78,13 @@ function SalesReport(){
 
     const handleResetStock = () => {
       if (window.confirm("This will overwride all manual stock modifications to products table \n Do you want to proceed?")){
+        setToggleLoader(true);
         fetch('/api/reset_stock')
         .then(res=>res.json())
-        .then(data=>setStockResetStatus(data))
+        .then(data=>{
+          setToggleLoader(false);
+          setStockResetStatus(data)
+        })
       }
       else{
         console.log("cancelled");
@@ -90,6 +95,9 @@ function SalesReport(){
       <div>
         <button className="reset-button" onClick={handleResetStock}> Reset Stock </button>
         {stockResetMsg?<h4 className="reset-button">Stock has been reset</h4>:null}
+        {toggleLoader?
+            <div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+            :null}
         {reports.map( (report, index) =>
         <div className="report" key={index}>
           <h3>{report} Report - select date -</h3>
