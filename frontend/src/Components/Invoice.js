@@ -3,18 +3,10 @@ import React, {useContext, useState, useEffect} from 'react';
 import { CartContext } from './CartContext';
 import './Invoice.css';
 
-//to-do: date should update real time by chance invoice creation takes place near midnight
-function getCurrentDate(){
-  let today_date = new Date().toISOString().slice(0, 10).split("-");
-  let date = today_date[2]+"-"+today_date[1]+"-"+today_date[0];
-  return date;
-}
-
 
 function roundToTwo(num) {
     return +(Math.round(num + "e+2")  + "e-2");
 }
-
 
 function Invoice() {
 
@@ -71,8 +63,11 @@ function Invoice() {
   const [successMessage, setSuccessMessage] = useState("");
   const [invoiceNumber, setInvoiceNumber] = useState();
   //manual invoice date entry for initial setup of software 
-  const [invoiceDate, setInvoiceDate] = useState(getCurrentDate());
-  const [initialSetup, setInitialSetup] = useState(false);
+  const [invoiceDate, setInvoiceDate] = useState(()=>{
+    let today_date = new Date().toISOString().slice(0, 10).split("-");
+    let date = today_date[0]+"-"+today_date[1]+"-"+today_date[2];
+    return date;
+  });
 
   useEffect(
     ()=>{
@@ -83,17 +78,10 @@ function Invoice() {
   []);
 
   const handleInvoiceDate = (e) => {
-    let input_value = e.target.value.split("-");
-    let date = input_value[2]+"-"+input_value[1]+"-"+input_value[0];
-    setInvoiceDate(date);
+    setInvoiceDate(e.target.value);
+    console.log(e.target.value);
   }
 
-  const handleInitialSetup = () => {
-    if(initialSetup){
-      setInvoiceDate(getCurrentDate());
-    }
-    setInitialSetup(!initialSetup);
-  }
 
   const handleCustomerDetails = (e) => {
     setCustomerDetails({
@@ -242,7 +230,6 @@ function Invoice() {
     
     //prepare full invoice data to send to backend
     let invoiceData = {
-      initialSetup: initialSetup,
       invoiceNumber: invoiceNumber,
       invoiceDate: invoiceDate,
       customerDetails: customerDetails,
@@ -277,28 +264,33 @@ function Invoice() {
 
   return (
     <div className="invoice-component">
-      <div className="initial-setup">
-        <input type="checkbox" id="intial-setup" name="initial-setup" value="true" onChange={handleInitialSetup}/>
-          <label for="initial-setup">Initial Setup</label>
-      </div>
-      {initialSetup?<div className="manual-invoice-date">Invoice Date: <input type="date" onChange={(e)=>handleInvoiceDate(e)}/></div>:null}
       <button className="print-button" onClick={handlePrint}>CONFIRM ORDER</button>
       <Link className = "back-to-shop" to="/create_order">Go back to shop</Link>
       <div className="invoice-body">          
-        <div className="invoice-details">
-          <div className="shop-name">EUREKA TYRES</div>
-          <div className="invoice-no"> Tax Invoice #: {invoiceNumber}</div>
-          <br/>
-          <div className="shop-description">APOLLO PV ZONE</div>
-          <div className="invoice-date">Invoice Date: {invoiceDate}</div>
-          <br/>
-          <div className="shop-address-1">52/42/6A, Tashkand Marg, Civil Lines, Allahabad</div>
-          <div className="shop-GSTIN">GSTIN: 09FWTPD4101B1ZT</div>
-          <div className="shop-address-2">Uttar Pradesh - 211001 | +91 94355 55596</div>          
-          <div className="shop-GSTIN-area">State: Uttar Pradesh, Code:09</div> 
+        <div className="invoice-header">
+          <header className="shop-details">
+            <h4>EUREKA TYRES</h4>
+            <h4>APOLLO PV ZONE</h4>
+            <br/>
+            <address>
+              <p>GSTIN: 09FWTPD4101B1ZT</p>
+              <p>State: Uttar Pradesh, Code:09</p>
+              <p>52/42/6A, Tashkand Marg, Civil Lines, Allahabad</p>
+              <p>Uttar Pradesh - 211001 | +91 94355 55596</p>          
+            </address>
+          </header>
+          
+          <header className="invoice-details">
+            <h4> Tax Invoice # {invoiceNumber}</h4>
+            <h4>Invoice Date: <input type="date" value={invoiceDate} required="required" onChange={(e)=>handleInvoiceDate(e)}/></h4>
+            <label for="invoice_status">Invoice status:</label>
+            <select id="invoice_status" name="invoice_status">
+              <option value="paid">paid</option>
+              <option value="due">due</option>
+            </select> 
+          </header>          
         </div>
-        {/*this below div only required for css float left and right for above lines*/}
-        <div style={{clear:"both"}}></div>      
+        <br/>
         <hr/>
         <br/>
         <br/>

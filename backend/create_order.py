@@ -5,11 +5,14 @@ import openpyxl
 # if services in cart and IGST invoice, then error, fix this in future
 def create_order(invoice):
     invoice_number = invoice["invoiceNumber"]
-    if(invoice["initialSetup"]):
-        manual_time = "19:" + datetime.datetime.now().strftime("%M:%S")
-        invoice_date = datetime.datetime.strptime(invoice["invoiceDate"]+ " " + manual_time, "%d-%m-%Y %H:%M:%S")
-    else:
+
+     # if invoice date selected by user is not today (back date entry), then add time 19+current minute, second, manually
+    if invoice["invoiceDate"] == datetime.datetime.now().strftime('%Y-%m-%d'):
         invoice_date = datetime.datetime.now()
+    else:
+        manual_time = "19:" + datetime.datetime.now().strftime("%M:%S")
+        invoice_date = datetime.datetime.strptime(invoice["invoiceDate"]+ " " + manual_time, "%Y-%m-%d %H:%M:%S")
+
     invoice_total = invoice["invoiceTotal"]
     invoice_round_off = invoice["invoiceRoundOff"]
     customer_details = invoice["customerDetails"]

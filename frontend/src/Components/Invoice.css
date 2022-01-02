@@ -43,15 +43,30 @@
   padding:40px 40px;
 }
 
-.shop-name, .shop-description, .shop-address-1, .shop-address-2{
-  float: left;
+.invoice-header{
+  display: flex;
+  justify-content: space-between;
 }
 
-.invoice-no, .invoice-date, .shop-GSTIN, .shop-GSTIN-area{
-  float:right;
+.shop-details h4, .shop-details p{
+  margin: 0;
+  padding: 0;
 }
 
- .customer-details input{ 
+.invoice-details h4, .invoice-details select, .invoice-details label, .invoice-details input{
+  margin: 0;
+  padding: 0;
+  border: none;
+  appearance: none;
+  font-weight: bold;
+  background-color: rgb(255, 255, 255);;
+}
+
+.invoice-details select:hover, .invoice-details input:hover{
+  background-color: rgb(255, 255, 198);
+}
+
+.customer-details input{ 
   outline: none;
   border: 0.5px solid transparent;
   width: 400px;

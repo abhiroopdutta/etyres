@@ -135,7 +135,6 @@ def update_stock(invoices):
             # if invoice date selected by user is not today (back date entry), then add time 11:30 AM, manually
             if invoice["invoice_date"] == datetime.datetime.now().strftime('%Y-%m-%d'):
                 invoice_date = datetime.datetime.now()
-                print("date is today")
             else:
                 invoice_date = datetime.datetime.strptime(invoice["invoice_date"] + " " + "11:30:00", '%Y-%m-%d %H:%M:%S')
 
