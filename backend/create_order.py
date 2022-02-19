@@ -4,21 +4,35 @@ import openpyxl
 
 # if services in cart and IGST invoice, then error, fix this in future
 def create_order(invoice):
+
     invoice_number = invoice["invoiceNumber"]
-
-     # if invoice date selected by user is not today (back date entry), then add time 19+current minute, second, manually
-    if invoice["invoiceDate"] == datetime.datetime.now().strftime('%Y-%m-%d'):
-        invoice_date = datetime.datetime.now()
-    else:
-        manual_time = "19:" + datetime.datetime.now().strftime("%M:%S")
-        invoice_date = datetime.datetime.strptime(invoice["invoiceDate"]+ " " + manual_time, "%Y-%m-%d %H:%M:%S")
-
+    invoice_date = invoice["invoiceDate"]
     invoice_total = invoice["invoiceTotal"]
     invoice_round_off = invoice["invoiceRoundOff"]
-    customer_details = invoice["customerDetails"]
     products = invoice["products"]
     services = invoice["services"]
+    customer_details = invoice["customerDetails"]
+
+    # If empty invoice, then error code = 1
+    if not products and not services:
+        print("Error! invoice is empty")
+        return 1
+
+    # if invoice date selected by user is older than previous invoice date, then error code = 2
+    invoice_date = datetime.datetime.strptime(invoice_date, "%Y-%m-%d").date()
+    previous_invoice = Sale.objects().order_by('-_id').first()
+    if(previous_invoice is not None):
+        previous_invoice_date = previous_invoice.invoiceDate.date()
+        if invoice_date < previous_invoice_date:
+            print("Error! invoice date selected is older than previous invoice date")
+            return 2
     
+    # for backdate entry, invoice "time" doesn't represent the actual time of invoice creation
+    # invoice dates will always be increasing with increasing invoice number
+    # but invoice time may not be increasing with increasing invoice number
+    current_time = datetime.datetime.now().time()
+    invoice_date = datetime.datetime.combine(invoice_date, current_time)
+
     customerDetails = CustomerDetail(
         name = customer_details["name"],
         address = customer_details["address"],
@@ -30,25 +44,25 @@ def create_order(invoice):
         )
 
     product_items = []
-    for product in products:
-        #update products table first
-        oldstock = Product.objects(itemCode=product["itemCode"]).first().stock
-        new_stock = oldstock - product["quantity"]
-        Product.objects(itemCode=product["itemCode"]).first().update(stock=new_stock)
+    if products:
+        for product in products:
+            #update products table first
+            oldstock = Product.objects(itemCode=product["itemCode"]).first().stock
+            new_stock = oldstock - product["quantity"]
+            Product.objects(itemCode=product["itemCode"]).first().update(stock=new_stock)
 
-        product_item = ProductItem(
-            itemDesc = product["itemDesc"], 
-            itemCode = product["itemCode"], 
-            HSN = product["HSN"], 
-
-            costPrice = product["costPrice"], 
-            ratePerItem = product["ratePerItem"], 
-            quantity = product["quantity"], 
-            CGST = product["CGST"], 
-            SGST = product["SGST"], 
-            IGST = product["IGST"]
-        )
-        product_items.append(product_item)
+            product_item = ProductItem(
+                itemDesc = product["itemDesc"], 
+                itemCode = product["itemCode"], 
+                HSN = product["HSN"],
+                costPrice = product["costPrice"], 
+                ratePerItem = product["ratePerItem"], 
+                quantity = product["quantity"], 
+                CGST = product["CGST"], 
+                SGST = product["SGST"], 
+                IGST = product["IGST"]
+            )
+            product_items.append(product_item)
 
     service_items = []
     if services:
@@ -74,7 +88,7 @@ def create_order(invoice):
 
         ).save()
 
-
+    return 0
 #--------------------------------------------------------------------------------
 # emergency functions to recover data from purchase/sales report and upload to db
 #--------------------------------------------------------------------------------

@@ -251,12 +251,28 @@ function Invoice() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(invoiceData)
     };
-    fetch("/api/place_order", requestOptions)
-      .then(response => response.json())
-      .then(result => setSuccessMessage(result));
 
-    console.log(invoiceData);
-    window.print();
+    const place_order = async () => {
+      try{
+        const response = await fetch("/api/place_order", requestOptions);
+        const result = await response.json();
+        if(response.ok){
+          setSuccessMessage(result);
+          window.print();
+        }
+        else{
+          throw Error(result);
+        }
+      } catch(err) {
+          alert(err.message);
+          console.log(err.message);
+      }   
+    }
+
+    place_order();
+
+    //console.log(invoiceData);
+    
   }
 
   

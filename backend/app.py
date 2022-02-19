@@ -62,15 +62,21 @@ def process_invoice():
 @app.route("/api/place_order", methods = ['POST'])
 def stock_out():
     invoice = request.get_json()
-    create_order(invoice)
-    return jsonify("stock updated, invoice saved")
+    status = create_order(invoice)
+    if status == 0:
+        return jsonify("stock updated, invoice saved"), 200
+    elif status == 1:
+        return jsonify("Error! invoice is empty"), 400
+    elif status == 2:
+        return jsonify("Error! invoice date selected is older than previous invoice date"), 400
 
 @app.route("/api/sales_invoice_number", methods = ['GET'])
 def sales_invoice_number():
-    if(Sale.objects().order_by('-invoiceDate').first() is not None):
-        invoice_number = Sale.objects().order_by('-invoiceDate').first().invoiceNumber + 1
-    else:
+    previous_invoice = Sale.objects().order_by('-_id').first()
+    if(previous_invoice is None):
         invoice_number = 1
+    else:
+        invoice_number = previous_invoice.invoiceNumber + 1
     return jsonify(invoice_number)
 
 @app.route("/api/data", methods = ['GET'])
@@ -87,7 +93,6 @@ def hello_world():
         "tubeless_valve"
         ]).to_json()
     return Response(products, mimetype="application/json", status=200)
-
 
 @app.route("/api/reset_stock", methods = ['GET'])
 def stock_reset():
