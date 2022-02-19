@@ -196,6 +196,8 @@ function Invoice() {
   totalProductValueForGST = roundToTwo(totalProductValueForGST);
   totalProductValueForIGST = roundToTwo(totalProductValueForIGST);
 
+  let invoiceRoundOffIGST = roundToTwo(Math.round(totalProductValueForIGST)-totalProductValueForIGST);
+  let invoiceTotalIGST = Math.round(totalProductValueForIGST);
 
   //calculate total for services
   let totalServiceQuantity = 0;
@@ -217,14 +219,15 @@ function Invoice() {
   totalServiceSGST = roundToTwo(totalServiceSGST);
   totalServiceValue = roundToTwo(totalServiceValue);
 
-
-
   //calculate absolute total(will be used only for GST since IGST will have total only for tyres)
   let totalQuantity = totalProductQuantity + totalServiceQuantity;
   let totalTaxableValue = roundToTwo(totalProductTaxableValue + totalServiceTaxableValue);
   let totalCGST = roundToTwo(totalProductCGST + totalServiceCGST);
   let totalSGST = roundToTwo(totalProductSGST + totalServiceSGST);
   let totalValueForGST = roundToTwo(totalProductValueForGST + totalServiceValue);
+
+  let invoiceRoundOffGST = roundToTwo(Math.round(totalValueForGST)-totalValueForGST);
+  let invoiceTotalGST = Math.round(totalValueForGST);
 
   const handlePrint = () =>{
     
@@ -236,14 +239,14 @@ function Invoice() {
       products: purchasedProducts,
     }
     if(!IGSTRender){
-      invoiceData['invoiceTotal'] = totalValueForGST;
+      invoiceData['invoiceTotal'] = invoiceTotalGST;
       invoiceData['services'] = purchasedServices;
-      invoiceData['invoiceRoundOff'] = roundToTwo(Math.round(totalValueForGST)-roundToTwo(totalValueForGST));
+      invoiceData['invoiceRoundOff'] = invoiceRoundOffGST;
     }
     else{
-      invoiceData['invoiceTotal']  = totalProductValueForIGST;
-      invoiceData['services'] = []
-      invoiceData['invoiceRoundOff'] = roundToTwo(Math.round(totalProductValueForIGST)-totalProductValueForIGST);
+      invoiceData['invoiceTotal']  = invoiceTotalIGST;
+      invoiceData['services'] = [];
+      invoiceData['invoiceRoundOff'] = invoiceRoundOffIGST;
     }
 
     const requestOptions = {
@@ -372,11 +375,11 @@ function Invoice() {
           <table className="rounding-table">
             <tr>
               <th>Rounding off</th>
-              <td>{roundToTwo(Math.round(totalProductValueForIGST)-totalProductValueForIGST)}</td>
+              <td>{invoiceRoundOffIGST}</td>
             </tr>
             <tr>
               <th>Total</th>
-              <td>{Math.round(totalProductValueForIGST)}</td>
+              <td>{invoiceTotalIGST}</td>
             </tr>
           </table>
           <br/>
@@ -438,14 +441,14 @@ function Invoice() {
             <tr>
               <th>Net Amount</th>
               <td>-</td>
-              <td>{roundToTwo(totalQuantity)}</td>
+              <td>{totalQuantity}</td>
               <td>-</td>
-              <td>{roundToTwo(totalTaxableValue)}</td>
+              <td>{totalTaxableValue}</td>
               <td>-</td>
-              <td>{roundToTwo(totalCGST)}</td>
+              <td>{totalCGST}</td>
               <td>-</td>
-              <td>{roundToTwo(totalSGST)}</td>
-              <td>{roundToTwo(totalValueForGST)}</td>
+              <td>{totalSGST}</td>
+              <td>{totalValueForGST}</td>
             </tr>
 
           </table>
@@ -453,11 +456,11 @@ function Invoice() {
           <table className="rounding-table">
             <tr>
               <th>Rounding off</th>
-              <td>{roundToTwo(Math.round(totalValueForGST)-roundToTwo(totalValueForGST))}</td>
+              <td>{invoiceRoundOffGST}</td>
             </tr>
             <tr>
               <th>Total</th>
-              <td>{Math.round(totalValueForGST)}</td>
+              <td>{invoiceTotalGST}</td>
             </tr>
           </table>
           <br/>
