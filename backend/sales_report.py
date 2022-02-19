@@ -139,7 +139,7 @@ def purchase_report(start, end):
 
     sheet.freeze_panes = 'A2'
 
-    column_headers = ["Invoice No.", "Invoice Date", "Claim Invoice", "Claim Number", "Item Description", "Item Code", "HSN", "Qty", "Taxable Val", "Tax", "Total"]
+    column_headers = ["Invoice No.", "Invoice Date", "Claim Invoice", "Item Description", "Item Code", "HSN", "Qty", "Taxable Val", "Tax", "Total"]
     
     #Aplly style to header row
     sheet.row_dimensions[1].fill = PatternFill("solid", fgColor="C5C5C5")
@@ -158,14 +158,13 @@ def purchase_report(start, end):
             sheet.cell(row = row_index, column = 1).value = invoice.invoiceNumber
             sheet.cell(row = row_index, column = 2).value = invoice.invoiceDate.strftime("%d/%m/%Y")
             sheet.cell(row = row_index, column = 3).value = "No" if invoice.claimInvoice ==0 else "Yes"
-            sheet.cell(row = row_index, column = 4).value = invoice.claimNumber
-            sheet.cell(row = row_index, column = 5).value = product.itemDesc
-            sheet.cell(row = row_index, column = 6).value = product.itemCode
-            sheet.cell(row = row_index, column = 7).value = product.HSN
-            sheet.cell(row = row_index, column = 8).value = product.quantity
-            sheet.cell(row = row_index, column = 9).value = product.taxableValue
-            sheet.cell(row = row_index, column = 10).value = product.tax
-            sheet.cell(row = row_index, column = 11).value = product.itemTotal
+            sheet.cell(row = row_index, column = 4).value = product.itemDesc
+            sheet.cell(row = row_index, column = 5).value = product.itemCode
+            sheet.cell(row = row_index, column = 6).value = product.HSN
+            sheet.cell(row = row_index, column = 7).value = product.quantity
+            sheet.cell(row = row_index, column = 8).value = product.taxableValue
+            sheet.cell(row = row_index, column = 9).value = product.tax
+            sheet.cell(row = row_index, column = 10).value = product.itemTotal
         base_index += total_items
 
     total_row_index = sheet.max_row
@@ -177,17 +176,17 @@ def purchase_report(start, end):
     # total row label
     sheet.cell(row=total_row_index+1, column=2).value = "TOTAL"
     # total quantity
-    total_quantity = '= SUM(H2:H'+str(total_row_index)+')'
-    sheet.cell(row=total_row_index+1, column=8).value = total_quantity
+    total_quantity = '= SUM(G2:G'+str(total_row_index)+')'
+    sheet.cell(row=total_row_index+1, column=7).value = total_quantity
     # total taxable val
-    total_taxable_val = '= SUM(I2:I'+str(total_row_index)+')'
-    sheet.cell(row=total_row_index+1, column=9).value = total_taxable_val
+    total_taxable_val = '= SUM(H2:H'+str(total_row_index)+')'
+    sheet.cell(row=total_row_index+1, column=8).value = total_taxable_val
     # total CGST
-    total_tax = '= SUM(J2:J'+str(total_row_index)+')'
-    sheet.cell(row=total_row_index+1, column=10).value = total_tax
+    total_tax = '= SUM(I2:I'+str(total_row_index)+')'
+    sheet.cell(row=total_row_index+1, column=9).value = total_tax
     # total 
-    total = '= SUM(K2:K'+str(total_row_index)+')'
-    sheet.cell(row=total_row_index+1, column=11).value = total
+    total = '= SUM(J2:J'+str(total_row_index)+')'
+    sheet.cell(row=total_row_index+1, column=10).value = total
 
     #this adjusts the font and column width of the whole sheet
     dims = {}
