@@ -26,8 +26,8 @@ function UpdatePrice() {
             )
             .then((response) => response.json())
 			.then((result) => {
-                setSuccessMsg(result);
                 setToggleLoader(false);
+                alert(result);
 			})
 			.catch((error) => {
 				console.error('Error:', error);
