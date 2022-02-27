@@ -6,8 +6,8 @@ from models import Product
 pv_vehicle_type = {
 	"passenger car":{"tyre_freight":20, "tube_freight":3, "spd":0.015, "plsd":0.025, "gst":0.28}, 
 	"2 wheeler":{"tyre_freight":6, "tube_freight":3, "spd":0.015, "plsd":0.025, "gst":0.28}, 
-	"3 wheeler":{"tyre_freight":8, "tube_freight":3, "spd":0.015, "plsd":0.05, "gst":0.28},
-	"scv":{"tyre_freight":40, "tube_freight":3, "spd":0.014, "plsd":0.025, "gst":0.28},
+	"3 wheeler":{"tyre_freight":8, "tube_freight":3, "spd":0.014, "plsd":0.025, "gst":0.28},
+	"scv":{"tyre_freight":40, "tube_freight":5, "spd":0.014, "plsd":0.025, "gst":0.28},
 	"tubeless valve":{ "valve_freight":0, "spd":0.0, "plsd":0.0,"gst":0.18}
 	}
 other_vehicle_type = {
