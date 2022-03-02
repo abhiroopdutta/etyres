@@ -13,7 +13,6 @@ def read_invoice(directory):
             items=[]
             invoice_total = 0
             price_list_total = 0
-            price_difference = 0
             already_exists = False
             for i, row in enumerate(reader):
                 if(i>0):
@@ -35,9 +34,6 @@ def read_invoice(directory):
             for item in items:
                 invoice_total += item["item_total"]
                 price_list_total += Product.objects(itemCode=item["item_code"]).first().costPrice*item["quantity"]
-
- 
-            price_difference = abs(round(invoice_total)-round(price_list_total))
 
             if(Purchase.objects(invoiceNumber=invoice_number).first()):
                 already_exists = True
@@ -71,7 +67,7 @@ def read_invoice(directory):
                 "overwrite_price_list":False,
                 "items":items,
                 "invoice_total":invoice_total,
-                "price_difference":price_difference
+                "price_list_total":round(price_list_total)
             })
 
         os.remove(file)

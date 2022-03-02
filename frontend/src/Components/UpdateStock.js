@@ -7,7 +7,6 @@ function UpdateStock() {
     const [selectedFiles, setSelectedFiles] = useState();
     const [invoices, setInvoices] = useState([]);
     const [successMessage, setSuccessMessage] = useState("");
-    const [dateUpdateMessage, setDateUpdateMessage] = useState("")
 
 	const changeHandler = (event) => {
 		setSelectedFiles(event.target.files);
@@ -101,31 +100,14 @@ function UpdateStock() {
         setInvoices(invoicesCopy);
     }
 
-    const handleDateFile = (e) => {
-        e.preventDefault();
-
-		fetch("/api/initial_setup")
-            .then((response) => response.json())
-			.then((message) => {
-                setDateUpdateMessage(message);
-			})
-			.catch((error) => {
-				console.error('Error:', error);
-			});
-            
-	};
-
     const handleSpecialDiscount = (invoice_index, e) => {
         let invoicesCopy = [...invoices];
         invoicesCopy[invoice_index].special_discount = e.target.value;
         setInvoices(invoicesCopy);
     }
 
-
     return (
         <div className="update-stock">
-            {/* <button onClick={handleDateFile}>run date update funtion</button>
-            <div> {dateUpdateMessage} </div> */}
             <h3>Upload invoice to update stock</h3>
             <form method="POST" action="" encType="multipart/form-data" >
                 <p><input type="file" name="files" multiple onChange={changeHandler}/></p>
