@@ -60,7 +60,8 @@ def read_invoice(directory):
             invoices.append({
                 "invoice_number":invoice_number,
                 "invoice_date": datetime.datetime.now().strftime("%Y-%m-%d"),
-                "special_discount": "",
+                "special_discount": False,
+                "special_discount_type": "",
                 "already_exists":already_exists,
                 "claim_invoice":False,
                 "claim_items": claim_items,
@@ -126,7 +127,7 @@ def update_stock(invoices):
                     claim_items.append(new_claim_item)
 
             invoice_total = invoice["invoice_total"]
-            special_discount = invoice["special_discount"]
+            special_discount = invoice["special_discount_type"]
 
             # if invoice date selected by user is not today (back date entry), then add time 11:30 AM, manually
             if invoice["invoice_date"] == datetime.datetime.now().strftime('%Y-%m-%d'):

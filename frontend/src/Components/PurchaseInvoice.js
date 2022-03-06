@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './PurchaseInvoice.css';
 
-function PurchaseInvoice({invoice, invoice_index, handleInvoiceDate, handleClaimOverwrite, handleClaimNumber, handleSpecialDiscount}){
+function PurchaseInvoice({invoice, invoice_index, handleInvoiceDate, handleClaimOverwrite, handleOverwrite, handleClaimNumber, handleSpecialDiscount}){
 
     const [priceDifference, setPriceDifference] = useState(0);
 
@@ -12,13 +12,13 @@ function PurchaseInvoice({invoice, invoice_index, handleInvoiceDate, handleClaim
         },
     []);
 
-    console.log(priceDifference);
     let price_match_component;
     if (priceDifference > 0){
         price_match_component =                 
             <div>
                 Invoice Total is <strong>greater</strong> by  &#8377; {Math.abs(priceDifference)}   &#10060;
-            </div>           
+            </div>
+
     }
     else if (priceDifference < 0){
         price_match_component =                 
@@ -26,7 +26,7 @@ function PurchaseInvoice({invoice, invoice_index, handleInvoiceDate, handleClaim
                 Invoice Total is <strong>lesser</strong> by  &#8377; {Math.abs(priceDifference)}   &#10060;
             </div>  
     }
-    else if (priceDifference == 0){
+    else if (priceDifference === 0){
         price_match_component = <div>Price match  &#9989; </div>
     }
 
@@ -43,17 +43,25 @@ function PurchaseInvoice({invoice, invoice_index, handleInvoiceDate, handleClaim
             {invoice.already_exists?<p className="invoice-exists">Invoice already exists in database &#8252;</p>:null}
             {(priceDifference&&invoice.special_discount)?
             <div className="special-discount">Discount Type:
-                <input type="text" value={invoice.special_discount} onChange={(e)=>handleSpecialDiscount(invoice_index, e)} /> 
+                <input type="text" value={invoice.special_discount_type} onChange={(e)=>handleSpecialDiscount(invoice_index, e)} placeholder="ex - LVD" /> 
             </div>
             :null
             }
-            {priceDifference?     
-            <section className="claim-overwrite" onChange={(e)=>handleClaimOverwrite(invoice_index,e)}>
-                <input type="radio" value="claim" name={"claim_overwrite"+invoice_index} required/> Claim Invoice
-                <input type="radio" value="overwrite" name={"claim_overwrite"+invoice_index} required/> Overwrite price list
-                <input type="radio" value="special_discount" name={"claim_overwrite"+invoice_index} required/> Special Discount
+            {(priceDifference > 0)?     
+            <section className="claim-overwrite" onChange={(e)=>handleOverwrite(invoice_index,e)}>
+                <input type="checkbox" value="overwrite" name={"claim_overwrite"+invoice_index}/>
+                <label htmlFor={"claim_overwrite"+invoice_index}> Overwrite price list</label> 
             </section>   
-            :null
+            :(priceDifference < 0)?
+            <section className="claim-overwrite" onChange={(e)=>handleClaimOverwrite(invoice_index,e)}>
+                <input type="radio" id="claim" name={"claim_overwrite"+invoice_index} value={invoice.claim_invoice} required/> 
+                <label htmlFor={"claim"}> Claim Invoice</label>
+                <input type="radio" id="overwrite" name={"claim_overwrite"+invoice_index} value={invoice.overwrite_price_list} required/> 
+                <label htmlFor={"overwrite"}>Overwrite Price List</label>
+                <input type="radio" id="special_discount" name={"claim_overwrite"+invoice_index} value={invoice.special_discount} required/>
+                <label htmlFor={"special_discount"}>Special Discount</label>
+            </section>
+            :null              
             }
 
             <table className="invoice-item-headers">

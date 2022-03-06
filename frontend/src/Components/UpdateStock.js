@@ -37,24 +37,31 @@ function UpdateStock() {
             
 	};
 
+    const handleOverwrite = (invoice_index, e) =>{
+        let invoicesCopy = [...invoices];
+        invoicesCopy[invoice_index].overwrite_price_list = 
+        !invoicesCopy[invoice_index].overwrite_price_list;
+        setInvoices(invoicesCopy);
+    }
+    
     const handleClaimOverwrite = (invoice_index, e) => {
         let invoicesCopy = [...invoices];
-        if(e.target.value === "claim"){
+        if(e.target.id === "claim"){
             invoicesCopy[invoice_index].claim_invoice = true;
             invoicesCopy[invoice_index].overwrite_price_list = false;
-            invoicesCopy[invoice_index].special_discount = "";
+            invoicesCopy[invoice_index].special_discount = false;
             setInvoices(invoicesCopy);
         }        
-        else if(e.target.value === "overwrite"){
+        else if(e.target.id === "overwrite"){
             invoicesCopy[invoice_index].claim_invoice = false;
             invoicesCopy[invoice_index].overwrite_price_list = true;
-            invoicesCopy[invoice_index].special_discount = "";
+            invoicesCopy[invoice_index].special_discount = false;
             setInvoices(invoicesCopy);
         }
-        else if(e.target.value === "special_discount"){
+        else if(e.target.id === "special_discount"){
             invoicesCopy[invoice_index].claim_invoice = false;
             invoicesCopy[invoice_index].overwrite_price_list = false;
-            invoicesCopy[invoice_index].special_discount = "DISCOUNT_NAME";
+            invoicesCopy[invoice_index].special_discount = true;
             setInvoices(invoicesCopy);
         }
     }
@@ -64,17 +71,41 @@ function UpdateStock() {
 
         //if price not matching, and user hasn't selected claim or overwrite price, then do not post
         let selectOneError = false;
-        let selectDateError = false;
+        let claimNumberError = false;
+        let specialDiscountError = false;
         for(let i=0; i<invoices.length; i++){
-            if((invoices[i].price_difference)&&(!invoices[i].claim_invoice)&&(!invoices[i].overwrite_price_list)&&(!invoices[i].special_discount)){
+            let priceDiff = Math.round(invoices[i].invoice_total) - 
+                            Math.round(invoices[i].price_list_total);
+            if ((priceDiff<0)&&
+                (!invoices[i].claim_invoice)&&
+                (!invoices[i].overwrite_price_list)&&
+                (!invoices[i].special_discount)){
                 selectOneError = true;
-                alert("select either claim invoice or special discount or overwrite price list");
+                alert(`Invoice number: ${invoices[i].invoice_number}, select either claim invoice or special discount or overwrite price list`);
                 break;
             }
+
+            if ((priceDiff)&&(invoices[i].claim_invoice)){
+                for(let j=0; j<invoices[i].claim_items.length; j++){
+                    if (invoices[i].claim_items[j].claim_number === "" ||
+                        invoices[i].claim_items[j].claim_number === 0){
+                        claimNumberError = true;
+                        alert(`Invoice number: ${invoices[i].invoice_number}, Please fill claim number`);
+                        break;
+                    }
+                }
+            }
+
+            if (priceDiff && invoices[i].special_discount &&
+                invoices[i].special_discount_type.trim() === ""){
+                    specialDiscountError = true;
+                    alert(`Invoice number: ${invoices[i].invoice_number}, Please fill special discount name`);
+                    break;
+                }
         }
 
 
-        if( (!selectOneError) && (!selectDateError) ){
+        if( (!selectOneError) && (!claimNumberError) && (!specialDiscountError)){
             const requestOptions = {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -102,7 +133,7 @@ function UpdateStock() {
 
     const handleSpecialDiscount = (invoice_index, e) => {
         let invoicesCopy = [...invoices];
-        invoicesCopy[invoice_index].special_discount = e.target.value;
+        invoicesCopy[invoice_index].special_discount_type = e.target.value;
         setInvoices(invoicesCopy);
     }
 
@@ -122,6 +153,7 @@ function UpdateStock() {
                     invoice_index={invoice_index}
                     handleInvoiceDate={handleInvoiceDate}
                     handleClaimOverwrite={handleClaimOverwrite}
+                    handleOverwrite={handleOverwrite}
                     handleClaimNumber={handleClaimNumber}
                     handleSpecialDiscount={handleSpecialDiscount}
                 />
