@@ -4,7 +4,7 @@ from flask import send_from_directory, abort
 
 from db import initialize_db
 from update_price import update_price
-from update_stock import read_invoice, update_stock
+from update_stock import read_invoices, update_stock
 from create_order import create_order
 from sales_report import report_handler, reset_stock
 from models import Product, Purchase, Sale
@@ -47,7 +47,7 @@ def invoice_status():
             filepath = dir+new_name
             file.save(filepath)
 
-    invoices = read_invoice(dir)  
+    invoices = read_invoices(dir)  
     return jsonify(invoices)
 
 @app.route("/api/update_stock", methods = ['POST'])
