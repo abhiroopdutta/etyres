@@ -6,15 +6,12 @@ import datetime
 def read_invoice(file):
     with open(file) as f:
         reader = csv.DictReader(f, delimiter="\t")
-        invoice = {
-            "invoice_number" : "",
-            "items" : [],
-        }
-        
-        for row in reader:
-            invoice["invoice_number"] = str(row["Invoice No."]).strip()
 
-            invoice.items.append({
+        items = []
+        for row in reader:
+            invoice_number = str(row["Invoice No."]).strip()
+
+            items.append({
                 "item_code":str(row["Material"]).strip(), 
                 "item_desc":str(row["Material Desc."]).strip(),
                 "quantity":int(row["Qty."]),
@@ -23,6 +20,8 @@ def read_invoice(file):
                 "item_total":(float(row["Invoice Amt."].replace(",", "")))
                 })
 
+        return (invoice_number, items)
+
 def read_invoices(directory):
     invoices = []
     invoices_already_loaded = []
@@ -30,25 +29,30 @@ def read_invoices(directory):
     files = glob.glob(directory + "*.xls")
     for file in files:
 
-        invoice = read_invoice()
+        invoice_number, items = read_invoice()
 
         # if invoice already exists in db, skip processing it, but report to user
-        if(Purchase.objects(invoiceNumber = invoice["invoice_number"]).first()):
-            invoices_already_loaded.append(invoice["invoice_number"])
+        if (Purchase.objects(invoiceNumber = invoice_number).first() is not None):
+            invoices_already_loaded.append(invoice_number)
             continue
             
-        for item in invoices["items"]:
+        for item in items:
             item_in_inventory = Product.objects(itemCode = item["item_code"]).first()
             if item_in_inventory is None:
-                items_not_in_inventory.append({
-                    "invoice_number": invoice["invoice_number"],
-                    "item_not_in_inventory": item["item_code"]
-                })
+                if invoice_number in items_not_in_inventory:
+                    items_not_in_inventory[invoice_number].append(item["item_code"])
+                else:
+                    items_not_in_inventory[invoice_number] = [item["item_code"]]
                 continue
 
             invoice_total += item["item_total"]
             price_list_total += item_in_inventory.costPrice*item["quantity"]
 
+        # if this invoice contains items that don't exist in inventory, skip it
+        # but report it to user
+        if invoice_number in item_in_inventory:
+            os.remove(file)
+            continue
 
         # claim_items will be populated, even though it is still unknown whether
         # this is a claim invoice or not, after getting the information of
@@ -58,7 +62,7 @@ def read_invoices(directory):
         # identified by their claim number, every phsyical product has a 
         # unique claim number 
         claim_items = []
-        for item in invoice["items"]:
+        for item in items:
             for i in range(item["quantity"]):
                 claim_items.append({
                     "item_code":item["item_code"], 
@@ -71,14 +75,14 @@ def read_invoices(directory):
                 })
         
         invoices.append({
-            "invoice_number": invoice["invoice_number"],
+            "invoice_number": invoice_number,
             "invoice_date": datetime.datetime.now().strftime("%Y-%m-%d"),
             "special_discount": False,
             "special_discount_type": "",
             "claim_invoice":False,
             "claim_items": claim_items,
             "overwrite_price_list":False,
-            "items": invoice["items"],
+            "items": items,
             "invoice_total":invoice_total,
             "price_list_total":round(price_list_total)
         })
@@ -86,7 +90,11 @@ def read_invoices(directory):
         os.remove(file)
 
 
-    return invoices
+    return {
+        "invoices": invoices,
+        "invoices_already_loaded": invoices_already_loaded,
+        "items_not_in_inventory": items_not_in_inventory
+    }
 
 def update_stock(invoices):
     for invoice in invoices:
