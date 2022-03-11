@@ -2,57 +2,75 @@ import csv
 from models import ClaimItem, Product, Purchase, PurchaseItem
 import glob, os
 import datetime
+from itertools import repeat
 
-def read_invoice(file):
+def read_purchase_file(file):
+    invoice = {
+        "invoice_number" : "",
+        "items" : []
+    }
+
     with open(file) as f:
         reader = csv.DictReader(f, delimiter="\t")
-
-        items = []
         for row in reader:
-            invoice_number = str(row["Invoice No."]).strip()
+            invoice["invoice_number"] = str(row["Invoice No."]).strip()
 
-            items.append({
-                "item_code":str(row["Material"]).strip(), 
-                "item_desc":str(row["Material Desc."]).strip(),
-                "quantity":int(row["Qty."]),
-                "taxable_value":float(row["Net Amt."].replace(",", "")),
-                "tax":float(row["Tax"].replace(",", "")),
-                "item_total":(float(row["Invoice Amt."].replace(",", "")))
+            invoice["items"].append({
+                "item_code": str(row["Material"]).strip(), 
+                "item_desc": str(row["Material Desc."]).strip(),
+                "quantity": int(row["Qty."]),
+                "taxable_value": float(row["Net Amt."].replace(",", "")),
+                "tax": float(row["Tax"].replace(",", "")),
+                "item_total": float(row["Invoice Amt."].replace(",", "")),
+                "found_in_inventory": True
                 })
 
-        return (invoice_number, items)
+    os.remove(file)
+    return invoice
 
-def read_invoices(directory):
-    invoices = []
-    invoices_already_loaded = []
-    items_not_in_inventory = []
-    files = glob.glob(directory + "*.xls")
-    for file in files:
+# returns invoice with invoice["type"] = 2 for already existing invoice
+# invoice["type"] = 1 for invoice with new products
+# invoice["type"] = 0 for normal invoices
+def process_invoice(invoice_number, items):
+    invoice = {
+        "type": None,
+        "invoice_number": invoice_number,
+        "invoice_date": datetime.datetime.now().strftime("%Y-%m-%d"),
+        "special_discount": False,
+        "special_discount_type": "",
+        "claim_invoice": False,
+        "claim_items": [],
+        "overwrite_price_list": False,
+        "items": [],
+        "invoice_total": 0,
+        "price_list_total": 0
+    }
 
-        invoice_number, items = read_invoice()
-
-        # if invoice already exists in db, skip processing it, but report to user
-        if (Purchase.objects(invoiceNumber = invoice_number).first() is not None):
-            invoices_already_loaded.append(invoice_number)
-            continue
+    # if invoice already exists in db, skip processing it
+    if (Purchase.objects(invoiceNumber = invoice_number).first() is not None):
+        invoice["type"] = 2
+        return invoice
             
-        for item in items:
-            item_in_inventory = Product.objects(itemCode = item["item_code"]).first()
-            if item_in_inventory is None:
-                if invoice_number in items_not_in_inventory:
-                    items_not_in_inventory[invoice_number].append(item["item_code"])
-                else:
-                    items_not_in_inventory[invoice_number] = [item["item_code"]]
-                continue
-
-            invoice_total += item["item_total"]
-            price_list_total += item_in_inventory.costPrice*item["quantity"]
-
-        # if this invoice contains items that don't exist in inventory, skip it
-        # but report it to user
-        if invoice_number in item_in_inventory:
-            os.remove(file)
+    # if invoice contains any item not found in inventory, mark that item, and 
+    # skip processing the invoice
+    for item in items:
+        item_in_inventory = Product.objects(itemCode = item["item_code"]).first()
+        if item_in_inventory is None:
+            item["found_in_inventory"] = False
             continue
+
+    if any(not item["found_in_inventory"]):
+        invoice["type"] = 1
+        invoice["items"] = items
+        return invoice
+
+    # normal invoice, proceed with normal invoice calculations
+    invoice["type"] = 0
+    invoice["items"] = items
+    for item in items:
+        item_in_inventory = Product.objects(itemCode = item["item_code"]).first()
+        invoice["invoice_total"] += item["item_total"]
+        invoice["price_list_total"] += item_in_inventory.costPrice*item["quantity"]
 
         # claim_items will be populated, even though it is still unknown whether
         # this is a claim invoice or not, after getting the information of
@@ -61,39 +79,40 @@ def read_invoices(directory):
         # claim_items contains a list of products(not identified by product code),
         # identified by their claim number, every phsyical product has a 
         # unique claim number 
-        claim_items = []
-        for item in items:
-            for i in range(item["quantity"]):
-                claim_items.append({
-                    "item_code":item["item_code"], 
-                    "item_desc":item["item_desc"],
-                    "claim_number":0,
-                    "quantity":1,
-                    "taxable_value":round(item["taxable_value"]/item["quantity"], 2),
-                    "tax":round(item["tax"]/item["quantity"], 2),
-                    "item_total":round(item["item_total"]/item["quantity"], 2)
-                })
-        
-        invoices.append({
-            "invoice_number": invoice_number,
-            "invoice_date": datetime.datetime.now().strftime("%Y-%m-%d"),
-            "special_discount": False,
-            "special_discount_type": "",
-            "claim_invoice":False,
-            "claim_items": claim_items,
-            "overwrite_price_list":False,
-            "items": items,
-            "invoice_total":invoice_total,
-            "price_list_total":round(price_list_total)
-        })
+        claim_item = {
+            "item_code": item["item_code"], 
+            "item_desc": item["item_desc"],
+            "claim_number": 0,
+            "quantity": 1,
+            "taxable_value": round(item["taxable_value"]/item["quantity"], 2),
+            "tax": round(item["tax"]/item["quantity"], 2),
+            "item_total": round(item["item_total"]/item["quantity"], 2)
+        }
 
-        os.remove(file)
+        invoice["claim_items"].extend(repeat(claim_item, item["quantity"]))
 
+    return invoice
+
+def read_invoices(directory):
+    invoices = []
+    invoices_already_exist = []
+    invoices_with_new_products = []
+    files = glob.glob(directory + "*.xls")
+    for file in files:
+
+        invoice = read_purchase_file(file)
+        processed_invoice = process_invoice(**invoice)
+        if processed_invoice["type"] == 0:
+            invoices.append(process_invoice)
+        elif processed_invoice["type"] == 1:
+            invoices_with_new_products.append(processed_invoice)
+        elif processed_invoice["type"] == 2:
+            invoices_already_exist.append(processed_invoice)
 
     return {
         "invoices": invoices,
-        "invoices_already_loaded": invoices_already_loaded,
-        "items_not_in_inventory": items_not_in_inventory
+        "invoices_already_exist": invoices_already_exist,
+        "invoices_with_new_products": invoices_with_new_products
     }
 
 def update_stock(invoices):
