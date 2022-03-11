@@ -22,7 +22,7 @@ def read_purchase_file(file):
                 "taxable_value": float(row["Net Amt."].replace(",", "")),
                 "tax": float(row["Tax"].replace(",", "")),
                 "item_total": float(row["Invoice Amt."].replace(",", "")),
-                "found_in_inventory": True
+                "not_found_in_inventory": False
                 })
 
     os.remove(file)
@@ -56,10 +56,10 @@ def process_invoice(invoice_number, items):
     for item in items:
         item_in_inventory = Product.objects(itemCode = item["item_code"]).first()
         if item_in_inventory is None:
-            item["found_in_inventory"] = False
+            item["not_found_in_inventory"] = True
             continue
 
-    if any(not item["found_in_inventory"]):
+    if any(item["not_found_in_inventory"] for item in items):
         invoice["type"] = 1
         invoice["items"] = items
         return invoice
