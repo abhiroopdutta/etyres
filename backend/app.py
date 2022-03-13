@@ -48,7 +48,7 @@ def invoice_status():
             file.save(filepath)
 
     invoices = read_invoices(dir)  
-    return jsonify(invoices)
+    return invoices, 200
 
 @app.route("/api/update_stock", methods = ['POST'])
 def process_invoice():

@@ -40,7 +40,6 @@ function PurchaseInvoice({invoice, invoice_index, handleInvoiceDate, handleClaim
             </header>
             <hr/>
             
-            {invoice.already_exists?<p className="invoice-exists">Invoice already exists in database &#8252;</p>:null}
             {(priceDifference&&invoice.special_discount)?
             <div className="special-discount">Discount Type:
                 <input type="text" value={invoice.special_discount_type} onChange={(e)=>handleSpecialDiscount(invoice_index, e)} placeholder="ex - LVD" /> 

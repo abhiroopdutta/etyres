@@ -6,6 +6,8 @@ function UpdateStock() {
 
     const [selectedFiles, setSelectedFiles] = useState();
     const [invoices, setInvoices] = useState([]);
+    const [invoicesWithNewItems, setInvoicesWithNewItems] = useState([]);
+    const [existingInvoices, setExistingInvoices] = useState([]);
     const [successMessage, setSuccessMessage] = useState("");
 
 	const changeHandler = (event) => {
@@ -18,24 +20,29 @@ function UpdateStock() {
         for (const file of selectedFiles) {
             formData.append('files[]', file, file.name);
           }
-        
 
-		fetch(
-			"/api/read_invoice",
-			{
-				method: 'POST',
-				body: formData,
-			}
-            )
-            .then((response) => response.json())
-			.then((invoices) => {
-                setInvoices(invoices);
-			})
-			.catch((error) => {
-				console.error('Error:', error);
-			});
-            
+        const requestOptions = {
+          method: 'POST',
+          body: formData
+        };
+              
+        const submitInvoice = async () => {
+            try {
+                const response = await fetch("/api/read_invoice", requestOptions);
+                const result = await response.json();
+                if (response.ok){
+                    console.log(result);
+                    setInvoices(result.invoices);
+                    setExistingInvoices(result.invoices_already_exist);
+                    setInvoicesWithNewItems(result.invoices_with_new_products);
+                }
+            } catch(err){
+                console.log(err.message);
+            }
+        };
+        submitInvoice();
 	};
+    
 
     const handleOverwrite = (invoice_index, e) =>{
         let invoicesCopy = [...invoices];
