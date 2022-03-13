@@ -38,6 +38,11 @@ function Cart(){
 
     const handleInvoice = () =>{
         setServices(servicesLocal);
+        for (let i=0; i<cart.length; i++){
+            if (cart[i].stock < cart[i].quantity){
+                alert(`${cart[i].itemDesc}: Out of Stock`);
+            }
+        } 
     }
 
     let tyresPrice = 0;
