@@ -103,7 +103,7 @@ def read_invoices(directory):
         invoice = read_purchase_file(file)
         processed_invoice = process_invoice(**invoice)
         if processed_invoice["type"] == 0:
-            invoices.append(process_invoice)
+            invoices.append(processed_invoice)
         elif processed_invoice["type"] == 1:
             invoices_with_new_products.append(processed_invoice)
         elif processed_invoice["type"] == 2:
