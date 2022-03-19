@@ -10,7 +10,7 @@ function PurchaseInvoice({invoice, invoice_index, handleInvoiceDate, handleClaim
             let priceDiff = Math.round(invoice.invoice_total) - Math.round(invoice.price_list_total);
             setPriceDifference(priceDiff);
         },
-    []);
+    [invoice.invoice_total, invoice.price_list_total]);
 
     let price_match_component;
     if (priceDifference > 0){
