@@ -2,7 +2,7 @@
     padding: 10px 44px 44px 44px;
 }
 
-.invoice-items{
+.invoices, .invoices-with-new-items{
     padding-top: 20px;
     display: flex;
     justify-content: flex-start;

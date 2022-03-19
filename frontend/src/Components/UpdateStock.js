@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import './UpdateStock.css';
 import PurchaseInvoice from './PurchaseInvoice';
+import InvoiceWithNewItems from './InvoiceWithNewItems.js';
 
 function UpdateStock() {
 
@@ -43,6 +44,11 @@ function UpdateStock() {
         submitInvoice();
 	};
     
+    const handleInvoiceDate = (invoice_index, e) => {
+        let invoicesCopy = [...invoices];
+        invoicesCopy[invoice_index].invoice_date = e.target.value;
+        setInvoices(invoicesCopy);
+    }
 
     const handleOverwrite = (invoice_index, e) =>{
         let invoicesCopy = [...invoices];
@@ -74,13 +80,26 @@ function UpdateStock() {
     }
     console.log(invoices)
 
-    const handleUpdateInventory = ()=>{
+    const handleClaimNumber = (invoice_index, claim_item_index, e) => {
+        let invoicesCopy = [...invoices];
+        invoicesCopy[invoice_index].claim_items[claim_item_index].claim_number = e.target.value;
+        setInvoices(invoicesCopy);
+        
+    }
+
+    const handleSpecialDiscount = (invoice_index, e) => {
+        let invoicesCopy = [...invoices];
+        invoicesCopy[invoice_index].special_discount_type = e.target.value;
+        setInvoices(invoicesCopy);
+    }
+
+    const handleUpdateStock = ()=>{
 
         //if price not matching, and user hasn't selected claim or overwrite price, then do not post
         let selectOneError = false;
         let claimNumberError = false;
         let specialDiscountError = false;
-        for(let i=0; i<invoices.length; i++){
+        for(let i = 0; i<invoices.length; i++){
             let priceDiff = Math.round(invoices[i].invoice_total) - 
                             Math.round(invoices[i].price_list_total);
             if ((priceDiff<0)&&
@@ -93,7 +112,7 @@ function UpdateStock() {
             }
 
             if ((priceDiff)&&(invoices[i].claim_invoice)){
-                for(let j=0; j<invoices[i].claim_items.length; j++){
+                for(let j = 0; j<invoices[i].claim_items.length; j++){
                     if (invoices[i].claim_items[j].claim_number === "" ||
                         invoices[i].claim_items[j].claim_number === 0){
                         claimNumberError = true;
@@ -125,50 +144,46 @@ function UpdateStock() {
 
     }
 
-    const handleClaimNumber = (invoice_index, claim_item_index, e) => {
-        let invoicesCopy = [...invoices];
-        invoicesCopy[invoice_index].claim_items[claim_item_index].claim_number = e.target.value;
-        setInvoices(invoicesCopy);
-        
-    }
-
-    const handleInvoiceDate = (invoice_index, e) => {
-        let invoicesCopy = [...invoices];
-        invoicesCopy[invoice_index].invoice_date = e.target.value;
-        setInvoices(invoicesCopy);
-    }
-
-    const handleSpecialDiscount = (invoice_index, e) => {
-        let invoicesCopy = [...invoices];
-        invoicesCopy[invoice_index].special_discount_type = e.target.value;
-        setInvoices(invoicesCopy);
-    }
-
     return (
-        <div className="update-stock">
+        <div className = "update-stock">
             <h3>Upload invoice to update stock</h3>
-            <form method="POST" action="" encType="multipart/form-data" >
-                <p><input type="file" name="files" multiple onChange={changeHandler}/></p>
-                <p><input type="submit" value="Submit"  onClick={handleSubmission}/></p>
+            <form method = "POST" action = "" encType = "multipart/form-data" >
+                <p><input type = "file" name = "files" multiple onChange = {changeHandler}/></p>
+                <p><input type = "submit" value = "Submit"  onClick = {handleSubmission}/></p>
             </form>
 
-            <div className="invoice-items">
+            <div className = "existing-invoices">
+                {existingInvoices.map((invoice, invoiceIndex) => 
+                    <h4 key={invoiceIndex}>Invoice No. {invoice.invoice_number} already exists</h4>
+                )}
+            </div>
+
+            <div className = "invoices-with-new-items">
+                {invoicesWithNewItems.map((invoice, invoiceIndex) => 
+                    <InvoiceWithNewItems 
+                        invoice = {invoice}
+                        key = {invoiceIndex}>
+                    </InvoiceWithNewItems>
+                )}
+            </div>
+
+            <div className = "invoices">
                 {invoices.map( (invoice, invoice_index)=> 
                 <PurchaseInvoice 
-                    invoice={invoice} 
-                    key={invoice_index}
-                    invoice_index={invoice_index}
-                    handleInvoiceDate={handleInvoiceDate}
-                    handleClaimOverwrite={handleClaimOverwrite}
-                    handleOverwrite={handleOverwrite}
-                    handleClaimNumber={handleClaimNumber}
-                    handleSpecialDiscount={handleSpecialDiscount}
+                    invoice = {invoice} 
+                    key = {invoice_index}
+                    invoice_index = {invoice_index}
+                    handleInvoiceDate = {handleInvoiceDate}
+                    handleClaimOverwrite = {handleClaimOverwrite}
+                    handleOverwrite = {handleOverwrite}
+                    handleClaimNumber = {handleClaimNumber}
+                    handleSpecialDiscount = {handleSpecialDiscount}
                 />
                 )}
             </div>
 
-            {invoices.length!==0?
-                <button className="update-inventory" onClick={handleUpdateInventory}>
+            {((invoices.length!==0) && (invoicesWithNewItems.length === 0))?
+                <button className = "update-inventory" onClick = {handleUpdateStock}>
                     Update inventory and save invoices
                 </button>
             :null}
