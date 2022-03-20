@@ -23,15 +23,15 @@ other_vehicle_type = {
 
 hsn_gst = {
 	"tyre": {
-		"HSN": 4011,
+		"HSN": "4011",
 		"GST": 0.28
 	},
 	"tube": {
-		"HSN": 4013,
+		"HSN": "4013",
 		"GST": 0.28
 	},
 	"valve": {
-		"HSN": 8481,
+		"HSN": "8481",
 		"GST": 0.18
 	}
 }
