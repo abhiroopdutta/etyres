@@ -59,6 +59,7 @@ function Cart(){
 
 
     return(
+        <div className="cart-container">
         <div className="cart"> 
             <div className="cart-header"> 
                 <div className="cart-title">CART SUMMARY</div>
@@ -93,6 +94,7 @@ function Cart(){
             <div className="cart-total">Total price: &#x20B9;{totalPrice}</div>
             <br/>
              
+        </div>
         </div>
     );
 

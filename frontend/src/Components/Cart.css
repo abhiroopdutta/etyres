@@ -3,9 +3,14 @@
     text-decoration: none; 
     display: flex;
     flex-direction: column;
-    padding:12px;
-    
+    padding: 22px;
+    max-height: 90vh;
+    overflow-y: scroll;
+    scrollbar-width: none;
+
 }
+
+.cart::-webkit-scrollbar { width: 0 !important }
 
 .cart-header{
     display: flex;
@@ -108,7 +113,6 @@
 
 .cart-total{
     padding-top:15px;
-    padding-bottom: 10px;
     font-size: 25px;
     font-weight: 800;
     color:rgb(24, 23, 23);

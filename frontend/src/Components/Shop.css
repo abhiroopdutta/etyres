@@ -10,11 +10,11 @@
     /* background-color: yellow; */
 }
 
-.cart{
+.cart-container{
     /* background-color: lightcoral; */
-    top:10px;
+    top:20px;
     border-radius: 12px;
+    overflow-y: hidden; 
     position: sticky;
-    max-height: 90vh;
-    overflow-y: scroll; 
+
 }

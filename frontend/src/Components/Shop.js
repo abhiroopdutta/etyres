@@ -6,8 +6,8 @@ import './Shop.css';
 function Shop() {
   return (
       <div className="shop-container">
-        <div className="products"><Products/></div>
-        <div className="cart"><Cart/></div>
+        <Products className="products"/>
+        <Cart className="cart-container"/>
       </div>     
   );
 }
