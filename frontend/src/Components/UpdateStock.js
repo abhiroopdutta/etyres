@@ -144,6 +144,22 @@ function UpdateStock() {
 
     }
 
+    // removes the given invoice from invoicesWithNewItemsCopy and appends it to invoices
+    const convertToNormalInvoice = (newInvoice) => {
+        console.log(newInvoice);
+        let invoicesCopy = [...invoices];
+        let invoicesWithNewItemsCopy = [...invoicesWithNewItems];
+
+        let invoiceIndex = invoicesWithNewItemsCopy.findIndex(invoice => 
+            invoice.invoice_number === newInvoice.invoice_number);
+        invoicesWithNewItemsCopy.splice(invoiceIndex, 1);
+
+        invoicesCopy.append(newInvoice);
+
+        setInvoices(invoicesCopy);
+        setInvoicesWithNewItems(invoicesWithNewItemsCopy);
+    };
+
     return (
         <div className = "update-stock">
             <h3>Upload invoice to update stock</h3>
@@ -161,8 +177,9 @@ function UpdateStock() {
             <div className = "invoices-with-new-items">
                 {invoicesWithNewItems.map((invoice, invoiceIndex) => 
                     <InvoiceWithNewItems 
-                        invoice = {invoice}
-                        key = {invoiceIndex}>
+                        initial_invoice = {invoice}
+                        key = {invoiceIndex}
+                        convertToNormalInvoice = {convertToNormalInvoice}>
                     </InvoiceWithNewItems>
                 )}
             </div>

@@ -120,6 +120,8 @@ def load_to_db(vehicle_type, item_desc, item_code, cost_price):
 				size = size, 
 				costPrice = cost_price, 
 				stock = 0).save()
+	
+	return 0
 
 def update_price(file):
 	wb = openpyxl.load_workbook(file, data_only='True')

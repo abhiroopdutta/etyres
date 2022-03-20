@@ -1,14 +1,55 @@
 import './AddItem.css';
+import {useState} from 'react';
 
 function roundToTwo(num) {
     return +(Math.round(num + "e+2")  + "e-2");
 }
 
-function AddItem({item, toggleModal}){
+function AddItem({item, toggleModal, updateItemStatus, updateInvoiceStatus}){
+
+    const [vehicleType, setVehicleType] = useState("passenger car");
+    const [costPrice, setCostPrice] = useState(roundToTwo(item.item_total/item.quantity));
 
     const handleCloseModal = () => {
         toggleModal(false);
-    }
+    };
+
+    const handleCostPrice = (e) => {
+        setCostPrice(e.target.value);
+    };
+
+    const handleVehicleType = (e) => {
+        setVehicleType(e.target.value);
+    };
+
+    const handleAddtoInventory = () => {
+        let new_item = {
+            vehicle_type: vehicleType, 
+            item_desc: item.item_desc, 
+            item_code: item.item_code, 
+            cost_price: costPrice
+        };
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(new_item)
+        };
+
+        const submit_item = async () => {
+            try{
+                const response = await fetch("api/add_item", requestOptions);
+                if(response.ok){
+                    alert("item added to inventory");
+                    toggleModal(false);
+                }
+            } catch(err){
+                console.log(err.message);
+            }
+        }
+        submit_item();
+        updateItemStatus(new_item);
+        updateInvoiceStatus();
+    };
 
     return (
         <div className="add-item-modal">
@@ -22,9 +63,9 @@ function AddItem({item, toggleModal}){
                     <strong>{item.item_desc}</strong>
                     <strong>{item.item_code}</strong>
                     <label htmlFor="cost-price">Cost Price:</label>
-                    <input type="text" id="cost-price" name="cost-price" value={roundToTwo(item.item_total/item.quantity)}/>
-                    <label for="vehicle-category">Category</label>
-                      <select name="vehicle-category">
+                    <input type="text" id="cost-price" name="cost-price" value={costPrice} onChange={handleCostPrice}/>
+                    <label htmlFor="vehicle-type">Category</label>
+                      <select name="vehicle-type" onChange={handleVehicleType}>
                         <option value="passenger car">PCR</option>
                         <option value="2 wheeler">2 Wheeler</option>
                         <option value="3 wheeler">3 Wheeler</option>
@@ -35,7 +76,7 @@ function AddItem({item, toggleModal}){
                 </section>
 
                 <footer className="add-item-footer">
-                    <button>Add to inventory</button>
+                    <button onClick={handleAddtoInventory}>Add to inventory</button>
                 </footer>
             </div>
 

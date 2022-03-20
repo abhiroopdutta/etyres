@@ -14,7 +14,7 @@ h5{
   .add-item-modal-content {
     position:fixed;
     background: white;
-    width: 30%;
+    width: 25%;
     height: auto;
     top:50%;
     left:50%;
@@ -49,4 +49,22 @@ h5{
       padding: 20px;
       align-self: center;
     }
+
+      .add-item-footer button{
+        background-color: rgb(83, 81, 81);
+        border: 1px solid transparent;
+        padding:7px;
+        border-radius: 10px;
+        font-weight: 700;  
+        color:rgb(255, 255, 255); 
+      }
+
+      .add-item-footer button:active{
+        box-shadow: 0 2px rgb(44, 43, 43); 
+        transform: translateY(2px);
+    }
+    
+      .add-item-footer button:hover{
+          background-color: rgb(44, 43, 43); 
+      }
 

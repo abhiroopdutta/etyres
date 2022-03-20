@@ -1,10 +1,11 @@
 #pip uninstall sql packages
+from concurrent.futures import process
 from flask import Flask, render_template,jsonify, request, redirect, url_for, Response
 from flask import send_from_directory, abort
 
 from db import initialize_db
-from update_price import update_price
-from update_stock import read_invoices, update_stock
+from update_price import update_price, load_to_db
+from update_stock import read_invoices, update_stock, process_invoice
 from create_order import create_order
 from sales_report import report_handler, reset_stock
 from models import Product, Purchase, Sale
@@ -50,12 +51,27 @@ def invoice_status():
     invoices = read_invoices(dir)  
     return invoices, 200
 
-@app.route("/api/update_stock", methods = ['POST'])
-def process_invoice():
+@app.route("/api/process_invoice", methods = ['POST'])
+def convert_to_normal_invoice():
+    invoice = request.get_json()
+    print(invoice)
+    process_invoice(**invoice)
+    return jsonify("invoice processed")
 
+@app.route("/api/update_stock", methods = ['POST'])
+def update_purchase_stock():
     invoices = request.get_json()
     update_stock(invoices) 
     return jsonify("stock updated, invoice saved")
+
+@app.route("/api/add_item", methods = ['POST'])
+def add_item_to_inventory():
+    item = request.get_json()
+    status = load_to_db(**item) 
+    if status == 0:
+        return jsonify("success"), 200
+    else:
+        return jsonify("failure"), 400
 
 @app.route("/api/place_order", methods = ['POST'])
 def stock_out():
