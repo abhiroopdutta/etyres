@@ -1,8 +1,5 @@
-#pip uninstall sql packages
-from concurrent.futures import process
-from flask import Flask, render_template,jsonify, request, redirect, url_for, Response
+from flask import Flask,jsonify, request, Response
 from flask import send_from_directory, abort
-
 from db import initialize_db
 from update_price import update_price, load_to_db
 from update_stock import read_invoices, update_stock, process_invoice
