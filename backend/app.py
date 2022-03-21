@@ -55,8 +55,8 @@ def invoice_status():
 def convert_to_normal_invoice():
     invoice = request.get_json()
     print(invoice)
-    process_invoice(**invoice)
-    return jsonify("invoice processed")
+    converted_invoice = process_invoice(**invoice)
+    return converted_invoice, 200
 
 @app.route("/api/update_stock", methods = ['POST'])
 def update_purchase_stock():

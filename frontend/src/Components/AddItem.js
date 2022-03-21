@@ -5,7 +5,7 @@ function roundToTwo(num) {
     return +(Math.round(num + "e+2")  + "e-2");
 }
 
-function AddItem({item, toggleModal, updateItemStatus, updateInvoiceStatus}){
+function AddItem({item, toggleModal, updateItemStatus}){
 
     const [vehicleType, setVehicleType] = useState("passenger car");
     const [costPrice, setCostPrice] = useState(roundToTwo(item.item_total/item.quantity));
@@ -48,7 +48,6 @@ function AddItem({item, toggleModal, updateItemStatus, updateInvoiceStatus}){
         }
         submit_item();
         updateItemStatus(new_item);
-        updateInvoiceStatus();
     };
 
     return (

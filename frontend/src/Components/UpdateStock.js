@@ -32,7 +32,6 @@ function UpdateStock() {
                 const response = await fetch("/api/read_invoice", requestOptions);
                 const result = await response.json();
                 if (response.ok){
-                    console.log(result);
                     setInvoices(result.invoices);
                     setExistingInvoices(result.invoices_already_exist);
                     setInvoicesWithNewItems(result.invoices_with_new_products);
@@ -78,7 +77,6 @@ function UpdateStock() {
             setInvoices(invoicesCopy);
         }
     }
-    console.log(invoices)
 
     const handleClaimNumber = (invoice_index, claim_item_index, e) => {
         let invoicesCopy = [...invoices];
@@ -130,7 +128,6 @@ function UpdateStock() {
                 }
         }
 
-
         if( (!selectOneError) && (!claimNumberError) && (!specialDiscountError)){
             const requestOptions = {
                 method: 'POST',
@@ -145,16 +142,37 @@ function UpdateStock() {
     }
 
     // removes the given invoice from invoicesWithNewItemsCopy and appends it to invoices
-    const convertToNormalInvoice = (newInvoice) => {
-        console.log(newInvoice);
+    const convertToNormalInvoice = async (newInvoice) => {
+
+        let body = {
+            invoice_number: newInvoice.invoice_number,
+            items: newInvoice.items
+        };
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        };
+
+        let convertedInvoice = {};
+        try{
+            const response = await fetch("api/process_invoice", requestOptions);
+            const result = await response.json();
+            if(response.ok){
+                convertedInvoice = result;
+            }
+        } catch(err){
+            console.log(err.message);
+        }
+
         let invoicesCopy = [...invoices];
         let invoicesWithNewItemsCopy = [...invoicesWithNewItems];
 
         let invoiceIndex = invoicesWithNewItemsCopy.findIndex(invoice => 
-            invoice.invoice_number === newInvoice.invoice_number);
+            invoice.invoice_number === convertedInvoice.invoice_number);
         invoicesWithNewItemsCopy.splice(invoiceIndex, 1);
 
-        invoicesCopy.append(newInvoice);
+        invoicesCopy.push(convertedInvoice);
 
         setInvoices(invoicesCopy);
         setInvoicesWithNewItems(invoicesWithNewItemsCopy);
