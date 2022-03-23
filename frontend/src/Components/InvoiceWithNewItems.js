@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import './InvoiceWithNewItems.css';
 import AddItem from './AddItem';
+import React from 'react';
+
 
 function InvoiceWithNewItems ({initial_invoice, invoiceIndex, convertToNormalInvoice}) {
 
