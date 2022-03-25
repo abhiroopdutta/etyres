@@ -8,7 +8,7 @@ function roundToTwo(num) {
     return +(Math.round(num + "e+2")  + "e-2");
 }
 
-function Invoice() {
+function Invoice({showInvoice}) {
 
   const {tyresContext, servicesContext} = useContext(CartContext);
   // eslint-disable-next-line
@@ -278,13 +278,10 @@ function Invoice() {
     
   }
 
-  
-  //write a function to query the database for invoice number
 
   return (
-    <div className="invoice-component">
-      <button className="print-button" onClick={handlePrint}>CONFIRM ORDER</button>
-      <Link className = "back-to-shop" to="/create_order">Go back to shop</Link>
+    <div className="invoice">
+      <button className="close-invoice" onClick={()=>showInvoice(false)}>x</button>
       <div className="invoice-body">          
         <div className="invoice-header">
           <header className="shop-details">
@@ -302,7 +299,7 @@ function Invoice() {
           <header className="invoice-details">
             <h4> Tax Invoice # {invoiceNumber}</h4>
             <h4>Invoice Date: <input type="date" value={invoiceDate} required="required" onChange={(e)=>handleInvoiceDate(e)}/></h4>
-            <label for="invoice_status">Invoice status:</label>
+            <label for="invoice_status">Invoice status: </label>
             <select id="invoice_status" name="invoice_status">
               <option value="paid">paid</option>
               <option value="due">due</option>
@@ -482,6 +479,7 @@ function Invoice() {
         <div className="signatory">Authorised Signatory</div>
         <div style={{clear:"both"}}></div> 
 
+        <button className="print-button" onClick={handlePrint}>CONFIRM ORDER</button>
       </div>  
     </div>
        
