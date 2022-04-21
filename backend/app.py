@@ -38,7 +38,7 @@ def invoice_status():
 
     files = request.files.getlist('files[]')
     dir = "./tempdata/update_stock/"+str(datetime.now()).replace(" ", "_")+"/"
-    os.mkdir(dir)
+    os.makedirs(dir)
     for file in files:
         if file:
             new_name = str(datetime.now()).replace(" ", "_")+file.filename
