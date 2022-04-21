@@ -44,7 +44,7 @@ function Products() {
         <div className="product-filters">
           <input type="text" onChange={handleChange} value={input} placeholder="Enter tyre size"/>
           <input type="checkbox" id="in_stock" name="in_stock" defaultChecked={inStock} onChange={handleInStock}/>
-            <label for="in_stock">In Stock</label>
+            <label htmlFor="in_stock">In Stock</label>
         </div>
         <div className="product-items">
           {tyreData.map( (tyre, index)=> <Tyre tyreData={tyre} key={index}/> )}      
