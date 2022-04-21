@@ -3,15 +3,41 @@
   -moz-box-sizing: border-box;
 }
 
-.print-button{
-  margin-top: 50px; 
+.invoice{
+  position: fixed; 
+  z-index: 1; 
+  left: 0;
+  top: 0;
+  width: 100%; 
+  height: 100%;
+  overflow: auto; 
+  background-color: rgb(0,0,0); 
+  background-color: rgba(0, 0, 0, 0.86); 
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 }
 
+.left-buttons-container, .right-buttons-container{
+  padding: 1%;
+  display: flex;
+  flex-direction: column;
+  gap:50px;
+}
+
+.tax-invoice-button{
+  background-color: white;
+}
+
+.left-buttons-container{
+  align-items: flex-end;
+}
+
+.right-buttons-container{
+  align-items: flex-start;
+}
 
 .close-invoice{
-  float: right;
-  left: 1350px;
-  top: 0;
   color: #aaa;
   font-size: 28px;
   font-weight: bold;
@@ -24,24 +50,10 @@
   cursor: pointer;
 }
 
-  
-
-.invoice{
-  position: fixed; 
-  z-index: 1; 
-  left: 0;
-  top: 0;
-  width: 100%; 
-  height: 100%;
-  overflow: auto; 
-  background-color: rgb(0,0,0); 
-  background-color: rgba(0, 0, 0, 0.76); 
-}
-
 .invoice-body {
-  width: 210mm;
+  min-width: 210mm;
   height: 297mm;
-  margin: 0mm auto;
+  /* margin: 0mm auto; */
   background: rgb(255, 255, 255);
   box-shadow: 0 0 0.5cm rgba(99, 98, 98, 0.5);
   padding:40px 40px;
@@ -162,54 +174,5 @@ td {
 
 @page {
   size: A4;
-}
-
-@media print{
-
-  /* .navBar, .print-button, a, hr{
-    display: none;
-  } */
-
-  .invoice {
-    visibility: hidden;
-  } 
-
-  .invoice-body{
-    visibility: visible;
-  }
-
-  /* .invoice-body {
-    box-shadow: initial;
-    padding:10px 10px;
-  } */
-
-  /* hr {
-    display: block;
-    height: 1px;
-    background: transparent;
-    width: 100%;
-    border: none;
-    border-top: solid 1px #aaa;
-}
-
-  table {
-    font-family: sans-serif;
-    border-collapse: collapse;
-    width: 100%;
-  }
-  
-  th {
-    color:#222121;
-    border: 2px solid #a7a7a7;
-    padding:2px 4px;  
-  }
-
-  td {
-    border: 2px solid #a7a7a7;
-    text-align: center;
-    padding: 4px;
-    color:#222121;
-  } */
-
 }
 
