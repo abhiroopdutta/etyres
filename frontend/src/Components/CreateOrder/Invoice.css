@@ -51,7 +51,7 @@
 }
 
 .invoice-body {
-  min-width: 210mm;
+  width: 210mm;
   height: 297mm;
   /* margin: 0mm auto; */
   background: rgb(255, 255, 255);
