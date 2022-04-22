@@ -8,7 +8,7 @@ function roundToTwo(num) {
   return +(Math.round(num + "e+2") + "e-2");
 }
 
-function Invoice({ showInvoice }) {
+function Invoice({ hideInvoice }) {
   const { tyresContext, servicesContext } = useContext(CartContext);
   // eslint-disable-next-line
   const [cart, setCart] = tyresContext;
@@ -270,7 +270,7 @@ function Invoice({ showInvoice }) {
   );
   let invoiceTotalGST = Math.round(totalValueForGST);
 
-  const handlePrint = () => {
+  const handleConfirmOrder = () => {
     //prepare full invoice data to send to backend
     let invoiceData = {
       invoiceNumber: invoiceNumber,
@@ -701,13 +701,16 @@ function Invoice({ showInvoice }) {
       </div>
 
       <div className="right-buttons-container">
-        <button className="close-invoice" onClick={() => showInvoice(false)}>
+        <button
+          className="close-invoice"
+          onClick={() => hideInvoice(orderConfirmed)}
+        >
           x
         </button>
         <button
           className="print-button"
           disabled={orderConfirmed}
-          onClick={handlePrint}
+          onClick={handleConfirmOrder}
         >
           CONFIRM ORDER
         </button>
