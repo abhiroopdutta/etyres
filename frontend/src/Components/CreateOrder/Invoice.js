@@ -335,11 +335,7 @@ function Invoice({ hideInvoice }) {
 
         <div className="tax-invoice-button">
           <label htmlFor="tax-invoice">Tax Invoice</label>
-          <input
-            name="tax-invoice"
-            type="checkbox"
-            onChange={toggleTaxInvoice}
-          />
+          <input id="tax-invoice" type="checkbox" onChange={toggleTaxInvoice} />
         </div>
       </div>
 
@@ -383,6 +379,7 @@ function Invoice({ hideInvoice }) {
           <div className="customer-details">
             <label htmlFor="name">Bill To: </label>
             <input
+              id="name"
               name="name"
               type="text"
               value={customerDetails.name}
@@ -391,6 +388,7 @@ function Invoice({ hideInvoice }) {
             <br />
             <label htmlFor="address">Address: </label>
             <input
+              id="address"
               name="address"
               type="text"
               value={customerDetails.address}
@@ -399,6 +397,7 @@ function Invoice({ hideInvoice }) {
             <br />
             <label htmlFor="GSTIN">GSTIN: </label>
             <input
+              id="GSTIN"
               name="GSTIN"
               type="text"
               maxLength="15"
@@ -408,6 +407,7 @@ function Invoice({ hideInvoice }) {
             <br />
             <label htmlFor="stateCode">Code: </label>
             <input
+              id="stateCode"
               name="stateCode"
               type="text"
               value={customerDetails.stateCode}
@@ -416,6 +416,7 @@ function Invoice({ hideInvoice }) {
             />
             <label htmlFor="state">State: </label>
             <input
+              id="state"
               name="state"
               type="text"
               value={customerDetails.state}
@@ -424,6 +425,7 @@ function Invoice({ hideInvoice }) {
             <br />
             <label htmlFor="vehicleNumber">Vehicle No. : </label>
             <input
+              id="vehicleNumber"
               name="vehicleNumber"
               type="text"
               value={customerDetails.vehicleNumber}
@@ -432,6 +434,7 @@ function Invoice({ hideInvoice }) {
             <br />
             <label htmlFor="contact">Contact: </label>
             <input
+              id="contact"
               name="contact"
               type="text"
               value={customerDetails.contact}

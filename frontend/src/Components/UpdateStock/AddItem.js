@@ -72,7 +72,11 @@ function AddItem({ invoiceNumber, item, toggleModal, updateItemStatus }) {
             onChange={handleCostPrice}
           />
           <label htmlFor="vehicle-type">Category</label>
-          <select name="vehicle-type" onChange={handleVehicleType}>
+          <select
+            id="vehicle-type"
+            name="vehicle-type"
+            onChange={handleVehicleType}
+          >
             <option value="passenger car">PCR</option>
             <option value="2 wheeler">2 Wheeler</option>
             <option value="3 wheeler">3 Wheeler</option>

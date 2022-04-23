@@ -22,14 +22,14 @@ function PurchaseInvoice({
   if (priceDifference > 0) {
     price_match_component = (
       <div>
-        Invoice Total is <strong>greater</strong> by &#8377;{" "}
+        Invoice Total is <strong>greater</strong> by &#8377;
         {Math.abs(priceDifference)} &#10060;
       </div>
     );
   } else if (priceDifference < 0) {
     price_match_component = (
       <div>
-        Invoice Total is <strong>lesser</strong> by &#8377;{" "}
+        Invoice Total is <strong>lesser</strong> by &#8377;
         {Math.abs(priceDifference)} &#10060;
       </div>
     );
@@ -45,7 +45,7 @@ function PurchaseInvoice({
         </strong>
         {
           <strong className="invoice-date">
-            Invoice Date:{" "}
+            Invoice Date:
             <input
               type="date"
               value={invoice.invoice_date}
@@ -75,21 +75,20 @@ function PurchaseInvoice({
           className="claim-overwrite"
           onChange={(e) => handleOverwrite(invoice_index, e)}
         >
+          <label htmlFor="overwrite">Overwrite price list</label>
           <input
+            id="overwrite"
             type="checkbox"
             value="overwrite"
             name={"claim_overwrite" + invoice_index}
           />
-          <label htmlFor={"claim_overwrite" + invoice_index}>
-            {" "}
-            Overwrite price list
-          </label>
         </section>
       ) : priceDifference < 0 ? (
         <section
           className="claim-overwrite"
           onChange={(e) => handleClaimOverwrite(invoice_index, e)}
         >
+          <label htmlFor="claim"> Claim Invoice</label>
           <input
             type="radio"
             id="claim"
@@ -97,7 +96,7 @@ function PurchaseInvoice({
             value={invoice.claim_invoice}
             required
           />
-          <label htmlFor={"claim"}> Claim Invoice</label>
+          <label htmlFor="overwrite">Overwrite Price List</label>
           <input
             type="radio"
             id="overwrite"
@@ -105,7 +104,7 @@ function PurchaseInvoice({
             value={invoice.overwrite_price_list}
             required
           />
-          <label htmlFor={"overwrite"}>Overwrite Price List</label>
+          <label htmlFor="special_discount">Special Discount</label>
           <input
             type="radio"
             id="special_discount"
@@ -113,7 +112,6 @@ function PurchaseInvoice({
             value={invoice.special_discount}
             required
           />
-          <label htmlFor={"special_discount"}>Special Discount</label>
         </section>
       ) : null}
 

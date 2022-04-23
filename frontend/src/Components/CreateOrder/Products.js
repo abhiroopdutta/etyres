@@ -43,6 +43,7 @@ function Products({ refreshProducts }) {
           value={input}
           placeholder="Enter tyre size"
         />
+        <label htmlFor="in_stock">In Stock</label>
         <input
           type="checkbox"
           id="in_stock"
@@ -50,7 +51,6 @@ function Products({ refreshProducts }) {
           defaultChecked={inStock}
           onChange={handleInStock}
         />
-        <label htmlFor="in_stock">In Stock</label>
       </div>
       <div className="product-items">
         {tyreData.map((tyre, index) => (
