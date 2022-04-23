@@ -3,10 +3,12 @@ from models import Purchase, Sale, Product
 from mongoengine import Q
 import datetime
 import openpyxl
+import os
 from openpyxl.styles import Border, Side, PatternFill, Font
 wb = openpyxl.Workbook() 
 
 def report_handler(report_req_info):
+    os.makedirs("./tempdata/sales_report/", exist_ok = True) #make the dir if it doesn't exist
     start = datetime.datetime.strptime(report_req_info["dateFrom"]+ " " + "05:30:00", '%Y-%m-%d %H:%M:%S')
     if report_req_info["reportType"] == "stock":
         return stock_report(start)
