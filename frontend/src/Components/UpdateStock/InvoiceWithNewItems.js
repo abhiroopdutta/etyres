@@ -3,24 +3,9 @@ import "./InvoiceWithNewItems.css";
 import AddItem from "./AddItem";
 import React from "react";
 
-function InvoiceWithNewItems({
-  initial_invoice,
-  invoiceIndex,
-  convertToNormalInvoice,
-}) {
+function InvoiceWithNewItems({ invoice, updateItemStatus }) {
   const [showModal, setShowModal] = useState(false);
   const [item, setItem] = useState();
-  const [invoice, setInvoice] = useState(initial_invoice);
-
-  useEffect(() => {
-    let notFoundInInventory = invoice.items.find(
-      (item) => item.not_found_in_inventory === true
-    );
-
-    if (!notFoundInInventory) {
-      convertToNormalInvoice(invoice);
-    }
-  }, [invoice]);
 
   const toggleModal = (state) => {
     setShowModal(state);
@@ -29,15 +14,6 @@ function InvoiceWithNewItems({
   const handleUpdateInventory = (item) => {
     setItem(item);
     toggleModal(true);
-  };
-
-  const updateItemStatus = (new_item) => {
-    let invoiceCopy = { ...invoice };
-    let itemIndex = invoiceCopy.items.findIndex(
-      (item) => item.item_code === new_item.item_code
-    );
-    invoiceCopy.items[itemIndex].not_found_in_inventory = false;
-    setInvoice(invoiceCopy);
   };
 
   return (
@@ -82,6 +58,7 @@ function InvoiceWithNewItems({
 
       {showModal ? (
         <AddItem
+          invoiceNumber={invoice.invoice_number}
           item={item}
           toggleModal={toggleModal}
           updateItemStatus={updateItemStatus}
