@@ -109,13 +109,13 @@ function Cart({ handleRefreshProducts }) {
 
         <div className="cart-products">
           {cart.map((tyre, index) => (
-            <CartTyre tyreData={tyre} key={index} />
+            <CartTyre tyreData={tyre} key={tyre.itemCode} />
           ))}{" "}
         </div>
 
         <div className="cart-services">
           {services.map((service, index) => (
-            <div className="service" key={index}>
+            <div className="service" key={service.name}>
               <div className="service-name">{service.name}:</div>
 
               <div className="service-details">

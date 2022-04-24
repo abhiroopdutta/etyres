@@ -37,7 +37,7 @@ function InvoiceWithNewItems({ invoice, updateItemStatus }) {
 
         <tbody>
           {invoice.items.map((item, index) => (
-            <tr key={index}>
+            <tr key={item.item_code}>
               <td>{index + 1}</td>
               <td>{item.item_desc}:</td>
               <td>{item.quantity}</td>

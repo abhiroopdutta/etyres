@@ -309,7 +309,7 @@ function Invoice({ cart, services, hideInvoice }) {
 
                   <tbody>
                     {IGSTTable.products.map((tyre, index) => (
-                      <tr key={index}>
+                      <tr key={tyre.itemCode}>
                         <td>{tyre.itemDesc}</td>
                         <td>{tyre.HSN}</td>
                         <td>{tyre.quantity}</td>
@@ -396,7 +396,7 @@ function Invoice({ cart, services, hideInvoice }) {
 
                   <tbody>
                     {GSTTable.products.map((tyre, index) => (
-                      <tr key={index}>
+                      <tr key={tyre.itemCode}>
                         <td>{tyre.itemDesc}</td>
                         <td>{tyre.HSN}</td>
                         <td>{tyre.quantity}</td>
@@ -411,7 +411,7 @@ function Invoice({ cart, services, hideInvoice }) {
                     ))}
 
                     {GSTTable.services.map((service, index) => (
-                      <tr key={index}>
+                      <tr key={service.name}>
                         <td>{service.name}</td>
                         <td>{service.HSN}</td>
                         <td>{service.quantity}</td>
@@ -475,7 +475,7 @@ function Invoice({ cart, services, hideInvoice }) {
 
               <tbody>
                 {cart.map((tyre, index) => (
-                  <tr key={index}>
+                  <tr key={tyre.itemCode}>
                     <td>{tyre.itemDesc}</td>
                     <td>{tyre.quantity}</td>
                     <td>{tyre.price}</td>
@@ -487,7 +487,7 @@ function Invoice({ cart, services, hideInvoice }) {
                     return service.quantity > 0;
                   })
                   .map((service, index) => (
-                    <tr key={index}>
+                    <tr key={service.name}>
                       <td>{service.name}</td>
                       <td>{service.quantity}</td>
                       <td>{service.price}</td>

@@ -125,7 +125,7 @@ function PurchaseInvoice({
             {invoice.claim_invoice ? <th>Claim No.</th> : null}
           </tr>
         </thead>
-
+        {/* It is safe to use item_index as key here since the claim_items array doesn't change, but fix it in future */}
         <tbody>
           {invoice.claim_invoice
             ? invoice.claim_items.map((service, claim_item_index) => (
@@ -146,7 +146,7 @@ function PurchaseInvoice({
                 </tr>
               ))
             : invoice.items.map((service, item_index) => (
-                <tr key={item_index}>
+                <tr key={service.item_code}>
                   <td>{item_index + 1}</td>
                   <td>{service.item_desc}:</td>
                   <td>{service.quantity}</td>

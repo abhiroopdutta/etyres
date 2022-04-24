@@ -54,7 +54,7 @@ function Products({ refreshProducts }) {
       </div>
       <div className="product-items">
         {tyreData.map((tyre, index) => (
-          <Tyre tyreData={tyre} key={index} />
+          <Tyre tyreData={tyre} key={tyre.itemCode} />
         ))}
       </div>
     </div>
