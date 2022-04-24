@@ -3,7 +3,7 @@ from flask import send_from_directory, abort
 from db import initialize_db
 from update_price import update_price, load_to_db
 from update_stock import read_invoices, update_stock, process_invoice
-from create_order import create_order
+from create_order import create_order, compute_gst_tables
 from sales_report import report_handler, reset_stock
 from models import Product, Purchase, Sale
 from datetime import date, datetime
@@ -69,6 +69,12 @@ def add_item_to_inventory():
         return jsonify("success"), 200
     else:
         return jsonify("failure"), 400
+
+@app.route("/api/get_gst_tables", methods = ['POST'])
+def compute_table():
+    data = request.get_json()
+    result = compute_gst_tables(**data)
+    return result, 200
 
 @app.route("/api/place_order", methods = ['POST'])
 def stock_out():
