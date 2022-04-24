@@ -1,22 +1,26 @@
-import React from 'react';
-import Shop from './Shop';
-import { CartProvider } from './CartContext'; //understand objects in JS, and deconstructuring
-import Invoice from './Invoice';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import React, { useState } from "react";
+import Cart from "./Cart";
+import Products from "./Products";
+import "./Shop.css";
+import { CartProvider } from "./CartContext"; //understand objects in JS, and deconstructuring
 
 function CreateOrder() {
+  const [refreshProducts, setRefreshProducts] = useState(false);
+  const handleRefreshProducts = () => {
+    setRefreshProducts(!refreshProducts);
+  };
+
   return (
-    <Router>
+    <div className="shop-container">
       <CartProvider>
-        <Switch>
-          <Route path="/shop"> <Shop/> </Route>   
-          <Route path="/invoice"> <Invoice/> </Route>
-          <Shop/>
-        </Switch>        
-      </CartProvider>      
-    </Router>           
+        <Products refreshProducts={refreshProducts} className="products" />
+        <Cart
+          handleRefreshProducts={handleRefreshProducts}
+          className="cart-container"
+        />
+      </CartProvider>
+    </div>
   );
 }
-
 
 export default CreateOrder;
