@@ -1,19 +1,12 @@
-import React, { useContext, useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useReactToPrint } from "react-to-print";
-
-import { CartContext } from "./CartContext";
 import "./Invoice.css";
 
 function roundToTwo(num) {
   return +(Math.round(num + "e+2") + "e-2");
 }
 
-function Invoice({ hideInvoice }) {
-  const { tyresContext, servicesContext } = useContext(CartContext);
-  // eslint-disable-next-line
-  const [cart, setCart] = tyresContext;
-  // eslint-disable-next-line
-  const [services, setServices] = servicesContext;
+function Invoice({ cart, services, hideInvoice }) {
   const [isTaxInvoice, setIsTaxInvoice] = useState(false);
   const [orderConfirmed, setOrderConfirmed] = useState(false);
   const [customerDetails, setCustomerDetails] = useState({

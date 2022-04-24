@@ -97,7 +97,13 @@ function Cart({ handleRefreshProducts }) {
             <button className="invoice-button" onClick={() => showInvoice()}>
               Preview invoice
             </button>
-            {previewInvoice ? <Invoice hideInvoice={hideInvoice} /> : null}
+            {previewInvoice ? (
+              <Invoice
+                cart={cart}
+                services={services}
+                hideInvoice={hideInvoice}
+              />
+            ) : null}
           </div>
         </div>
 
