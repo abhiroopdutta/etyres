@@ -102,30 +102,30 @@
   background-color:  rgb(255, 255, 198);
 }
 
-.customer-details input:nth-of-type(1){
+.customer-details .name{
   width: 550px;
 }
 
-.customer-details input:nth-of-type(2){
+.customer-details .address{
   width: 535px;
 }
-.customer-details input:nth-of-type(3){
+.customer-details .GSTIN{
   width: 549px;
 }
 
-.customer-details input:nth-of-type(4){
+.customer-details .stateCode{
   width: 50px;
 }
 
-.customer-details input:nth-of-type(5){
+.customer-details .state{
   width: 460px;
 }
 
-.customer-details input:nth-of-type(6){
+.customer-details .vehicleNumber{
   width: 510px;
 }
 
-.customer-details input:nth-of-type(7){
+.customer-details .contact{
   width: 539px;
 }
   

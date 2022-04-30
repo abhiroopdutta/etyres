@@ -21,6 +21,7 @@ function Invoice({ cart, services, hideInvoice }) {
   });
   const [GSTTable, setGSTTable] = useState();
   const [IGSTTable, setIGSTTable] = useState();
+  const [noTaxTable, setNoTaxTable] = useState();
   const [isTaxInvoice, setIsTaxInvoice] = useState(false);
   const [orderConfirmed, setOrderConfirmed] = useState(false);
   //render different tables depending on IGST customer or not
@@ -54,6 +55,7 @@ function Invoice({ cart, services, hideInvoice }) {
         if (response.ok) {
           setGSTTable(result.GST_table);
           setIGSTTable(result.IGST_table);
+          setNoTaxTable(result.non_tax_table);
         } else {
           throw Error(result);
         }
@@ -202,73 +204,82 @@ function Invoice({ cart, services, hideInvoice }) {
         <hr />
         <br />
         <br />
-        {isTaxInvoice ? (
-          <div className="customer-details">
-            <label htmlFor="name">Bill To: </label>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              value={customerDetails.name}
-              onChange={handleCustomerDetails}
-            />
-            <br />
-            <label htmlFor="address">Address: </label>
-            <input
-              id="address"
-              name="address"
-              type="text"
-              value={customerDetails.address}
-              onChange={handleCustomerDetails}
-            />
-            <br />
-            <label htmlFor="GSTIN">GSTIN: </label>
-            <input
-              id="GSTIN"
-              name="GSTIN"
-              type="text"
-              maxLength="15"
-              value={customerDetails.GSTIN}
-              onChange={handleIGST}
-            />
-            <br />
-            <label htmlFor="stateCode">Code: </label>
-            <input
-              id="stateCode"
-              name="stateCode"
-              type="text"
-              value={customerDetails.stateCode}
-              onChange={handleCustomerDetails}
-              maxLength="2"
-            />
-            <label htmlFor="state">State: </label>
-            <input
-              id="state"
-              name="state"
-              type="text"
-              value={customerDetails.state}
-              onChange={handleCustomerDetails}
-            />
-            <br />
-            <label htmlFor="vehicleNumber">Vehicle No. : </label>
-            <input
-              id="vehicleNumber"
-              name="vehicleNumber"
-              type="text"
-              value={customerDetails.vehicleNumber}
-              onChange={handleCustomerDetails}
-            />
-            <br />
-            <label htmlFor="contact">Contact: </label>
-            <input
-              id="contact"
-              name="contact"
-              type="text"
-              value={customerDetails.contact}
-              onChange={handleCustomerDetails}
-            />
-          </div>
-        ) : null}
+        <div className="customer-details">
+          <label htmlFor="name">Bill To: </label>
+          <input
+            id="name"
+            name="name"
+            className="name"
+            type="text"
+            value={customerDetails.name}
+            onChange={handleCustomerDetails}
+          />
+          <br />
+          <label htmlFor="address">Address: </label>
+          <input
+            id="address"
+            name="address"
+            className="address"
+            type="text"
+            value={customerDetails.address}
+            onChange={handleCustomerDetails}
+          />
+          <br />
+          {isTaxInvoice ? (
+            <section className="customer-details-gst">
+              <label htmlFor="GSTIN">GSTIN: </label>
+              <input
+                id="GSTIN"
+                name="GSTIN"
+                className="GSTIN"
+                type="text"
+                maxLength="15"
+                value={customerDetails.GSTIN}
+                onChange={handleIGST}
+              />
+              <br />
+              <label htmlFor="stateCode">Code: </label>
+              <input
+                id="stateCode"
+                name="stateCode"
+                className="stateCode"
+                type="text"
+                value={customerDetails.stateCode}
+                onChange={handleCustomerDetails}
+                maxLength="2"
+              />
+              <label htmlFor="state">State: </label>
+              <input
+                id="state"
+                name="state"
+                className="state"
+                type="text"
+                value={customerDetails.state}
+                onChange={handleCustomerDetails}
+              />
+              <br />
+            </section>
+          ) : null}
+          <label htmlFor="vehicleNumber">Vehicle No. : </label>
+          <input
+            id="vehicleNumber"
+            name="vehicleNumber"
+            className="vehicleNumber"
+            type="text"
+            value={customerDetails.vehicleNumber}
+            onChange={handleCustomerDetails}
+          />
+          <br />
+          <label htmlFor="contact">Contact: </label>
+          <input
+            id="contact"
+            name="contact"
+            className="contact"
+            type="text"
+            value={customerDetails.contact}
+            onChange={handleCustomerDetails}
+          />
+        </div>
 
         <br />
 
@@ -338,7 +349,6 @@ function Invoice({ cart, services, hideInvoice }) {
                   </tfoot>
                 </table>
                 <br />
-                <br />
                 <table className="rounding-table">
                   <thead>
                     <tr>
@@ -349,12 +359,12 @@ function Invoice({ cart, services, hideInvoice }) {
                   <tbody>
                     <tr>
                       <th>Total</th>
-                      <td>{IGSTTable.invoiceTotal}</td>
+                      <td>
+                        <strong>&#x20B9;{IGSTTable.invoiceTotal}</strong>
+                      </td>
                     </tr>
                   </tbody>
                 </table>
-                <br />
-                <br />
               </div>
             ) : (
               <div className="GST">
@@ -453,12 +463,12 @@ function Invoice({ cart, services, hideInvoice }) {
                   <tbody>
                     <tr>
                       <th>Total</th>
-                      <td>{GSTTable.invoiceTotal}</td>
+                      <td>
+                        <strong>&#x20B9;{GSTTable.invoiceTotal}</strong>
+                      </td>
                     </tr>
                   </tbody>
                 </table>
-                <br />
-                <br />
               </div>
             )}
           </div>
@@ -468,44 +478,64 @@ function Invoice({ cart, services, hideInvoice }) {
               <thead>
                 <tr>
                   <th className="particulars">Particulars</th>
+                  <th className="unit-price">Unit Price</th>
                   <th className="Qty">Qty</th>
                   <th className="value">Value</th>
                 </tr>
               </thead>
 
               <tbody>
-                {cart.map((tyre, index) => (
-                  <tr key={tyre.itemCode}>
-                    <td>{tyre.itemDesc}</td>
-                    <td>{tyre.quantity}</td>
-                    <td>{tyre.price}</td>
+                {noTaxTable?.products.map((product) => (
+                  <tr key={product.itemCode}>
+                    <td>{product.itemDesc}</td>
+                    <td>{product.price}</td>
+                    <td>{product.quantity}</td>
+                    <td>{product.value}</td>
                   </tr>
                 ))}
 
-                {services
-                  .filter((service) => {
-                    return service.quantity > 0;
-                  })
-                  .map((service, index) => (
-                    <tr key={service.name}>
-                      <td>{service.name}</td>
-                      <td>{service.quantity}</td>
-                      <td>{service.price}</td>
-                    </tr>
-                  ))}
+                {noTaxTable?.services.map((service) => (
+                  <tr key={service.name}>
+                    <td>{service.name}</td>
+                    <td>{service.price}</td>
+                    <td>{service.quantity}</td>
+                    <td>{service.value}</td>
+                  </tr>
+                ))}
               </tbody>
 
               <tfoot>
                 <tr>
                   <th>Net Amount</th>
-                  <th>{GSTTable?.total.quantity}</th>
-                  <th>{GSTTable?.invoiceTotal}</th>
+                  <td>-</td>
+                  <td>{noTaxTable?.total.quantity}</td>
+                  <td>{noTaxTable?.total.value}</td>
                 </tr>
               </tfoot>
+            </table>
+            <br />
+            <table className="rounding-table">
+              <thead>
+                <tr>
+                  <th>Rounding off</th>
+                  <td>{noTaxTable?.invoiceRoundOff}</td>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr>
+                  <th>Total</th>
+                  <td>
+                    <strong>&#x20B9;{noTaxTable?.invoiceTotal}</strong>
+                  </td>
+                </tr>
+              </tbody>
             </table>
           </div>
         )}
 
+        <br />
+        <br />
         <br />
         <br />
         <br />

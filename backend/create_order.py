@@ -135,8 +135,58 @@ def compute_gst_tables(products, services):
     IGST_table["invoiceTotal"] = round(IGST_total["value"])
     IGST_table["invoiceRoundOff"] = round(round(IGST_total["value"]) - IGST_total["value"], 2) 
 
+    non_tax_table = {
+        "products":[],
+        "services":[],
+        "total":{},
+        "invoiceTotal": 0,
+        "invoiceRoundOff":0.0
+    }
+
+    for product in products:
+        non_tax_product = {
+            "itemDesc": product["itemDesc"],
+            "itemCode": product["itemCode"],
+            "HSN": product["HSN"],
+            "quantity": int(product["quantity"]),
+            "price": round(float(product["price"]), 2),
+            "value": 0.0,
+        }
+
+        non_tax_product["value"] = round(non_tax_product["price"] * non_tax_product["quantity"], 2)
+        non_tax_table["products"].append(non_tax_product)
+    
+    for service in services:
+        non_tax_service = {
+            "name": service["name"],
+            "HSN": service["HSN"],
+            "quantity": int(service["quantity"]),
+            "price": round(float(service["price"]), 2),
+            "value": 0.0,
+        }
+
+        non_tax_service["value"] = round(non_tax_service["price"] * non_tax_service["quantity"], 2)
+        non_tax_table["services"].append(non_tax_service)
+
+    non_tax_total = {
+        "quantity" : 0,
+        "value" : 0.0,
+    }
+
+    for item in non_tax_table["products"] + non_tax_table["services"]:
+        non_tax_total["quantity"] += item["quantity"]
+        non_tax_total["value"] += item["value"]
+
+    non_tax_table["total"]["quantity"] = round(non_tax_total["quantity"])
+    non_tax_table["total"]["value"] = round(non_tax_total["value"], 2)
+
+    non_tax_table["invoiceTotal"] = round(non_tax_total["value"])
+    non_tax_table["invoiceRoundOff"] = round(non_tax_table["invoiceTotal"] - non_tax_table["total"]["value"], 2)
+
+
     return {"GST_table": GST_table,
-            "IGST_table": IGST_table}
+            "IGST_table": IGST_table,
+            "non_tax_table": non_tax_table}
 
 # if services in cart and IGST invoice, then error, fix this in future
 def create_order(invoice):
