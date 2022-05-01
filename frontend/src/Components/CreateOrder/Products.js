@@ -25,7 +25,7 @@ function Products({ refreshProducts }) {
   }
 
   const handleInStock = () => {
-    setInStock(!inStock);
+    setInStock((inStock) => !inStock);
   };
   if (inStock) {
     tyreData = tyreData.filter((i) => {

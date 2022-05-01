@@ -143,7 +143,7 @@ function Invoice({ cart, services, hideInvoice }) {
   };
 
   const toggleTaxInvoice = () => {
-    setIsTaxInvoice(!isTaxInvoice);
+    setIsTaxInvoice((isTaxInvoice) => !isTaxInvoice);
   };
 
   const componentRef = useRef(null);

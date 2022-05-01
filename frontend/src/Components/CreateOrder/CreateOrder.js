@@ -7,7 +7,7 @@ import { CartProvider } from "./CartContext"; //understand objects in JS, and de
 function CreateOrder() {
   const [refreshProducts, setRefreshProducts] = useState(false);
   const handleRefreshProducts = () => {
-    setRefreshProducts(!refreshProducts);
+    setRefreshProducts((refreshProducts) => !refreshProducts);
   };
 
   return (
