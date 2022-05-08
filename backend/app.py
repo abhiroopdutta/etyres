@@ -4,7 +4,7 @@ from db import initialize_db
 from update_price import update_price, load_to_db
 from update_stock import read_invoices, update_stock, process_invoice
 from create_order import create_order, compute_gst_tables
-from sales_report import report_handler, reset_stock
+from sales_report import report_handler, reset_stock, get_sales_report
 from models import Product, Purchase, Sale
 from datetime import date, datetime
 import os
@@ -129,6 +129,11 @@ def download():
         return send_from_directory(app.config["CLIENT_CSV"], filename, as_attachment=True)
     except FileNotFoundError:
         abort(404)
+
+@app.route("/api/sales_invoices", methods = ['POST'])
+def get_invoices():
+    query = request.get_json()
+    return get_sales_report(query), 200
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

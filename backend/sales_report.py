@@ -1,3 +1,4 @@
+from unittest import result
 from openpyxl.worksheet import worksheet
 from models import Purchase, Sale, Product
 from mongoengine import Q
@@ -6,6 +7,34 @@ import openpyxl
 import os
 from openpyxl.styles import Border, Side, PatternFill, Font
 wb = openpyxl.Workbook() 
+
+def get_sales_report(query):
+    max_items_per_page = 10 
+    results = {
+        "data": [],
+        "query":{
+            "filterSorters" : {
+                "invoiceNumber": { "sort": "", "filter": "" },
+                "invoiceDate": { "sort": "", "filter": "" },
+                "invoiceTotal": { "sort": "", "filter": "" },
+                "customerName": { "sort": "", "filter": "" },
+    },
+            "pagination": { 
+                "pageNumber": 0, 
+                "pageSize": 0, 
+                "totalResults" : 0 }
+        }
+        
+    }
+    if not query:
+        results["data"] = Sale.objects().order_by('-_id')[:max_items_per_page]
+        results["query"]["pagination"]["pageNumber"] = 1
+        results["query"]["pagination"]["pageSize"] = len(results["data"])
+        results["query"]["pagination"]["totalResults"] = Sale.objects().order_by('-_id').count()
+        print(results["query"]["pagination"]["totalResults"])
+        
+    return results
+
 
 def report_handler(report_req_info):
     os.makedirs("./tempdata/sales_report/", exist_ok = True) #make the dir if it doesn't exist

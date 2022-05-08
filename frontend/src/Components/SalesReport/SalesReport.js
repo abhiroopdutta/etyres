@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./SalesReport.css";
+import SalesTable from "./SalesTable";
 
 function SalesReport() {
   const [dateRange, setDateRange] = useState({
@@ -99,52 +100,57 @@ function SalesReport() {
 
   return (
     <div>
-      <button className="reset-button" onClick={handleResetStock}>
-        {" "}
-        Reset Stock{" "}
-      </button>
-      {stockResetMsg ? (
-        <h4 className="reset-button">Stock has been reset</h4>
-      ) : null}
-      {toggleLoader ? (
-        <div class="lds-spinner">
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-        </div>
-      ) : null}
+      <div className="excel-report">
+        <button className="reset-button" onClick={handleResetStock}>
+          {" "}
+          Reset Stock{" "}
+        </button>
+        {stockResetMsg ? (
+          <h4 className="reset-button">Stock has been reset</h4>
+        ) : null}
+        {toggleLoader ? (
+          <div class="lds-spinner">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+        ) : null}
 
-      {/* safe to use key as index here since reports array doesn't change */}
-      {reports.map((report, index) => (
-        <div className="report" key={index}>
-          <h3>{report} Report - select date -</h3>
-          <input
-            type="date"
-            name={report + "DateFrom"}
-            onChange={handleDateRange}
-          />
-          {report !== "stock" ? (
+        {/* safe to use key as index here since reports array doesn't change */}
+        {reports.map((report, index) => (
+          <div className="report" key={index}>
+            <h3>{report} Report - select date -</h3>
             <input
               type="date"
-              name={report + "DateTo"}
+              name={report + "DateFrom"}
               onChange={handleDateRange}
             />
-          ) : null}
-          <button name={report} onClick={handleGenerateFile}>
-            {" "}
-            Generate {report} report excel{" "}
-          </button>
-        </div>
-      ))}
+            {report !== "stock" ? (
+              <input
+                type="date"
+                name={report + "DateTo"}
+                onChange={handleDateRange}
+              />
+            ) : null}
+            <button name={report} onClick={handleGenerateFile}>
+              {" "}
+              Generate {report} report excel{" "}
+            </button>
+          </div>
+        ))}
+      </div>
+      <div className="sales-table">
+        <SalesTable />
+      </div>
     </div>
   );
 }
