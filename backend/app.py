@@ -133,7 +133,7 @@ def download():
 @app.route("/api/sales_invoices", methods = ['POST'])
 def get_invoices():
     query = request.get_json()
-    return get_sales_report(query), 200
+    return get_sales_report(**query), 200
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

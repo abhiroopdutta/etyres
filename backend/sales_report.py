@@ -8,33 +8,30 @@ import os
 from openpyxl.styles import Border, Side, PatternFill, Font
 wb = openpyxl.Workbook() 
 
-def get_sales_report(query):
-    max_items_per_page = 10 
+    #        "filterSorters" : {
+    #             "invoiceNumber": { "sort": "", "filter": "" },
+    #             "invoiceDate": { "sort": "", "filter": "" },
+    #             "invoiceTotal": { "sort": "", "filter": "" },
+    #             "customerName": { "sort": "", "filter": "" },
+    # }
+
+def get_sales_report(query, pageRequest, maxItemsPerPage):
     results = {
         "data": [],
-        "query":{
-            "filterSorters" : {
-                "invoiceNumber": { "sort": "", "filter": "" },
-                "invoiceDate": { "sort": "", "filter": "" },
-                "invoiceTotal": { "sort": "", "filter": "" },
-                "customerName": { "sort": "", "filter": "" },
-    },
-            "pagination": { 
-                "pageNumber": 0, 
-                "pageSize": 0, 
-                "totalResults" : 0 }
-        }
+        "pagination": { 
+            "pageNumber": 0, 
+            "pageSize": 0, 
+            "totalResults" : 0 }
         
     }
-    if not query:
-        results["data"] = Sale.objects().order_by('-_id')[:max_items_per_page]
-        results["query"]["pagination"]["pageNumber"] = 1
-        results["query"]["pagination"]["pageSize"] = len(results["data"])
-        results["query"]["pagination"]["totalResults"] = Sale.objects().order_by('-_id').count()
-        print(results["query"]["pagination"]["totalResults"])
-        
-    return results
 
+    if not query:
+        results["data"] = Sale.objects().order_by('-_id')[(pageRequest-1)*maxItemsPerPage:pageRequest*maxItemsPerPage]
+        results["pagination"]["pageNumber"] = pageRequest
+        results["pagination"]["pageSize"] = len(results["data"])
+        results["pagination"]["totalResults"] = Sale.objects().order_by('-_id').count()
+        print(results)
+        return results
 
 def report_handler(report_req_info):
     os.makedirs("./tempdata/sales_report/", exist_ok = True) #make the dir if it doesn't exist

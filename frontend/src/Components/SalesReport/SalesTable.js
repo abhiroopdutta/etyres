@@ -1,17 +1,23 @@
-import React, { useEffect, useState } from "react";
-import { useTable, useSortBy } from "react-table";
+import React, { useEffect, useState, useCallback } from "react";
 import dayjs from "dayjs";
 
 function SalesTable() {
-  const [salesInvoices, setSalesInvoices] = useState([]);
   const [query, setQuery] = useState({});
+  const [pageRequest, setPageRequest] = useState(1);
+  const [maxItemsPerPage, setMaxItemsPerPage] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [salesInvoices, setSalesInvoices] = useState([]);
 
-  useEffect(() => {
-    const getSalesInvoices = async () => {
+  const getTableData = useCallback(
+    async (query, pageRequest, maxItemsPerPage) => {
       const requestOptions = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
+        body: JSON.stringify({
+          query: query,
+          pageRequest: pageRequest,
+          maxItemsPerPage: maxItemsPerPage,
+        }),
       };
       try {
         const response = await fetch("/api/sales_invoices", requestOptions);
@@ -22,18 +28,33 @@ function SalesTable() {
               "DD/MM/YYYY"
             );
           });
-          console.log("use effect");
           setSalesInvoices(result.data);
-          setQuery(result.query);
+          setCurrentPage(result.pagination);
         }
       } catch (err) {
         alert(err.message);
         console.log(err.message);
       }
-    };
-    getSalesInvoices();
-  }, []);
+    },
+    []
+  );
 
+  useEffect(() => {
+    getTableData(query, pageRequest, maxItemsPerPage);
+    console.log("fetch");
+  }, [query, pageRequest, maxItemsPerPage]);
+
+  const handlePageChange = (e) => {
+    if (e.target.id == "prev" && currentPage.pageNumber > 1) {
+      setPageRequest((pageRequest) => pageRequest - 1);
+    } else if (
+      e.target.id == "next" &&
+      currentPage.pageNumber * maxItemsPerPage < currentPage.totalResults
+    ) {
+      setPageRequest((pageRequest) => pageRequest + 1);
+    }
+  };
+  console.log(pageRequest);
   const columns = React.useMemo(
     () => [
       {
@@ -76,12 +97,18 @@ function SalesTable() {
       </table>
       <div>
         <p>
-          Showing {query.pagination.pageSize} of {query.pagination.totalResults}{" "}
-          results
+          Showing{" "}
+          {currentPage?.pageSize +
+            (currentPage?.pageNumber - 1) * maxItemsPerPage}{" "}
+          of {currentPage?.totalResults} results
         </p>
-        <button>Prev</button>
-        <button>Next</button>
-        <h4>Page {query.pagination.pageNumber}</h4>
+        <button id="prev" onClick={handlePageChange}>
+          Prev
+        </button>
+        <button id="next" onClick={handlePageChange}>
+          Next
+        </button>
+        <h4>Page {currentPage?.pageNumber}</h4>
       </div>
     </div>
   );
