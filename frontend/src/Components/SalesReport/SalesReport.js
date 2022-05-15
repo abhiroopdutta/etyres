@@ -126,7 +126,7 @@ function SalesReport() {
         ) : null}
 
         {/* safe to use key as index here since reports array doesn't change */}
-        {reports.map((report, index) => (
+        {/* {reports.map((report, index) => (
           <div className="report" key={index}>
             <h3>{report} Report - select date -</h3>
             <input
@@ -146,7 +146,7 @@ function SalesReport() {
               Generate {report} report excel{" "}
             </button>
           </div>
-        ))}
+        ))} */}
       </div>
       <div className="sales-table">
         <SalesTable />

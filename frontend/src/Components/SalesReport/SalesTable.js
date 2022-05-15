@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import dayjs from "dayjs";
 
 function SalesTable() {
@@ -54,8 +54,8 @@ function SalesTable() {
       setPageRequest((pageRequest) => pageRequest + 1);
     }
   };
-  console.log(pageRequest);
-  const columns = React.useMemo(
+
+  const columns = useMemo(
     () => [
       {
         Header: "Invoice No.",
@@ -72,9 +72,8 @@ function SalesTable() {
     ],
     []
   );
-
   return (
-    <div>
+    <div className="sales-table">
       <table>
         <thead>
           <tr>
@@ -97,18 +96,17 @@ function SalesTable() {
       </table>
       <div>
         <p>
-          Showing{" "}
-          {currentPage?.pageSize +
-            (currentPage?.pageNumber - 1) * maxItemsPerPage}{" "}
+          Showing {(currentPage?.pageNumber - 1) * maxItemsPerPage + 1}-
+          {(currentPage?.pageNumber - 1) * maxItemsPerPage +
+            currentPage?.pageSize}{" "}
           of {currentPage?.totalResults} results
         </p>
         <button id="prev" onClick={handlePageChange}>
-          Prev
+          {"<"}
         </button>
         <button id="next" onClick={handlePageChange}>
-          Next
+          {">"}
         </button>
-        <h4>Page {currentPage?.pageNumber}</h4>
       </div>
     </div>
   );
