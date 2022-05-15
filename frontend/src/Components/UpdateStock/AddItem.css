@@ -1,6 +1,3 @@
-h5{
-  margin: 0;
-}
 
 .add-item-modal{
     position: fixed;
@@ -16,7 +13,7 @@ h5{
   
   .add-item-modal-content {
     background: white;
-    max-height: 50ch;
+    /* max-height: 40%; */
     display: flex;
     flex-flow: column wrap;
     justify-content: flex-start;

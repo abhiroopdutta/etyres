@@ -129,19 +129,19 @@
   width: 539px;
 }
   
-table {
+.IGST-table, .rounding-table, .GST-table, .no-tax-invoice{
   font-family: arial, sans-serif;
   border-collapse: collapse;
   width: 100%;
 }
 
-th {
+table.IGST-table th, table.rounding-table th, table.GST-table th, table.no-tax-invoice th {
   background-color: #dddddd;
   border: 1px solid #00000038;
   padding:2px 4px;  
 }
 
-td {
+table.IGST-table td, table.rounding-table td, table.GST-table td, table.no-tax-invoice td {
   border: 1px solid #dddddd;
   text-align: center;
   padding: 4px;

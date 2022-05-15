@@ -23,8 +23,8 @@ function InvoiceWithNewItems({ invoice, updateItemStatus }) {
           Invoice no. {invoice.invoice_number}
         </strong>
       </header>
-      <hr />
-      <table className="invoice-item-headers">
+      <hr className="invoice-with-new-items-hr" />
+      <table className="invoice-with-new-items-table">
         <thead>
           <tr>
             <th>S.no.</th>

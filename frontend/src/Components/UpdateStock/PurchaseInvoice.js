@@ -57,7 +57,7 @@ function PurchaseInvoice({
         <br />
         <br />
       </header>
-      <hr />
+      <hr className="purchase-invoice-hr" />
 
       {priceDifference && invoice.special_discount ? (
         <div className="special-discount">
@@ -115,7 +115,7 @@ function PurchaseInvoice({
         </section>
       ) : null}
 
-      <table className="invoice-item-headers">
+      <table className="purchase-invoice-table">
         <thead>
           <tr>
             <th>S.no.</th>

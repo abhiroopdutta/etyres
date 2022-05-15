@@ -473,8 +473,8 @@ function Invoice({ cart, services, hideInvoice }) {
             )}
           </div>
         ) : (
-          <div className="no-tax-invoice">
-            <table>
+          <div>
+            <table className="no-tax-invoice">
               <thead>
                 <tr>
                   <th className="particulars">Particulars</th>
