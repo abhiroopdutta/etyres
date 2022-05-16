@@ -8,14 +8,8 @@ import os
 from openpyxl.styles import Border, Side, PatternFill, Font
 wb = openpyxl.Workbook() 
 
-    #        "filterSorters" : {
-    #             "invoiceNumber": { "sort": "", "filter": "" },
-    #             "invoiceDate": { "sort": "", "filter": "" },
-    #             "invoiceTotal": { "sort": "", "filter": "" },
-    #             "customerName": { "sort": "", "filter": "" },
-    # }
 
-def get_sales_report(query, pageRequest, maxItemsPerPage):
+def get_sales_report(filters, sorters, pageRequest, maxItemsPerPage):
     results = {
         "data": [],
         "pagination": { 
@@ -24,14 +18,20 @@ def get_sales_report(query, pageRequest, maxItemsPerPage):
             "totalResults" : 0 }
         
     }
-
-    if not query:
-        results["data"] = Sale.objects().order_by('-_id')[(pageRequest-1)*maxItemsPerPage:pageRequest*maxItemsPerPage]
-        results["pagination"]["pageNumber"] = pageRequest
-        results["pagination"]["pageSize"] = len(results["data"])
-        results["pagination"]["totalResults"] = Sale.objects().order_by('-_id').count()
-        print(results)
-        return results
+    page_start = (pageRequest-1)*maxItemsPerPage
+    page_end = pageRequest*maxItemsPerPage
+    query = Q(invoiceNumber__gte=0)
+    
+    if (filters["invoiceNumber"].isnumeric()):
+        query = query & Q(invoiceNumber=int(filters["invoiceNumber"]))
+    if (filters["customerName"]):
+        query = query & Q(customerDetails__name__contains=filters["customerName"])
+    
+    results["data"] = Sale.objects(query).order_by('-_id')[page_start:page_end]
+    results["pagination"]["totalResults"] = Sale.objects(query).order_by('-_id')[page_start:page_end].count()
+    results["pagination"]["pageNumber"] = pageRequest
+    results["pagination"]["pageSize"] = len(results["data"])
+    return results
 
 def report_handler(report_req_info):
     os.makedirs("./tempdata/sales_report/", exist_ok = True) #make the dir if it doesn't exist

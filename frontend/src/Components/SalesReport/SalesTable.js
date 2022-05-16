@@ -1,20 +1,38 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
+import { Table, Input, Button, Space } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 
 function SalesTable() {
-  const [query, setQuery] = useState({});
+  const [filters, setFilters] = useState({
+    invoiceNumber: "",
+    invoiceDate: "",
+    invoiceTotal: "",
+    customerName: "",
+  });
+  const [sorters, setSorters] = useState({});
   const [pageRequest, setPageRequest] = useState(1);
   const [maxItemsPerPage, setMaxItemsPerPage] = useState(5);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState({});
   const [salesInvoices, setSalesInvoices] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const searchInputRef = useRef();
 
   const getTableData = useCallback(
-    async (query, pageRequest, maxItemsPerPage) => {
+    async (filters, sorters, pageRequest, maxItemsPerPage) => {
+      setLoading(true);
       const requestOptions = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          query: query,
+          filters: filters,
+          sorters: sorters,
           pageRequest: pageRequest,
           maxItemsPerPage: maxItemsPerPage,
         }),
@@ -30,6 +48,7 @@ function SalesTable() {
           });
           setSalesInvoices(result.data);
           setCurrentPage(result.pagination);
+          setLoading(false);
         }
       } catch (err) {
         alert(err.message);
@@ -40,74 +59,105 @@ function SalesTable() {
   );
 
   useEffect(() => {
-    getTableData(query, pageRequest, maxItemsPerPage);
+    getTableData(filters, sorters, pageRequest, maxItemsPerPage);
     console.log("fetch");
-  }, [query, pageRequest, maxItemsPerPage]);
+  }, [filters, sorters, pageRequest, maxItemsPerPage]);
 
-  const handlePageChange = (e) => {
-    if (e.target.id == "prev" && currentPage.pageNumber > 1) {
-      setPageRequest((pageRequest) => pageRequest - 1);
-    } else if (
-      e.target.id == "next" &&
-      currentPage.pageNumber * maxItemsPerPage < currentPage.totalResults
-    ) {
-      setPageRequest((pageRequest) => pageRequest + 1);
-    }
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
+      <div style={{ padding: 8 }}>
+        <Input
+          ref={searchInputRef}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{ marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Set Filter
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
+    ),
+    onFilterDropdownVisibleChange: (visible) => {
+      if (visible) {
+        setTimeout(() => searchInputRef.current.select(), 100);
+      }
+    },
+  });
+
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [dataIndex]: selectedKeys[0] ?? "",
+    }));
+    setPageRequest(1);
+  };
+
+  console.log(filters);
+
+  const handlePageChange = (pagination, filters, sorter) => {
+    let itemsAlreadyRequested = (pagination.current - 1) * pagination.pageSize;
+    if (itemsAlreadyRequested <= pagination.total)
+      setPageRequest(pagination.current);
   };
 
   const columns = useMemo(
     () => [
       {
-        Header: "Invoice No.",
+        title: "Invoice No.",
+        dataIndex: "invoiceNumber",
+        key: "invoiceNumber",
+        ...getColumnSearchProps("invoiceNumber"),
       },
       {
-        Header: "Invoice Date",
+        title: "Invoice Date",
+        dataIndex: "invoiceDate",
+        key: "invoiceDate",
       },
       {
-        Header: "Invoice Total",
+        title: "Invoice Total",
+        dataIndex: "invoiceTotal",
+        key: "invoiceTotal",
       },
       {
-        Header: "Customer Name",
+        title: "Customer Name",
+        dataIndex: ["customerDetails", "name"],
+        key: ["customerDetails", "name"],
+        ...getColumnSearchProps("customerName"),
       },
     ],
     []
   );
   return (
-    <div className="sales-table">
-      <table>
-        <thead>
-          <tr>
-            {columns.map((column) => (
-              <th key={column.Header}>{column.Header}</th>
-            ))}
-          </tr>
-        </thead>
-
-        <tbody>
-          {salesInvoices.map((invoice) => (
-            <tr key={invoice.invoiceNumber}>
-              <td>{invoice.invoiceNumber}</td>
-              <td>{invoice.invoiceDate}</td>
-              <td>{invoice.invoiceTotal}</td>
-              <td>{invoice.customerDetails.name}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div>
-        <p>
-          Showing {(currentPage?.pageNumber - 1) * maxItemsPerPage + 1}-
-          {(currentPage?.pageNumber - 1) * maxItemsPerPage +
-            currentPage?.pageSize}{" "}
-          of {currentPage?.totalResults} results
-        </p>
-        <button id="prev" onClick={handlePageChange}>
-          {"<"}
-        </button>
-        <button id="next" onClick={handlePageChange}>
-          {">"}
-        </button>
-      </div>
+    <div>
+      <Table
+        loading={loading}
+        columns={columns}
+        dataSource={salesInvoices}
+        rowKey={(invoice) => invoice.invoiceNumber}
+        pagination={{
+          simple: true,
+          current: currentPage.pageNumber,
+          pageSize: maxItemsPerPage,
+          total: currentPage.totalResults,
+        }}
+        onChange={handlePageChange}
+      />
     </div>
   );
 }
