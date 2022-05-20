@@ -1,18 +1,16 @@
-import React, {
-  useEffect,
-  useState,
-  useCallback,
-  useMemo,
-  useRef,
-} from "react";
-import { Table, Input, Button, Space } from "antd";
+import React, { useEffect, useState, useMemo, useRef } from "react";
+import { Table, Input, Button, Space, Layout, Typography } from "antd";
+import { DatePicker } from "../Antdesign_dayjs_components";
 import { SearchOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+const { RangePicker } = DatePicker;
+const { Header, Footer, Sider, Content } = Layout;
+const { Title, Paragraph, Text, Link } = Typography;
 
-function SalesTable() {
+function SalesTable({ exportToExcel }) {
   const [filters, setFilters] = useState({
     invoiceNumber: "",
-    invoiceDate: "",
+    invoiceDate: { start: "", end: "" },
     invoiceTotal: "",
     customerName: "",
   });
@@ -24,8 +22,9 @@ function SalesTable() {
   const [loading, setLoading] = useState(false);
   const searchInputRef = useRef();
 
-  const getTableData = useCallback(
-    async (filters, sorters, pageRequest, maxItemsPerPage) => {
+  useEffect(() => {
+    let didCancel = false; // avoid fetch race conditions or set state on unmounted components
+    async function fetchTableData() {
       setLoading(true);
       const requestOptions = {
         method: "POST",
@@ -40,7 +39,7 @@ function SalesTable() {
       try {
         const response = await fetch("/api/sales_invoices", requestOptions);
         const result = await response.json();
-        if (response.ok) {
+        if (response.ok && !didCancel) {
           result.data.forEach((invoice) => {
             invoice.invoiceDate = dayjs(invoice.invoiceDate["$date"]).format(
               "DD/MM/YYYY"
@@ -51,19 +50,20 @@ function SalesTable() {
           setLoading(false);
         }
       } catch (err) {
-        alert(err.message);
-        console.log(err.message);
+        if (!didCancel) {
+          alert(err.message);
+          console.log(err.message);
+        }
       }
-    },
-    []
-  );
-
-  useEffect(() => {
-    getTableData(filters, sorters, pageRequest, maxItemsPerPage);
+    }
+    fetchTableData();
     console.log("fetch");
+    return () => {
+      didCancel = true;
+    };
   }, [filters, sorters, pageRequest, maxItemsPerPage]);
 
-  const getColumnSearchProps = (dataIndex) => ({
+  const getSearchMenu = (dataIndex) => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
       <div style={{ padding: 8 }}>
         <Input
@@ -89,31 +89,57 @@ function SalesTable() {
         </Space>
       </div>
     ),
-    filterIcon: (filtered) => (
-      <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
-    ),
-    onFilterDropdownVisibleChange: (visible) => {
-      if (visible) {
-        setTimeout(() => searchInputRef.current.select(), 100);
-      }
-    },
   });
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
-    confirm();
     setFilters((prevFilters) => ({
       ...prevFilters,
       [dataIndex]: selectedKeys[0] ?? "",
     }));
     setPageRequest(1);
+    confirm();
   };
 
-  console.log(filters);
+  const getDateRangeMenu = (dataIndex) => ({
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
+      <div>
+        <RangePicker
+          value={selectedKeys}
+          onChange={(dates, dateStrings) => setSelectedKeys(dates ? dates : [])}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleDateRange(dataIndex, confirm, selectedKeys)}
+            size="small"
+            style={{ width: 80 }}
+          >
+            Set Filter
+          </Button>
+        </Space>
+      </div>
+    ),
+  });
 
-  const handlePageChange = (pagination, filters, sorter) => {
+  const handleDateRange = (dataIndex, confirm, selectedKeys) => {
+    confirm();
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [dataIndex]: {
+        start: selectedKeys[0]?.format("YYYY-MM-DD") ?? "",
+        end: selectedKeys[1]?.format("YYYY-MM-DD") ?? "",
+      },
+    }));
+  };
+
+  const handlePageChange = (pagination) => {
     let itemsAlreadyRequested = (pagination.current - 1) * pagination.pageSize;
     if (itemsAlreadyRequested <= pagination.total)
       setPageRequest(pagination.current);
+  };
+
+  const handleExport = () => {
+    exportToExcel("sale", filters);
   };
 
   const columns = useMemo(
@@ -122,12 +148,18 @@ function SalesTable() {
         title: "Invoice No.",
         dataIndex: "invoiceNumber",
         key: "invoiceNumber",
-        ...getColumnSearchProps("invoiceNumber"),
+        ...getSearchMenu("invoiceNumber"),
+        onFilterDropdownVisibleChange: (visible) => {
+          if (visible) {
+            setTimeout(() => searchInputRef.current.select(), 100);
+          }
+        },
       },
       {
         title: "Invoice Date",
         dataIndex: "invoiceDate",
         key: "invoiceDate",
+        ...getDateRangeMenu("invoiceDate"),
       },
       {
         title: "Invoice Total",
@@ -138,27 +170,56 @@ function SalesTable() {
         title: "Customer Name",
         dataIndex: ["customerDetails", "name"],
         key: ["customerDetails", "name"],
-        ...getColumnSearchProps("customerName"),
+        ...getSearchMenu("customerName"),
+        onFilterDropdownVisibleChange: (visible) => {
+          if (visible) {
+            setTimeout(() => searchInputRef.current.select(), 100);
+          }
+        },
       },
     ],
     []
   );
+
   return (
-    <div>
-      <Table
-        loading={loading}
-        columns={columns}
-        dataSource={salesInvoices}
-        rowKey={(invoice) => invoice.invoiceNumber}
-        pagination={{
-          simple: true,
-          current: currentPage.pageNumber,
-          pageSize: maxItemsPerPage,
-          total: currentPage.totalResults,
-        }}
-        onChange={handlePageChange}
-      />
-    </div>
+    <Layout
+      style={{
+        background: "rgba(256, 256, 256)",
+        maxWidth: "90%",
+        margin: "0 auto",
+      }}
+    >
+      <Header style={{ background: "rgba(256, 256, 256)" }}>
+        <Space style={{ display: "flex", justifyContent: "space-between" }}>
+          <Title level={3} strong>
+            Sales Table
+          </Title>
+          <Button
+            type="primary"
+            onClick={handleExport}
+            size="small"
+            style={{ width: 80 }}
+          >
+            Export
+          </Button>
+        </Space>
+      </Header>
+      <Content>
+        <Table
+          loading={loading}
+          columns={columns}
+          dataSource={salesInvoices}
+          rowKey={(invoice) => invoice.invoiceNumber}
+          pagination={{
+            simple: true,
+            current: currentPage.pageNumber,
+            pageSize: maxItemsPerPage,
+            total: currentPage.totalResults,
+          }}
+          onChange={handlePageChange}
+        />
+      </Content>
+    </Layout>
   );
 }
 

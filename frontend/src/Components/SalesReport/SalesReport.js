@@ -3,34 +3,14 @@ import "./SalesReport.css";
 import SalesTable from "./SalesTable";
 
 function SalesReport() {
-  const [dateRange, setDateRange] = useState({
-    saleDateFrom: "",
-    purchaseDateFrom: "",
-    stockDateFrom: "",
-    saleDateTo: "",
-    purchaseDateTo: "",
-    stockDateTo: "",
-  });
-
   const [stockResetMsg, setStockResetStatus] = useState(false);
 
-  const reports = ["sale", "purchase", "stock"];
   const [toggleLoader, setToggleLoader] = useState(false);
 
-  const handleDateRange = (e, report) => {
-    setDateRange({
-      ...dateRange,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleGenerateFile = (e) => {
-    e.preventDefault();
-    let report = e.target.name;
+  const handleGenerateFile = (reportType, filters) => {
     let reportReqInfo = {
-      reportType: report,
-      dateFrom: dateRange[report + "DateFrom"],
-      dateTo: dateRange[report + "DateTo"],
+      reportType: reportType,
+      filters: filters,
     };
     console.log(reportReqInfo);
     const requestOptions = {
@@ -57,11 +37,11 @@ function SalesReport() {
             link.href = url;
             link.setAttribute(
               "download",
-              report +
+              reportType +
                 "_report_" +
-                dateRange[report + "DateFrom"] +
+                filters.invoiceDate.start +
                 "__" +
-                dateRange[report + "DateTo"] +
+                filters.invoiceDate.end +
                 ".xlsx"
             );
 
@@ -124,32 +104,9 @@ function SalesReport() {
             <div></div>
           </div>
         ) : null}
-
-        {/* safe to use key as index here since reports array doesn't change */}
-        {/* {reports.map((report, index) => (
-          <div className="report" key={index}>
-            <h3>{report} Report - select date -</h3>
-            <input
-              type="date"
-              name={report + "DateFrom"}
-              onChange={handleDateRange}
-            />
-            {report !== "stock" ? (
-              <input
-                type="date"
-                name={report + "DateTo"}
-                onChange={handleDateRange}
-              />
-            ) : null}
-            <button name={report} onClick={handleGenerateFile}>
-              {" "}
-              Generate {report} report excel{" "}
-            </button>
-          </div>
-        ))} */}
       </div>
       <div className="sales-table">
-        <SalesTable />
+        <SalesTable exportToExcel={handleGenerateFile} />
       </div>
     </div>
   );

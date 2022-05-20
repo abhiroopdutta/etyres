@@ -8,8 +8,7 @@ import os
 from openpyxl.styles import Border, Side, PatternFill, Font
 wb = openpyxl.Workbook() 
 
-
-def get_sales_report(filters, sorters, pageRequest, maxItemsPerPage):
+def get_sales_report(filters = {}, sorters = {}, pageRequest = 1, maxItemsPerPage = 5):
     results = {
         "data": [],
         "pagination": { 
@@ -20,13 +19,17 @@ def get_sales_report(filters, sorters, pageRequest, maxItemsPerPage):
     }
     page_start = (pageRequest-1)*maxItemsPerPage
     page_end = pageRequest*maxItemsPerPage
-    query = Q(invoiceNumber__gte=0)
+    query = Q(invoiceNumber__gte=0) # dummy query
     
     if (filters["invoiceNumber"].isnumeric()):
-        query = query & Q(invoiceNumber=int(filters["invoiceNumber"]))
+        query &= Q(invoiceNumber=int(filters["invoiceNumber"]))
     if (filters["customerName"]):
-        query = query & Q(customerDetails__name__contains=filters["customerName"])
-    
+        query &= Q(customerDetails__name__contains=filters["customerName"])
+    if (filters["invoiceDate"]["start"] and filters["invoiceDate"]["end"]):
+        start_datetime = datetime.datetime.strptime(filters["invoiceDate"]["start"] + " " + "05:30:00", '%Y-%m-%d %H:%M:%S')
+        end_datetime = datetime.datetime.strptime(filters["invoiceDate"]["end"] + " " + "22:30:00", '%Y-%m-%d %H:%M:%S')
+        query &= Q(invoiceDate__gte=start_datetime) & Q(invoiceDate__lte=end_datetime)
+
     results["data"] = Sale.objects(query).order_by('-_id')[page_start:page_end]
     results["pagination"]["totalResults"] = Sale.objects(query).order_by('-_id')[page_start:page_end].count()
     results["pagination"]["pageNumber"] = pageRequest
@@ -35,18 +38,18 @@ def get_sales_report(filters, sorters, pageRequest, maxItemsPerPage):
 
 def report_handler(report_req_info):
     os.makedirs("./tempdata/sales_report/", exist_ok = True) #make the dir if it doesn't exist
-    start = datetime.datetime.strptime(report_req_info["dateFrom"]+ " " + "05:30:00", '%Y-%m-%d %H:%M:%S')
     if report_req_info["reportType"] == "stock":
+        start = datetime.datetime.strptime(report_req_info["dateFrom"]+ " " + "05:30:00", '%Y-%m-%d %H:%M:%S')
         return stock_report(start)
     elif report_req_info["reportType"] == "sale":
-        end = datetime.datetime.strptime(report_req_info["dateTo"]+ " " + "22:30:00", '%Y-%m-%d %H:%M:%S')
-        return sales_report(start, end)
+        results = get_sales_report(report_req_info["filters"], {}, 1, 10000)
+        return sales_report(results["data"])
     elif report_req_info["reportType"] == "purchase":
+        start = datetime.datetime.strptime(report_req_info["dateFrom"]+ " " + "05:30:00", '%Y-%m-%d %H:%M:%S')
         end = datetime.datetime.strptime(report_req_info["dateTo"]+ " " + "22:30:00", '%Y-%m-%d %H:%M:%S')
         return purchase_report(start, end)
 
-def sales_report(start, end):  
-    invoices = Sale.objects((Q(invoiceDate__gte=start) & Q(invoiceDate__lte=end)))
+def sales_report(invoices):  
     file_base_dir = "./tempdata/sales_report/"
     filename = str(datetime.datetime.now())+"sales_report.xlsx"
     wb = openpyxl.Workbook() 
