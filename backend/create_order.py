@@ -18,16 +18,31 @@ def compute_gst_tables(products, services):
             "HSN": product["HSN"],
             "quantity": int(product["quantity"]),
             "costPrice": float(product["costPrice"]),
-            "ratePerItem": round(float(product["price"]) / (float(product["GST"]) + 1.0), 2),
+            "ratePerItem": 0.0,
             "taxableValue": 0.0,
-            "CGST": round(float(product["GST"])/ 2.0, 2),
+            "CGST": 0.0,
             "CGSTAmount": 0.0,
-            "SGST": round(float(product["GST"])/ 2.0, 2),
+            "SGST": 0.0,
             "SGSTAmount": 0.0,
             "IGST": 0.0,
             "IGSTAmount": 0.0,
             "value": 0.0,
         }
+
+        if "ratePerItem" in product:
+            GST_product["ratePerItem"] = product["ratePerItem"] 
+        else:
+            GST_product["ratePerItem"] = round(float(product["price"]) / (float(product["GST"]) + 1.0), 2)
+        
+        if "CGST" in product:
+            GST_product["CGST"] = product["CGST"] 
+        else:
+            GST_product["CGST"] = round(float(product["GST"])/ 2.0, 2)
+
+        if "SGST" in product:
+            GST_product["SGST"] = product["SGST"] 
+        else:
+            GST_product["SGST"] = round(float(product["GST"])/ 2.0, 2)
 
         GST_product["taxableValue"] = round(GST_product["ratePerItem"] * GST_product["quantity"], 2)
         GST_product["CGSTAmount"] = round(GST_product["CGST"] * GST_product["taxableValue"], 2)
@@ -41,14 +56,29 @@ def compute_gst_tables(products, services):
             "name": service["name"],
             "HSN": service["HSN"],
             "quantity": int(service["quantity"]),
-            "ratePerItem": round(float(service["price"]) / (float(service["GST"]) + 1.0), 2),
+            "ratePerItem": 0.0,
             "taxableValue": 0.0,
-            "CGST": round(float(service["GST"])/ 2.0, 2),
+            "CGST": 0.0,
             "CGSTAmount": 0.0,
-            "SGST": round(float(service["GST"])/ 2.0, 2),
+            "SGST": 0.0,
             "SGSTAmount": 0.0,
             "value": 0.0,
         }
+
+        if "ratePerItem" in service:
+            GST_service["ratePerItem"] = service["ratePerItem"] 
+        else:
+            GST_service["ratePerItem"] = round(float(service["price"]) / (float(service["GST"]) + 1.0), 2)
+        
+        if "CGST" in service:
+            GST_service["CGST"] = service["CGST"] 
+        else:
+            GST_service["CGST"] = round(float(service["GST"])/ 2.0, 2)
+
+        if "SGST" in service:
+            GST_service["SGST"] = service["SGST"] 
+        else:
+            GST_service["SGST"] = round(float(service["GST"])/ 2.0, 2)       
 
         GST_service["taxableValue"] = round(GST_service["ratePerItem"] * GST_service["quantity"], 2)
         GST_service["CGSTAmount"] = round(GST_service["CGST"] * GST_service["taxableValue"], 2)
@@ -96,16 +126,26 @@ def compute_gst_tables(products, services):
             "HSN": product["HSN"],
             "quantity": int(product["quantity"]),
             "costPrice": float(product["costPrice"]),
-            "ratePerItem": round(float(product["price"]) / (float(product["GST"]) + 1.0), 2),
+            "ratePerItem": 0.0,
             "taxableValue": 0.0,
             "CGST": 0.0,
             "CGSTAmount": 0.0,
             "SGST": 0.0,
             "SGSTAmount": 0.0,
-            "IGST": round(float(product["GST"]), 2),
+            "IGST": 0.0,
             "IGSTAmount": 0.0,
             "value": 0.0,
         }
+
+        if "ratePerItem" in product:
+            IGST_product["ratePerItem"] = product["ratePerItem"] 
+        else:
+            IGST_product["ratePerItem"] = round(float(product["price"]) / (float(product["GST"]) + 1.0), 2)
+        
+        if "IGST" in product:
+            IGST_product["IGST"] = product["IGST"] 
+        else:
+            IGST_product["IGST"] = round(float(product["GST"]), 2)
 
         IGST_product["taxableValue"] = round(IGST_product["ratePerItem"] * IGST_product["quantity"], 2)
         IGST_product["IGSTAmount"] = round(IGST_product["IGST"] * IGST_product["taxableValue"], 2)
@@ -143,45 +183,34 @@ def compute_gst_tables(products, services):
         "invoiceRoundOff":0.0
     }
 
-    for product in products:
+    for product in GST_table["products"]:
         non_tax_product = {
             "itemDesc": product["itemDesc"],
             "itemCode": product["itemCode"],
             "HSN": product["HSN"],
-            "quantity": int(product["quantity"]),
-            "price": round(float(product["price"]), 2),
-            "value": 0.0,
+            "quantity": product["quantity"],
+            "price": round(product["value"]/product["quantity"], 2),
+            "value": product["value"],
         }
 
-        non_tax_product["value"] = round(non_tax_product["price"] * non_tax_product["quantity"], 2)
         non_tax_table["products"].append(non_tax_product)
     
-    for service in services:
+    for service in GST_table["services"]:
         non_tax_service = {
             "name": service["name"],
             "HSN": service["HSN"],
-            "quantity": int(service["quantity"]),
-            "price": round(float(service["price"]), 2),
-            "value": 0.0,
+            "quantity": service["quantity"],
+            "price": round(service["value"]/service["quantity"], 2),
+            "value": service["value"],
         }
 
-        non_tax_service["value"] = round(non_tax_service["price"] * non_tax_service["quantity"], 2)
         non_tax_table["services"].append(non_tax_service)
 
-    non_tax_total = {
-        "quantity" : 0,
-        "value" : 0.0,
-    }
+    non_tax_table["total"]["quantity"] = GST_table["total"]["quantity"]
+    non_tax_table["total"]["value"] = GST_table["total"]["value"]
 
-    for item in non_tax_table["products"] + non_tax_table["services"]:
-        non_tax_total["quantity"] += item["quantity"]
-        non_tax_total["value"] += item["value"]
-
-    non_tax_table["total"]["quantity"] = round(non_tax_total["quantity"])
-    non_tax_table["total"]["value"] = round(non_tax_total["value"], 2)
-
-    non_tax_table["invoiceTotal"] = round(non_tax_total["value"])
-    non_tax_table["invoiceRoundOff"] = round(non_tax_table["invoiceTotal"] - non_tax_table["total"]["value"], 2)
+    non_tax_table["invoiceTotal"] = GST_table["invoiceTotal"]
+    non_tax_table["invoiceRoundOff"] = GST_table["invoiceRoundOff"]
 
 
     return {"GST_table": GST_table,
