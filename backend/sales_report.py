@@ -24,7 +24,7 @@ def get_sales_report(filters = {}, sorters = {}, pageRequest = 1, maxItemsPerPag
     if (filters["invoiceNumber"].isnumeric()):
         query &= Q(invoiceNumber=int(filters["invoiceNumber"]))
     if (filters["customerName"]):
-        query &= Q(customerDetails__name__contains=filters["customerName"])
+        query &= Q(customerDetails__name__icontains=filters["customerName"])
     if (filters["invoiceDate"]["start"] and filters["invoiceDate"]["end"]):
         start_datetime = datetime.datetime.strptime(filters["invoiceDate"]["start"] + " " + "05:30:00", '%Y-%m-%d %H:%M:%S')
         end_datetime = datetime.datetime.strptime(filters["invoiceDate"]["end"] + " " + "22:30:00", '%Y-%m-%d %H:%M:%S')
@@ -43,13 +43,13 @@ def report_handler(report_req_info):
         return stock_report(start)
     elif report_req_info["reportType"] == "sale":
         results = get_sales_report(report_req_info["filters"], {}, 1, 10000)
-        return sales_report(results["data"])
+        return export_sales_report(results["data"])
     elif report_req_info["reportType"] == "purchase":
         start = datetime.datetime.strptime(report_req_info["dateFrom"]+ " " + "05:30:00", '%Y-%m-%d %H:%M:%S')
         end = datetime.datetime.strptime(report_req_info["dateTo"]+ " " + "22:30:00", '%Y-%m-%d %H:%M:%S')
         return purchase_report(start, end)
 
-def sales_report(invoices):  
+def export_sales_report(invoices):  
     file_base_dir = "./tempdata/sales_report/"
     filename = str(datetime.datetime.now())+"sales_report.xlsx"
     wb = openpyxl.Workbook() 
