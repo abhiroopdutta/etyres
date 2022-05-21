@@ -99,7 +99,7 @@ function Cart({ handleRefreshProducts }) {
             </button>
             {previewInvoice ? (
               <Invoice
-                cart={cart}
+                products={cart}
                 services={services}
                 hideInvoice={hideInvoice}
               />
