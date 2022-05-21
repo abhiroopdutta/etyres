@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import { Table, Input, Button, Space, Layout, Typography } from "antd";
 import { DatePicker } from "../Antdesign_dayjs_components";
-import { SearchOutlined } from "@ant-design/icons";
+import { SearchOutlined, EditFilled } from "@ant-design/icons";
 import dayjs from "dayjs";
+import Invoice from "../CreateOrder/Invoice";
 const { RangePicker } = DatePicker;
 const { Header, Footer, Sider, Content } = Layout;
 const { Title, Paragraph, Text, Link } = Typography;
@@ -21,6 +22,8 @@ function SalesTable({ exportToExcel }) {
   const [salesInvoices, setSalesInvoices] = useState([]);
   const [loading, setLoading] = useState(false);
   const searchInputRef = useRef();
+  const [showInvoice, setShowInvoice] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState({});
 
   useEffect(() => {
     let didCancel = false; // avoid fetch race conditions or set state on unmounted components
@@ -40,11 +43,6 @@ function SalesTable({ exportToExcel }) {
         const response = await fetch("/api/sales_invoices", requestOptions);
         const result = await response.json();
         if (response.ok && !didCancel) {
-          result.data.forEach((invoice) => {
-            invoice.invoiceDate = dayjs(invoice.invoiceDate["$date"]).format(
-              "DD/MM/YYYY"
-            );
-          });
           setSalesInvoices(result.data);
           setCurrentPage(result.pagination);
           setLoading(false);
@@ -142,6 +140,17 @@ function SalesTable({ exportToExcel }) {
     exportToExcel("sale", filters);
   };
 
+  function handleShowInvoice(record) {
+    console.log(record);
+    setSelectedInvoice(record);
+    setShowInvoice(true);
+  }
+
+  function hideInvoice() {
+    setSelectedInvoice({});
+    setShowInvoice(false);
+  }
+
   const columns = useMemo(
     () => [
       {
@@ -159,12 +168,15 @@ function SalesTable({ exportToExcel }) {
         title: "Invoice Date",
         dataIndex: "invoiceDate",
         key: "invoiceDate",
+        render: (invoiceDate) =>
+          dayjs(invoiceDate["$date"]).format("DD/MM/YYYY"),
         ...getDateRangeMenu("invoiceDate"),
       },
       {
         title: "Invoice Total",
         dataIndex: "invoiceTotal",
         key: "invoiceTotal",
+        render: (invoiceTotal) => <Text>&#x20B9;{invoiceTotal}</Text>,
       },
       {
         title: "Customer Name",
@@ -176,6 +188,21 @@ function SalesTable({ exportToExcel }) {
             setTimeout(() => searchInputRef.current.select(), 100);
           }
         },
+      },
+      {
+        title: "Action",
+        key: "action",
+        render: (text, record) => (
+          <Button
+            shape="round"
+            size="small"
+            type="link"
+            icon={<EditFilled />}
+            onClick={() => {
+              handleShowInvoice(record);
+            }}
+          ></Button>
+        ),
       },
     ],
     []
@@ -218,6 +245,19 @@ function SalesTable({ exportToExcel }) {
           }}
           onChange={handlePageChange}
         />
+        {showInvoice ? (
+          <Invoice
+            defaultOrderConfirmed={true}
+            products={selectedInvoice.productItems}
+            services={selectedInvoice.serviceItems}
+            defaultInvoiceNumber={selectedInvoice.invoiceNumber}
+            defaultInvoiceDate={dayjs(
+              selectedInvoice.invoiceDate["$date"]
+            ).format("YYYY-MM-DD")}
+            defaultCustomerDetails={selectedInvoice.customerDetails}
+            hideInvoice={hideInvoice}
+          />
+        ) : null}
       </Content>
     </Layout>
   );
