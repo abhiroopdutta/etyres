@@ -1,24 +1,14 @@
 import openpyxl
 import re, os
 from models import Product
+import json
 
-pv_vehicle_type = {
+default_pv_price_details = {
 	"passenger car":{"tyre_freight":20, "tube_freight":3, "spd":0.015, "plsd":0.025}, 
 	"2 wheeler":{"tyre_freight":6, "tube_freight":3, "spd":0.015, "plsd":0.025}, 
 	"3 wheeler":{"tyre_freight":8, "tube_freight":3, "spd":0.014, "plsd":0.025},
 	"scv":{"tyre_freight":40, "tube_freight":5, "spd":0.014, "plsd":0.025},
 	"tubeless valve":{ "valve_freight":0, "spd":0.0, "plsd":0.0}
-	}
-other_vehicle_type = {
-	"truck and bus":{"tyre_freight":0, "tube_freight":0, "spd":0.0, "plsd":0.0}, 
-	"farm":{"tyre_freight":0, "tube_freight":0, "spd":0.0, "plsd":0.0}, 
-	"lcv":{"tyre_freight":0, "tube_freight":0, "spd":0.0, "plsd":0.0}, 
-	"tt":{"tyre_freight":0, "tube_freight":0, "spd":0.0, "plsd":0.0}, 
-	"industrial":{"tyre_freight":0, "tube_freight":0, "spd":0.0, "plsd":0.0}, 
-	"earthmover":{"tyre_freight":0, "tube_freight":0, "spd":0.0, "plsd":0.0}, 
-	"jeep":{"tyre_freight":0, "tube_freight":0, "spd":0.0, "plsd":0.0}, 
-	"loose tube/flaps":{"tyre_freight":0, "tube_freight":0, "spd":0.0, "plsd":0.0},
-	"adv":{"tyre_freight":0, "tube_freight":0, "spd":0.0, "plsd":0.0}
 	}
 
 hsn_gst = {
@@ -36,14 +26,30 @@ hsn_gst = {
 	}
 }
 
-#returns true if the row is a vehicle_type row
-def is_vehicle_type(cell):
-	column_a = cell.lower().strip()
+def get_pv_price_details():
+	file_path = "./pv_price_details.json"
 
-	if (column_a in pv_vehicle_type) or (column_a in other_vehicle_type):
-		return True
+	# if file doesn't exist, create it using default values
+	if not os.path.isfile(file_path):
+		with open(file_path, 'w',  encoding='utf-8') as outfile:
+			json.dump(default_pv_price_details, outfile, ensure_ascii=False, indent=4)	
 
-	return False
+	f = open(file_path, "r")
+	pv_price_details = json.loads(f.read())
+	f.close()
+
+	pv_price_details_list = []
+	for key, value in pv_price_details.items():
+		if key == "tubeless valve":
+			continue
+		item = {}
+		item["vehicleType"] = key
+		item["spd"] = value["spd"]
+		item["plsd"] = value["plsd"]
+		item["tyreFreight"] = value["tyre_freight"]
+		item["tubeFreight"] = value["tube_freight"]
+		pv_price_details_list.append(item)
+	return pv_price_details_list
 
 #returns the product type (tyre/tube/etc) depending on item_code
 def get_product_type(item_code):
@@ -55,22 +61,14 @@ def get_product_type(item_code):
 		return "tyre"
 
 #calculates cost_price based on item_code, net_ndp, vehicle_type
-def compute_price(vehicle_type, item_code, net_ndp):
-	product_type = get_product_type(item_code)
-	if (product_type == "tube"):
-		frt = float(pv_vehicle_type[vehicle_type]["tube_freight"])
-	elif (product_type == "valve"):
-		frt = float(pv_vehicle_type[vehicle_type]["valve_freight"])
-	else:
-		frt = float(pv_vehicle_type[vehicle_type]["tyre_freight"])
-
-	spd = float(pv_vehicle_type[vehicle_type]["spd"]*net_ndp)
-	plsd = float(net_ndp+frt-spd)*float(pv_vehicle_type[vehicle_type]["plsd"])
-	taxable_val = float(net_ndp+frt-spd-plsd)
+def compute_price(item_code, net_ndp, freight, spd_rate, plsd_rate):
+	spd = float(spd_rate*net_ndp)
+	plsd = float(net_ndp+freight-spd)*float(plsd_rate)
+	taxable_val = float(net_ndp+freight-spd-plsd)
 	gst = taxable_val*float(get_gst_rate(item_code))
 	cost_price = round(float(taxable_val+gst),2)
 
-	print("\n net ndp: ", net_ndp, "frieght: ", frt, "spd: ", spd, "plsd: ", plsd, "total discount:", spd+plsd,"taxable val: ", taxable_val, "gst: ", gst, "cost price: ", cost_price)
+	print("\n net ndp:", net_ndp, "freight:", freight, "spd:", spd, "plsd:", plsd, "total discount:", spd+plsd,"taxable val:", taxable_val, "gst:", gst, "cost price:", cost_price)
 	return cost_price
 
 def compute_size(item_desc):
@@ -123,7 +121,34 @@ def load_to_db(vehicle_type, item_desc, item_code, cost_price):
 	
 	return 0
 
-def update_price(file):
+# what if given file is not excel, to do: add validation of file
+def update_price(pv_price_details_list, file):
+	pv_price_details = {}
+	for item in pv_price_details_list:
+		new_item = {}
+		new_item["spd"] = float(item["spd"])
+		new_item["plsd"] = float(item["plsd"])
+		new_item["tyre_freight"] = float(item["tyreFreight"])
+		new_item["tube_freight"] = float(item["tubeFreight"])
+		pv_price_details[item["vehicleType"]] = new_item
+	pv_price_details["tubeless valve"] = {"spd":0, "plsd":0, "valve_freight":0}
+
+	other_price_details = {
+	"truck and bus":{"tyre_freight":0, "tube_freight":0, "spd":0.0, "plsd":0.0}, 
+	"farm":{"tyre_freight":0, "tube_freight":0, "spd":0.0, "plsd":0.0}, 
+	"lcv":{"tyre_freight":0, "tube_freight":0, "spd":0.0, "plsd":0.0}, 
+	"tt":{"tyre_freight":0, "tube_freight":0, "spd":0.0, "plsd":0.0}, 
+	"industrial":{"tyre_freight":0, "tube_freight":0, "spd":0.0, "plsd":0.0}, 
+	"earthmover":{"tyre_freight":0, "tube_freight":0, "spd":0.0, "plsd":0.0}, 
+	"jeep":{"tyre_freight":0, "tube_freight":0, "spd":0.0, "plsd":0.0}, 
+	"loose tube/flaps":{"tyre_freight":0, "tube_freight":0, "spd":0.0, "plsd":0.0},
+	"adv":{"tyre_freight":0, "tube_freight":0, "spd":0.0, "plsd":0.0}
+	}
+
+	# save pv price details to a file
+	with open('pv_price_details.json', 'w',  encoding='utf-8') as outfile:
+		json.dump(pv_price_details, outfile, ensure_ascii=False, indent=4)
+
 	wb = openpyxl.load_workbook(file, data_only='True')
 	tyres_xl = wb['Sheet1']	
 	vehicle_type = ""
@@ -138,7 +163,7 @@ def update_price(file):
 		print("\nrow", i, "column1", column_a)
 
 		# if this row is a vehicle type row, skip it after getting the vehicle type
-		if (is_vehicle_type(column_a)):
+		if (column_a.lower().strip() in pv_price_details) or (column_a.lower().strip() in other_price_details):
 			vehicle_type = column_a.lower().strip()
 			continue
 
@@ -150,18 +175,21 @@ def update_price(file):
 		item_code = str(tyres_xl.cell(row=i, column=2).value).strip()
 		net_ndp = round(float(str(tyres_xl.cell(row=i, column=5).value)))
 
-		if (vehicle_type in pv_vehicle_type):
-			cost_price = compute_price(vehicle_type, item_code, net_ndp)
-		
-		elif (vehicle_type in other_vehicle_type):
+		if (vehicle_type in pv_price_details):
+			spd_rate = pv_price_details[vehicle_type]["spd"]
+			plsd_rate = pv_price_details[vehicle_type]["plsd"]
+			product_type = get_product_type(item_code)
+			if (product_type == "tube"):
+				freight = pv_price_details[vehicle_type]["tube_freight"]
+			elif (product_type == "valve"):
+				freight = pv_price_details[vehicle_type]["valve_freight"]
+			else:
+				freight = pv_price_details[vehicle_type]["tyre_freight"]
+			cost_price = compute_price(item_code, net_ndp, freight, spd_rate, plsd_rate)
+
+		elif (vehicle_type in other_price_details):
 			cost_price = 0.0
 
 		load_to_db(vehicle_type, item_desc, item_code, cost_price)
 
 	os.remove(file)
-
-	
-
-
-	
-
