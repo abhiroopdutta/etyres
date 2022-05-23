@@ -42,8 +42,13 @@ def report_handler(report_req_info):
         start = datetime.datetime.strptime(report_req_info["dateFrom"]+ " " + "05:30:00", '%Y-%m-%d %H:%M:%S')
         return stock_report(start)
     elif report_req_info["reportType"] == "sale":
-        results = get_sales_report(report_req_info["filters"], {}, 1, 10000)
-        return export_sales_report(results["data"])
+        results = get_sales_report(report_req_info["filters"], 
+                            report_req_info["sorters"], 
+                            report_req_info["pageRequest"], 
+                            report_req_info["maxItemsPerPage"])
+        if (report_req_info["export"]):
+            return export_sales_report(results["data"])
+        return results
     elif report_req_info["reportType"] == "purchase":
         start = datetime.datetime.strptime(report_req_info["dateFrom"]+ " " + "05:30:00", '%Y-%m-%d %H:%M:%S')
         end = datetime.datetime.strptime(report_req_info["dateTo"]+ " " + "22:30:00", '%Y-%m-%d %H:%M:%S')

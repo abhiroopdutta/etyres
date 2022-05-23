@@ -7,11 +7,7 @@ function Reports() {
 
   const [toggleLoader, setToggleLoader] = useState(false);
 
-  const handleGenerateFile = (reportType, filters) => {
-    let reportReqInfo = {
-      reportType: reportType,
-      filters: filters,
-    };
+  const handleGenerateFile = (reportReqInfo) => {
     console.log(reportReqInfo);
     const requestOptions = {
       method: "POST",
@@ -19,7 +15,7 @@ function Reports() {
       body: JSON.stringify(reportReqInfo),
     };
 
-    fetch("/api/sales_report", requestOptions)
+    fetch("/api/reports", requestOptions)
       .then((response) => response.json())
       .then((filename) => {
         fetch("/api/download?name=" + filename, {
@@ -37,11 +33,11 @@ function Reports() {
             link.href = url;
             link.setAttribute(
               "download",
-              reportType +
+              reportReqInfo.reportType +
                 "_report_" +
-                filters.invoiceDate.start +
+                reportReqInfo.filters.invoiceDate.start +
                 "__" +
-                filters.invoiceDate.end +
+                reportReqInfo.filters.invoiceDate.end +
                 ".xlsx"
             );
 

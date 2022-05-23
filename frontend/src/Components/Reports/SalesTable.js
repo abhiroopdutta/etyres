@@ -33,14 +33,16 @@ function SalesTable({ exportToExcel }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          reportType: "sale",
           filters: filters,
           sorters: sorters,
           pageRequest: pageRequest,
           maxItemsPerPage: maxItemsPerPage,
+          export: false,
         }),
       };
       try {
-        const response = await fetch("/api/sales_invoices", requestOptions);
+        const response = await fetch("/api/reports", requestOptions);
         const result = await response.json();
         if (response.ok && !didCancel) {
           setSalesInvoices(result.data);
@@ -137,7 +139,14 @@ function SalesTable({ exportToExcel }) {
   };
 
   const handleExport = () => {
-    exportToExcel("sale", filters);
+    exportToExcel({
+      reportType: "sale",
+      filters: filters,
+      sorters: sorters,
+      pageRequest: 1,
+      maxItemsPerPage: 10000,
+      export: true,
+    });
   };
 
   function handleShowInvoice(record) {
@@ -212,7 +221,7 @@ function SalesTable({ exportToExcel }) {
     <Content>
       <Space style={{ display: "flex", justifyContent: "space-between" }}>
         <Title level={3} strong>
-          Sales Table
+          Sales
         </Title>
         <Button
           type="primary"

@@ -123,8 +123,8 @@ def stock_reset():
     status = reset_stock()
     return jsonify(status)
 
-@app.route("/api/sales_report", methods = ['POST'])
-def sales_report_excel():
+@app.route("/api/reports", methods = ['POST'])
+def get_reports():
     report_req_info = request.get_json()
     filename = report_handler(report_req_info)
     return jsonify(filename)
@@ -137,10 +137,6 @@ def download():
     except FileNotFoundError:
         abort(404)
 
-@app.route("/api/sales_invoices", methods = ['POST'])
-def get_invoices():
-    query = request.get_json()
-    return get_sales_report(**query), 200
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
