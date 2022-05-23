@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import "./SalesReport.css";
+import { Layout } from "antd";
 import SalesTable from "./SalesTable";
 
-function SalesReport() {
+function Reports() {
   const [stockResetMsg, setStockResetStatus] = useState(false);
 
   const [toggleLoader, setToggleLoader] = useState(false);
@@ -79,7 +79,16 @@ function SalesReport() {
   };
 
   return (
-    <div>
+    <Layout
+      style={{
+        background: "rgba(256, 256, 256)",
+        maxWidth: "90%",
+        margin: "44px auto",
+      }}
+    >
+      <div className="sales-table">
+        <SalesTable exportToExcel={handleGenerateFile} />
+      </div>
       <div className="excel-report">
         <button className="reset-button" onClick={handleResetStock}>
           {" "}
@@ -105,11 +114,8 @@ function SalesReport() {
           </div>
         ) : null}
       </div>
-      <div className="sales-table">
-        <SalesTable exportToExcel={handleGenerateFile} />
-      </div>
-    </div>
+    </Layout>
   );
 }
 
-export default SalesReport;
+export default Reports;

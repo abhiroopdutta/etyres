@@ -209,57 +209,48 @@ function SalesTable({ exportToExcel }) {
   );
 
   return (
-    <Layout
-      style={{
-        background: "rgba(256, 256, 256)",
-        maxWidth: "90%",
-        margin: "0 auto",
-      }}
-    >
-      <Header style={{ background: "rgba(256, 256, 256)" }}>
-        <Space style={{ display: "flex", justifyContent: "space-between" }}>
-          <Title level={3} strong>
-            Sales Table
-          </Title>
-          <Button
-            type="primary"
-            onClick={handleExport}
-            size="small"
-            style={{ width: 80 }}
-          >
-            Export
-          </Button>
-        </Space>
-      </Header>
-      <Content>
-        <Table
-          loading={loading}
-          columns={columns}
-          dataSource={salesInvoices}
-          rowKey={(invoice) => invoice.invoiceNumber}
-          pagination={{
-            simple: true,
-            current: currentPage.pageNumber,
-            pageSize: maxItemsPerPage,
-            total: currentPage.totalResults,
-          }}
-          onChange={handlePageChange}
+    <Content>
+      <Space style={{ display: "flex", justifyContent: "space-between" }}>
+        <Title level={3} strong>
+          Sales Table
+        </Title>
+        <Button
+          type="primary"
+          onClick={handleExport}
+          size="small"
+          style={{ width: 80 }}
+        >
+          Export
+        </Button>
+      </Space>
+
+      <Table
+        loading={loading}
+        columns={columns}
+        dataSource={salesInvoices}
+        rowKey={(invoice) => invoice.invoiceNumber}
+        pagination={{
+          simple: true,
+          current: currentPage.pageNumber,
+          pageSize: maxItemsPerPage,
+          total: currentPage.totalResults,
+        }}
+        onChange={handlePageChange}
+      />
+      {showInvoice ? (
+        <Invoice
+          defaultOrderConfirmed={true}
+          products={selectedInvoice.productItems}
+          services={selectedInvoice.serviceItems}
+          defaultInvoiceNumber={selectedInvoice.invoiceNumber}
+          defaultInvoiceDate={dayjs(
+            selectedInvoice.invoiceDate["$date"]
+          ).format("YYYY-MM-DD")}
+          defaultCustomerDetails={selectedInvoice.customerDetails}
+          hideInvoice={hideInvoice}
         />
-        {showInvoice ? (
-          <Invoice
-            defaultOrderConfirmed={true}
-            products={selectedInvoice.productItems}
-            services={selectedInvoice.serviceItems}
-            defaultInvoiceNumber={selectedInvoice.invoiceNumber}
-            defaultInvoiceDate={dayjs(
-              selectedInvoice.invoiceDate["$date"]
-            ).format("YYYY-MM-DD")}
-            defaultCustomerDetails={selectedInvoice.customerDetails}
-            hideInvoice={hideInvoice}
-          />
-        ) : null}
-      </Content>
-    </Layout>
+      ) : null}
+    </Content>
   );
 }
 
