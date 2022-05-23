@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { Layout } from "antd";
+import { Layout, Typography, Button, Divider, Modal } from "antd";
+import dayjs from "dayjs";
 import SalesTable from "./SalesTable";
+import PurchaseTable from "./PurchaseTable";
+const { Title } = Typography;
 
 function Reports() {
-  const [stockResetMsg, setStockResetStatus] = useState(false);
-
-  const [toggleLoader, setToggleLoader] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleGenerateFile = (reportReqInfo) => {
     console.log(reportReqInfo);
@@ -31,15 +32,25 @@ function Reports() {
             const url = window.URL.createObjectURL(new Blob([blob]));
             const link = document.createElement("a");
             link.href = url;
-            link.setAttribute(
-              "download",
-              reportReqInfo.reportType +
-                "_report_" +
-                reportReqInfo.filters.invoiceDate.start +
-                "__" +
-                reportReqInfo.filters.invoiceDate.end +
-                ".xlsx"
-            );
+            if (reportReqInfo.reportType == "stock") {
+              link.setAttribute(
+                "download",
+                reportReqInfo.reportType +
+                  "_report_" +
+                  dayjs().format("YYYY-MM-DD") +
+                  ".xlsx"
+              );
+            } else {
+              link.setAttribute(
+                "download",
+                reportReqInfo.reportType +
+                  "_report_" +
+                  reportReqInfo.filters.invoiceDate.start +
+                  "__" +
+                  reportReqInfo.filters.invoiceDate.end +
+                  ".xlsx"
+              );
+            }
 
             // Append to html link element page
             document.body.appendChild(link);
@@ -62,12 +73,20 @@ function Reports() {
         "This will overwride all manual stock modifications to products table \n Do you want to proceed?"
       )
     ) {
-      setToggleLoader(true);
+      setLoading(true);
       fetch("/api/reset_stock")
         .then((res) => res.json())
         .then((data) => {
-          setToggleLoader(false);
-          setStockResetStatus(data);
+          setLoading(false);
+          if (data) {
+            Modal.success({
+              content: "Stock was reset successfully",
+            });
+          } else {
+            Modal.error({
+              content: "Stock could not be reset",
+            });
+          }
         });
     } else {
       console.log("cancelled");
@@ -85,30 +104,40 @@ function Reports() {
       <div className="sales-table">
         <SalesTable exportToExcel={handleGenerateFile} />
       </div>
+      <Divider />
+      <div className="purchase-table">
+        <PurchaseTable exportToExcel={handleGenerateFile} />
+      </div>
+      <Divider />
+
+      <div className="stock-report">
+        <Title level={3}>Stock</Title>
+        <Button
+          onClick={() => {
+            handleGenerateFile({
+              reportType: "stock",
+              filters: {},
+              sorters: {},
+              pageRequest: {},
+              maxItemsPerPage: {},
+              export: true,
+            });
+          }}
+        >
+          Export Current Stock Report
+        </Button>
+      </div>
+      <Divider />
+
       <div className="excel-report">
-        <button className="reset-button" onClick={handleResetStock}>
-          {" "}
-          Reset Stock{" "}
-        </button>
-        {stockResetMsg ? (
-          <h4 className="reset-button">Stock has been reset</h4>
-        ) : null}
-        {toggleLoader ? (
-          <div class="lds-spinner">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-          </div>
-        ) : null}
+        <br />
+        <Button
+          loading={loading}
+          style={{ marginBottom: "40px" }}
+          onClick={handleResetStock}
+        >
+          Reset Stock
+        </Button>
       </div>
     </Layout>
   );

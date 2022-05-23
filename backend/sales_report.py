@@ -36,11 +36,41 @@ def get_sales_report(filters = {}, sorters = {}, pageRequest = 1, maxItemsPerPag
     results["pagination"]["pageSize"] = len(results["data"])
     return results
 
+def get_purchase_report(filters = {}, sorters = {}, pageRequest = 1, maxItemsPerPage = 5):
+    results = {
+        "data": [],
+        "pagination": { 
+            "pageNumber": 0, 
+            "pageSize": 0, 
+            "totalResults" : 0 }
+        
+    }
+    page_start = (pageRequest-1)*maxItemsPerPage
+    page_end = pageRequest*maxItemsPerPage
+    query = Q(invoiceNumber__gte=0) # dummy query
+    
+    if (filters["invoiceNumber"].isnumeric()):
+        query &= Q(invoiceNumber=int(filters["invoiceNumber"]))
+    if (filters["claimInvoice"]):
+        if (filters["claimInvoice"] == "true"):
+            query &= Q(claimInvoice=True)
+        else:
+            query &= Q(claimInvoice=False)
+    if (filters["invoiceDate"]["start"] and filters["invoiceDate"]["end"]):
+        start_datetime = datetime.datetime.strptime(filters["invoiceDate"]["start"] + " " + "05:30:00", '%Y-%m-%d %H:%M:%S')
+        end_datetime = datetime.datetime.strptime(filters["invoiceDate"]["end"] + " " + "22:30:00", '%Y-%m-%d %H:%M:%S')
+        query &= Q(invoiceDate__gte=start_datetime) & Q(invoiceDate__lte=end_datetime)
+
+    results["data"] = Purchase.objects(query).order_by('-_id')[page_start:page_end]
+    results["pagination"]["totalResults"] = Purchase.objects(query).order_by('-_id')[page_start:page_end].count()
+    results["pagination"]["pageNumber"] = pageRequest
+    results["pagination"]["pageSize"] = len(results["data"])
+    return results
+
 def report_handler(report_req_info):
     os.makedirs("./tempdata/sales_report/", exist_ok = True) #make the dir if it doesn't exist
     if report_req_info["reportType"] == "stock":
-        start = datetime.datetime.strptime(report_req_info["dateFrom"]+ " " + "05:30:00", '%Y-%m-%d %H:%M:%S')
-        return stock_report(start)
+        return stock_report()
     elif report_req_info["reportType"] == "sale":
         results = get_sales_report(report_req_info["filters"], 
                             report_req_info["sorters"], 
@@ -50,9 +80,13 @@ def report_handler(report_req_info):
             return export_sales_report(results["data"])
         return results
     elif report_req_info["reportType"] == "purchase":
-        start = datetime.datetime.strptime(report_req_info["dateFrom"]+ " " + "05:30:00", '%Y-%m-%d %H:%M:%S')
-        end = datetime.datetime.strptime(report_req_info["dateTo"]+ " " + "22:30:00", '%Y-%m-%d %H:%M:%S')
-        return purchase_report(start, end)
+        results = get_purchase_report(report_req_info["filters"], 
+                            report_req_info["sorters"], 
+                            report_req_info["pageRequest"], 
+                            report_req_info["maxItemsPerPage"])
+        if (report_req_info["export"]):
+            return export_purchase_report(results["data"])
+        return results
 
 def export_sales_report(invoices):  
     file_base_dir = "./tempdata/sales_report/"
@@ -166,8 +200,7 @@ def export_sales_report(invoices):
     wb.save(file_base_dir+filename)
     return filename
 
-def purchase_report(start, end):
-    purchases = Purchase.objects((Q(invoiceDate__gte=start) & Q(invoiceDate__lte=end)))
+def export_purchase_report(invoices):
     file_base_dir = "./tempdata/sales_report/"
     filename = str(datetime.datetime.now())+"purchase_report.xlsx"
     wb = openpyxl.Workbook() 
@@ -187,7 +220,7 @@ def purchase_report(start, end):
 
     #find a better way to do the following, instead of using base index, use sheet.max_row ?
     base_index = 0
-    for invoice in purchases:
+    for invoice in invoices:
         total_items = len(invoice.items)
         for i, product in enumerate(invoice.items):
             row_index = i+2+base_index
@@ -237,7 +270,7 @@ def purchase_report(start, end):
     wb.save(file_base_dir+filename)
     return filename
 
-def stock_report(start):
+def stock_report():
     category_required_list = [
     "passenger_car_tyre", 
     "passenger_car_tube", 
