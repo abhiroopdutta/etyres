@@ -121,18 +121,17 @@ function SalesTable({ exportToExcel }) {
   });
 
   const handleDateRange = (dataIndex, confirm, selectedKeys) => {
-    console.log(selectedKeys);
-    confirm();
     setFilters((prevFilters) => ({
       ...prevFilters,
       [dataIndex]: {
-        start: dayjsLocal(selectedKeys[0])?.format("YYYY-MM-DD") ?? "",
-        end: dayjsLocal(selectedKeys[1])?.format("YYYY-MM-DD") ?? "",
+        start: selectedKeys[0]?.format("YYYY-MM-DD") ?? "",
+        end: selectedKeys[1]?.format("YYYY-MM-DD") ?? "",
       },
     }));
+    setPageRequest(1);
+    confirm();
   };
 
-  console.log(filters);
   const handlePageChange = (pagination) => {
     let itemsAlreadyRequested = (pagination.current - 1) * pagination.pageSize;
     if (itemsAlreadyRequested <= pagination.total)
@@ -172,7 +171,7 @@ function SalesTable({ exportToExcel }) {
             setTimeout(() => searchInputRef.current.select(), 100);
           }
         },
-        render: (invoiceNumber) => (invoiceNumber > 1 ? invoiceNumber : null),
+        render: (invoiceNumber) => (invoiceNumber >= 1 ? invoiceNumber : null),
       },
       {
         title: "Invoice Date",
@@ -189,7 +188,7 @@ function SalesTable({ exportToExcel }) {
         dataIndex: "invoiceTotal",
         key: "invoiceTotal",
         render: (invoiceTotal, invoice) =>
-          invoice.invoiceNumber > 1 ? (
+          invoice.invoiceNumber >= 1 ? (
             <Text>&#x20B9;{invoiceTotal}</Text>
           ) : null,
       },
@@ -208,7 +207,7 @@ function SalesTable({ exportToExcel }) {
         title: "Action",
         key: "action",
         render: (text, invoice) =>
-          invoice.invoiceNumber > 1 ? (
+          invoice.invoiceNumber >= 1 ? (
             <Button
               shape="round"
               size="small"

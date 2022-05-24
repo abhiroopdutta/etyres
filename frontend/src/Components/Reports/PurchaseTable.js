@@ -18,7 +18,7 @@ const { Option } = Select;
 const { Content } = Layout;
 const { Title, Text } = Typography;
 
-function SalesTable({ exportToExcel }) {
+function PurchaseTable({ exportToExcel }) {
   const [filters, setFilters] = useState({
     invoiceNumber: "",
     invoiceDate: { start: "", end: "" },
@@ -131,14 +131,15 @@ function SalesTable({ exportToExcel }) {
   });
 
   const handleDateRange = (dataIndex, confirm, selectedKeys) => {
-    confirm();
     setFilters((prevFilters) => ({
       ...prevFilters,
       [dataIndex]: {
-        start: dayjsLocal(selectedKeys[0])?.format("YYYY-MM-DD") ?? "",
-        end: dayjsLocal(selectedKeys[1])?.format("YYYY-MM-DD") ?? "",
+        start: selectedKeys[0]?.format("YYYY-MM-DD") ?? "",
+        end: selectedKeys[1]?.format("YYYY-MM-DD") ?? "",
       },
     }));
+    setPageRequest(1);
+    confirm();
   };
 
   const getDropDownMenu = (dataIndex) => ({
@@ -147,13 +148,9 @@ function SalesTable({ exportToExcel }) {
         <Select
           defaultValue=""
           style={{ width: 120 }}
-          onChange={(value) => {
-            setFilters((prevFilters) => ({
-              ...prevFilters,
-              [dataIndex]: value,
-            }));
-            confirm();
-          }}
+          onChange={(value) =>
+            handleDropDownMenuChange(dataIndex, confirm, value)
+          }
         >
           <Option value="true">Claim</Option>
           <Option value="false">Regular</Option>
@@ -163,6 +160,15 @@ function SalesTable({ exportToExcel }) {
     ),
     filtered: true,
   });
+
+  const handleDropDownMenuChange = (dataIndex, confirm, value) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [dataIndex]: value,
+    }));
+    setPageRequest(1);
+    confirm();
+  };
 
   const handlePageChange = (pagination) => {
     let itemsAlreadyRequested = (pagination.current - 1) * pagination.pageSize;
@@ -203,51 +209,81 @@ function SalesTable({ exportToExcel }) {
             setTimeout(() => searchInputRef.current.select(), 100);
           }
         },
+        render: (invoiceNumber) => (invoiceNumber >= 1 ? invoiceNumber : null),
       },
       {
         title: "Invoice Date",
         dataIndex: "invoiceDate",
         key: "invoiceDate",
         render: (invoiceDate) =>
-          dayjsUTC(invoiceDate["$date"]).format("DD/MM/YYYY"),
+          invoiceDate
+            ? dayjsUTC(invoiceDate["$date"]).format("DD/MM/YYYY")
+            : null,
         ...getDateRangeMenu("invoiceDate"),
       },
       {
         title: "Invoice Total",
         dataIndex: "invoiceTotal",
         key: "invoiceTotal",
-        render: (invoiceTotal) => <Text>&#x20B9;{invoiceTotal}</Text>,
+        render: (invoiceTotal, invoice) =>
+          invoice.invoiceNumber >= 1 ? (
+            <Text>&#x20B9;{invoiceTotal}</Text>
+          ) : null,
       },
       {
         title: "Invoice Type",
         dataIndex: "claimInvoice",
         key: "claimInvoice",
-        render: (claimInvoice) =>
-          claimInvoice ? (
-            <Tag color="orange">Claim</Tag>
-          ) : (
-            <Tag color="green">Regular</Tag>
-          ),
+        render: (claimInvoice, invoice) => {
+          if (invoice.invoiceNumber >= 1) {
+            return claimInvoice ? (
+              <Tag color="orange">Claim</Tag>
+            ) : (
+              <Tag color="green">Regular</Tag>
+            );
+          } else {
+            return null;
+          }
+        },
+
         ...getDropDownMenu("claimInvoice"),
       },
       {
         title: "Action",
         key: "action",
-        render: (text, record) => (
-          <Button
-            shape="round"
-            size="small"
-            type="link"
-            icon={<EditFilled />}
-            onClick={() => {
-              handleShowInvoice(record);
-            }}
-          ></Button>
-        ),
+        render: (text, invoice) =>
+          invoice.invoiceNumber >= 1 ? (
+            <Button
+              shape="round"
+              size="small"
+              type="link"
+              icon={<EditFilled />}
+              onClick={() => {
+                handleShowInvoice(invoice);
+              }}
+            ></Button>
+          ) : (
+            <Button
+              shape="round"
+              size="small"
+              type="link"
+              icon={<EditFilled />}
+              disabled
+            ></Button>
+          ),
       },
     ],
     []
   );
+
+  if (salesInvoices.length !== maxItemsPerPage) {
+    let dummyRows = [];
+    for (let i = 1; i <= maxItemsPerPage - salesInvoices.length; i++) {
+      dummyRows.push({ invoiceNumber: i / 10 });
+    }
+    setSalesInvoices((prevInvoices) => [...prevInvoices, ...dummyRows]);
+  }
+
   return (
     <Content>
       <Space style={{ display: "flex", justifyContent: "space-between" }}>
@@ -286,4 +322,4 @@ function SalesTable({ exportToExcel }) {
   );
 }
 
-export default SalesTable;
+export default PurchaseTable;
