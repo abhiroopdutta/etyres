@@ -67,7 +67,6 @@ function SalesTable({ exportToExcel }) {
       }
     }
     fetchTableData();
-    console.log("fetch");
     return () => {
       didCancel = true;
     };
@@ -183,7 +182,6 @@ function SalesTable({ exportToExcel }) {
   };
 
   function handleShowInvoice(record) {
-    console.log(record);
     setSelectedInvoice(record);
     setShowInvoice(true);
   }
@@ -250,7 +248,6 @@ function SalesTable({ exportToExcel }) {
     ],
     []
   );
-  console.log(filters);
   return (
     <Content>
       <Space style={{ display: "flex", justifyContent: "space-between" }}>

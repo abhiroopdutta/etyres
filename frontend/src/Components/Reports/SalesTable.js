@@ -5,8 +5,8 @@ import { SearchOutlined, EditFilled } from "@ant-design/icons";
 import Invoice from "../CreateOrder/Invoice";
 import { dayjsUTC, dayjsLocal } from "../dayjsUTCLocal";
 const { RangePicker } = DatePicker;
-const { Header, Footer, Sider, Content } = Layout;
-const { Title, Paragraph, Text, Link } = Typography;
+const { Content } = Layout;
+const { Title, Text } = Typography;
 
 function SalesTable({ exportToExcel }) {
   const [filters, setFilters] = useState({
@@ -121,6 +121,7 @@ function SalesTable({ exportToExcel }) {
   });
 
   const handleDateRange = (dataIndex, confirm, selectedKeys) => {
+    console.log(selectedKeys);
     confirm();
     setFilters((prevFilters) => ({
       ...prevFilters,
@@ -131,6 +132,7 @@ function SalesTable({ exportToExcel }) {
     }));
   };
 
+  console.log(filters);
   const handlePageChange = (pagination) => {
     let itemsAlreadyRequested = (pagination.current - 1) * pagination.pageSize;
     if (itemsAlreadyRequested <= pagination.total)
@@ -178,7 +180,7 @@ function SalesTable({ exportToExcel }) {
         key: "invoiceDate",
         render: (invoiceDate) =>
           invoiceDate
-            ? dayjsUTC(invoiceDate["$date"]).format("YYYY-MM-DD")
+            ? dayjsUTC(invoiceDate["$date"]).format("DD/MM/YYYY")
             : null,
         ...getDateRangeMenu("invoiceDate"),
       },
