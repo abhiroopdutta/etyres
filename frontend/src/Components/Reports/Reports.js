@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Layout, Typography, Button, Divider, Modal } from "antd";
-import dayjs from "dayjs";
 import SalesTable from "./SalesTable";
 import PurchaseTable from "./PurchaseTable";
+import { dayjsLocal } from "../dayjsUTCLocal";
 const { Title } = Typography;
 
 function Reports() {
@@ -37,7 +37,7 @@ function Reports() {
                 "download",
                 reportReqInfo.reportType +
                   "_report_" +
-                  dayjs().format("YYYY-MM-DD") +
+                  dayjsLocal(new Date()).format("YYYY-MM-DD") +
                   ".xlsx"
               );
             } else {

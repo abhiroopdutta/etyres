@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { Modal, Table, Typography, Space, Layout, Divider } from "antd";
-import dayjs from "dayjs";
+import { dayjsUTC } from "../dayjsUTCLocal";
 const { Title } = Typography;
 
 function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
@@ -79,7 +79,7 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
           <Title level={5}>
             Invoice Date:
             {invoice.invoiceDate
-              ? dayjs(invoice.invoiceDate["$date"]).format("DD/MM/YYYY")
+              ? dayjsUTC(invoice.invoiceDate["$date"]).format("DD/MM/YYYY")
               : null}
           </Title>
         </Space>

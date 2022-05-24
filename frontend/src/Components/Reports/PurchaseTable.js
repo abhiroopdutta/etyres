@@ -11,8 +11,8 @@ import {
 } from "antd";
 import { DatePicker } from "../Antdesign_dayjs_components";
 import { SearchOutlined, EditFilled } from "@ant-design/icons";
-import dayjs from "dayjs";
 import PurchaseInvoiceModal from "./PurchaseInvoiceModal.js";
+import { dayjsLocal, dayjsUTC } from "../dayjsUTCLocal";
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 const { Content } = Layout;
@@ -136,8 +136,8 @@ function SalesTable({ exportToExcel }) {
     setFilters((prevFilters) => ({
       ...prevFilters,
       [dataIndex]: {
-        start: selectedKeys[0]?.format("YYYY-MM-DD") ?? "",
-        end: selectedKeys[1]?.format("YYYY-MM-DD") ?? "",
+        start: dayjsLocal(selectedKeys[0])?.format("YYYY-MM-DD") ?? "",
+        end: dayjsLocal(selectedKeys[1])?.format("YYYY-MM-DD") ?? "",
       },
     }));
   };
@@ -211,7 +211,7 @@ function SalesTable({ exportToExcel }) {
         dataIndex: "invoiceDate",
         key: "invoiceDate",
         render: (invoiceDate) =>
-          dayjs(invoiceDate["$date"]).format("DD/MM/YYYY"),
+          dayjsUTC(invoiceDate["$date"]).format("DD/MM/YYYY"),
         ...getDateRangeMenu("invoiceDate"),
       },
       {

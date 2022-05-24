@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useReactToPrint } from "react-to-print";
-import dayjs from "dayjs";
+import { dayjsLocal } from "../dayjsUTCLocal";
 import "./Invoice.css";
 
 function getTodaysDate() {
-  return dayjs(new Date()).format("YYYY-MM-DD");
+  return dayjsLocal(new Date()).format("YYYY-MM-DD");
 }
 
 // -----------------------Invoice(creating, reading)--------------------------
