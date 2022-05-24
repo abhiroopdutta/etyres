@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "./InvoiceWithNewItems.css";
 import AddItem from "./AddItem";
 import React from "react";

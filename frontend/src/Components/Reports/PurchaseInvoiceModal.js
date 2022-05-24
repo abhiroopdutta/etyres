@@ -4,60 +4,66 @@ import { dayjsUTC } from "../dayjsUTCLocal";
 const { Title } = Typography;
 
 function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
-  const columns = useMemo(() => [
-    {
-      title: "Item Desc",
-      dataIndex: "itemDesc",
-      key: "itemDesc",
-    },
-    {
-      title: "Item Code",
-      dataIndex: "itemCode",
-      key: "itemCode",
-    },
-    {
-      title: "HSN",
-      dataIndex: "HSN",
-      key: "HSN",
-    },
-    {
-      title: "Qty",
-      dataIndex: "quantity",
-      key: "quantity",
-    },
-    {
-      title: "Taxable Value",
-      dataIndex: "taxableValue",
-      key: "taxableValue",
-    },
-    {
-      title: "Tax",
-      dataIndex: "tax",
-      key: "tax",
-    },
-    {
-      title: "Item Total",
-      dataIndex: "itemTotal",
-      key: "itemTotal",
-    },
-  ]);
-  const claimColumns = useMemo(() => [
-    {
-      title: "Item Desc",
-      dataIndex: "itemDesc",
-      key: "itemDesc",
-    },
-    {
-      title: "Item Code",
-      dataIndex: "itemCode",
-      key: "itemCode",
-    },
-    {
-      title: "Claim Number",
-      dataIndex: "claimNumber",
-      key: "claimNumber",
-    },
-  ]);
+  const columns = useMemo(
+    () => [
+      {
+        title: "Item Desc",
+        dataIndex: "itemDesc",
+        key: "itemDesc",
+      },
+      {
+        title: "Item Code",
+        dataIndex: "itemCode",
+        key: "itemCode",
+      },
+      {
+        title: "HSN",
+        dataIndex: "HSN",
+        key: "HSN",
+      },
+      {
+        title: "Qty",
+        dataIndex: "quantity",
+        key: "quantity",
+      },
+      {
+        title: "Taxable Value",
+        dataIndex: "taxableValue",
+        key: "taxableValue",
+      },
+      {
+        title: "Tax",
+        dataIndex: "tax",
+        key: "tax",
+      },
+      {
+        title: "Item Total",
+        dataIndex: "itemTotal",
+        key: "itemTotal",
+      },
+    ],
+    []
+  );
+  const claimColumns = useMemo(
+    () => [
+      {
+        title: "Item Desc",
+        dataIndex: "itemDesc",
+        key: "itemDesc",
+      },
+      {
+        title: "Item Code",
+        dataIndex: "itemCode",
+        key: "itemCode",
+      },
+      {
+        title: "Claim Number",
+        dataIndex: "claimNumber",
+        key: "claimNumber",
+      },
+    ],
+    []
+  );
 
   return (
     <Modal

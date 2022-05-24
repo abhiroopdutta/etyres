@@ -32,7 +32,7 @@ function Reports() {
             const url = window.URL.createObjectURL(new Blob([blob]));
             const link = document.createElement("a");
             link.href = url;
-            if (reportReqInfo.reportType == "stock") {
+            if (reportReqInfo.reportType === "stock") {
               link.setAttribute(
                 "download",
                 reportReqInfo.reportType +

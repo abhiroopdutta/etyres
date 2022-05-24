@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useMemo, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Table, Input, Button, Space, Layout, Typography } from "antd";
 import { DatePicker } from "../Antdesign_dayjs_components";
 import { SearchOutlined, EditFilled } from "@ant-design/icons";
 import Invoice from "../CreateOrder/Invoice";
-import { dayjsUTC, dayjsLocal } from "../dayjsUTCLocal";
+import { dayjsUTC } from "../dayjsUTCLocal";
 const { RangePicker } = DatePicker;
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -159,77 +159,72 @@ function SalesTable({ exportToExcel }) {
     setShowInvoice(false);
   }
 
-  const columns = useMemo(
-    () => [
-      {
-        title: "Invoice No.",
-        dataIndex: "invoiceNumber",
-        key: "invoiceNumber",
-        ...getSearchMenu("invoiceNumber"),
-        onFilterDropdownVisibleChange: (visible) => {
-          if (visible) {
-            setTimeout(() => searchInputRef.current.select(), 100);
-          }
-        },
-        render: (invoiceNumber) => (invoiceNumber >= 1 ? invoiceNumber : null),
+  const columns = [
+    {
+      title: "Invoice No.",
+      dataIndex: "invoiceNumber",
+      key: "invoiceNumber",
+      ...getSearchMenu("invoiceNumber"),
+      onFilterDropdownVisibleChange: (visible) => {
+        if (visible) {
+          setTimeout(() => searchInputRef.current.select(), 100);
+        }
       },
-      {
-        title: "Invoice Date",
-        dataIndex: "invoiceDate",
-        key: "invoiceDate",
-        render: (invoiceDate) =>
-          invoiceDate
-            ? dayjsUTC(invoiceDate["$date"]).format("DD/MM/YYYY")
-            : null,
-        ...getDateRangeMenu("invoiceDate"),
+      render: (invoiceNumber) => (invoiceNumber >= 1 ? invoiceNumber : null),
+    },
+    {
+      title: "Invoice Date",
+      dataIndex: "invoiceDate",
+      key: "invoiceDate",
+      render: (invoiceDate) =>
+        invoiceDate
+          ? dayjsUTC(invoiceDate["$date"]).format("DD/MM/YYYY")
+          : null,
+      ...getDateRangeMenu("invoiceDate"),
+    },
+    {
+      title: "Invoice Total",
+      dataIndex: "invoiceTotal",
+      key: "invoiceTotal",
+      render: (invoiceTotal, invoice) =>
+        invoice.invoiceNumber >= 1 ? <Text>&#x20B9;{invoiceTotal}</Text> : null,
+    },
+    {
+      title: "Customer Name",
+      dataIndex: ["customerDetails", "name"],
+      key: ["customerDetails", "name"],
+      ...getSearchMenu("customerName"),
+      onFilterDropdownVisibleChange: (visible) => {
+        if (visible) {
+          setTimeout(() => searchInputRef.current.select(), 100);
+        }
       },
-      {
-        title: "Invoice Total",
-        dataIndex: "invoiceTotal",
-        key: "invoiceTotal",
-        render: (invoiceTotal, invoice) =>
-          invoice.invoiceNumber >= 1 ? (
-            <Text>&#x20B9;{invoiceTotal}</Text>
-          ) : null,
-      },
-      {
-        title: "Customer Name",
-        dataIndex: ["customerDetails", "name"],
-        key: ["customerDetails", "name"],
-        ...getSearchMenu("customerName"),
-        onFilterDropdownVisibleChange: (visible) => {
-          if (visible) {
-            setTimeout(() => searchInputRef.current.select(), 100);
-          }
-        },
-      },
-      {
-        title: "Action",
-        key: "action",
-        render: (text, invoice) =>
-          invoice.invoiceNumber >= 1 ? (
-            <Button
-              shape="round"
-              size="small"
-              type="link"
-              icon={<EditFilled />}
-              onClick={() => {
-                handleShowInvoice(invoice);
-              }}
-            ></Button>
-          ) : (
-            <Button
-              shape="round"
-              size="small"
-              type="link"
-              icon={<EditFilled />}
-              disabled
-            ></Button>
-          ),
-      },
-    ],
-    []
-  );
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (text, invoice) =>
+        invoice.invoiceNumber >= 1 ? (
+          <Button
+            shape="round"
+            size="small"
+            type="link"
+            icon={<EditFilled />}
+            onClick={() => {
+              handleShowInvoice(invoice);
+            }}
+          ></Button>
+        ) : (
+          <Button
+            shape="round"
+            size="small"
+            type="link"
+            icon={<EditFilled />}
+            disabled
+          ></Button>
+        ),
+    },
+  ];
 
   if (salesInvoices.length !== maxItemsPerPage) {
     let dummyRows = [];

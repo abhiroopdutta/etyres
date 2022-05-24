@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./UpdateStock.css";
 import PurchaseInvoice from "./PurchaseInvoice";
 import InvoiceWithNewItems from "./InvoiceWithNewItems.js";
@@ -228,9 +228,9 @@ function UpdateStock() {
           <input
             type="file"
             disabled={
-              invoices.length != 0 ||
-              invoicesWithNewItems.length != 0 ||
-              existingInvoices.length != 0
+              invoices.length !== 0 ||
+              invoicesWithNewItems.length !== 0 ||
+              existingInvoices.length !== 0
             }
             name="files"
             multiple
