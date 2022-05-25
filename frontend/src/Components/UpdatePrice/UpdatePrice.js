@@ -18,7 +18,9 @@ function UpdatePrice() {
           setPriceDetails(result);
         }
       } catch (err) {
-        alert(err.message);
+        Modal.error({
+          content: err.message,
+        });
         console.log(err.message);
       }
     }

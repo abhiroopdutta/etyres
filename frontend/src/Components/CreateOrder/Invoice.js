@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import { dayjsLocal } from "../dayjsUTCLocal";
 import "./Invoice.css";
+import { Modal } from "antd";
 
 function getTodaysDate() {
   return dayjsLocal(new Date()).format("YYYY-MM-DD");
@@ -103,7 +104,9 @@ function Invoice({
           throw Error(result);
         }
       } catch (err) {
-        alert(err.message);
+        Modal.error({
+          content: err.message,
+        });
         console.log(err.message);
       }
     };
@@ -171,13 +174,17 @@ function Invoice({
         const response = await fetch("/api/place_order", requestOptions);
         const result = await response.json();
         if (response.ok) {
-          alert(result);
+          Modal.success({
+            content: result,
+          });
           setOrderConfirmed(true);
         } else {
           throw Error(result);
         }
       } catch (err) {
-        alert(err.message);
+        Modal.error({
+          content: err.message,
+        });
         console.log(err.message);
       }
     };

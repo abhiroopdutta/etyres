@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Table, Input, Button, Space, Layout, Typography } from "antd";
+import { Table, Input, Button, Space, Layout, Typography, Modal } from "antd";
 import { DatePicker } from "../Antdesign_dayjs_components";
 import { SearchOutlined, EditFilled } from "@ant-design/icons";
 import Invoice from "../CreateOrder/Invoice";
@@ -51,7 +51,9 @@ function SalesTable({ exportToExcel }) {
         }
       } catch (err) {
         if (!didCancel) {
-          alert(err.message);
+          Modal.error({
+            content: err.message,
+          });
           console.log(err.message);
         }
       }

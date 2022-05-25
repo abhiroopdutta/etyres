@@ -3,6 +3,7 @@ import { CartContext } from "./CartContext";
 import CartTyre from "./CartTyre";
 import "./Cart.css";
 import Invoice from "./Invoice";
+import { message } from "antd";
 
 function roundToTwo(num) {
   return +(Math.round(num + "e+2") + "e-2");
@@ -55,7 +56,7 @@ function Cart({ handleRefreshProducts }) {
     //setServices(services);
     for (let i = 0; i < cart.length; i++) {
       if (cart[i].stock < cart[i].quantity) {
-        alert(`${cart[i].itemDesc}: Out of Stock`);
+        message.error(`${cart[i].itemDesc}: Out of Stock`, 2);
         return;
       }
     }
@@ -67,7 +68,7 @@ function Cart({ handleRefreshProducts }) {
         }
 
         if (i === services.length - 1 && services[i].quantity === 0) {
-          alert("Cart is empty !");
+          message.error(`Cart is empty !`, 2);
           return;
         }
       }

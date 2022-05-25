@@ -8,6 +8,7 @@ import {
   Typography,
   Select,
   Tag,
+  Modal,
 } from "antd";
 import { DatePicker } from "../Antdesign_dayjs_components";
 import { SearchOutlined, EditFilled } from "@ant-design/icons";
@@ -61,7 +62,9 @@ function PurchaseTable({ exportToExcel }) {
         }
       } catch (err) {
         if (!didCancel) {
-          alert(err.message);
+          Modal.error({
+            content: err.message,
+          });
           console.log(err.message);
         }
       }

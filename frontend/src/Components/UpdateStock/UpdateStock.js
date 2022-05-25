@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./UpdateStock.css";
 import PurchaseInvoice from "./PurchaseInvoice";
 import InvoiceWithNewItems from "./InvoiceWithNewItems.js";
+import { Modal } from "antd";
 
 function UpdateStock() {
   const [invoices, setInvoices] = useState([]);
@@ -106,9 +107,9 @@ function UpdateStock() {
         !invoices[i].special_discount
       ) {
         selectOneError = true;
-        alert(
-          `Invoice number: ${invoices[i].invoice_number}, select either claim invoice or special discount or overwrite price list`
-        );
+        Modal.warning({
+          content: `Invoice number: ${invoices[i].invoice_number}, select either claim invoice or special discount or overwrite price list`,
+        });
         break;
       }
 
@@ -119,9 +120,9 @@ function UpdateStock() {
             invoices[i].claim_items[j].claim_number === 0
           ) {
             claimNumberError = true;
-            alert(
-              `Invoice number: ${invoices[i].invoice_number}, Please fill claim number`
-            );
+            Modal.warning({
+              content: `Invoice number: ${invoices[i].invoice_number}, Please fill claim number`,
+            });
             break;
           }
         }
@@ -133,9 +134,9 @@ function UpdateStock() {
         invoices[i].special_discount_type.trim() === ""
       ) {
         specialDiscountError = true;
-        alert(
-          `Invoice number: ${invoices[i].invoice_number}, Please fill special discount name`
-        );
+        Modal.warning({
+          content: `Invoice number: ${invoices[i].invoice_number}, Please fill special discount name`,
+        });
         break;
       }
     }
