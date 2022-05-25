@@ -75,20 +75,14 @@ function PurchaseInvoice({
           className="claim-overwrite"
           onChange={(e) => handleOverwrite(invoice_index, e)}
         >
-          <label htmlFor="overwrite">Overwrite price list</label>
-          <input
-            id="overwrite"
-            type="checkbox"
-            value="overwrite"
-            name={"claim_overwrite" + invoice_index}
-          />
+          <input type="checkbox" id="overwrite-checkbox" />
+          <label htmlFor="overwrite-checkbox">Overwrite price list</label>
         </section>
       ) : priceDifference < 0 ? (
         <section
           className="claim-overwrite"
           onChange={(e) => handleClaimOverwrite(invoice_index, e)}
         >
-          <label htmlFor="claim"> Claim Invoice</label>
           <input
             type="radio"
             id="claim"
@@ -96,7 +90,8 @@ function PurchaseInvoice({
             value={invoice.claim_invoice}
             required
           />
-          <label htmlFor="overwrite">Overwrite Price List</label>
+          <label htmlFor="claim">Claim Invoice</label>
+          <br />
           <input
             type="radio"
             id="overwrite"
@@ -104,7 +99,8 @@ function PurchaseInvoice({
             value={invoice.overwrite_price_list}
             required
           />
-          <label htmlFor="special_discount">Special Discount</label>
+          <label htmlFor="overwrite">Overwrite Price List</label>
+          <br />
           <input
             type="radio"
             id="special_discount"
@@ -112,6 +108,8 @@ function PurchaseInvoice({
             value={invoice.special_discount}
             required
           />
+          <label htmlFor="special_discount">Special Discount</label>
+          <br />
         </section>
       ) : null}
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import "./UpdateStock.css";
 import PurchaseInvoice from "./PurchaseInvoice";
 import InvoiceWithNewItems from "./InvoiceWithNewItems.js";
@@ -8,14 +8,7 @@ function UpdateStock() {
   const [invoices, setInvoices] = useState([]);
   const [invoicesWithNewItems, setInvoicesWithNewItems] = useState([]);
   const [existingInvoices, setExistingInvoices] = useState([]);
-  const [successMessage, setSuccessMessage] = useState("");
-
-  //TO DO
-  // useEffect(() => {
-  //   setInvoices([]);
-  //   setInvoicesWithNewItems([]);
-  //   setExistingInvoices([]);
-  // }, [successMessage]);
+  const inputFileRef = useRef();
 
   const changeHandler = (e) => {
     e.preventDefault();
@@ -149,7 +142,15 @@ function UpdateStock() {
       };
       fetch("/api/update_stock", requestOptions)
         .then((response) => response.json())
-        .then((result) => setSuccessMessage(result));
+        .then((result) => {
+          inputFileRef.current.value = "";
+          setInvoices([]);
+          setInvoicesWithNewItems([]);
+          setExistingInvoices([]);
+          Modal.success({
+            content: result,
+          });
+        });
     }
   };
 
@@ -223,7 +224,7 @@ function UpdateStock() {
 
   return (
     <div className="update-stock">
-      <h3>Upload invoice to update stock</h3>
+      <h3>Upload invoices to update stock</h3>
       <form method="POST" action="" encType="multipart/form-data">
         <p>
           <input
@@ -236,10 +237,10 @@ function UpdateStock() {
             name="files"
             multiple
             onChange={changeHandler}
+            ref={inputFileRef}
           />
         </p>
       </form>
-
       <div className="existing-invoices">
         {existingInvoices.map((invoice) => (
           <h4 key={invoice.invoice_number}>
@@ -273,9 +274,16 @@ function UpdateStock() {
         ))}
       </div>
 
-      {invoices.length !== 0 && invoicesWithNewItems.length === 0 ? (
+      {invoices.length !== 0 ||
+      invoicesWithNewItems.length !== 0 ||
+      existingInvoices.length !== 0 ? (
         <button
-          disabled={successMessage ? true : false}
+          disabled={
+            invoicesWithNewItems.length !== 0 ||
+            (existingInvoices.length !== 0 &&
+              invoices.length === 0 &&
+              invoicesWithNewItems.length === 0)
+          }
           className="update-inventory"
           onClick={handleUpdateStock}
         >
@@ -284,7 +292,6 @@ function UpdateStock() {
       ) : null}
       <br />
 
-      {successMessage !== "" ? <h4>{successMessage} !</h4> : null}
       <br />
     </div>
   );
