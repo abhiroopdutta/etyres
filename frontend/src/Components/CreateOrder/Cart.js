@@ -18,30 +18,51 @@ function Cart({ handleRefreshProducts }) {
 
   const [previewInvoice, setPreviewInvoice] = useState(false);
 
-  const handleServicesPrice = (index, e) => {
+  const handleServicesPrice = (serviceName, e) => {
     e.preventDefault(); //why use this
-    let servicesCopy = [...services];
-    servicesCopy[index].price = e.target.value;
-    setServices(servicesCopy);
+    setServices((services) =>
+      services.map((service) => {
+        if (service.name === serviceName) {
+          const updatedService = {
+            ...service,
+            price: e.target.value,
+          };
+          return updatedService;
+        }
+        return service;
+      })
+    );
   };
 
-  const handleServicesQuantity = (index, e) => {
+  const handleServicesQuantity = (serviceName, e) => {
     e.preventDefault(); //why use this
-    let servicesCopy = [...services];
-    servicesCopy[index].quantity = e.target.value;
-    setServices(servicesCopy);
+    setServices((services) =>
+      services.map((service) => {
+        if (service.name === serviceName) {
+          const updatedService = {
+            ...service,
+            quantity: e.target.value,
+          };
+          return updatedService;
+        }
+        return service;
+      })
+    );
   };
 
   const handleFocus = (e) => e.target.select();
 
   const emptyCart = () => {
     setCart([]);
-    let servicesCopy = [...services];
-    servicesCopy.forEach((service) => {
-      service.quantity = 0;
-      service.price = 0;
-    });
-    setServices(servicesCopy);
+    setServices((services) =>
+      services.map((service) => {
+        return {
+          ...service,
+          quantity: 0,
+          price: 0,
+        };
+      })
+    );
   };
 
   const hideInvoice = (orderConfirmed) => {
@@ -125,7 +146,7 @@ function Cart({ handleRefreshProducts }) {
                   <input
                     type="text"
                     value={service.price}
-                    onChange={(e) => handleServicesPrice(index, e)}
+                    onChange={(e) => handleServicesPrice(service.name, e)}
                     onFocus={handleFocus}
                   />
                 </div>
@@ -137,7 +158,7 @@ function Cart({ handleRefreshProducts }) {
                     step="1"
                     min="0"
                     value={service.quantity}
-                    onChange={(e) => handleServicesQuantity(index, e)}
+                    onChange={(e) => handleServicesQuantity(service.name, e)}
                     onFocus={handleFocus}
                   />
                 </div>
