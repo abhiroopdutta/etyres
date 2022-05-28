@@ -6,39 +6,45 @@ import "./CartTyre.css";
 function CartTyre({ tyreData }) {
   const { tyresContext, servicesContext } = useContext(CartContext);
   const [cart, setCart] = tyresContext;
-  // eslint-disable-next-line
-  const [services, setServices] = servicesContext;
 
   const removeFromCart = (tyreData) => {
-    //understand the filter code below
-    let cartCopy = [...cart];
-    cartCopy = cartCopy.filter(
-      (cartItem) => cartItem.itemCode !== tyreData.itemCode
+    setCart((cart) =>
+      cart.filter((product) => product.itemCode !== tyreData.itemCode)
     );
-
-    //understand this line of code
-    setCart(cartCopy); //understand the spread, rest syntax
   };
 
   const handlePrice = (e) => {
     e.preventDefault(); //why use this
-    tyreData.price = e.target.value;
-
-    //forcefully update the cart context, to render the parent(i.e. Cart)
-    //since totalPrice (part of parent Cart) is affected by tyreData price
-    let cartCopy = [...cart];
-    setCart(cartCopy);
+    setCart((cart) =>
+      cart.map((product) => {
+        if (product.itemCode === tyreData.itemCode) {
+          const updatedProduct = {
+            ...product,
+            price: e.target.value,
+          };
+          return updatedProduct;
+        }
+        return product;
+      })
+    );
   };
 
   const handleFocus = (e) => e.target.select();
 
   const handleQuantity = (e) => {
     e.preventDefault(); //why use this
-    tyreData.quantity = e.target.value;
-
-    //forcefully update the cart context, to render the parent(i.e. cart)
-    let cartCopy = [...cart];
-    setCart(cartCopy);
+    setCart((cart) =>
+      cart.map((product) => {
+        if (product.itemCode === tyreData.itemCode) {
+          const updatedProduct = {
+            ...product,
+            quantity: e.target.value,
+          };
+          return updatedProduct;
+        }
+        return product;
+      })
+    );
   };
 
   return (
