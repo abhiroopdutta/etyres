@@ -116,10 +116,10 @@ function Invoice({
 
   //if customer GSTIN doesn't start with 09, then IGST
   const handleIGST = (e) => {
-    setCustomerDetails({
+    setCustomerDetails((customerDetails) => ({
       ...customerDetails,
       [e.target.name]: e.target.value,
-    });
+    }));
 
     if (
       e.target.value === "0" ||
@@ -138,10 +138,10 @@ function Invoice({
   };
 
   const handleCustomerDetails = (e) => {
-    setCustomerDetails({
+    setCustomerDetails((customerDetails) => ({
       ...customerDetails,
       [e.target.name]: e.target.value,
-    });
+    }));
   };
 
   const handleConfirmOrder = () => {
@@ -201,7 +201,7 @@ function Invoice({
     }));
     setIsTaxInvoice((isTaxInvoice) => !isTaxInvoice);
   };
-
+  console.log(customerDetails);
   const componentRef = useRef(null);
   const handlePrintInvoice = useReactToPrint({
     content: () => componentRef.current,
