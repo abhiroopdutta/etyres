@@ -6,7 +6,12 @@ function roundToTwo(num) {
   return +(Math.round(num + "e+2") + "e-2");
 }
 
-function AddItem({ invoiceNumber, item, toggleModal, updateItemStatus }) {
+function AddItem({
+  invoiceNumber,
+  item,
+  toggleModal,
+  dispatchInvoicesWithNewItems,
+}) {
   const [vehicleType, setVehicleType] = useState("passenger car");
   const [costPrice, setCostPrice] = useState(
     roundToTwo(item.item_total / item.quantity)
@@ -49,7 +54,11 @@ function AddItem({ invoiceNumber, item, toggleModal, updateItemStatus }) {
       }
     };
     submit_item();
-    updateItemStatus(invoiceNumber, item.item_code);
+    dispatchInvoicesWithNewItems({
+      type: "UPDATE_ITEM_STATUS",
+      invoiceNumber: invoiceNumber,
+      itemCode: item.item_code,
+    });
   };
 
   return (

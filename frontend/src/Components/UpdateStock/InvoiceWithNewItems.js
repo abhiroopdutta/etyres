@@ -3,7 +3,7 @@ import "./InvoiceWithNewItems.css";
 import AddItem from "./AddItem";
 import React from "react";
 
-function InvoiceWithNewItems({ invoice, updateItemStatus }) {
+function InvoiceWithNewItems({ invoice, dispatchInvoicesWithNewItems }) {
   const [showModal, setShowModal] = useState(false);
   const [item, setItem] = useState();
 
@@ -61,7 +61,7 @@ function InvoiceWithNewItems({ invoice, updateItemStatus }) {
           invoiceNumber={invoice.invoice_number}
           item={item}
           toggleModal={toggleModal}
-          updateItemStatus={updateItemStatus}
+          dispatchInvoicesWithNewItems={dispatchInvoicesWithNewItems}
         />
       ) : null}
     </div>
