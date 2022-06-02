@@ -494,8 +494,8 @@ function Invoice({
                     ))}
 
                     {GSTTable?.services.map((service, index) => (
-                      <tr key={service.name}>
-                        <td>{service.name}</td>
+                      <tr key={service.itemDesc}>
+                        <td>{service.itemDesc}</td>
                         <td>{service.HSN}</td>
                         <td>{service.quantity}</td>
                         <td>{service.ratePerItem}</td>
@@ -568,8 +568,8 @@ function Invoice({
                 ))}
 
                 {noTaxTable?.services.map((service) => (
-                  <tr key={service.name}>
-                    <td>{service.name}</td>
+                  <tr key={service.itemDesc}>
+                    <td>{service.itemDesc}</td>
                     <td>{service.price}</td>
                     <td>{service.quantity}</td>
                     <td>{service.value}</td>

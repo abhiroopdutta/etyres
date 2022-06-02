@@ -53,15 +53,19 @@ def compute_gst_tables(products, services):
     # calculate all column values for services
     for service in services:
         GST_service = {
-            "name": service["name"],
+            "itemDesc": service["name"],
+            "itemCode": "",
             "HSN": service["HSN"],
             "quantity": int(service["quantity"]),
+            "costPrice": 0.0,
             "ratePerItem": 0.0,
             "taxableValue": 0.0,
             "CGST": 0.0,
             "CGSTAmount": 0.0,
             "SGST": 0.0,
             "SGSTAmount": 0.0,
+            "IGST": 0.0,
+            "IGSTAmount": 0.0,
             "value": 0.0,
         }
 
@@ -197,7 +201,8 @@ def compute_gst_tables(products, services):
     
     for service in GST_table["services"]:
         non_tax_service = {
-            "name": service["name"],
+            "itemDesc": service["itemDesc"],
+            "itemCode": "",
             "HSN": service["HSN"],
             "quantity": service["quantity"],
             "price": round(service["value"]/service["quantity"], 2),
@@ -283,7 +288,7 @@ def create_order(invoice):
     if services:
         for service in services:
             service_item = ServiceItem(
-                name = service["name"], 
+                name = service["itemDesc"], 
                 HSN = service["HSN"], 
                 ratePerItem = service["ratePerItem"], 
                 quantity = service["quantity"], 
