@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import { dayjsLocal } from "../dayjsUTCLocal";
 import "./Invoice.css";
-import { Modal } from "antd";
+import { Modal, Button, Checkbox } from "antd";
+import { PrinterFilled, CloseCircleFilled } from "@ant-design/icons";
 
 function getTodaysDate() {
   return dayjsLocal(new Date()).format("YYYY-MM-DD");
@@ -210,27 +211,25 @@ function Invoice({
   return (
     <div className="invoice">
       <div className="left-buttons-container">
-        <button
-          className="pdf-button"
+        <Button
+          size="large"
           disabled={!orderConfirmed}
           onClick={handlePrintInvoice}
-        >
-          Save PDF
-        </button>
+          type="default"
+          icon={<PrinterFilled />}
+        ></Button>
 
-        <div className="tax-invoice-button">
-          <label htmlFor="tax-invoice">Tax Invoice</label>
-          <input
-            id="tax-invoice"
-            type="checkbox"
-            onChange={toggleTaxInvoice}
-            disabled={
-              customerDetails.GSTIN !== "" ||
-              customerDetails.stateCode !== "" ||
-              customerDetails.state !== ""
-            }
-          />
-        </div>
+        <Checkbox
+          className="tax-invoice-button"
+          onChange={toggleTaxInvoice}
+          disabled={
+            customerDetails.GSTIN !== "" ||
+            customerDetails.stateCode !== "" ||
+            customerDetails.state !== ""
+          }
+        >
+          Tax Invoice
+        </Checkbox>
       </div>
 
       <div ref={componentRef} className="invoice-body">
@@ -636,19 +635,19 @@ function Invoice({
       </div>
 
       <div className="right-buttons-container">
-        <button
-          className="close-invoice"
+        <Button
+          size="large"
+          type="default"
           onClick={() => hideInvoice(orderConfirmed)}
-        >
-          x
-        </button>
-        <button
-          className="print-button"
+          icon={<CloseCircleFilled />}
+        />
+        <Button
+          type="default"
           disabled={orderConfirmed}
           onClick={handleConfirmOrder}
         >
           CONFIRM ORDER
-        </button>
+        </Button>
       </div>
     </div>
   );
