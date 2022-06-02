@@ -354,7 +354,7 @@ def reset_stock():
         for product in invoice.items:
             product_found = Product.objects(itemCode=product.itemCode).first()
             if product_found is None:
-                print("Item not found in Product table: ", product.itemDesc, product.itemCode)
+                print("Item from Purchase Invoice not found in Product table: ", product.itemDesc, product.itemCode)
                 return False
             new_stock = product_found.stock + product.quantity
             Product.objects(itemCode=product.itemCode).first().update(stock=new_stock) 
@@ -363,7 +363,7 @@ def reset_stock():
         for product in invoice.productItems:
             product_found = Product.objects(itemCode=product.itemCode).first()
             if product_found is None:
-                print("Item not found in Product table: ", product.itemDesc, product.itemCode)
+                print("Item from Sale invoice not found in Product table: ", product.itemDesc, product.itemCode)
                 return False
             new_stock = product_found.stock - product.quantity
             Product.objects(itemCode=product.itemCode).first().update(stock=new_stock) 

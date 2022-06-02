@@ -77,8 +77,7 @@ function Cart({ handleRefreshProducts }) {
     //setServices(services);
     for (let i = 0; i < cart.length; i++) {
       if (cart[i].stock < cart[i].quantity) {
-        message.error(`${cart[i].itemDesc}: Out of Stock`, 2);
-        return;
+        message.error(`${cart[i].itemDesc}: Out of Stock`, 4);
       }
     }
 
