@@ -55,6 +55,7 @@ function Tyre({ tyreData }) {
       <div className="product-image">
         <img src={TyreImg} alt="tyre" width="80" height="120" />
       </div>
+      <div className="product-code">{tyreData.itemCode}</div>
       <div className="product-cost-price">
         {" "}
         Cost Price: &#x20B9;{tyreData.costPrice}
