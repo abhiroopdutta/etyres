@@ -23,6 +23,8 @@
     display: flex;
     /* background-color: lime; */
     justify-content: flex-start;
+    align-items: flex-end;
+    column-gap: 15px;
     padding-left: 23px;
 }
 

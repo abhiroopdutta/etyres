@@ -268,7 +268,7 @@ function UpdateStock() {
 
   return (
     <div className="update-stock">
-      <h3>Upload invoices to update stock</h3>
+      <h3>Upload purchase invoices</h3>
       <form method="POST" action="" encType="multipart/form-data">
         <p>
           <input

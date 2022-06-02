@@ -9,7 +9,7 @@ function Navbar() {
       <div className="Links">
         <Link to="/reports">Reports</Link>
         <Link to="/update_price">Update Price List</Link>
-        <Link to="/update_stock">Update Stock</Link>
+        <Link to="/update_stock">Update Purchases</Link>
         <Link to="/create_order">Create Order</Link>
       </div>
     </nav>

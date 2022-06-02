@@ -37,20 +37,24 @@ function Products({ refreshProducts }) {
   return (
     <div className="products">
       <div className="product-filters">
-        <input
-          type="text"
-          onChange={handleChange}
-          value={input}
-          placeholder="Enter tyre size"
-        />
-        <label htmlFor="in_stock">In Stock</label>
-        <input
-          type="checkbox"
-          id="in_stock"
-          name="in_stock"
-          defaultChecked={inStock}
-          onChange={handleInStock}
-        />
+        <div className="search-product">
+          <input
+            type="text"
+            onChange={handleChange}
+            value={input}
+            placeholder="Enter tyre size"
+          />
+        </div>
+        <div className="in-stock-checkbox">
+          <label htmlFor="in_stock">In Stock</label>
+          <input
+            type="checkbox"
+            id="in_stock"
+            name="in_stock"
+            defaultChecked={inStock}
+            onChange={handleInStock}
+          />
+        </div>
       </div>
       <div className="product-items">
         {tyreData.map((tyre, index) => (
