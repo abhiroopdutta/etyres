@@ -55,7 +55,7 @@ def get_pv_price_details():
 def get_product_type(item_code):
 	if (item_code[1] in ["U", "W", "Y"]):
 		return "tube"
-	elif (item_code == "RR100TR414A01"):
+	elif (item_code == "RR100TR414A"):
 		return "valve"
 	else:
 		return "tyre"
