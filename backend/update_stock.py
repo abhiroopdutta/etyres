@@ -166,7 +166,7 @@ def update_stock(invoices):
                     claim_items.append(new_claim_item)
 
             invoice_total = invoice["invoice_total"]
-            special_discount = invoice["special_discount_type"]
+            special_discount = invoice["special_discount_type"] if(invoice["special_discount"]) else ""
 
             # if invoice date selected by user is not today (back date entry), then add time 11:30 AM, manually
             if invoice["invoice_date"] == datetime.datetime.now().strftime('%Y-%m-%d'):
