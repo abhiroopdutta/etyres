@@ -307,25 +307,31 @@ def stock_report():
     "scv_tube",
     "tubeless_valve"
     ]
-    products = Product.objects(Q(category__in=category_required_list)&Q(stock__ne=0))
+    products = Product.objects(Q(category__in=category_required_list))
     file_base_dir = "./tempdata/sales_report/"
     filename = str(datetime.datetime.now())+"stock_report.xlsx"
     wb = openpyxl.Workbook() 
     sheet = wb.active
 
     sheet.freeze_panes = 'A2'
-    column_headers = ["Item Description", "Item Code", "Size", "Cost Price", "Stock"]
+    column_headers = ["Item Description", "Item Code", "HSN", "GST", "category", "Size", "Cost Price", "Stock"]
+    product_keys = [
+        "itemDesc",
+        "itemCode",
+        "HSN",
+        "GST",
+        "category",
+        "size",
+        "costPrice",
+        "stock"
+    ]
 
     for i, column_header in enumerate(column_headers):
         sheet.cell(row=1, column=i+1).value = column_header
 
     for i, product in enumerate(products):
-        sheet.cell(row = i+2, column = 1).value = product.itemDesc
-        sheet.cell(row = i+2, column = 2).value = product.itemCode
-        sheet.cell(row = i+2, column = 3).value = product.size
-        sheet.cell(row = i+2, column = 4).value = product.costPrice
-        sheet.cell(row = i+2, column = 5).value = product.stock
-
+        for j, product_key in enumerate(product_keys):
+            sheet.cell(row = i+2, column = j+1).value = product[product_key]
 
     #this adjusts the font and column width of the whole sheet
     dims = {}
@@ -368,4 +374,4 @@ def reset_stock():
                 return False
             new_stock = product_found.stock - product.quantity
             Product.objects(itemCode=product.itemCode).first().update(stock=new_stock) 
-    return True
+    return True    
