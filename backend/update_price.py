@@ -172,7 +172,7 @@ def update_price(pv_price_details_list, file):
 			continue
 
 		item_desc = str(tyres_xl.cell(row=i, column=1).value).strip()
-		item_code = str(tyres_xl.cell(row=i, column=2).value).strip()
+		item_code = str(tyres_xl.cell(row=i, column=2).value).strip()[:-2]
 		net_ndp = round(float(str(tyres_xl.cell(row=i, column=5).value)))
 
 		if (vehicle_type in pv_price_details):
