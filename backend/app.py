@@ -114,7 +114,8 @@ def hello_world():
         "3_wheeler_tube",
         "scv_tyre",
         "scv_tube",
-        "tubeless_valve"
+        "tubeless_valve",
+        "loose_tube/flaps_tube"
         ]).to_json()
     return Response(products, mimetype="application/json", status=200)
 

@@ -1,4 +1,5 @@
 from create_order import compute_gst_tables
+from update_price import compute_size
 from models import Purchase, Sale, Product
 from mongoengine import Q
 import datetime
@@ -61,8 +62,8 @@ def get_purchase_report(filters = {}, sorters = {}, pageRequest = 1, maxItemsPer
         end_datetime = datetime.datetime.strptime(filters["invoiceDate"]["end"] + " " + "23:59:59", '%Y-%m-%d %H:%M:%S')
         query &= Q(invoiceDate__gte=start_datetime) & Q(invoiceDate__lte=end_datetime)
 
-    results["data"] = Purchase.objects(query).order_by('-_id')[page_start:page_end]
-    results["pagination"]["totalResults"] = Purchase.objects(query).order_by('-_id')[page_start:page_end].count()
+    results["data"] = Purchase.objects(query).order_by('-invoiceDate')[page_start:page_end]
+    results["pagination"]["totalResults"] = Purchase.objects(query).order_by('-invoiceDate')[page_start:page_end].count()
     results["pagination"]["pageNumber"] = pageRequest
     results["pagination"]["pageSize"] = len(results["data"])
     return results
@@ -113,7 +114,8 @@ def export_sales_report(invoices):
         "SGST Amt", 
         "IGST Rate", 
         "IGST Amt", 
-        "Total"]
+        "Total",
+        "size"]
 
     item_keys = [
         "itemDesc",
@@ -155,6 +157,8 @@ def export_sales_report(invoices):
 
             for j, item_key in enumerate(item_keys):
                 sheet.cell(row = row_index, column = 5+j).value = product[item_key]
+            
+            sheet.cell(row = row_index, column = 5+len(item_keys)).value = compute_size(product["itemDesc"])
             
         for i, service in enumerate(services):
             row_index = i+2+base_index+len(products)
@@ -228,7 +232,7 @@ def export_purchase_report(invoices):
 
     sheet.freeze_panes = 'A2'
 
-    column_headers = ["Invoice No.", "Invoice Date", "Claim Invoice", "Item Description", "Item Code", "HSN", "Qty", "Taxable Val", "Tax", "Total"]
+    column_headers = ["Invoice No.", "Invoice Date", "Claim Invoice", "Item Description", "Item Code", "HSN", "Qty", "Taxable Val", "Tax", "Total", "Size"]
     
     for i, column_header in enumerate(column_headers):
         sheet.cell(row=1, column=i+1).value = column_header
@@ -249,6 +253,7 @@ def export_purchase_report(invoices):
             sheet.cell(row = row_index, column = 8).value = product.taxableValue
             sheet.cell(row = row_index, column = 9).value = product.tax
             sheet.cell(row = row_index, column = 10).value = product.itemTotal
+            sheet.cell(row = row_index, column = 11).value = compute_size(product.itemDesc)
         base_index += total_items
 
     total_row_index = sheet.max_row
@@ -305,7 +310,8 @@ def stock_report():
     "3_wheeler_tube",
     "scv_tyre",
     "scv_tube",
-    "tubeless_valve"
+    "tubeless_valve",
+    "loose_tube/flaps_tube"
     ]
     products = Product.objects(Q(category__in=category_required_list))
     file_base_dir = "./tempdata/sales_report/"
@@ -354,7 +360,7 @@ def stock_report():
     return filename
 
 def reset_stock():
-    for product in Product.objects(stock__ne=0):
+    for product in Product.objects():
         product.update(stock = 0)
 
     for invoice in Purchase.objects:
@@ -373,5 +379,5 @@ def reset_stock():
                 print(f'Item from Sale Invoice No. {invoice.invoiceNumber} not found in Product table:  {product.itemDesc}, {product.itemCode}, ')
                 return False
             new_stock = product_found.stock - product.quantity
-            Product.objects(itemCode=product.itemCode).first().update(stock=new_stock) 
+            Product.objects(itemCode=product.itemCode).first().update(stock=new_stock)
     return True    
