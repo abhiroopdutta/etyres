@@ -314,7 +314,7 @@ def stock_report():
     sheet = wb.active
 
     sheet.freeze_panes = 'A2'
-    column_headers = ["Item Description", "Item Code", "Cost Price", "Stock"]
+    column_headers = ["Item Description", "Item Code", "Size", "Cost Price", "Stock"]
 
     for i, column_header in enumerate(column_headers):
         sheet.cell(row=1, column=i+1).value = column_header
@@ -322,8 +322,9 @@ def stock_report():
     for i, product in enumerate(products):
         sheet.cell(row = i+2, column = 1).value = product.itemDesc
         sheet.cell(row = i+2, column = 2).value = product.itemCode
-        sheet.cell(row = i+2, column = 3).value = product.costPrice
-        sheet.cell(row = i+2, column = 4).value = product.stock
+        sheet.cell(row = i+2, column = 3).value = product.size
+        sheet.cell(row = i+2, column = 4).value = product.costPrice
+        sheet.cell(row = i+2, column = 5).value = product.stock
 
 
     #this adjusts the font and column width of the whole sheet
