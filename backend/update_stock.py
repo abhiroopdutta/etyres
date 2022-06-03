@@ -16,7 +16,7 @@ def read_purchase_file(file):
             invoice["invoice_number"] = str(row["Invoice No."]).strip()
 
             invoice["items"].append({
-                "item_code": str(row["Material"]).strip(), 
+                "item_code": str(row["Material"]).strip()[:-2], 
                 "item_desc": str(row["Material Desc."]).strip(),
                 "quantity": int(row["Qty."]),
                 "taxable_value": float(row["Net Amt."].replace(",", "")),
