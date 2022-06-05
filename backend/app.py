@@ -93,6 +93,8 @@ def stock_out():
         return jsonify("Error! invoice is empty"), 400
     elif status == 2:
         return jsonify("Error! invoice date selected is older than previous invoice date"), 400
+    elif status == 3:
+        return jsonify("Error! Item out of stock!", 400)
 
 @app.route("/api/sales_invoice_number", methods = ['GET'])
 def sales_invoice_number():

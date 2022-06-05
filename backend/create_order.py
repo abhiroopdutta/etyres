@@ -269,6 +269,9 @@ def create_order(invoice):
             #update products table first
             oldstock = Product.objects(itemCode=product["itemCode"]).first().stock
             new_stock = oldstock - product["quantity"]
+            if (new_stock < 0):
+                print(f'Error! {product["itemDesc"]}: {product["itemCode"]} out of stock!')
+                return 3
             Product.objects(itemCode=product["itemCode"]).first().update(stock=new_stock)
 
             product_item = ProductItem(
