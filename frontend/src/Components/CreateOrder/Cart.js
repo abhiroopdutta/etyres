@@ -1,9 +1,9 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { CartContext } from "./CartContext";
 import CartTyre from "./CartTyre";
 import "./Cart.css";
 import Invoice from "./Invoice";
-import { message } from "antd";
+import { message, Modal } from "antd";
 
 function roundToTwo(num) {
   return +(Math.round(num + "e+2") + "e-2");
@@ -11,12 +11,27 @@ function roundToTwo(num) {
 
 function Cart({ handleRefreshProducts }) {
   const { tyresContext, servicesContext } = useContext(CartContext);
-  // eslint-disable-next-line
-  const [cart, setCart] = tyresContext;
-  // eslint-disable-next-line
+  const [products, setProducts] = tyresContext;
   const [services, setServices] = servicesContext;
+  const [cartTotal, setCartTotal] = useState(0);
 
   const [previewInvoice, setPreviewInvoice] = useState(false);
+
+  useEffect(() => {
+    let productTotal = products.reduce(
+      (productTotal, product) =>
+        productTotal + product.price * product.quantity,
+      0
+    );
+
+    let serviceTotal = services.reduce(
+      (serviceTotal, service) =>
+        serviceTotal + service.price * service.quantity,
+      0
+    );
+
+    setCartTotal(roundToTwo(productTotal + serviceTotal));
+  }, [products, services]);
 
   const handleServicesPrice = (serviceName, e) => {
     e.preventDefault(); //why use this
@@ -53,7 +68,7 @@ function Cart({ handleRefreshProducts }) {
   const handleFocus = (e) => e.target.select();
 
   const emptyCart = () => {
-    setCart([]);
+    setProducts([]);
     setServices((services) =>
       services.map((service) => {
         return {
@@ -73,41 +88,57 @@ function Cart({ handleRefreshProducts }) {
     setPreviewInvoice(false);
   };
 
+  function confirmWithoutTube() {
+    // give a warning if tube type tyre is added without tube
+    let tubeItemCodes = ["U", "Y", "W"];
+    let tubeTyreCount = products.reduce((tubeTyreCount, product) => {
+      if (product.itemCode[1] === "T") {
+        return tubeTyreCount + product.quantity;
+      }
+      return tubeTyreCount;
+    }, 0);
+
+    let tubeCount = products.reduce((tubeCount, product) => {
+      if (tubeItemCodes.includes(product.itemCode[1])) {
+        return tubeCount + product.quantity;
+      }
+      return tubeCount;
+    }, 0);
+    console.log(tubeTyreCount, tubeCount);
+    if (tubeCount < tubeTyreCount) {
+      Modal.confirm({
+        title: "Tube not added",
+        content: "You have added Tube Type Tyres without Tubes, proceed ?",
+        onOk: () => {
+          showInvoice();
+        },
+      });
+    } else {
+      showInvoice();
+    }
+  }
+
   const showInvoice = () => {
-    //setServices(services);
-    for (let i = 0; i < cart.length; i++) {
-      if (cart[i].stock < cart[i].quantity) {
-        message.error(`${cart[i].itemDesc}: Out of Stock`, 4);
+    // don't show invoice if any item is out of stock
+    for (let i = 0; i < products.length; i++) {
+      if (products[i].stock < products[i].quantity) {
+        message.error(`${products[i].itemDesc}: Out of Stock`, 3);
+        return;
       }
     }
 
-    if (cart.length === 0) {
-      for (let i = 0; i < services.length; i++) {
-        if (services[i].quantity !== 0) {
-          break;
-        }
-
-        if (i === services.length - 1 && services[i].quantity === 0) {
-          message.error(`Cart is empty !`, 2);
-          return;
-        }
-      }
+    // don't show invoice if no products/services are added
+    if (
+      products.length === 0 &&
+      services.every((service) => service.quantity === 0)
+    ) {
+      message.error(`Cart is empty !`, 2);
+      return;
     }
+
     setPreviewInvoice(true);
     return;
   };
-
-  let tyresPrice = 0;
-  for (let i = 0; i < cart.length; i++) {
-    tyresPrice = tyresPrice + cart[i].price * cart[i].quantity;
-  }
-
-  let servicesPrice = 0;
-  for (let i = 0; i < services.length; i++) {
-    servicesPrice = servicesPrice + services[i].price * services[i].quantity;
-  }
-
-  let totalPrice = roundToTwo(tyresPrice + servicesPrice);
 
   return (
     <div className="cart-container">
@@ -115,12 +146,15 @@ function Cart({ handleRefreshProducts }) {
         <div className="cart-header">
           <div className="cart-title">CART SUMMARY</div>
           <div className="cart-invoice">
-            <button className="invoice-button" onClick={() => showInvoice()}>
+            <button
+              className="invoice-button"
+              onClick={() => confirmWithoutTube()}
+            >
               Preview invoice
             </button>
             {previewInvoice ? (
               <Invoice
-                products={cart}
+                products={products}
                 services={services}
                 hideInvoice={hideInvoice}
               />
@@ -129,13 +163,13 @@ function Cart({ handleRefreshProducts }) {
         </div>
 
         <div className="cart-products">
-          {cart.map((tyre, index) => (
-            <CartTyre tyreData={tyre} key={tyre.itemCode} />
+          {products.map((product) => (
+            <CartTyre tyreData={product} key={product.itemCode} />
           ))}{" "}
         </div>
 
         <div className="cart-services">
-          {services.map((service, index) => (
+          {services.map((service) => (
             <div className="service" key={service.name}>
               <div className="service-name">{service.name}:</div>
 
@@ -166,7 +200,7 @@ function Cart({ handleRefreshProducts }) {
           ))}
         </div>
 
-        <div className="cart-total">Total price: &#x20B9;{totalPrice}</div>
+        <div className="cart-total">Total price: &#x20B9;{cartTotal}</div>
         <br />
       </div>
     </div>
