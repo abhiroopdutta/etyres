@@ -48,7 +48,7 @@ function Cart({ handleRefreshProducts }) {
         if (service.name === serviceName) {
           const updatedService = {
             ...service,
-            price: e.target.value,
+            price: parseFloat(e.target.value),
           };
           return updatedService;
         }
@@ -64,7 +64,7 @@ function Cart({ handleRefreshProducts }) {
         if (service.name === serviceName) {
           const updatedService = {
             ...service,
-            quantity: e.target.value,
+            quantity: parseInt(e.target.value),
           };
           return updatedService;
         }
@@ -112,7 +112,7 @@ function Cart({ handleRefreshProducts }) {
       }
       return tubeCount;
     }, 0);
-    console.log(tubeTyreCount, tubeCount);
+
     if (tubeCount < tubeTyreCount) {
       Modal.confirm({
         title: "Tube not added",
@@ -137,7 +137,8 @@ function Cart({ handleRefreshProducts }) {
 
     // don't show invoice if no products/services are added
     if (
-      products.length === 0 &&
+      (products.length === 0 ||
+        products.every((product) => product.quantity === 0)) &&
       services.every((service) => service.quantity === 0)
     ) {
       message.error(`Cart is empty !`, 2);

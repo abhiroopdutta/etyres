@@ -20,7 +20,7 @@ function CartTyre({ tyreData }) {
         if (product.itemCode === tyreData.itemCode) {
           const updatedProduct = {
             ...product,
-            price: e.target.value,
+            price: parseFloat(e.target.value),
           };
           return updatedProduct;
         }
@@ -38,7 +38,7 @@ function CartTyre({ tyreData }) {
         if (product.itemCode === tyreData.itemCode) {
           const updatedProduct = {
             ...product,
-            quantity: e.target.value,
+            quantity: parseInt(e.target.value),
           };
           return updatedProduct;
         }
