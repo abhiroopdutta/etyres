@@ -42,17 +42,7 @@ function Invoice({
   const [GSTTable, setGSTTable] = useState();
   const [IGSTTable, setIGSTTable] = useState();
   const [noTaxTable, setNoTaxTable] = useState();
-  const [isTaxInvoice, setIsTaxInvoice] = useState(() => {
-    if (
-      defaultCustomerDetails.GSTIN !== "" ||
-      defaultCustomerDetails.stateCode !== "" ||
-      defaultCustomerDetails.state !== ""
-    ) {
-      return true;
-    } else {
-      return false;
-    }
-  });
+  const [isTaxInvoice, setIsTaxInvoice] = useState(true);
   const [orderConfirmed, setOrderConfirmed] = useState(defaultOrderConfirmed);
   //render different tables depending on IGST customer or not
   const [IGSTRender, SetIGSTRender] = useState(() => {
@@ -219,7 +209,7 @@ function Invoice({
           icon={<PrinterFilled />}
         ></Button>
 
-        <Checkbox
+        {/* <Checkbox
           className="tax-invoice-button"
           onChange={toggleTaxInvoice}
           disabled={
@@ -228,8 +218,8 @@ function Invoice({
             customerDetails.state !== ""
           }
         >
-          Tax Invoice
-        </Checkbox>
+          No-GST Invoice
+        </Checkbox> */}
       </div>
 
       <div ref={componentRef} className="invoice-body">
