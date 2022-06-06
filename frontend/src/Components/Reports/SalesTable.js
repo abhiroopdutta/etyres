@@ -26,6 +26,14 @@ function SalesTable({ exportToExcel }) {
   const [selectedInvoice, setSelectedInvoice] = useState({});
 
   useEffect(() => {
+    if (showInvoice) {
+      document.body.style["overflow-y"] = "hidden";
+    } else {
+      document.body.style["overflow-y"] = "scroll";
+    }
+  }, [showInvoice]);
+
+  useEffect(() => {
     let didCancel = false; // avoid fetch race conditions or set state on unmounted components
     async function fetchTableData() {
       setLoading(true);

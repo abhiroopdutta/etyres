@@ -18,6 +18,14 @@ function Cart({ handleRefreshProducts }) {
   const [previewInvoice, setPreviewInvoice] = useState(false);
 
   useEffect(() => {
+    if (previewInvoice) {
+      document.body.style["overflow-y"] = "hidden";
+    } else {
+      document.body.style["overflow-y"] = "scroll";
+    }
+  }, [previewInvoice]);
+
+  useEffect(() => {
     let productTotal = products.reduce(
       (productTotal, product) =>
         productTotal + product.price * product.quantity,
