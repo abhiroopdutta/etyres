@@ -96,36 +96,6 @@ function Cart({ handleRefreshProducts }) {
     setPreviewInvoice(false);
   };
 
-  function confirmWithoutTube() {
-    // give a warning if tube type tyre is added without tube
-    let tubeItemCodes = ["U", "Y", "W"];
-    let tubeTyreCount = products.reduce((tubeTyreCount, product) => {
-      if (product.itemCode[1] === "T") {
-        return tubeTyreCount + product.quantity;
-      }
-      return tubeTyreCount;
-    }, 0);
-
-    let tubeCount = products.reduce((tubeCount, product) => {
-      if (tubeItemCodes.includes(product.itemCode[1])) {
-        return tubeCount + product.quantity;
-      }
-      return tubeCount;
-    }, 0);
-
-    if (tubeCount < tubeTyreCount) {
-      Modal.confirm({
-        title: "Tube not added",
-        content: "You have added Tube Type Tyres without Tubes, proceed ?",
-        onOk: () => {
-          showInvoice();
-        },
-      });
-    } else {
-      showInvoice();
-    }
-  }
-
   const showInvoice = () => {
     // don't show invoice if any item is out of stock
     for (let i = 0; i < products.length; i++) {
@@ -204,8 +174,9 @@ function Cart({ handleRefreshProducts }) {
 
               <div className="service-details">
                 <div className="service-price">
-                  Price:
+                  <label htmlFor="service-price">Price: </label>
                   <input
+                    id="service-price"
                     type="text"
                     value={service.price}
                     onChange={(e) => handleServicesPrice(service.name, e)}
@@ -214,8 +185,9 @@ function Cart({ handleRefreshProducts }) {
                 </div>
 
                 <div className="service-quantity">
-                  Qty:
+                  <label htmlFor="service-quantity">Qty: </label>
                   <input
+                    id="service-quantity"
                     type="number"
                     step="1"
                     min="0"

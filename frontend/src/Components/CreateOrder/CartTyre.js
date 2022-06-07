@@ -51,9 +51,9 @@ function CartTyre({ tyreData }) {
     <div className="cart-tyre">
       <div className="cart-tyre-name">{tyreData.itemDesc}</div>
       <div className="cart-tyre-details">
-        <div className="cart-tyre-CP">CP:{tyreData.costPrice}</div>
+        <div className="cart-tyre-CP">CP: {tyreData.costPrice}</div>
         <div className="cart-tyre-price">
-          <label htmlFor="price"> Price:</label>
+          <label htmlFor="price">Price: </label>
           <input
             id="price"
             type="text"
