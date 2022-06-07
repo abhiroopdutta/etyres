@@ -145,6 +145,29 @@ function Cart({ handleRefreshProducts }) {
       return;
     }
 
+    // don't show invoice if tube type tyre is added without tube
+    let tubeItemCodes = ["U", "Y", "W"];
+    let tubeTyreCount = products.reduce((tubeTyreCount, product) => {
+      if (product.itemCode[1] === "T") {
+        return tubeTyreCount + product.quantity;
+      }
+      return tubeTyreCount;
+    }, 0);
+
+    let tubeCount = products.reduce((tubeCount, product) => {
+      if (tubeItemCodes.includes(product.itemCode[1])) {
+        return tubeCount + product.quantity;
+      }
+      return tubeCount;
+    }, 0);
+
+    if (tubeCount < tubeTyreCount) {
+      message.error(
+        "You have added Tube Type Tyres without Tubes, please add tubes",
+        3
+      );
+      return;
+    }
     setPreviewInvoice(true);
     return;
   };
@@ -155,10 +178,7 @@ function Cart({ handleRefreshProducts }) {
         <div className="cart-header">
           <div className="cart-title">CART SUMMARY</div>
           <div className="cart-invoice">
-            <button
-              className="invoice-button"
-              onClick={() => confirmWithoutTube()}
-            >
+            <button className="invoice-button" onClick={() => showInvoice()}>
               Preview invoice
             </button>
             {previewInvoice ? (
