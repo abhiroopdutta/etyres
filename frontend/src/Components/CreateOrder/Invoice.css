@@ -18,6 +18,11 @@
   justify-content: center;
 }
 
+::placeholder{
+  font-weight: 300;
+  color: #b7b7b7;
+}
+
 .left-buttons-container, .right-buttons-container{
   padding: 1%;
   display: flex;
@@ -67,54 +72,35 @@
 }
 
 .invoice-details select:hover, .invoice-details input:hover{
-  background-color: rgb(255, 255, 198);
+  background-color: #fdf4db;
+}
+
+.customer-details label{ 
+display: inline-block;
+min-width: 90px;
+font-size:15px; 
+font-weight:400;
 }
 
 .customer-details input{ 
   outline: none;
-  border: 0.5px solid transparent;
-  width: 400px;
+  border: 0.5px dotted transparent;
   background-color: rgb(255, 255, 255);
   color: #000000;
-  font-size:17px;   
+  font-size:15px; 
+  width: 87%;  
   font-weight:500;
+  transition: background-color 0.1s ease-in-out, border 0.2s ease-in-out;
 }
 
 .customer-details input:hover{
-  
-  background-color: rgb(255, 255, 198);
+  background-color: #fdf4db;
 }
 
 .customer-details input:focus{
   border:0.5px dotted rgb(117, 117, 117);
-  background-color:  rgb(255, 255, 198);
-}
-
-.customer-details .name{
-  width: 550px;
-}
-
-.customer-details .address{
-  width: 535px;
-}
-.customer-details .GSTIN{
-  width: 549px;
-}
-
-.customer-details .stateCode{
-  width: 50px;
-}
-
-.customer-details .state{
-  width: 460px;
-}
-
-.customer-details .vehicleNumber{
-  width: 510px;
-}
-
-.customer-details .contact{
-  width: 539px;
+  border-radius: 5px;
+  background-color:  #fdf4db;
 }
   
 .IGST-table, .rounding-table, .GST-table, .no-tax-invoice{
@@ -123,34 +109,28 @@
   width: 100%;
 }
 
-table.IGST-table th, table.rounding-table th, table.GST-table th, table.no-tax-invoice th {
+table.IGST-table th, table.GST-table th, table.no-tax-invoice th, table.rounding-table th {
   background-color: #dddddd;
-  border: 1px solid #00000038;
-  padding:2px 4px;  
+  border: none;
+  text-align: right;
+  padding: 6px 12px;
 }
 
-table.IGST-table td, table.rounding-table td, table.GST-table td, table.no-tax-invoice td {
-  border: 1px solid #dddddd;
-  text-align: center;
-  padding: 4px;
+table.IGST-table td, table.GST-table td, table.no-tax-invoice td, table.rounding-table td {
+  text-align: right;
+  padding: 6px 12px;
+  border: none;
+  border-bottom: 1px solid #dddddd;
 }
 
-.IGST-cell{
-  width:70px;
+.invoice td:nth-child(1), .invoice th:nth-child(1){
+  text-align: left;
 }
 
 .rounding-table {
   width:30%;
   float:right;
 }
-
-.rounding-table th{
-  width:150px;
-}
-.rounding-table td{
-  width:150px;
-}
-
 
 .bank-name, .bank-details, .eoe{
   float: left;
