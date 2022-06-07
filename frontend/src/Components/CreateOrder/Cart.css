@@ -7,7 +7,7 @@
     max-height: 90vh;
     overflow-y: scroll;
     scrollbar-width: none;
-
+    
 }
 
 .cart::-webkit-scrollbar { width: 0 !important }
@@ -40,9 +40,26 @@
 
 .invoice-button {
     text-decoration: none;
-    color:rgb(24, 23, 23);
-    font-weight: 700;   
+    color:rgb(255, 255, 255);
+    font-weight: 600;
+    border: none;
+    letter-spacing: 1px;
+    border-radius: 10px;
+    padding: 7px;
+    background-color: rgb(98, 94, 94);
+    cursor: pointer;
+    transition: box-shadow 0.1s ease-in-out, transform 0.2s ease-in-out, background-color 0.1s ease-in-out;
+
 } 
+
+.invoice-button:active{
+    box-shadow: 0 2px rgb(70, 69, 69); 
+    transform: translateY(2px);
+}
+
+.invoice-button:hover{
+    background-color: rgb(70, 69, 69); 
+}
 
 .cart-products{
     padding-top: 10px;
@@ -65,6 +82,7 @@
 .service-name{
     color:rgb(41, 40, 40);
     font-weight:700;
+    text-transform: uppercase;
     /* background-color: rgb(93, 190, 255); */
 }
 
@@ -116,7 +134,7 @@
 .cart-total{
     padding-top:15px;
     font-size: 25px;
-    font-weight: 800;
+    font-weight: 700;
     color:rgb(24, 23, 23);
 }
 

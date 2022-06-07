@@ -201,7 +201,7 @@ function Cart({ handleRefreshProducts }) {
           ))}
         </div>
 
-        <div className="cart-total">Total price: &#x20B9;{cartTotal}</div>
+        <div className="cart-total">TOTAL: &#x20B9;{cartTotal}</div>
         <br />
       </div>
     </div>

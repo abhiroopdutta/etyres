@@ -74,8 +74,13 @@ function CartTyre({ tyreData }) {
             onFocus={handleFocus}
           />
         </div>
-        <div className="cart-tyre-button">
-          <button onClick={() => removeFromCart(tyreData)}>Remove</button>
+        <div>
+          <button
+            className="cart-tyre-button"
+            onClick={() => removeFromCart(tyreData)}
+          >
+            &times;
+          </button>
         </div>
       </div>
     </div>
