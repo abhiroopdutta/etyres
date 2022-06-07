@@ -94,21 +94,23 @@
 .cart-services input{
     max-width: 80px;
     outline: none;
-    border: 1px solid transparent;
-    background-color: rgb(255, 255, 210);
+    border: 0.5px dotted transparent;
+    border-radius: 5px;
+    background-color: #fdf4db;
     color: #000000;
     font-size:medium;   
     font-weight:500;
+    transition: background-color 0.1s ease-in-out, border 0.2s ease-in-out;
 }
 
 
 .cart-services input:focus{
     border:0.5px dotted rgb(117, 117, 117);
-    background-color: rgb(252, 252, 166);
+    background-color: #fbebbd;
 }
 
 .cart-services input:hover{
-    background-color: rgb(252, 252, 166);
+    background-color: #fbebbd;
 }
 
 .cart-total{

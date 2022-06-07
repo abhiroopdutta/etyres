@@ -15,6 +15,7 @@
     padding-top: 4px;
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
 }
 
 .cart-tyre-CP{
@@ -47,9 +48,10 @@
 .cart-tyre input{
     /* min-width: 50px;*/
     max-width: 80px; 
-    border: 1px solid transparent;
+    border: 0.5px solid transparent;
+    border-radius: 5px;
     outline: none;
-    background-color: rgb(255, 255, 210);
+    background-color: #fdf4db;
     color: #000000;
     font-size:medium;   
     font-weight:500;
@@ -57,10 +59,10 @@
 
 .cart-tyre input:focus{
     border:0.5px dotted rgb(117, 117, 117);
-    background-color: rgb(252, 252, 166);
+    background-color: #fbebbd;
 }
 
 .cart-tyre input:hover{
-    background-color: rgb(252, 252, 166);
+    background-color: #fbebbd;
 }
 
