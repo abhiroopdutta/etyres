@@ -255,9 +255,7 @@ function Invoice({
             </select>
           </header>
         </div>
-        <br />
         <hr />
-        <br />
         <br />
         <div className="customer-details">
           <label htmlFor="name">Bill To: </label>
@@ -269,6 +267,7 @@ function Invoice({
             value={customerDetails.name}
             onChange={handleCustomerDetails}
             disabled={orderConfirmed}
+            placeholder={orderConfirmed ? null : "Customer Name"}
           />
           <br />
           <label htmlFor="address">Address: </label>
@@ -280,8 +279,32 @@ function Invoice({
             value={customerDetails.address}
             onChange={handleCustomerDetails}
             disabled={orderConfirmed}
+            placeholder={orderConfirmed ? null : "Customer Address"}
           />
           <br />
+          <label htmlFor="vehicleNumber">Vehicle No. : </label>
+          <input
+            id="vehicleNumber"
+            name="vehicleNumber"
+            className="vehicleNumber"
+            type="text"
+            value={customerDetails.vehicleNumber}
+            onChange={handleCustomerDetails}
+            disabled={orderConfirmed}
+            placeholder={orderConfirmed ? null : "Customer Vehicle No."}
+          />
+          <br />
+          <label htmlFor="contact">Contact: </label>
+          <input
+            id="contact"
+            name="contact"
+            className="contact"
+            type="text"
+            value={customerDetails.contact}
+            onChange={handleCustomerDetails}
+            disabled={orderConfirmed}
+            placeholder={orderConfirmed ? null : "Customer Contact Number"}
+          />
           {isTaxInvoice ? (
             <section className="customer-details-gst">
               <label htmlFor="GSTIN">GSTIN: </label>
@@ -294,6 +317,7 @@ function Invoice({
                 value={customerDetails.GSTIN}
                 onChange={handleIGST}
                 disabled={orderConfirmed}
+                placeholder={orderConfirmed ? null : "Customer GSTIN"}
               />
               <br />
               <label htmlFor="stateCode">Code: </label>
@@ -306,7 +330,9 @@ function Invoice({
                 onChange={handleCustomerDetails}
                 maxLength="2"
                 disabled={orderConfirmed}
+                placeholder={orderConfirmed ? null : "GST State Code"}
               />
+              <br />
               <label htmlFor="state">State: </label>
               <input
                 id="state"
@@ -316,31 +342,11 @@ function Invoice({
                 value={customerDetails.state}
                 onChange={handleCustomerDetails}
                 disabled={orderConfirmed}
+                placeholder={orderConfirmed ? null : "GST State"}
               />
               <br />
             </section>
           ) : null}
-          <label htmlFor="vehicleNumber">Vehicle No. : </label>
-          <input
-            id="vehicleNumber"
-            name="vehicleNumber"
-            className="vehicleNumber"
-            type="text"
-            value={customerDetails.vehicleNumber}
-            onChange={handleCustomerDetails}
-            disabled={orderConfirmed}
-          />
-          <br />
-          <label htmlFor="contact">Contact: </label>
-          <input
-            id="contact"
-            name="contact"
-            className="contact"
-            type="text"
-            value={customerDetails.contact}
-            onChange={handleCustomerDetails}
-            disabled={orderConfirmed}
-          />
         </div>
 
         <br />
@@ -352,31 +358,13 @@ function Invoice({
                 <table className="IGST-table">
                   <thead>
                     <tr>
-                      <th className="particulars" rowSpan="2">
-                        Particulars
-                      </th>
-                      <th className="HSNCode" rowSpan="2">
-                        HSN-Code
-                      </th>
-                      <th className="Qty" rowSpan="2">
-                        Qty
-                      </th>
-                      <th className="Rate-per-item" rowSpan="2">
-                        Rate per Item
-                      </th>
-                      <th className="taxable-value" rowSpan="2">
-                        Taxable value
-                      </th>
-                      <th colSpan="2" scope="colgroup">
-                        IGST
-                      </th>
-                      <th className="value" rowSpan="2">
-                        Value
-                      </th>
-                    </tr>
-                    <tr>
-                      <th scope="col">Rate</th>
-                      <th scope="col">Amt</th>
+                      <th className="particulars">Particulars</th>
+                      <th className="HSNCode">HSN</th>
+                      <th className="Qty">Qty</th>
+                      <th className="Rate-per-item">Rate per Item</th>
+                      <th className="taxable-value">Taxable value</th>
+                      <th>IGST</th>
+                      <th className="value">Value</th>
                     </tr>
                   </thead>
 
@@ -389,9 +377,11 @@ function Invoice({
                         <td>{tyre.ratePerItem}</td>
                         <td>{tyre.taxableValue}</td>
                         <td className="IGST-cell">
-                          {Math.round(tyre.IGST * 100)}%
+                          {String(tyre.IGSTAmount) +
+                            " (" +
+                            String(Math.round(tyre.IGST * 100)) +
+                            "%)"}
                         </td>
-                        <td> {tyre.IGSTAmount} </td>
                         <td>{tyre.value}</td>
                       </tr>
                     ))}
@@ -404,7 +394,6 @@ function Invoice({
                       <td>{IGSTTable?.total.quantity}</td>
                       <td>-</td>
                       <td>{IGSTTable?.total.taxableValue}</td>
-                      <td>-</td>
                       <td>{IGSTTable?.total.IGSTAmount}</td>
                       <td>{IGSTTable?.total.value}</td>
                     </tr>
@@ -414,16 +403,14 @@ function Invoice({
                 <table className="rounding-table">
                   <thead>
                     <tr>
-                      <th>Rounding off</th>
+                      <td>Round Off</td>
                       <td>{IGSTTable?.invoiceRoundOff}</td>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <th>Total</th>
-                      <td>
-                        <strong>&#x20B9;{IGSTTable?.invoiceTotal}</strong>
-                      </td>
+                      <th>TOTAL</th>
+                      <th>&#x20B9;{IGSTTable?.invoiceTotal}</th>
                     </tr>
                   </tbody>
                 </table>
@@ -433,36 +420,14 @@ function Invoice({
                 <table className="GST-table">
                   <thead>
                     <tr>
-                      <th className="particulars" rowSpan="2">
-                        Particulars
-                      </th>
-                      <th className="HSNCode" rowSpan="2">
-                        HSN-Code
-                      </th>
-                      <th className="Qty" rowSpan="2">
-                        Qty
-                      </th>
-                      <th className="Rate-per-item" rowSpan="2">
-                        Rate per Item
-                      </th>
-                      <th className="taxable-value" rowSpan="2">
-                        Taxable value
-                      </th>
-                      <th colSpan="2" scope="colgroup">
-                        CGST
-                      </th>
-                      <th colSpan="2" scope="colgroup">
-                        SGST
-                      </th>
-                      <th className="value" rowSpan="2">
-                        Value
-                      </th>
-                    </tr>
-                    <tr>
-                      <th scope="col">Rate</th>
-                      <th scope="col">Amt</th>
-                      <th scope="col">Rate</th>
-                      <th scope="col">Amt</th>
+                      <th className="particulars">Particulars</th>
+                      <th className="HSNCode">HSN</th>
+                      <th className="Qty">Qty</th>
+                      <th className="Rate-per-item">Rate per Item</th>
+                      <th className="taxable-value">Taxable value</th>
+                      <th>CGST</th>
+                      <th>SGST</th>
+                      <th className="value">Value</th>
                     </tr>
                   </thead>
 
@@ -474,10 +439,18 @@ function Invoice({
                         <td>{tyre.quantity}</td>
                         <td>{tyre.ratePerItem}</td>
                         <td>{tyre.taxableValue}</td>
-                        <td>{Math.round(tyre.CGST * 100)}%</td>
-                        <td>{tyre.CGSTAmount}</td>
-                        <td>{Math.round(tyre.SGST * 100)}%</td>
-                        <td>{tyre.SGSTAmount}</td>
+                        <td>
+                          {String(tyre.CGSTAmount) +
+                            " (" +
+                            String(Math.round(tyre.CGST * 100)) +
+                            "%)"}
+                        </td>
+                        <td>
+                          {String(tyre.SGSTAmount) +
+                            " (" +
+                            String(Math.round(tyre.SGST * 100)) +
+                            "%)"}
+                        </td>
                         <td>{tyre.value}</td>
                       </tr>
                     ))}
@@ -489,10 +462,18 @@ function Invoice({
                         <td>{service.quantity}</td>
                         <td>{service.ratePerItem}</td>
                         <td>{service.taxableValue}</td>
-                        <td>{Math.round(service.CGST * 100)}%</td>
-                        <td>{service.CGSTAmount}</td>
-                        <td>{Math.round(service.SGST * 100)}%</td>
-                        <td>{service.SGSTAmount}</td>
+                        <td>
+                          {String(service.CGSTAmount) +
+                            " (" +
+                            String(Math.round(service.CGST * 100)) +
+                            "%)"}
+                        </td>
+                        <td>
+                          {String(service.SGSTAmount) +
+                            " (" +
+                            String(Math.round(service.SGST * 100)) +
+                            "%)"}
+                        </td>
                         <td>{service.value}</td>
                       </tr>
                     ))}
@@ -500,14 +481,12 @@ function Invoice({
 
                   <tfoot>
                     <tr>
-                      <th>Net Amount</th>
+                      <td>Net Amount</td>
                       <td>-</td>
                       <td>{GSTTable?.total.quantity}</td>
                       <td>-</td>
                       <td>{GSTTable?.total.taxableValue}</td>
-                      <td>-</td>
                       <td>{GSTTable?.total.CGSTAmount}</td>
-                      <td>-</td>
                       <td>{GSTTable?.total.SGSTAmount}</td>
                       <td>{GSTTable?.total.value}</td>
                     </tr>
@@ -517,17 +496,15 @@ function Invoice({
                 <table className="rounding-table">
                   <thead>
                     <tr>
-                      <th>Rounding off</th>
+                      <td>Round off</td>
                       <td>{GSTTable?.invoiceRoundOff}</td>
                     </tr>
                   </thead>
 
                   <tbody>
                     <tr>
-                      <th>Total</th>
-                      <td>
-                        <strong>&#x20B9;{GSTTable?.invoiceTotal}</strong>
-                      </td>
+                      <th>TOTAL</th>
+                      <th>&#x20B9; {GSTTable?.invoiceTotal}</th>
                     </tr>
                   </tbody>
                 </table>
@@ -596,6 +573,7 @@ function Invoice({
           </div>
         )}
 
+        <br />
         <br />
         <br />
         <br />
