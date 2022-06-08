@@ -56,6 +56,10 @@ function Invoice({
       return true;
     }
   });
+  const componentRef = useRef(null);
+  const handlePrintInvoice = useReactToPrint({
+    content: () => componentRef.current,
+  });
 
   //Get invoice number from backend
   useEffect(() => {
@@ -135,7 +139,7 @@ function Invoice({
     }));
   };
 
-  const handleConfirmOrder = () => {
+  const handleConfirmOrder = (e) => {
     //prepare full invoice data to send to backend
     let invoiceData = {
       invoiceNumber: invoiceNumber,
@@ -181,6 +185,7 @@ function Invoice({
     };
 
     place_order();
+    e.stopPropagation();
   };
 
   const toggleTaxInvoice = () => {
@@ -193,18 +198,22 @@ function Invoice({
     setIsTaxInvoice((isTaxInvoice) => !isTaxInvoice);
   };
   console.log(customerDetails);
-  const componentRef = useRef(null);
-  const handlePrintInvoice = useReactToPrint({
-    content: () => componentRef.current,
-  });
 
   return (
-    <div className="invoice">
+    <div
+      className="invoice"
+      onClick={() => {
+        hideInvoice(orderConfirmed);
+      }}
+    >
       <div className="left-buttons-container">
         <Button
           size="large"
           disabled={!orderConfirmed}
-          onClick={handlePrintInvoice}
+          onClick={(e) => {
+            handlePrintInvoice();
+            e.stopPropagation();
+          }}
           type="default"
           icon={<PrinterFilled />}
         ></Button>
@@ -222,7 +231,11 @@ function Invoice({
         </Checkbox> */}
       </div>
 
-      <div ref={componentRef} className="invoice-body">
+      <div
+        ref={componentRef}
+        className="invoice-body"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="invoice-header">
           <header className="shop-details">
             <h4>EUREKA TYRES</h4>
@@ -303,7 +316,7 @@ function Invoice({
             value={customerDetails.contact}
             onChange={handleCustomerDetails}
             disabled={orderConfirmed}
-            placeholder={orderConfirmed ? null : "Customer Contact Number"}
+            placeholder={orderConfirmed ? null : "Customer Contact No."}
           />
           {isTaxInvoice ? (
             <section className="customer-details-gst">
@@ -612,7 +625,9 @@ function Invoice({
         <Button
           type="default"
           disabled={orderConfirmed}
-          onClick={handleConfirmOrder}
+          onClick={(e) => {
+            handleConfirmOrder(e);
+          }}
         >
           CONFIRM ORDER
         </Button>
