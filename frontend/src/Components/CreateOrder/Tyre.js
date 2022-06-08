@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { CartContext } from "./CartContext";
 import "./Tyre.css";
 import TyreImg from "./tyre-img.png";
+import tubeImg from "./tube.png";
 
 //object deconstruction in props
 function Tyre({ tyreData }) {
@@ -53,7 +54,14 @@ function Tyre({ tyreData }) {
     <div className="product">
       <div className="product-title">{tyreData.itemDesc}</div>
       <div className="product-image">
-        <img src={TyreImg} alt="tyre" width="80" height="120" />
+        <img
+          src={
+            ["U", "Y", "W"].includes(tyreData.itemCode[1]) ? tubeImg : TyreImg
+          }
+          alt="tyre"
+          width="80"
+          height="120"
+        />
       </div>
       <div className="product-code">{tyreData.itemCode}</div>
       <div className="product-cost-price">
