@@ -90,6 +90,7 @@ font-weight:400;
   font-size:15px; 
   width: 87%;  
   font-weight:500;
+  border-radius: 5px;
   transition: background-color 0.1s ease-in-out, border 0.2s ease-in-out;
 }
 
@@ -99,7 +100,6 @@ font-weight:400;
 
 .customer-details input:focus{
   border:0.5px dotted rgb(117, 117, 117);
-  border-radius: 5px;
   background-color:  #fdf4db;
 }
   
