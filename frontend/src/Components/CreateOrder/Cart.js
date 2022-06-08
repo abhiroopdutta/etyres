@@ -3,7 +3,8 @@ import { CartContext } from "./CartContext";
 import CartTyre from "./CartTyre";
 import "./Cart.css";
 import Invoice from "./Invoice";
-import { message, Modal } from "antd";
+import { message } from "antd";
+import { useTransition, animated } from "@react-spring/web";
 
 function roundToTwo(num) {
   return +(Math.round(num + "e+2") + "e-2");
@@ -16,12 +17,20 @@ function Cart({ handleRefreshProducts }) {
   const [cartTotal, setCartTotal] = useState(0);
 
   const [previewInvoice, setPreviewInvoice] = useState(false);
+  const transitions = useTransition(previewInvoice, {
+    from: { opacity: 0 },
+    enter: { opacity: 1 },
+    leave: { opacity: 0 },
+  });
 
   useEffect(() => {
+    let scrollBarWidth = window.innerWidth - document.body.clientWidth;
     if (previewInvoice) {
-      document.body.style["overflow-y"] = "hidden";
+      document.body.style.overflowY = "hidden";
+      document.body.style.width = `calc(100% - ${scrollBarWidth}px)`;
     } else {
-      document.body.style["overflow-y"] = "scroll";
+      document.body.style.overflowY = "scroll";
+      document.body.style.width = `100%`;
     }
   }, [previewInvoice]);
 
@@ -151,13 +160,17 @@ function Cart({ handleRefreshProducts }) {
             <button className="invoice-button" onClick={() => showInvoice()}>
               Preview invoice
             </button>
-            {previewInvoice ? (
-              <Invoice
-                products={products}
-                services={services}
-                hideInvoice={hideInvoice}
-              />
-            ) : null}
+            {transitions((styles, previewInvoice) =>
+              previewInvoice ? (
+                <animated.div style={styles}>
+                  <Invoice
+                    products={products}
+                    services={services}
+                    hideInvoice={hideInvoice}
+                  />
+                </animated.div>
+              ) : null
+            )}
           </div>
         </div>
 
