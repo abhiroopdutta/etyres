@@ -18,7 +18,7 @@ function Cart({ handleRefreshProducts }) {
 
   const [previewInvoice, setPreviewInvoice] = useState(false);
   const transitions = useTransition(previewInvoice, {
-    config: { mass: 1, tension: 500, friction: 60, clamp: true },
+    config: { mass: 1, tension: 500, friction: 40, clamp: true },
     from: { opacity: 0 },
     enter: { opacity: 1 },
     leave: { opacity: 0 },
@@ -218,7 +218,6 @@ function Cart({ handleRefreshProducts }) {
         </div>
 
         <div className="cart-total">TOTAL: &#x20B9;{cartTotal}</div>
-        <br />
       </div>
     </div>
   );
