@@ -18,7 +18,7 @@ function Cart({ handleRefreshProducts }) {
 
   const [previewInvoice, setPreviewInvoice] = useState(false);
   const transitions = useTransition(previewInvoice, {
-    config: { mass: 1, tension: 500, friction: 30, clamp: true },
+    config: { mass: 1, tension: 500, friction: 60, clamp: true },
     from: { opacity: 0 },
     enter: { opacity: 1 },
     leave: { opacity: 0 },
@@ -30,8 +30,10 @@ function Cart({ handleRefreshProducts }) {
       document.body.style.overflowY = "hidden";
       document.body.style.width = `calc(100% - ${scrollBarWidth}px)`;
     } else {
-      document.body.style.overflowY = "scroll";
-      document.body.style.width = `100%`;
+      setTimeout(() => {
+        document.body.style.overflowY = "scroll";
+        document.body.style.width = `100%`;
+      }, 300);
     }
   }, [previewInvoice]);
 
