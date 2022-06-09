@@ -37,12 +37,24 @@ function SalesTable({ exportToExcel }) {
     let didCancel = false; // avoid fetch race conditions or set state on unmounted components
     async function fetchTableData() {
       setLoading(true);
+
+      let dateChangedFilters = filters;
+      if (filters.invoiceDate.start && filters.invoiceDate.end) {
+        dateChangedFilters = {
+          ...filters,
+          invoiceDate: {
+            start: filters.invoiceDate.start.format("YYYY-MM-DD"),
+            end: filters.invoiceDate.end.format("YYYY-MM-DD"),
+          },
+        };
+      }
+
       const requestOptions = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           reportType: "sale",
-          filters: filters,
+          filters: dateChangedFilters,
           sorters: sorters,
           pageRequest: pageRequest,
           maxItemsPerPage: maxItemsPerPage,
@@ -134,14 +146,13 @@ function SalesTable({ exportToExcel }) {
     setFilters((prevFilters) => ({
       ...prevFilters,
       [dataIndex]: {
-        start: selectedKeys[0]?.format("YYYY-MM-DD") ?? "",
-        end: selectedKeys[1]?.format("YYYY-MM-DD") ?? "",
+        start: selectedKeys[0] ?? "",
+        end: selectedKeys[1] ?? "",
       },
     }));
     setPageRequest(1);
     confirm();
   };
-
   const handlePageChange = (pagination) => {
     let itemsAlreadyRequested = (pagination.current - 1) * pagination.pageSize;
     if (itemsAlreadyRequested <= pagination.total)
@@ -181,6 +192,7 @@ function SalesTable({ exportToExcel }) {
         }
       },
       render: (invoiceNumber) => (invoiceNumber >= 1 ? invoiceNumber : null),
+      filteredValue: filters.invoiceNumber ? [filters.invoiceNumber] : null,
     },
     {
       title: "Invoice Date",
@@ -191,6 +203,10 @@ function SalesTable({ exportToExcel }) {
           ? dayjsUTC(invoiceDate["$date"]).format("DD/MM/YYYY")
           : null,
       ...getDateRangeMenu("invoiceDate"),
+      filteredValue:
+        filters.invoiceDate.start && filters.invoiceDate.end
+          ? [filters.invoiceDate.start, filters.invoiceDate.end]
+          : null,
     },
     {
       title: "Invoice Total",
@@ -209,6 +225,7 @@ function SalesTable({ exportToExcel }) {
           setTimeout(() => searchInputRef.current.select(), 100);
         }
       },
+      filteredValue: filters.customerName ? [filters.customerName] : null,
     },
     {
       title: "Action",
