@@ -1,9 +1,5 @@
-hr{
+.invoice-with-new-items-hr hr{
     margin: 0px 0px 10px 0px;
-}
-
-h5{
-    margin: 0;
 }
 
 .invoice-with-new-items{
@@ -13,6 +9,24 @@ h5{
     display: flex;
     flex-direction: column;
 }
+
+.invoice-with-new-items-table{
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+table.invoice-with-new-items-table th {
+    background-color: #dddddd;
+    border: 1px solid #00000038;
+    padding:2px 4px;  
+  }
+  
+table.invoice-with-new-items-table td {
+    border: 1px solid #dddddd;
+    text-align: center;
+    padding: 4px;
+  }
 
 .header{
     display: flex;

@@ -1,13 +1,14 @@
 from flask import Flask,jsonify, request, Response
 from flask import send_from_directory, abort
 from db import initialize_db
-from update_price import update_price, load_to_db
+from update_price import get_pv_price_details, update_price, load_to_db
 from update_stock import read_invoices, update_stock, process_invoice
 from create_order import create_order, compute_gst_tables
 from sales_report import report_handler, reset_stock, get_sales_report
 from models import Product, Purchase, Sale
 from datetime import date, datetime
 import os
+import json
 
 app = Flask(__name__)
 app.config['MONGODB_SETTINGS'] = {
@@ -20,14 +21,20 @@ initialize_db(app)
 
 app.config["CLIENT_CSV"] = "./tempdata/sales_report"
 
+@app.route("/api/pv_price_details", methods = ['GET'])
+def price_details():
+    result = get_pv_price_details()
+    return jsonify(result)
+
 @app.route("/api/update_price", methods=['POST'])
 def update_inventory():
     uploaded_file = request.files['file']
+    price_details = json.loads(request.form["priceDetails"])
     if uploaded_file.filename != '':
         new_name = str(datetime.now()).replace(" ", "_")+uploaded_file.filename
         filepath = "./tempdata/"+new_name
         uploaded_file.save(filepath)
-        update_price(filepath)
+        update_price(price_details, filepath)
         return jsonify("Price List Updated")
     return jsonify("we didn't get it")
 
@@ -86,6 +93,8 @@ def stock_out():
         return jsonify("Error! invoice is empty"), 400
     elif status == 2:
         return jsonify("Error! invoice date selected is older than previous invoice date"), 400
+    elif status == 3:
+        return jsonify("Error! Item out of stock!", 400)
 
 @app.route("/api/sales_invoice_number", methods = ['GET'])
 def sales_invoice_number():
@@ -107,7 +116,8 @@ def hello_world():
         "3_wheeler_tube",
         "scv_tyre",
         "scv_tube",
-        "tubeless_valve"
+        "tubeless_valve",
+        "loose_tube/flaps_tube"
         ]).to_json()
     return Response(products, mimetype="application/json", status=200)
 
@@ -116,8 +126,8 @@ def stock_reset():
     status = reset_stock()
     return jsonify(status)
 
-@app.route("/api/sales_report", methods = ['POST'])
-def sales_report_excel():
+@app.route("/api/reports", methods = ['POST'])
+def get_reports():
     report_req_info = request.get_json()
     filename = report_handler(report_req_info)
     return jsonify(filename)
@@ -130,10 +140,6 @@ def download():
     except FileNotFoundError:
         abort(404)
 
-@app.route("/api/sales_invoices", methods = ['POST'])
-def get_invoices():
-    query = request.get_json()
-    return get_sales_report(**query), 200
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

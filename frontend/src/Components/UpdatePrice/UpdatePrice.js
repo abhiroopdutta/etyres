@@ -1,20 +1,46 @@
-import React, { useState } from "react";
-import "./UpdatePrice.css";
+import React, { useState, useEffect, useRef } from "react";
+import { Table, Layout, Typography, Input, Button, message, Modal } from "antd";
+const { Title } = Typography;
+const { Content } = Layout;
 
 function UpdatePrice() {
   const [selectedFile, setSelectedFile] = useState();
-  const [successMsg, setSuccessMsg] = useState("");
-  const [showLoader, setShowLoader] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [priceDetails, setPriceDetails] = useState([]);
+  const inputFileRef = useRef();
 
-  const changeHandler = (event) => {
+  useEffect(() => {
+    async function getPriceDetails() {
+      try {
+        const response = await fetch("/api/pv_price_details");
+        const result = await response.json();
+        if (response.ok) {
+          setPriceDetails(result);
+        }
+      } catch (err) {
+        Modal.error({
+          content: err.message,
+        });
+        console.log(err.message);
+      }
+    }
+    getPriceDetails();
+  }, []);
+
+  function changeHandler(event) {
     setSelectedFile(event.target.files[0]);
-  };
+  }
 
-  const handleSubmission = (e) => {
+  function handleSubmission(e) {
+    if (!selectedFile) {
+      message.error("No file selected", 2);
+      return;
+    }
     e.preventDefault();
-    setShowLoader(true);
+    setLoading(true);
     const formData = new FormData();
     formData.append("file", selectedFile);
+    formData.append("priceDetails", JSON.stringify(priceDetails));
 
     fetch("/api/update_price", {
       method: "POST",
@@ -22,45 +48,123 @@ function UpdatePrice() {
     })
       .then((response) => response.json())
       .then((result) => {
-        setShowLoader(false);
-        alert(result);
+        setLoading(false);
+        inputFileRef.current.value = "";
+        Modal.success({
+          content: result,
+        });
       })
       .catch((error) => {
         console.error("Error:", error);
       });
-  };
+  }
+
+  function handlePriceDetailChange(e, index) {
+    setPriceDetails((prevState) => {
+      let prevStateCopy = [...prevState];
+      prevStateCopy[index] = {
+        ...prevStateCopy[index],
+        [e.target.name]: e.target.value,
+      };
+      return prevStateCopy;
+    });
+  }
+  const columns = [
+    {
+      title: "Category",
+      dataIndex: "vehicleType",
+      key: "vehicleType",
+    },
+    {
+      title: "SPD",
+      dataIndex: "spd",
+      key: "spd",
+      render: (column_value, column, index) => (
+        <Input
+          value={priceDetails[index].spd}
+          name="spd"
+          style={{ marginBottom: 8, display: "block", width: 60 }}
+          onChange={(e) => handlePriceDetailChange(e, index)}
+          disabled={loading}
+        />
+      ),
+    },
+    {
+      title: "PLSD",
+      dataIndex: "plsd",
+      key: "plsd",
+      render: (column_value, column, index) => (
+        <Input
+          value={priceDetails[index].plsd}
+          name="plsd"
+          style={{ marginBottom: 8, display: "block", width: 60 }}
+          onChange={(e) => handlePriceDetailChange(e, index)}
+          disabled={loading}
+        />
+      ),
+    },
+    {
+      title: "Tyre Freight",
+      dataIndex: "tyreFreight",
+      key: "tyreFreight",
+      render: (column_value, column, index) => (
+        <Input
+          value={priceDetails[index].tyreFreight}
+          name="tyreFreight"
+          style={{ marginBottom: 8, display: "block", width: 60 }}
+          onChange={(e) => handlePriceDetailChange(e, index)}
+          disabled={loading}
+        />
+      ),
+    },
+    {
+      title: "Tube Freight",
+      dataIndex: "tubeFreight",
+      key: "tubeFreight",
+      render: (column_value, column, index) => (
+        <Input
+          value={priceDetails[index].tubeFreight}
+          name="tubeFreight"
+          style={{ marginBottom: 8, display: "block", width: 60 }}
+          onChange={(e) => handlePriceDetailChange(e, index)}
+          disabled={loading}
+        />
+      ),
+    },
+  ];
 
   return (
-    <div className="update-price">
-      <h3>
+    <Layout
+      style={{
+        background: "rgba(256, 256, 256)",
+        maxWidth: "40%",
+        margin: "44px",
+      }}
+    >
+      <Title level={4}>
         Upload price list xlsx to update price or add new items in inventory
-      </h3>
-      <form method="POST" action="" encType="multipart/form-data">
-        <p>
-          <input type="file" name="file" onChange={changeHandler} />
-        </p>
-        <p>
-          <input type="submit" value="Submit" onClick={handleSubmission} />
-        </p>
-        <p>{successMsg}</p>
-        {showLoader ? (
-          <div className="lds-spinner">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-          </div>
-        ) : null}
-      </form>
-    </div>
+      </Title>
+      <Content>
+        <Table
+          style={{
+            marginBottom: "40px",
+          }}
+          columns={columns}
+          dataSource={priceDetails}
+          pagination={false}
+          rowKey={(item) => item.vehicleType}
+        ></Table>
+        <input
+          ref={inputFileRef}
+          disabled={loading}
+          type="file"
+          onChange={changeHandler}
+        />
+        <Button loading={loading} onClick={handleSubmission}>
+          Submit
+        </Button>
+      </Content>
+    </Layout>
   );
 }
 

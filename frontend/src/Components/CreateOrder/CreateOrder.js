@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Cart from "./Cart";
 import Products from "./Products";
-import "./Shop.css";
+import "./CreateOrder.css";
 import { CartProvider } from "./CartContext"; //understand objects in JS, and deconstructuring
 
 function CreateOrder() {

@@ -12,17 +12,19 @@
 }
 
 .products input:focus{
-    background-color: rgb(252, 252, 166);
+    background-color: #fdf4db;
 }
 
 .products input:hover{
-    background-color: rgb(252, 252, 166);
+    background-color: #fdf4db;
 }
 
 .product-filters{
     display: flex;
     /* background-color: lime; */
     justify-content: flex-start;
+    align-items: flex-end;
+    column-gap: 15px;
     padding-left: 23px;
 }
 

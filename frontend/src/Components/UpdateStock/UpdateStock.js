@@ -1,20 +1,159 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef, useReducer, useEffect } from "react";
 import "./UpdateStock.css";
 import PurchaseInvoice from "./PurchaseInvoice";
 import InvoiceWithNewItems from "./InvoiceWithNewItems.js";
+import { Modal } from "antd";
+
+function invoicesReducer(invoices, action) {
+  switch (action.type) {
+    case "SET_INVOICES": {
+      return action.value;
+    }
+
+    case "UPDATE_INVOICE_FIELD": {
+      return invoices.map((invoice) => {
+        if (invoice.invoice_number === action.invoiceNumber) {
+          const updatedInvoice = {
+            ...invoice,
+            [action.field]: action.value,
+          };
+          return updatedInvoice;
+        }
+        return invoice;
+      });
+    }
+
+    case "UPDATE_CLAIM_OVERWRITE_SPECIAL": {
+      return invoices.map((invoice) => {
+        if (invoice.invoice_number === action.invoiceNumber) {
+          const updatedInvoice = {
+            ...invoice,
+            claim_invoice: false,
+            overwrite_price_list: false,
+            special_discount: false,
+          };
+          updatedInvoice[action.field] = action.value;
+          return updatedInvoice;
+        }
+        return invoice;
+      });
+    }
+
+    case "UPDATE_CLAIM_NUMBER": {
+      return invoices.map((invoice) => {
+        if (invoice.invoice_number === action.invoiceNumber) {
+          const updatedInvoice = {
+            ...invoice,
+            claim_items: invoice.claim_items.map((item, index) => {
+              if (index === action.claimIndex) {
+                const updatedItem = { ...item, claim_number: action.value };
+                return updatedItem;
+              }
+              return item;
+            }),
+          };
+          return updatedInvoice;
+        }
+        return invoice;
+      });
+    }
+
+    case "APPEND_INVOICE": {
+      return [...invoices, action.newInvoice];
+    }
+
+    default:
+      return invoices;
+  }
+}
+
+function invoicesWithNewItemsReducer(invoices, action) {
+  switch (action.type) {
+    case "SET_INVOICES": {
+      return action.value;
+    }
+
+    case "UPDATE_ITEM_STATUS": {
+      console.log(action);
+      return invoices.map((invoice) => {
+        if (invoice.invoice_number === action.invoiceNumber) {
+          const updatedInvoice = {
+            ...invoice,
+            items: invoice.items.map((item) => {
+              if (item.item_code === action.itemCode) {
+                const updatedItem = { ...item, not_found_in_inventory: false };
+                return updatedItem;
+              }
+              return item;
+            }),
+          };
+          return updatedInvoice;
+        }
+        return invoice;
+      });
+    }
+
+    case "DELETE_INVOICE": {
+      return invoices.filter(
+        (invoice) => invoice.invoice_number !== action.invoiceNumber
+      );
+    }
+
+    default:
+      return invoices;
+  }
+}
 
 function UpdateStock() {
-  const [invoices, setInvoices] = useState([]);
-  const [invoicesWithNewItems, setInvoicesWithNewItems] = useState([]);
+  const [invoices, dispatchInvoices] = useReducer(invoicesReducer, []);
+  const [invoicesWithNewItems, dispatchInvoicesWithNewItems] = useReducer(
+    invoicesWithNewItemsReducer,
+    []
+  );
   const [existingInvoices, setExistingInvoices] = useState([]);
-  const [successMessage, setSuccessMessage] = useState("");
+  const inputFileRef = useRef();
 
-  //TO DO
-  // useEffect(() => {
-  //   setInvoices([]);
-  //   setInvoicesWithNewItems([]);
-  //   setExistingInvoices([]);
-  // }, [successMessage]);
+  useEffect(() => {
+    function readyToConvert(invoiceWithNewItems) {
+      return invoiceWithNewItems.items.every(
+        (item) => item.not_found_in_inventory === false
+      );
+    }
+    const invoiceToConvert = invoicesWithNewItems.find(readyToConvert);
+    if (invoiceToConvert) {
+      convertToNormalInvoice(invoiceToConvert);
+    }
+
+    async function convertToNormalInvoice(invoiceToConvert) {
+      let body = {
+        invoice_number: invoiceToConvert.invoice_number,
+        items: invoiceToConvert.items,
+      };
+      const requestOptions = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      };
+
+      try {
+        const response = await fetch("api/process_invoice", requestOptions);
+        const result = await response.json();
+        if (response.ok) {
+          let convertedInvoice = result;
+          dispatchInvoicesWithNewItems({
+            type: "DELETE_INVOICE",
+            invoiceNumber: convertedInvoice.invoice_number,
+          });
+          dispatchInvoices({
+            type: "APPEND_INVOICE",
+            newInvoice: convertedInvoice,
+          });
+        }
+      } catch (err) {
+        console.log(err.message);
+      }
+    }
+  }, [invoicesWithNewItems]);
 
   const changeHandler = (e) => {
     e.preventDefault();
@@ -33,61 +172,21 @@ function UpdateStock() {
         const response = await fetch("/api/read_invoice", requestOptions);
         const result = await response.json();
         if (response.ok) {
-          setInvoices(result.invoices);
+          dispatchInvoices({
+            type: "SET_INVOICES",
+            value: result.invoices,
+          });
+          dispatchInvoicesWithNewItems({
+            type: "SET_INVOICES",
+            value: result.invoices_with_new_products,
+          });
           setExistingInvoices(result.invoices_already_exist);
-          setInvoicesWithNewItems(result.invoices_with_new_products);
         }
       } catch (err) {
         console.log(err.message);
       }
     };
     submitInvoice();
-  };
-
-  const handleInvoiceDate = (invoice_index, e) => {
-    let invoicesCopy = [...invoices];
-    invoicesCopy[invoice_index].invoice_date = e.target.value;
-    setInvoices(invoicesCopy);
-  };
-
-  const handleOverwrite = (invoice_index, e) => {
-    let invoicesCopy = [...invoices];
-    invoicesCopy[invoice_index].overwrite_price_list =
-      !invoicesCopy[invoice_index].overwrite_price_list;
-    setInvoices(invoicesCopy);
-  };
-
-  const handleClaimOverwrite = (invoice_index, e) => {
-    let invoicesCopy = [...invoices];
-    if (e.target.id === "claim") {
-      invoicesCopy[invoice_index].claim_invoice = true;
-      invoicesCopy[invoice_index].overwrite_price_list = false;
-      invoicesCopy[invoice_index].special_discount = false;
-      setInvoices(invoicesCopy);
-    } else if (e.target.id === "overwrite") {
-      invoicesCopy[invoice_index].claim_invoice = false;
-      invoicesCopy[invoice_index].overwrite_price_list = true;
-      invoicesCopy[invoice_index].special_discount = false;
-      setInvoices(invoicesCopy);
-    } else if (e.target.id === "special_discount") {
-      invoicesCopy[invoice_index].claim_invoice = false;
-      invoicesCopy[invoice_index].overwrite_price_list = false;
-      invoicesCopy[invoice_index].special_discount = true;
-      setInvoices(invoicesCopy);
-    }
-  };
-
-  const handleClaimNumber = (invoice_index, claim_item_index, e) => {
-    let invoicesCopy = [...invoices];
-    invoicesCopy[invoice_index].claim_items[claim_item_index].claim_number =
-      e.target.value;
-    setInvoices(invoicesCopy);
-  };
-
-  const handleSpecialDiscount = (invoice_index, e) => {
-    let invoicesCopy = [...invoices];
-    invoicesCopy[invoice_index].special_discount_type = e.target.value;
-    setInvoices(invoicesCopy);
   };
 
   const handleUpdateStock = () => {
@@ -106,12 +205,11 @@ function UpdateStock() {
         !invoices[i].special_discount
       ) {
         selectOneError = true;
-        alert(
-          `Invoice number: ${invoices[i].invoice_number}, select either claim invoice or special discount or overwrite price list`
-        );
+        Modal.warning({
+          content: `Invoice number: ${invoices[i].invoice_number}, select either claim invoice or special discount or overwrite price list`,
+        });
         break;
       }
-
       if (priceDiff && invoices[i].claim_invoice) {
         for (let j = 0; j < invoices[i].claim_items.length; j++) {
           if (
@@ -119,27 +217,25 @@ function UpdateStock() {
             invoices[i].claim_items[j].claim_number === 0
           ) {
             claimNumberError = true;
-            alert(
-              `Invoice number: ${invoices[i].invoice_number}, Please fill claim number`
-            );
+            Modal.warning({
+              content: `Invoice number: ${invoices[i].invoice_number}, Please fill claim number`,
+            });
             break;
           }
         }
       }
-
       if (
         priceDiff &&
         invoices[i].special_discount &&
         invoices[i].special_discount_type.trim() === ""
       ) {
         specialDiscountError = true;
-        alert(
-          `Invoice number: ${invoices[i].invoice_number}, Please fill special discount name`
-        );
+        Modal.warning({
+          content: `Invoice number: ${invoices[i].invoice_number}, Please fill special discount name`,
+        });
         break;
       }
     }
-
     if (!selectOneError && !claimNumberError && !specialDiscountError) {
       const requestOptions = {
         method: "POST",
@@ -148,72 +244,22 @@ function UpdateStock() {
       };
       fetch("/api/update_stock", requestOptions)
         .then((response) => response.json())
-        .then((result) => setSuccessMessage(result));
+        .then((result) => {
+          inputFileRef.current.value = "";
+          dispatchInvoices({
+            type: "SET_INVOICES",
+            value: [],
+          });
+          dispatchInvoicesWithNewItems({
+            type: "SET_INVOICES",
+            value: [],
+          });
+          setExistingInvoices([]);
+          Modal.success({
+            content: result,
+          });
+        });
     }
-  };
-
-  const updateItemStatus = (invoiceNumber, itemCode) => {
-    let invoicesWithNewItemsCopy = [...invoicesWithNewItems];
-    let invoiceIndex = invoicesWithNewItemsCopy.findIndex(
-      (invoice) => invoice.invoice_number === invoiceNumber
-    );
-    let itemIndex = invoicesWithNewItemsCopy[invoiceIndex].items.findIndex(
-      (item) => item.item_code === itemCode
-    );
-    invoicesWithNewItemsCopy[invoiceIndex].items[
-      itemIndex
-    ].not_found_in_inventory = false;
-
-    setInvoicesWithNewItems(invoicesWithNewItemsCopy);
-    let notFoundInInventory = invoicesWithNewItemsCopy[invoiceIndex].items.find(
-      (item) => item.not_found_in_inventory === true
-    );
-    console.log(!notFoundInInventory);
-    if (!notFoundInInventory) {
-      convertToNormalInvoice(
-        invoicesWithNewItemsCopy,
-        invoicesWithNewItemsCopy[invoiceIndex]
-      );
-    }
-  };
-
-  // removes the given invoice from invoicesWithNewItemsCopy and appends it to invoices
-  const convertToNormalInvoice = async (
-    invoicesWithNewItemsCopy,
-    newInvoice
-  ) => {
-    let body = {
-      invoice_number: newInvoice.invoice_number,
-      items: newInvoice.items,
-    };
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    };
-
-    let convertedInvoice = {};
-    try {
-      const response = await fetch("api/process_invoice", requestOptions);
-      const result = await response.json();
-      if (response.ok) {
-        convertedInvoice = result;
-      }
-    } catch (err) {
-      console.log(err.message);
-    }
-
-    let invoicesCopy = [...invoices];
-
-    let invoiceIndex = invoicesWithNewItemsCopy.findIndex(
-      (invoice) => invoice.invoice_number === convertedInvoice.invoice_number
-    );
-    invoicesWithNewItemsCopy.splice(invoiceIndex, 1);
-
-    invoicesCopy.push(convertedInvoice);
-
-    setInvoices(invoicesCopy);
-    setInvoicesWithNewItems(invoicesWithNewItemsCopy);
   };
 
   console.log("invoices", invoices);
@@ -222,23 +268,23 @@ function UpdateStock() {
 
   return (
     <div className="update-stock">
-      <h3>Upload invoice to update stock</h3>
+      <h3>Upload purchase invoices</h3>
       <form method="POST" action="" encType="multipart/form-data">
         <p>
           <input
             type="file"
             disabled={
-              invoices.length != 0 ||
-              invoicesWithNewItems.length != 0 ||
-              existingInvoices.length != 0
+              invoices.length !== 0 ||
+              invoicesWithNewItems.length !== 0 ||
+              existingInvoices.length !== 0
             }
             name="files"
             multiple
             onChange={changeHandler}
+            ref={inputFileRef}
           />
         </p>
       </form>
-
       <div className="existing-invoices">
         {existingInvoices.map((invoice) => (
           <h4 key={invoice.invoice_number}>
@@ -252,29 +298,31 @@ function UpdateStock() {
           <InvoiceWithNewItems
             key={invoice.invoice_number}
             invoice={invoice}
-            updateItemStatus={updateItemStatus}
+            dispatchInvoicesWithNewItems={dispatchInvoicesWithNewItems}
           ></InvoiceWithNewItems>
         ))}
       </div>
 
       <div className="invoices">
-        {invoices.map((invoice, invoice_index) => (
+        {invoices.map((invoice) => (
           <PurchaseInvoice
             key={invoice.invoice_number}
             invoice={invoice}
-            invoice_index={invoice_index}
-            handleInvoiceDate={handleInvoiceDate}
-            handleClaimOverwrite={handleClaimOverwrite}
-            handleOverwrite={handleOverwrite}
-            handleClaimNumber={handleClaimNumber}
-            handleSpecialDiscount={handleSpecialDiscount}
+            dispatchInvoices={dispatchInvoices}
           />
         ))}
       </div>
 
-      {invoices.length !== 0 && invoicesWithNewItems.length === 0 ? (
+      {invoices.length !== 0 ||
+      invoicesWithNewItems.length !== 0 ||
+      existingInvoices.length !== 0 ? (
         <button
-          disabled={successMessage ? true : false}
+          disabled={
+            invoicesWithNewItems.length !== 0 ||
+            (existingInvoices.length !== 0 &&
+              invoices.length === 0 &&
+              invoicesWithNewItems.length === 0)
+          }
           className="update-inventory"
           onClick={handleUpdateStock}
         >
@@ -283,7 +331,6 @@ function UpdateStock() {
       ) : null}
       <br />
 
-      {successMessage !== "" ? <h4>{successMessage} !</h4> : null}
       <br />
     </div>
   );

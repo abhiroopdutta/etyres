@@ -143,3 +143,21 @@ def fix_sale():
             products.append(new_product)
 
     return "success"
+
+#--------------------------------------------------------------------------------
+# delete last 2 digits of itemCode from every product in all purchase and sales invoices
+#--------------------------------------------------------------------------------
+
+    # for invoice in Purchase.objects:
+    #     for product in invoice.items:
+    #         old_item_code = product.itemCode
+    #         new_item_code = old_item_code[:-2]
+    #         Purchase.objects(invoiceNumber=invoice.invoiceNumber, items__itemCode=old_item_code).update(set__items__S__itemCode=new_item_code)
+
+    # for invoice in Sale.objects:
+    #     for product in invoice.productItems:
+    #         old_item_code = product.itemCode
+    #         new_item_code = old_item_code[:-2]
+    #         Sale.objects(invoiceNumber=invoice.invoiceNumber, productItems__itemCode=old_item_code).update(set__productItems__S__itemCode=new_item_code)
+
+    

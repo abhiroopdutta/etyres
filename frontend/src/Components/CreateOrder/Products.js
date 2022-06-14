@@ -4,56 +4,75 @@ import "./Products.css";
 
 function Products({ refreshProducts }) {
   const [tyres, setTyres] = useState([]);
-  const [inStock, setInStock] = useState(true);
-  let tyreData = tyres;
+  const [filters, setFilters] = useState({ tyreSize: "", inStock: true });
+  const [searchResults, setSearchResults] = useState([]);
+
   useEffect(() => {
     fetch("/api/data")
       .then((res) => res.json())
-      .then((data) => setTyres(data));
+      .then((data) => {
+        setTyres(data);
+        setSearchResults(data);
+        setFilters({ tyreSize: "", inStock: true });
+      });
   }, [refreshProducts]);
 
-  const [input, setInput] = useState("");
+  useEffect(() => {
+    let sizeFiltered = tyres;
+    if (filters.tyreSize.length > 0) {
+      sizeFiltered = tyres.filter((i) => {
+        return i.size.toString().match(filters.tyreSize);
+      });
+    }
+
+    let stockAndSizeFiltered = sizeFiltered;
+    if (filters.inStock) {
+      stockAndSizeFiltered = sizeFiltered.filter((i) => {
+        return i.stock > 0;
+      });
+    }
+    setSearchResults(stockAndSizeFiltered);
+  }, [filters, tyres]);
+
   const handleChange = (e) => {
     e.preventDefault(); //why use this
-    setInput(e.target.value);
+    setFilters({ ...filters, tyreSize: e.target.value });
   };
-
-  if (input.length > 0) {
-    tyreData = tyreData.filter((i) => {
-      return i.size.toString().match(input);
-    });
-  }
 
   const handleInStock = () => {
-    setInStock((inStock) => !inStock);
-  };
-  if (inStock) {
-    tyreData = tyreData.filter((i) => {
-      return i.stock > 0;
+    setFilters((filters) => {
+      return {
+        ...filters,
+        inStock: !filters.inStock,
+      };
     });
-  }
+  };
 
   //udnerstand the live search feature rendering order
   return (
     <div className="products">
       <div className="product-filters">
-        <input
-          type="text"
-          onChange={handleChange}
-          value={input}
-          placeholder="Enter tyre size"
-        />
-        <label htmlFor="in_stock">In Stock</label>
-        <input
-          type="checkbox"
-          id="in_stock"
-          name="in_stock"
-          defaultChecked={inStock}
-          onChange={handleInStock}
-        />
+        <div className="search-product">
+          <input
+            type="text"
+            onChange={handleChange}
+            value={filters.tyreSize}
+            placeholder="Enter tyre size"
+          />
+        </div>
+        <div className="in-stock-checkbox">
+          <label htmlFor="in_stock">In Stock</label>
+          <input
+            type="checkbox"
+            id="in_stock"
+            name="in_stock"
+            defaultChecked={filters.inStock}
+            onChange={handleInStock}
+          />
+        </div>
       </div>
       <div className="product-items">
-        {tyreData.map((tyre, index) => (
+        {searchResults.map((tyre) => (
           <Tyre tyreData={tyre} key={tyre.itemCode} />
         ))}
       </div>

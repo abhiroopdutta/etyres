@@ -1,16 +1,28 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useReactToPrint } from "react-to-print";
+import { dayjsLocal } from "../dayjsUTCLocal";
 import "./Invoice.css";
+import { Modal, Button, Checkbox } from "antd";
+import { PrinterFilled, CloseCircleFilled } from "@ant-design/icons";
 
-function Invoice({ cart, services, hideInvoice }) {
-  const [invoiceNumber, setInvoiceNumber] = useState();
-  //manual invoice date entry for initial setup of software
-  const [invoiceDate, setInvoiceDate] = useState(() => {
-    let today_date = new Date().toISOString().slice(0, 10).split("-");
-    let date = today_date[0] + "-" + today_date[1] + "-" + today_date[2];
-    return date;
-  });
-  const [customerDetails, setCustomerDetails] = useState({
+function getTodaysDate() {
+  return dayjsLocal(new Date()).format("YYYY-MM-DD");
+}
+
+// -----------------------Invoice(creating, reading)--------------------------
+// This component can be used both while creating, and reading an invoice.
+// Optional parameters must not be used while creating an invoice.
+// When reading an invoice, defaultOrderConfirmed must be set to true
+// and all other optional parameters must be initailized explicitly
+// otherwise the component may fail.
+// ---------------------------------------------------------------------------
+
+function Invoice({
+  products,
+  services,
+  defaultInvoiceNumber = 0,
+  defaultInvoiceDate = getTodaysDate(),
+  defaultCustomerDetails = {
     name: "",
     address: "",
     GSTIN: "",
@@ -18,25 +30,52 @@ function Invoice({ cart, services, hideInvoice }) {
     state: "",
     vehicleNumber: "",
     contact: "",
-  });
+  },
+  defaultOrderConfirmed = false,
+  hideInvoice,
+}) {
+  const [invoiceNumber, setInvoiceNumber] = useState(defaultInvoiceNumber);
+  const [invoiceDate, setInvoiceDate] = useState(defaultInvoiceDate);
+  const [customerDetails, setCustomerDetails] = useState(
+    defaultCustomerDetails
+  );
   const [GSTTable, setGSTTable] = useState();
   const [IGSTTable, setIGSTTable] = useState();
   const [noTaxTable, setNoTaxTable] = useState();
-  const [isTaxInvoice, setIsTaxInvoice] = useState(false);
-  const [orderConfirmed, setOrderConfirmed] = useState(false);
+  const [isTaxInvoice, setIsTaxInvoice] = useState(true);
+  const [orderConfirmed, setOrderConfirmed] = useState(defaultOrderConfirmed);
   //render different tables depending on IGST customer or not
-  const [IGSTRender, SetIGSTRender] = useState(false);
+  const [IGSTRender, SetIGSTRender] = useState(() => {
+    if (
+      defaultCustomerDetails.GSTIN === "0" ||
+      defaultCustomerDetails.GSTIN.startsWith("09") ||
+      !defaultCustomerDetails.GSTIN
+    ) {
+      return false;
+    } else {
+      return true;
+    }
+  });
+  const componentRef = useRef(null);
+  const handlePrintInvoice = useReactToPrint({
+    content: () => componentRef.current,
+  });
 
   //Get invoice number from backend
   useEffect(() => {
-    fetch("/api/sales_invoice_number")
-      .then((res) => res.json())
-      .then((number) => setInvoiceNumber(number));
-  }, []);
+    async function getNewInvoiceNumber() {
+      fetch("/api/sales_invoice_number")
+        .then((res) => res.json())
+        .then((number) => setInvoiceNumber(number));
+    }
+    if (!orderConfirmed) {
+      getNewInvoiceNumber();
+    }
+  }, [orderConfirmed]);
 
   useEffect(() => {
     let data = {
-      products: cart,
+      products: products,
       services: services.filter((service) => {
         return service.quantity > 0;
       }),
@@ -60,20 +99,22 @@ function Invoice({ cart, services, hideInvoice }) {
           throw Error(result);
         }
       } catch (err) {
-        alert(err.message);
+        Modal.error({
+          content: err.message,
+        });
         console.log(err.message);
       }
     };
 
     getTableData();
-  }, [cart, services]);
+  }, [products, services]);
 
   //if customer GSTIN doesn't start with 09, then IGST
   const handleIGST = (e) => {
-    setCustomerDetails({
+    setCustomerDetails((customerDetails) => ({
       ...customerDetails,
       [e.target.name]: e.target.value,
-    });
+    }));
 
     if (
       e.target.value === "0" ||
@@ -92,13 +133,13 @@ function Invoice({ cart, services, hideInvoice }) {
   };
 
   const handleCustomerDetails = (e) => {
-    setCustomerDetails({
+    setCustomerDetails((customerDetails) => ({
       ...customerDetails,
       [e.target.name]: e.target.value,
-    });
+    }));
   };
 
-  const handleConfirmOrder = () => {
+  const handleConfirmOrder = (e) => {
     //prepare full invoice data to send to backend
     let invoiceData = {
       invoiceNumber: invoiceNumber,
@@ -128,47 +169,73 @@ function Invoice({ cart, services, hideInvoice }) {
         const response = await fetch("/api/place_order", requestOptions);
         const result = await response.json();
         if (response.ok) {
-          alert(result);
+          Modal.success({
+            content: result,
+          });
           setOrderConfirmed(true);
         } else {
           throw Error(result);
         }
       } catch (err) {
-        alert(err.message);
+        Modal.error({
+          content: err.message,
+        });
         console.log(err.message);
       }
     };
 
     place_order();
+    e.stopPropagation();
   };
 
   const toggleTaxInvoice = () => {
+    setCustomerDetails((prevState) => ({
+      ...prevState,
+      GSTIN: "",
+      stateCode: "",
+      state: "",
+    }));
     setIsTaxInvoice((isTaxInvoice) => !isTaxInvoice);
   };
-
-  const componentRef = useRef(null);
-  const handlePrintInvoice = useReactToPrint({
-    content: () => componentRef.current,
-  });
+  console.log(customerDetails);
 
   return (
-    <div className="invoice">
+    <div
+      className="invoice"
+      onClick={() => {
+        hideInvoice(orderConfirmed);
+      }}
+    >
       <div className="left-buttons-container">
-        <button
-          className="pdf-button"
+        <Button
+          size="large"
           disabled={!orderConfirmed}
-          onClick={handlePrintInvoice}
-        >
-          Save PDF
-        </button>
+          onClick={(e) => {
+            handlePrintInvoice();
+            e.stopPropagation();
+          }}
+          type="default"
+          icon={<PrinterFilled />}
+        ></Button>
 
-        <div className="tax-invoice-button">
-          <label htmlFor="tax-invoice">Tax Invoice</label>
-          <input id="tax-invoice" type="checkbox" onChange={toggleTaxInvoice} />
-        </div>
+        {/* <Checkbox
+          className="tax-invoice-button"
+          onChange={toggleTaxInvoice}
+          disabled={
+            customerDetails.GSTIN !== "" ||
+            customerDetails.stateCode !== "" ||
+            customerDetails.state !== ""
+          }
+        >
+          No-GST Invoice
+        </Checkbox> */}
       </div>
 
-      <div ref={componentRef} className="invoice-body">
+      <div
+        ref={componentRef}
+        className="invoice-body"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="invoice-header">
           <header className="shop-details">
             <h4>EUREKA TYRES</h4>
@@ -190,6 +257,7 @@ function Invoice({ cart, services, hideInvoice }) {
                 type="date"
                 value={invoiceDate}
                 required="required"
+                disabled={orderConfirmed}
                 onChange={(e) => handleInvoiceDate(e)}
               />
             </h4>
@@ -200,9 +268,7 @@ function Invoice({ cart, services, hideInvoice }) {
             </select>
           </header>
         </div>
-        <br />
         <hr />
-        <br />
         <br />
         <div className="customer-details">
           <label htmlFor="name">Bill To: </label>
@@ -213,6 +279,8 @@ function Invoice({ cart, services, hideInvoice }) {
             type="text"
             value={customerDetails.name}
             onChange={handleCustomerDetails}
+            disabled={orderConfirmed}
+            placeholder={orderConfirmed ? null : "Customer Name"}
           />
           <br />
           <label htmlFor="address">Address: </label>
@@ -223,8 +291,33 @@ function Invoice({ cart, services, hideInvoice }) {
             type="text"
             value={customerDetails.address}
             onChange={handleCustomerDetails}
+            disabled={orderConfirmed}
+            placeholder={orderConfirmed ? null : "Customer Address"}
           />
           <br />
+          <label htmlFor="vehicleNumber">Vehicle No. : </label>
+          <input
+            id="vehicleNumber"
+            name="vehicleNumber"
+            className="vehicleNumber"
+            type="text"
+            value={customerDetails.vehicleNumber}
+            onChange={handleCustomerDetails}
+            disabled={orderConfirmed}
+            placeholder={orderConfirmed ? null : "Customer Vehicle No."}
+          />
+          <br />
+          <label htmlFor="contact">Contact: </label>
+          <input
+            id="contact"
+            name="contact"
+            className="contact"
+            type="text"
+            value={customerDetails.contact}
+            onChange={handleCustomerDetails}
+            disabled={orderConfirmed}
+            placeholder={orderConfirmed ? null : "Customer Contact No."}
+          />
           {isTaxInvoice ? (
             <section className="customer-details-gst">
               <label htmlFor="GSTIN">GSTIN: </label>
@@ -236,6 +329,8 @@ function Invoice({ cart, services, hideInvoice }) {
                 maxLength="15"
                 value={customerDetails.GSTIN}
                 onChange={handleIGST}
+                disabled={orderConfirmed}
+                placeholder={orderConfirmed ? null : "Customer GSTIN"}
               />
               <br />
               <label htmlFor="stateCode">Code: </label>
@@ -247,7 +342,10 @@ function Invoice({ cart, services, hideInvoice }) {
                 value={customerDetails.stateCode}
                 onChange={handleCustomerDetails}
                 maxLength="2"
+                disabled={orderConfirmed}
+                placeholder={orderConfirmed ? null : "GST State Code"}
               />
+              <br />
               <label htmlFor="state">State: </label>
               <input
                 id="state"
@@ -256,29 +354,12 @@ function Invoice({ cart, services, hideInvoice }) {
                 type="text"
                 value={customerDetails.state}
                 onChange={handleCustomerDetails}
+                disabled={orderConfirmed}
+                placeholder={orderConfirmed ? null : "GST State"}
               />
               <br />
             </section>
           ) : null}
-          <label htmlFor="vehicleNumber">Vehicle No. : </label>
-          <input
-            id="vehicleNumber"
-            name="vehicleNumber"
-            className="vehicleNumber"
-            type="text"
-            value={customerDetails.vehicleNumber}
-            onChange={handleCustomerDetails}
-          />
-          <br />
-          <label htmlFor="contact">Contact: </label>
-          <input
-            id="contact"
-            name="contact"
-            className="contact"
-            type="text"
-            value={customerDetails.contact}
-            onChange={handleCustomerDetails}
-          />
         </div>
 
         <br />
@@ -290,36 +371,18 @@ function Invoice({ cart, services, hideInvoice }) {
                 <table className="IGST-table">
                   <thead>
                     <tr>
-                      <th className="particulars" rowSpan="2">
-                        Particulars
-                      </th>
-                      <th className="HSNCode" rowSpan="2">
-                        HSN-Code
-                      </th>
-                      <th className="Qty" rowSpan="2">
-                        Qty
-                      </th>
-                      <th className="Rate-per-item" rowSpan="2">
-                        Rate per Item
-                      </th>
-                      <th className="taxable-value" rowSpan="2">
-                        Taxable value
-                      </th>
-                      <th colSpan="2" scope="colgroup">
-                        IGST
-                      </th>
-                      <th className="value" rowSpan="2">
-                        Value
-                      </th>
-                    </tr>
-                    <tr>
-                      <th scope="col">Rate</th>
-                      <th scope="col">Amt</th>
+                      <th className="particulars">Particulars</th>
+                      <th className="HSNCode">HSN</th>
+                      <th className="Qty">Qty</th>
+                      <th className="Rate-per-item">Rate per Item</th>
+                      <th className="taxable-value">Taxable value</th>
+                      <th>IGST</th>
+                      <th className="value">Value</th>
                     </tr>
                   </thead>
 
                   <tbody>
-                    {IGSTTable.products.map((tyre, index) => (
+                    {IGSTTable?.products.map((tyre, index) => (
                       <tr key={tyre.itemCode}>
                         <td>{tyre.itemDesc}</td>
                         <td>{tyre.HSN}</td>
@@ -327,9 +390,11 @@ function Invoice({ cart, services, hideInvoice }) {
                         <td>{tyre.ratePerItem}</td>
                         <td>{tyre.taxableValue}</td>
                         <td className="IGST-cell">
-                          {Math.round(tyre.IGST * 100)}%
+                          {String(tyre.IGSTAmount) +
+                            " (" +
+                            String(Math.round(tyre.IGST * 100)) +
+                            "%)"}
                         </td>
-                        <td> {tyre.IGSTAmount} </td>
                         <td>{tyre.value}</td>
                       </tr>
                     ))}
@@ -339,12 +404,11 @@ function Invoice({ cart, services, hideInvoice }) {
                     <tr>
                       <th>Net Amount</th>
                       <td>-</td>
-                      <td>{IGSTTable.total.quantity}</td>
+                      <td>{IGSTTable?.total.quantity}</td>
                       <td>-</td>
-                      <td>{IGSTTable.total.taxableValue}</td>
-                      <td>-</td>
-                      <td>{IGSTTable.total.IGSTAmount}</td>
-                      <td>{IGSTTable.total.value}</td>
+                      <td>{IGSTTable?.total.taxableValue}</td>
+                      <td>{IGSTTable?.total.IGSTAmount}</td>
+                      <td>{IGSTTable?.total.value}</td>
                     </tr>
                   </tfoot>
                 </table>
@@ -352,16 +416,14 @@ function Invoice({ cart, services, hideInvoice }) {
                 <table className="rounding-table">
                   <thead>
                     <tr>
-                      <th>Rounding off</th>
-                      <td>{IGSTTable.invoiceRoundOff}</td>
+                      <td>Round Off</td>
+                      <td>{IGSTTable?.invoiceRoundOff}</td>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <th>Total</th>
-                      <td>
-                        <strong>&#x20B9;{IGSTTable.invoiceTotal}</strong>
-                      </td>
+                      <th>TOTAL</th>
+                      <th>&#x20B9;{IGSTTable?.invoiceTotal}</th>
                     </tr>
                   </tbody>
                 </table>
@@ -371,66 +433,60 @@ function Invoice({ cart, services, hideInvoice }) {
                 <table className="GST-table">
                   <thead>
                     <tr>
-                      <th className="particulars" rowSpan="2">
-                        Particulars
-                      </th>
-                      <th className="HSNCode" rowSpan="2">
-                        HSN-Code
-                      </th>
-                      <th className="Qty" rowSpan="2">
-                        Qty
-                      </th>
-                      <th className="Rate-per-item" rowSpan="2">
-                        Rate per Item
-                      </th>
-                      <th className="taxable-value" rowSpan="2">
-                        Taxable value
-                      </th>
-                      <th colSpan="2" scope="colgroup">
-                        CGST
-                      </th>
-                      <th colSpan="2" scope="colgroup">
-                        SGST
-                      </th>
-                      <th className="value" rowSpan="2">
-                        Value
-                      </th>
-                    </tr>
-                    <tr>
-                      <th scope="col">Rate</th>
-                      <th scope="col">Amt</th>
-                      <th scope="col">Rate</th>
-                      <th scope="col">Amt</th>
+                      <th className="particulars">Particulars</th>
+                      <th className="HSNCode">HSN</th>
+                      <th className="Qty">Qty</th>
+                      <th className="Rate-per-item">Rate per Item</th>
+                      <th className="taxable-value">Taxable value</th>
+                      <th>CGST</th>
+                      <th>SGST</th>
+                      <th className="value">Value</th>
                     </tr>
                   </thead>
 
                   <tbody>
-                    {GSTTable.products.map((tyre, index) => (
+                    {GSTTable?.products.map((tyre, index) => (
                       <tr key={tyre.itemCode}>
                         <td>{tyre.itemDesc}</td>
                         <td>{tyre.HSN}</td>
                         <td>{tyre.quantity}</td>
                         <td>{tyre.ratePerItem}</td>
                         <td>{tyre.taxableValue}</td>
-                        <td>{Math.round(tyre.CGST * 100)}%</td>
-                        <td>{tyre.CGSTAmount}</td>
-                        <td>{Math.round(tyre.SGST * 100)}%</td>
-                        <td>{tyre.SGSTAmount}</td>
+                        <td>
+                          {String(tyre.CGSTAmount) +
+                            " (" +
+                            String(Math.round(tyre.CGST * 100)) +
+                            "%)"}
+                        </td>
+                        <td>
+                          {String(tyre.SGSTAmount) +
+                            " (" +
+                            String(Math.round(tyre.SGST * 100)) +
+                            "%)"}
+                        </td>
                         <td>{tyre.value}</td>
                       </tr>
                     ))}
 
-                    {GSTTable.services.map((service, index) => (
-                      <tr key={service.name}>
-                        <td>{service.name}</td>
+                    {GSTTable?.services.map((service, index) => (
+                      <tr key={service.itemDesc}>
+                        <td>{service.itemDesc}</td>
                         <td>{service.HSN}</td>
                         <td>{service.quantity}</td>
                         <td>{service.ratePerItem}</td>
                         <td>{service.taxableValue}</td>
-                        <td>{Math.round(service.CGST * 100)}%</td>
-                        <td>{service.CGSTAmount}</td>
-                        <td>{Math.round(service.SGST * 100)}%</td>
-                        <td>{service.SGSTAmount}</td>
+                        <td>
+                          {String(service.CGSTAmount) +
+                            " (" +
+                            String(Math.round(service.CGST * 100)) +
+                            "%)"}
+                        </td>
+                        <td>
+                          {String(service.SGSTAmount) +
+                            " (" +
+                            String(Math.round(service.SGST * 100)) +
+                            "%)"}
+                        </td>
                         <td>{service.value}</td>
                       </tr>
                     ))}
@@ -438,16 +494,14 @@ function Invoice({ cart, services, hideInvoice }) {
 
                   <tfoot>
                     <tr>
-                      <th>Net Amount</th>
+                      <td>Net Amount</td>
                       <td>-</td>
-                      <td>{GSTTable.total.quantity}</td>
+                      <td>{GSTTable?.total.quantity}</td>
                       <td>-</td>
-                      <td>{GSTTable.total.taxableValue}</td>
-                      <td>-</td>
-                      <td>{GSTTable.total.CGSTAmount}</td>
-                      <td>-</td>
-                      <td>{GSTTable.total.SGSTAmount}</td>
-                      <td>{GSTTable.total.value}</td>
+                      <td>{GSTTable?.total.taxableValue}</td>
+                      <td>{GSTTable?.total.CGSTAmount}</td>
+                      <td>{GSTTable?.total.SGSTAmount}</td>
+                      <td>{GSTTable?.total.value}</td>
                     </tr>
                   </tfoot>
                 </table>
@@ -455,17 +509,15 @@ function Invoice({ cart, services, hideInvoice }) {
                 <table className="rounding-table">
                   <thead>
                     <tr>
-                      <th>Rounding off</th>
-                      <td>{GSTTable.invoiceRoundOff}</td>
+                      <td>Round off</td>
+                      <td>{GSTTable?.invoiceRoundOff}</td>
                     </tr>
                   </thead>
 
                   <tbody>
                     <tr>
-                      <th>Total</th>
-                      <td>
-                        <strong>&#x20B9;{GSTTable.invoiceTotal}</strong>
-                      </td>
+                      <th>TOTAL</th>
+                      <th>&#x20B9; {GSTTable?.invoiceTotal}</th>
                     </tr>
                   </tbody>
                 </table>
@@ -473,8 +525,8 @@ function Invoice({ cart, services, hideInvoice }) {
             )}
           </div>
         ) : (
-          <div className="no-tax-invoice">
-            <table>
+          <div>
+            <table className="no-tax-invoice">
               <thead>
                 <tr>
                   <th className="particulars">Particulars</th>
@@ -495,8 +547,8 @@ function Invoice({ cart, services, hideInvoice }) {
                 ))}
 
                 {noTaxTable?.services.map((service) => (
-                  <tr key={service.name}>
-                    <td>{service.name}</td>
+                  <tr key={service.itemDesc}>
+                    <td>{service.itemDesc}</td>
                     <td>{service.price}</td>
                     <td>{service.quantity}</td>
                     <td>{service.value}</td>
@@ -539,6 +591,7 @@ function Invoice({ cart, services, hideInvoice }) {
         <br />
         <br />
         <br />
+        <br />
         <footer>
           <section>
             <div className="bank-name">
@@ -563,19 +616,21 @@ function Invoice({ cart, services, hideInvoice }) {
       </div>
 
       <div className="right-buttons-container">
-        <button
-          className="close-invoice"
+        <Button
+          size="large"
+          type="default"
           onClick={() => hideInvoice(orderConfirmed)}
-        >
-          x
-        </button>
-        <button
-          className="print-button"
+          icon={<CloseCircleFilled />}
+        />
+        <Button
+          type="default"
           disabled={orderConfirmed}
-          onClick={handleConfirmOrder}
+          onClick={(e) => {
+            handleConfirmOrder(e);
+          }}
         >
           CONFIRM ORDER
-        </button>
+        </Button>
       </div>
     </div>
   );

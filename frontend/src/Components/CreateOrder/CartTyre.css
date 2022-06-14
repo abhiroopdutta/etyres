@@ -12,9 +12,11 @@
 }
 
 .cart-tyre-details{
+    /* background-color: rgb(255, 123, 0); */
     padding-top: 4px;
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
 }
 
 .cart-tyre-CP{
@@ -40,27 +42,46 @@
 
 .cart-tyre-button{
     /* background-color: blueviolet; */
-    width:60px;
+    width:20px;
+    background-color: transparent;
+    border:none;
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0px 20px;
+    padding: 0;
+    transform: scale(2);
+    cursor :pointer;
+    transition: color 0.1s ease-in-out, transform 0.2s ease-in-out;
+}
 
+.cart-tyre-button:hover{
+    color:rgb(193, 67, 67);
+    transform: scale(2.4);
+}
+
+.cart-tyre-button:active{
+    transform: translateY(2px);
 }
 
 .cart-tyre input{
     /* min-width: 50px;*/
     max-width: 80px; 
-    border: 1px solid transparent;
+    border: 0.5px solid transparent;
+    border-radius: 5px;
     outline: none;
-    background-color: rgb(255, 255, 210);
+    background-color: #fdf4db;
     color: #000000;
     font-size:medium;   
     font-weight:500;
+    transition: background-color 0.1s ease-in-out, border 0.2s ease-in-out;
 }
 
 .cart-tyre input:focus{
     border:0.5px dotted rgb(117, 117, 117);
-    background-color: rgb(252, 252, 166);
+    background-color: #fbebbd;
 }
 
 .cart-tyre input:hover{
-    background-color: rgb(252, 252, 166);
+    background-color: #fbebbd;
 }
 

@@ -1,15 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./PurchaseInvoice.css";
 
-function PurchaseInvoice({
-  invoice,
-  invoice_index,
-  handleInvoiceDate,
-  handleClaimOverwrite,
-  handleOverwrite,
-  handleClaimNumber,
-  handleSpecialDiscount,
-}) {
+function PurchaseInvoice({ invoice, dispatchInvoices }) {
   const [priceDifference, setPriceDifference] = useState(0);
 
   useEffect(() => {
@@ -50,14 +42,21 @@ function PurchaseInvoice({
               type="date"
               value={invoice.invoice_date}
               required="required"
-              onChange={(e) => handleInvoiceDate(invoice_index, e)}
+              onChange={(e) =>
+                dispatchInvoices({
+                  type: "UPDATE_INVOICE_FIELD",
+                  invoiceNumber: invoice.invoice_number,
+                  field: "invoice_date",
+                  value: e.target.value,
+                })
+              }
             />
           </strong>
         }
         <br />
         <br />
       </header>
-      <hr />
+      <hr className="purchase-invoice-hr" />
 
       {priceDifference && invoice.special_discount ? (
         <div className="special-discount">
@@ -65,7 +64,14 @@ function PurchaseInvoice({
           <input
             type="text"
             value={invoice.special_discount_type}
-            onChange={(e) => handleSpecialDiscount(invoice_index, e)}
+            onChange={(e) =>
+              dispatchInvoices({
+                type: "UPDATE_INVOICE_FIELD",
+                invoiceNumber: invoice.invoice_number,
+                field: "special_discount_type",
+                value: e.target.value,
+              })
+            }
             placeholder="ex - LVD"
           />
         </div>
@@ -73,49 +79,58 @@ function PurchaseInvoice({
       {priceDifference > 0 ? (
         <section
           className="claim-overwrite"
-          onChange={(e) => handleOverwrite(invoice_index, e)}
+          onChange={(e) =>
+            dispatchInvoices({
+              type: "UPDATE_INVOICE_FIELD",
+              invoiceNumber: invoice.invoice_number,
+              field: "overwrite_price_list",
+              value: e.target.checked,
+            })
+          }
         >
-          <label htmlFor="overwrite">Overwrite price list</label>
-          <input
-            id="overwrite"
-            type="checkbox"
-            value="overwrite"
-            name={"claim_overwrite" + invoice_index}
-          />
+          <input type="checkbox" id="overwrite-checkbox" />
+          <label htmlFor="overwrite-checkbox">Overwrite price list</label>
         </section>
       ) : priceDifference < 0 ? (
         <section
           className="claim-overwrite"
-          onChange={(e) => handleClaimOverwrite(invoice_index, e)}
+          onChange={(e) =>
+            dispatchInvoices({
+              type: "UPDATE_CLAIM_OVERWRITE_SPECIAL",
+              invoiceNumber: invoice.invoice_number,
+              field: e.target.id,
+              value: true,
+            })
+          }
         >
-          <label htmlFor="claim"> Claim Invoice</label>
           <input
             type="radio"
-            id="claim"
-            name={"claim_overwrite" + invoice_index}
-            value={invoice.claim_invoice}
+            id="claim_invoice"
+            name={"claim_overwrite" + invoice.invoice_number}
             required
           />
-          <label htmlFor="overwrite">Overwrite Price List</label>
+          <label htmlFor="claim_invoice">Claim Invoice</label>
+          <br />
           <input
             type="radio"
-            id="overwrite"
-            name={"claim_overwrite" + invoice_index}
-            value={invoice.overwrite_price_list}
+            id="overwrite_price_list"
+            name={"claim_overwrite" + invoice.invoice_number}
             required
           />
-          <label htmlFor="special_discount">Special Discount</label>
+          <label htmlFor="overwrite_price_list">Overwrite Price List</label>
+          <br />
           <input
             type="radio"
             id="special_discount"
-            name={"claim_overwrite" + invoice_index}
-            value={invoice.special_discount}
+            name={"claim_overwrite" + invoice.invoice_number}
             required
           />
+          <label htmlFor="special_discount">Special Discount</label>
+          <br />
         </section>
       ) : null}
 
-      <table className="invoice-item-headers">
+      <table className="purchase-invoice-table">
         <thead>
           <tr>
             <th>S.no.</th>
@@ -139,7 +154,13 @@ function PurchaseInvoice({
                       type="text"
                       placeholder="claim number"
                       onChange={(e) =>
-                        handleClaimNumber(invoice_index, claim_item_index, e)
+                        dispatchInvoices({
+                          type: "UPDATE_CLAIM_NUMBER",
+                          invoiceNumber: invoice.invoice_number,
+                          field: "",
+                          value: e.target.value,
+                          claimIndex: claim_item_index,
+                        })
                       }
                     />
                   </td>

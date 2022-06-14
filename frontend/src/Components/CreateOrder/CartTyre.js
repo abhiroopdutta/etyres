@@ -6,48 +6,54 @@ import "./CartTyre.css";
 function CartTyre({ tyreData }) {
   const { tyresContext, servicesContext } = useContext(CartContext);
   const [cart, setCart] = tyresContext;
-  // eslint-disable-next-line
-  const [services, setServices] = servicesContext;
 
   const removeFromCart = (tyreData) => {
-    //understand the filter code below
-    let cartCopy = [...cart];
-    cartCopy = cartCopy.filter(
-      (cartItem) => cartItem.itemCode !== tyreData.itemCode
+    setCart((cart) =>
+      cart.filter((product) => product.itemCode !== tyreData.itemCode)
     );
-
-    //understand this line of code
-    setCart(cartCopy); //understand the spread, rest syntax
   };
 
   const handlePrice = (e) => {
     e.preventDefault(); //why use this
-    tyreData.price = e.target.value;
-
-    //forcefully update the cart context, to render the parent(i.e. Cart)
-    //since totalPrice (part of parent Cart) is affected by tyreData price
-    let cartCopy = [...cart];
-    setCart(cartCopy);
+    setCart((cart) =>
+      cart.map((product) => {
+        if (product.itemCode === tyreData.itemCode) {
+          const updatedProduct = {
+            ...product,
+            price: parseFloat(e.target.value),
+          };
+          return updatedProduct;
+        }
+        return product;
+      })
+    );
   };
 
   const handleFocus = (e) => e.target.select();
 
   const handleQuantity = (e) => {
     e.preventDefault(); //why use this
-    tyreData.quantity = e.target.value;
-
-    //forcefully update the cart context, to render the parent(i.e. cart)
-    let cartCopy = [...cart];
-    setCart(cartCopy);
+    setCart((cart) =>
+      cart.map((product) => {
+        if (product.itemCode === tyreData.itemCode) {
+          const updatedProduct = {
+            ...product,
+            quantity: parseInt(e.target.value),
+          };
+          return updatedProduct;
+        }
+        return product;
+      })
+    );
   };
 
   return (
     <div className="cart-tyre">
       <div className="cart-tyre-name">{tyreData.itemDesc}</div>
       <div className="cart-tyre-details">
-        <div className="cart-tyre-CP">CP:{tyreData.costPrice}</div>
+        <div className="cart-tyre-CP">CP: {tyreData.costPrice}</div>
         <div className="cart-tyre-price">
-          <label htmlFor="price"> Price:</label>
+          <label htmlFor="price">Price: </label>
           <input
             id="price"
             type="text"
@@ -68,8 +74,13 @@ function CartTyre({ tyreData }) {
             onFocus={handleFocus}
           />
         </div>
-        <div className="cart-tyre-button">
-          <button onClick={() => removeFromCart(tyreData)}>Remove</button>
+        <div>
+          <button
+            className="cart-tyre-button"
+            onClick={() => removeFromCart(tyreData)}
+          >
+            &times;
+          </button>
         </div>
       </div>
     </div>

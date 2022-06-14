@@ -16,7 +16,7 @@ def read_purchase_file(file):
             invoice["invoice_number"] = str(row["Invoice No."]).strip()
 
             invoice["items"].append({
-                "item_code": str(row["Material"]).strip(), 
+                "item_code": str(row["Material"]).strip()[:-2], 
                 "item_desc": str(row["Material Desc."]).strip(),
                 "quantity": int(row["Qty."]),
                 "taxable_value": float(row["Net Amt."].replace(",", "")),
@@ -166,7 +166,7 @@ def update_stock(invoices):
                     claim_items.append(new_claim_item)
 
             invoice_total = invoice["invoice_total"]
-            special_discount = invoice["special_discount_type"]
+            special_discount = invoice["special_discount_type"] if(invoice["special_discount"]) else ""
 
             # if invoice date selected by user is not today (back date entry), then add time 11:30 AM, manually
             if invoice["invoice_date"] == datetime.datetime.now().strftime('%Y-%m-%d'):

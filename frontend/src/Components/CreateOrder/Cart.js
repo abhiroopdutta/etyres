@@ -1,8 +1,10 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { CartContext } from "./CartContext";
 import CartTyre from "./CartTyre";
 import "./Cart.css";
 import Invoice from "./Invoice";
+import { message } from "antd";
+import { useTransition, animated } from "@react-spring/web";
 
 function roundToTwo(num) {
   return +(Math.round(num + "e+2") + "e-2");
@@ -10,37 +12,92 @@ function roundToTwo(num) {
 
 function Cart({ handleRefreshProducts }) {
   const { tyresContext, servicesContext } = useContext(CartContext);
-  // eslint-disable-next-line
-  const [cart, setCart] = tyresContext;
-  // eslint-disable-next-line
+  const [products, setProducts] = tyresContext;
   const [services, setServices] = servicesContext;
+  const [cartTotal, setCartTotal] = useState(0);
 
   const [previewInvoice, setPreviewInvoice] = useState(false);
+  const transitions = useTransition(previewInvoice, {
+    config: { mass: 1, tension: 500, friction: 40, clamp: true },
+    from: { opacity: 0 },
+    enter: { opacity: 1 },
+    leave: { opacity: 0 },
+  });
 
-  const handleServicesPrice = (index, e) => {
+  useEffect(() => {
+    let scrollBarWidth = window.innerWidth - document.body.clientWidth;
+    if (previewInvoice) {
+      document.body.style.overflowY = "hidden";
+      document.body.style.width = `calc(100% - ${scrollBarWidth}px)`;
+    } else {
+      setTimeout(() => {
+        document.body.style.overflowY = "scroll";
+        document.body.style.width = `100%`;
+      }, 300);
+    }
+  }, [previewInvoice]);
+
+  useEffect(() => {
+    let productTotal = products.reduce(
+      (productTotal, product) =>
+        productTotal + product.price * product.quantity,
+      0
+    );
+
+    let serviceTotal = services.reduce(
+      (serviceTotal, service) =>
+        serviceTotal + service.price * service.quantity,
+      0
+    );
+
+    setCartTotal(roundToTwo(productTotal + serviceTotal));
+  }, [products, services]);
+
+  const handleServicesPrice = (serviceName, e) => {
     e.preventDefault(); //why use this
-    let servicesCopy = [...services];
-    servicesCopy[index].price = e.target.value;
-    setServices(servicesCopy);
+    setServices((services) =>
+      services.map((service) => {
+        if (service.name === serviceName) {
+          const updatedService = {
+            ...service,
+            price: parseFloat(e.target.value),
+          };
+          return updatedService;
+        }
+        return service;
+      })
+    );
   };
 
-  const handleServicesQuantity = (index, e) => {
+  const handleServicesQuantity = (serviceName, e) => {
     e.preventDefault(); //why use this
-    let servicesCopy = [...services];
-    servicesCopy[index].quantity = e.target.value;
-    setServices(servicesCopy);
+    setServices((services) =>
+      services.map((service) => {
+        if (service.name === serviceName) {
+          const updatedService = {
+            ...service,
+            quantity: parseInt(e.target.value),
+          };
+          return updatedService;
+        }
+        return service;
+      })
+    );
   };
 
   const handleFocus = (e) => e.target.select();
 
   const emptyCart = () => {
-    setCart([]);
-    let servicesCopy = [...services];
-    servicesCopy.forEach((service) => {
-      service.quantity = 0;
-      service.price = 0;
-    });
-    setServices(servicesCopy);
+    setProducts([]);
+    setServices((services) =>
+      services.map((service) => {
+        return {
+          ...service,
+          quantity: 0,
+          price: 0,
+        };
+      })
+    );
   };
 
   const hideInvoice = (orderConfirmed) => {
@@ -52,41 +109,50 @@ function Cart({ handleRefreshProducts }) {
   };
 
   const showInvoice = () => {
-    //setServices(services);
-    for (let i = 0; i < cart.length; i++) {
-      if (cart[i].stock < cart[i].quantity) {
-        alert(`${cart[i].itemDesc}: Out of Stock`);
+    // don't show invoice if any item is out of stock
+    for (let i = 0; i < products.length; i++) {
+      if (products[i].stock < products[i].quantity) {
+        message.error(`${products[i].itemDesc}: Out of Stock`, 3);
         return;
       }
     }
 
-    if (cart.length === 0) {
-      for (let i = 0; i < services.length; i++) {
-        if (services[i].quantity !== 0) {
-          break;
-        }
+    // don't show invoice if no products/services are added
+    if (
+      (products.length === 0 ||
+        products.every((product) => product.quantity === 0)) &&
+      services.every((service) => service.quantity === 0)
+    ) {
+      message.error(`Cart is empty !`, 2);
+      return;
+    }
 
-        if (i === services.length - 1 && services[i].quantity === 0) {
-          alert("Cart is empty !");
-          return;
-        }
+    // don't show invoice if tube type tyre is added without tube
+    let tubeItemCodes = ["U", "Y", "W"];
+    let tubeTyreCount = products.reduce((tubeTyreCount, product) => {
+      if (product.itemCode[1] === "T") {
+        return tubeTyreCount + product.quantity;
       }
+      return tubeTyreCount;
+    }, 0);
+
+    let tubeCount = products.reduce((tubeCount, product) => {
+      if (tubeItemCodes.includes(product.itemCode[1])) {
+        return tubeCount + product.quantity;
+      }
+      return tubeCount;
+    }, 0);
+
+    if (tubeCount < tubeTyreCount) {
+      message.error(
+        "You have added Tube Type Tyres without Tubes, please add tubes",
+        3
+      );
+      return;
     }
     setPreviewInvoice(true);
     return;
   };
-
-  let tyresPrice = 0;
-  for (let i = 0; i < cart.length; i++) {
-    tyresPrice = tyresPrice + cart[i].price * cart[i].quantity;
-  }
-
-  let servicesPrice = 0;
-  for (let i = 0; i < services.length; i++) {
-    servicesPrice = servicesPrice + services[i].price * services[i].quantity;
-  }
-
-  let totalPrice = roundToTwo(tyresPrice + servicesPrice);
 
   return (
     <div className="cart-container">
@@ -97,46 +163,52 @@ function Cart({ handleRefreshProducts }) {
             <button className="invoice-button" onClick={() => showInvoice()}>
               Preview invoice
             </button>
-            {previewInvoice ? (
-              <Invoice
-                cart={cart}
-                services={services}
-                hideInvoice={hideInvoice}
-              />
-            ) : null}
+            {transitions((styles, previewInvoice) =>
+              previewInvoice ? (
+                <animated.div style={styles}>
+                  <Invoice
+                    products={products}
+                    services={services}
+                    hideInvoice={hideInvoice}
+                  />
+                </animated.div>
+              ) : null
+            )}
           </div>
         </div>
 
         <div className="cart-products">
-          {cart.map((tyre, index) => (
-            <CartTyre tyreData={tyre} key={tyre.itemCode} />
+          {products.map((product) => (
+            <CartTyre tyreData={product} key={product.itemCode} />
           ))}{" "}
         </div>
 
         <div className="cart-services">
-          {services.map((service, index) => (
+          {services.map((service) => (
             <div className="service" key={service.name}>
               <div className="service-name">{service.name}:</div>
 
               <div className="service-details">
                 <div className="service-price">
-                  Price:
+                  <label htmlFor="service-price">Price: </label>
                   <input
+                    id="service-price"
                     type="text"
                     value={service.price}
-                    onChange={(e) => handleServicesPrice(index, e)}
+                    onChange={(e) => handleServicesPrice(service.name, e)}
                     onFocus={handleFocus}
                   />
                 </div>
 
                 <div className="service-quantity">
-                  Qty:
+                  <label htmlFor="service-quantity">Qty: </label>
                   <input
+                    id="service-quantity"
                     type="number"
                     step="1"
                     min="0"
                     value={service.quantity}
-                    onChange={(e) => handleServicesQuantity(index, e)}
+                    onChange={(e) => handleServicesQuantity(service.name, e)}
                     onFocus={handleFocus}
                   />
                 </div>
@@ -145,8 +217,7 @@ function Cart({ handleRefreshProducts }) {
           ))}
         </div>
 
-        <div className="cart-total">Total price: &#x20B9;{totalPrice}</div>
-        <br />
+        <div className="cart-total">TOTAL: &#x20B9;{cartTotal}</div>
       </div>
     </div>
   );

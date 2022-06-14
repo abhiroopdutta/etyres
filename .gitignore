@@ -3,6 +3,7 @@ backend/__pycache__
 backend/github_token.txt
 backend/tyres.xlsx
 backend/update_stock.xls
+backend/pv_price_details.json
 
 
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
