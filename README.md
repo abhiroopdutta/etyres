@@ -19,6 +19,6 @@ Feel free to fork it and make contributions.
 
 ### Todo
 
-- [ ] Complete Sales Report route  
-- [ ] Fix CSS, make it responsive (mobile friendly is not a priority)  
+- [ ] Make the server async.
+- [ ] Add feature to delete sale invoice, reverse stock.  
  
