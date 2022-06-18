@@ -37,6 +37,7 @@
     .close-new-item-modal{
       color: rgb(56, 54, 54);
       font-weight: 800;
+      cursor: pointer;
     }
 
     .add-item-body{

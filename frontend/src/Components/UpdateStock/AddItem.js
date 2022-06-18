@@ -62,8 +62,11 @@ function AddItem({
   };
 
   return (
-    <div className="add-item-modal">
-      <div className="add-item-modal-content">
+    <div className="add-item-modal" onClick={handleCloseModal}>
+      <div
+        className="add-item-modal-content"
+        onClick={(e) => e.stopPropagation()}
+      >
         <header className="add-item-header">
           <strong>Add Item to inventory</strong>
           <button className="close-new-item-modal" onClick={handleCloseModal}>
