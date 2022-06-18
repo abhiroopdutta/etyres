@@ -88,8 +88,13 @@ function PurchaseInvoice({ invoice, dispatchInvoices }) {
             })
           }
         >
-          <input type="checkbox" id="overwrite-checkbox" />
-          <label htmlFor="overwrite-checkbox">Overwrite price list</label>
+          <input
+            type="checkbox"
+            id={"overwrite-checkbox" + invoice.invoice_number}
+          />
+          <label htmlFor={"overwrite-checkbox" + invoice.invoice_number}>
+            Overwrite price list
+          </label>
         </section>
       ) : priceDifference < 0 ? (
         <section
@@ -98,34 +103,43 @@ function PurchaseInvoice({ invoice, dispatchInvoices }) {
             dispatchInvoices({
               type: "UPDATE_CLAIM_OVERWRITE_SPECIAL",
               invoiceNumber: invoice.invoice_number,
-              field: e.target.id,
+              field: e.target.className,
               value: true,
             })
           }
         >
           <input
             type="radio"
-            id="claim_invoice"
+            className="claim_invoice"
             name={"claim_overwrite" + invoice.invoice_number}
+            id={"claim_invoice" + invoice.invoice_number}
             required
           />
-          <label htmlFor="claim_invoice">Claim Invoice</label>
+          <label htmlFor={"claim_invoice" + invoice.invoice_number}>
+            Claim Invoice
+          </label>
           <br />
           <input
             type="radio"
-            id="overwrite_price_list"
+            className="overwrite_price_list"
             name={"claim_overwrite" + invoice.invoice_number}
+            id={"overwrite_price_list" + invoice.invoice_number}
             required
           />
-          <label htmlFor="overwrite_price_list">Overwrite Price List</label>
+          <label htmlFor={"overwrite_price_list" + invoice.invoice_number}>
+            Overwrite Price List
+          </label>
           <br />
           <input
             type="radio"
-            id="special_discount"
+            className="special_discount"
             name={"claim_overwrite" + invoice.invoice_number}
+            id={"special_discount" + invoice.invoice_number}
             required
           />
-          <label htmlFor="special_discount">Special Discount</label>
+          <label htmlFor={"special_discount" + invoice.invoice_number}>
+            Special Discount
+          </label>
           <br />
         </section>
       ) : null}
