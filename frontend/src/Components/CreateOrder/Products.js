@@ -61,7 +61,7 @@ function Products({ refreshProducts }) {
           />
         </div>
         <div className="in-stock-checkbox">
-          <label htmlFor="in_stock">In Stock</label>
+          <label htmlFor="in_stock">In Stock </label>
           <input
             type="checkbox"
             id="in_stock"
