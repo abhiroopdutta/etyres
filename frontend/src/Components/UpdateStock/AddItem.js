@@ -66,7 +66,9 @@ function AddItem({
       <div className="add-item-modal-content">
         <header className="add-item-header">
           <strong>Add Item to inventory</strong>
-          <button onClick={handleCloseModal}>X</button>
+          <button className="close-new-item-modal" onClick={handleCloseModal}>
+            X
+          </button>
         </header>
 
         <section className="add-item-body">

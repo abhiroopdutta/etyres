@@ -19,9 +19,7 @@ function InvoiceWithNewItems({ invoice, dispatchInvoicesWithNewItems }) {
   return (
     <div className="invoice-with-new-items">
       <header>
-        <strong className="invoice-number">
-          Invoice no. {invoice.invoice_number}
-        </strong>
+        <h4 className="invoice-number">Invoice no. {invoice.invoice_number}</h4>
       </header>
       <hr className="invoice-with-new-items-hr" />
       <table className="invoice-with-new-items-table">
@@ -44,7 +42,10 @@ function InvoiceWithNewItems({ invoice, dispatchInvoicesWithNewItems }) {
               <td>{item.item_total}</td>
               <td>
                 {item.not_found_in_inventory ? (
-                  <button onClick={() => handleUpdateInventory(item)}>
+                  <button
+                    className="add-to-inventory-button"
+                    onClick={() => handleUpdateInventory(item)}
+                  >
                     Add to inventory
                   </button>
                 ) : (

@@ -12,6 +12,7 @@
   }
   
   .add-item-modal-content {
+    min-width: 18%;
     background: white;
     /* max-height: 40%; */
     display: flex;
@@ -26,11 +27,16 @@
       display:flex;
       flex-flow: row wrap;
       justify-content: space-between;
-      background-color: rgb(44, 42, 42);
+      background-color: rgb(56, 54, 54);
       color: rgb(255, 255, 255);
       padding: 20px;
       border-radius: 8px 8px 0px 0px;
 
+    }
+
+    .close-new-item-modal{
+      color: rgb(56, 54, 54);
+      font-weight: 800;
     }
 
     .add-item-body{
@@ -46,20 +52,23 @@
     }
 
       .add-item-footer button{
-        background-color: rgb(83, 81, 81);
-        border: 1px solid transparent;
-        padding:7px;
+        text-decoration: none;
+        color:rgb(255, 255, 255);
+        font-weight: 600;
+        border: none;
         border-radius: 10px;
-        font-weight: 700;  
-        color:rgb(255, 255, 255); 
+        padding: 7px;
+        background-color: rgb(98, 94, 94);
+        cursor: pointer;
+        transition: box-shadow 0.1s ease-in-out, transform 0.2s ease-in-out, background-color 0.1s ease-in-out;
       }
 
       .add-item-footer button:active{
-        box-shadow: 0 2px rgb(44, 43, 43); 
+        box-shadow: 0 2px rgb(70, 69, 69); 
         transform: translateY(2px);
     }
     
       .add-item-footer button:hover{
-          background-color: rgb(44, 43, 43); 
+        background-color: rgb(70, 69, 69); 
       }
 
