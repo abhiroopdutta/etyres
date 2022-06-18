@@ -31,39 +31,41 @@ function PurchaseInvoice({ invoice, dispatchInvoices }) {
 
   return (
     <div className="purchase-invoice">
-      <header>
-        <strong className="invoice-number">
-          Invoice no. {invoice.invoice_number}
-        </strong>
-        {
-          <strong className="invoice-date">
+      <header className="purchase-invoice-header">
+        <h4 className="purchase-invoice-number">
+          Invoice No. {invoice.invoice_number}
+        </h4>
+        <div className="invoice-date">
+          <label htmlFor={"invoice-date" + invoice.invoice_number}>
             Invoice Date:
-            <input
-              type="date"
-              value={invoice.invoice_date}
-              required="required"
-              onChange={(e) =>
-                dispatchInvoices({
-                  type: "UPDATE_INVOICE_FIELD",
-                  invoiceNumber: invoice.invoice_number,
-                  field: "invoice_date",
-                  value: e.target.value,
-                })
-              }
-            />
-          </strong>
-        }
-        <br />
-        <br />
+          </label>
+          <input
+            id={"invoice-date" + invoice.invoice_number}
+            type="date"
+            value={invoice.invoice_date}
+            required="required"
+            onChange={(e) =>
+              dispatchInvoices({
+                type: "UPDATE_INVOICE_FIELD",
+                invoiceNumber: invoice.invoice_number,
+                field: "invoice_date",
+                value: e.target.value,
+              })
+            }
+          />
+        </div>
       </header>
       <hr className="purchase-invoice-hr" />
 
       {priceDifference && invoice.special_discount ? (
         <div className="special-discount">
-          Discount Type:
+          <label htmlFor={"special_discount_type" + invoice.invoice_number}>
+            Discount Type:
+          </label>
           <input
             type="text"
             value={invoice.special_discount_type}
+            id={"special_discount_type" + invoice.invoice_number}
             onChange={(e) =>
               dispatchInvoices({
                 type: "UPDATE_INVOICE_FIELD",
@@ -89,6 +91,7 @@ function PurchaseInvoice({ invoice, dispatchInvoices }) {
           }
         >
           <input
+            className="overwrite-checkbox"
             type="checkbox"
             id={"overwrite-checkbox" + invoice.invoice_number}
           />
@@ -163,7 +166,7 @@ function PurchaseInvoice({ invoice, dispatchInvoices }) {
                   <td>{service.item_desc}:</td>
                   <td>{service.quantity}</td>
                   <td>{service.item_total}</td>
-                  <td>
+                  <td className="claim-number">
                     <input
                       type="text"
                       placeholder="claim number"
