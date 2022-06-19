@@ -50,6 +50,7 @@ function UpdatePrice() {
       .then((result) => {
         setLoading(false);
         inputFileRef.current.value = "";
+        setSelectedFile(null);
         Modal.success({
           content: result,
         });
