@@ -94,7 +94,7 @@ function CartTyre({ tyreData }) {
             className="cart-tyre-button"
             onClick={() => removeFromCart(tyreData)}
           >
-            &times;
+            &#x2715;
           </button>
         </div>
       </div>
