@@ -1,7 +1,8 @@
 import "./AddItem.css";
 import { useState } from "react";
 import React from "react";
-import { message, Button } from "antd";
+import { message } from "antd";
+import Button from "../Button";
 
 function roundToTwo(num) {
   return +(Math.round(num + "e+2") + "e-2");
@@ -63,14 +64,14 @@ function AddItem({
     };
     submit_item();
 
-    setTimeout(() => toggleModal(false), 2000);
+    setTimeout(() => toggleModal(false), 1800);
     setTimeout(() => {
       dispatchInvoicesWithNewItems({
         type: "UPDATE_ITEM_STATUS",
         invoiceNumber: invoiceNumber,
         itemCode: item.item_code,
       });
-    }, 2600);
+    }, 2400);
   };
   return (
     <div className="add-item-modal" onClick={handleCloseModal}>
@@ -112,12 +113,11 @@ function AddItem({
 
         <footer className="add-item-footer">
           <Button
+            text="Add to Inventory"
             className="add-item-modal-button"
             loading={loading}
             onClick={handleAddtoInventory}
-          >
-            Add to inventory
-          </Button>
+          />
         </footer>
       </div>
     </div>

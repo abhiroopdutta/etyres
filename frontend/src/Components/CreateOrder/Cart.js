@@ -5,6 +5,7 @@ import "./Cart.css";
 import Invoice from "./Invoice";
 import { message } from "antd";
 import { useTransition, animated } from "@react-spring/web";
+import Button from "../Button";
 
 function roundToTwo(num) {
   return +(Math.round(num + "e+2") + "e-2");
@@ -172,9 +173,11 @@ function Cart({ handleRefreshProducts }) {
         <div className="cart-header">
           <div className="cart-title">CART SUMMARY</div>
           <div className="cart-invoice">
-            <button className="invoice-button" onClick={() => showInvoice()}>
-              Preview invoice
-            </button>
+            <Button
+              text="Preview Invoice"
+              className="invoice-button"
+              onClick={() => showInvoice()}
+            />
             {transitions((styles, previewInvoice) =>
               previewInvoice ? (
                 <animated.div style={styles}>

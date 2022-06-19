@@ -3,6 +3,7 @@ import { CartContext } from "./CartContext";
 import "./Tyre.css";
 import TyreImg from "./tyre-img.png";
 import tubeImg from "./tube.png";
+import Button from "../Button";
 
 //object deconstruction in props
 function Tyre({ tyreData }) {
@@ -70,7 +71,7 @@ function Tyre({ tyreData }) {
       </div>
       <div className="product-stock">Items in stock:{tyreData.stock}</div>
       <div className="product-button">
-        <button onClick={() => addToCart(tyreData)}>Add to cart</button>
+        <Button text="Add to Cart" onClick={() => addToCart(tyreData)} />
       </div>
     </div>
   );

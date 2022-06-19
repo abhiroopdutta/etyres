@@ -48,25 +48,3 @@
     max-width: 50%;
     
 }
-
-.product-button button{
-    text-decoration: none;
-    background-color: rgb(98, 94, 94);
-    border: none;
-    padding:7px;
-    border-radius: 10px;
-    font-weight: 700;  
-    color:rgb(255, 255, 255);
-    cursor: pointer;
-    transition: box-shadow 0.1s ease-in-out, transform 0.2s ease-in-out, background-color 0.1s ease-in-out;
-
-}
-
-.product-button button:active{
-    box-shadow: 0 2px rgb(70, 69, 69); 
-    transform: translateY(2px);
-}
-
-.product-button button:hover{
-    background-color: rgb(70, 69, 69); 
-}
