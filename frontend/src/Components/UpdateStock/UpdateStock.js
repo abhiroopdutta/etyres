@@ -1,8 +1,9 @@
-import React, { useState, useRef, useReducer, useEffect } from "react";
+import React, { useState, useRef, useReducer, useEffect, useMemo } from "react";
 import "./UpdateStock.css";
 import PurchaseInvoice from "./PurchaseInvoice";
 import InvoiceWithNewItems from "./InvoiceWithNewItems.js";
 import { Modal } from "antd";
+import { useTransition, animated } from "@react-spring/web";
 
 function invoicesReducer(invoices, action) {
   switch (action.type) {
@@ -112,6 +113,22 @@ function UpdateStock() {
   );
   const [existingInvoices, setExistingInvoices] = useState([]);
   const inputFileRef = useRef();
+  const transitionProps = useMemo(
+    () => ({
+      keys: (invoice) => invoice.invoice_number,
+      trail: 200,
+      config: { mass: 1, tension: 500, friction: 40, clamp: true },
+      from: { opacity: 0 },
+      enter: { opacity: 1 },
+      leave: { opacity: 0 },
+    }),
+    []
+  );
+  const invoicesWithNewItemsTransitions = useTransition(
+    invoicesWithNewItems,
+    transitionProps
+  );
+  const invoicesTransitions = useTransition(invoices, transitionProps);
 
   useEffect(() => {
     function readyToConvert(invoiceWithNewItems) {
@@ -245,22 +262,26 @@ function UpdateStock() {
       fetch("/api/update_stock", requestOptions)
         .then((response) => response.json())
         .then((result) => {
-          inputFileRef.current.value = "";
-          dispatchInvoices({
-            type: "SET_INVOICES",
-            value: [],
-          });
-          dispatchInvoicesWithNewItems({
-            type: "SET_INVOICES",
-            value: [],
-          });
-          setExistingInvoices([]);
+          handleClearInvoices();
           Modal.success({
             content: result,
           });
         });
     }
   };
+
+  function handleClearInvoices() {
+    inputFileRef.current.value = "";
+    dispatchInvoices({
+      type: "SET_INVOICES",
+      value: [],
+    });
+    dispatchInvoicesWithNewItems({
+      type: "SET_INVOICES",
+      value: [],
+    });
+    setExistingInvoices([]);
+  }
 
   console.log("invoices", invoices);
   console.log("invoices with new items", invoicesWithNewItems);
@@ -285,31 +306,67 @@ function UpdateStock() {
           />
         </p>
       </form>
+      <button
+        disabled={
+          invoices.length === 0 &&
+          invoicesWithNewItems.length === 0 &&
+          existingInvoices.length === 0
+        }
+        onClick={handleClearInvoices}
+      >
+        Clear
+      </button>
+
+      {existingInvoices.length !== 0 ? (
+        <div>
+          <br />
+          <h3>Invoices already uploaded</h3>
+          <hr />
+        </div>
+      ) : null}
       <div className="existing-invoices">
         {existingInvoices.map((invoice) => (
           <h4 key={invoice.invoice_number}>
-            Invoice No. {invoice.invoice_number} already exists
+            Invoice No. {invoice.invoice_number}
           </h4>
         ))}
       </div>
 
+      {invoicesWithNewItems.length !== 0 ? (
+        <div>
+          <br />
+          <h3>Invoices With New Items</h3>
+          <p>Add the new items to inventory before proceeding </p>
+          <hr />
+        </div>
+      ) : null}
       <div className="invoices-with-new-items">
-        {invoicesWithNewItems.map((invoice) => (
-          <InvoiceWithNewItems
-            key={invoice.invoice_number}
-            invoice={invoice}
-            dispatchInvoicesWithNewItems={dispatchInvoicesWithNewItems}
-          ></InvoiceWithNewItems>
+        {invoicesWithNewItemsTransitions((styles, invoice) => (
+          <animated.div style={styles}>
+            <InvoiceWithNewItems
+              key={invoice.invoice_number}
+              invoice={invoice}
+              dispatchInvoicesWithNewItems={dispatchInvoicesWithNewItems}
+            ></InvoiceWithNewItems>
+          </animated.div>
         ))}
       </div>
-
+      {invoicesWithNewItems.length !== 0 || invoices.length !== 0 ? (
+        <div>
+          <br />
+          <h3>Invoices</h3>
+          <hr />
+        </div>
+      ) : null}
       <div className="invoices">
-        {invoices.map((invoice) => (
-          <PurchaseInvoice
-            key={invoice.invoice_number}
-            invoice={invoice}
-            dispatchInvoices={dispatchInvoices}
-          />
+        {invoicesTransitions((styles, invoice) => (
+          <animated.div style={styles}>
+            <PurchaseInvoice
+              key={invoice.invoice_number}
+              invoice={invoice}
+              dispatchInvoices={dispatchInvoices}
+            />
+          </animated.div>
         ))}
       </div>
 

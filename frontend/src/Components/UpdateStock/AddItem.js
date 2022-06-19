@@ -1,6 +1,7 @@
 import "./AddItem.css";
 import { useState } from "react";
 import React from "react";
+import { message, Button } from "antd";
 
 function roundToTwo(num) {
   return +(Math.round(num + "e+2") + "e-2");
@@ -16,6 +17,7 @@ function AddItem({
   const [costPrice, setCostPrice] = useState(
     roundToTwo(item.item_total / item.quantity)
   );
+  const [loading, setLoading] = useState(false);
 
   const handleCloseModal = () => {
     toggleModal(false);
@@ -30,6 +32,7 @@ function AddItem({
   };
 
   const handleAddtoInventory = () => {
+    setLoading(true);
     let new_item = {
       vehicle_type: vehicleType,
       item_desc: item.item_desc,
@@ -46,21 +49,29 @@ function AddItem({
       try {
         const response = await fetch("api/add_item", requestOptions);
         if (response.ok) {
-          toggleModal(false);
-          alert("item added to inventory");
+          setTimeout(() => {
+            setLoading(false);
+          }, 1000);
+          setTimeout(
+            () => message.success("Item added to inventory!", 2),
+            1300
+          );
         }
       } catch (err) {
         console.log(err.message);
       }
     };
     submit_item();
-    dispatchInvoicesWithNewItems({
-      type: "UPDATE_ITEM_STATUS",
-      invoiceNumber: invoiceNumber,
-      itemCode: item.item_code,
-    });
-  };
 
+    setTimeout(() => toggleModal(false), 2000);
+    setTimeout(() => {
+      dispatchInvoicesWithNewItems({
+        type: "UPDATE_ITEM_STATUS",
+        invoiceNumber: invoiceNumber,
+        itemCode: item.item_code,
+      });
+    }, 2600);
+  };
   return (
     <div className="add-item-modal" onClick={handleCloseModal}>
       <div
@@ -100,7 +111,13 @@ function AddItem({
         </section>
 
         <footer className="add-item-footer">
-          <button onClick={handleAddtoInventory}>Add to inventory</button>
+          <Button
+            className="add-item-modal-button"
+            loading={loading}
+            onClick={handleAddtoInventory}
+          >
+            Add to inventory
+          </Button>
         </footer>
       </div>
     </div>

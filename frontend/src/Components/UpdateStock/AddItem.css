@@ -52,24 +52,25 @@
       align-self: center;
     }
 
-      .add-item-footer button{
+    .add-item-modal-button{
         text-decoration: none;
         color:rgb(255, 255, 255);
         font-weight: 600;
         border: none;
         border-radius: 10px;
-        padding: 7px;
+        /* padding: 7px; */
         background-color: rgb(98, 94, 94);
         cursor: pointer;
         transition: box-shadow 0.1s ease-in-out, transform 0.2s ease-in-out, background-color 0.1s ease-in-out;
       }
 
-      .add-item-footer button:active{
+      .add-item-modal-button:active{
         box-shadow: 0 2px rgb(70, 69, 69); 
         transform: translateY(2px);
     }
     
-      .add-item-footer button:hover{
+      .add-item-modal-button:hover{
         background-color: rgb(70, 69, 69); 
-      }
+        color: white;
 
+      }
