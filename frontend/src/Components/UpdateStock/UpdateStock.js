@@ -117,7 +117,7 @@ function UpdateStock() {
     () => ({
       keys: (invoice) => invoice.invoice_number,
       trail: 200,
-      config: { mass: 1, tension: 500, friction: 40, clamp: true },
+      config: { mass: 10, tension: 500, friction: 40, clamp: true },
       from: { opacity: 0 },
       enter: { opacity: 1 },
       leave: { opacity: 0 },
