@@ -50,17 +50,23 @@ function Cart({ handleRefreshProducts }) {
       0
     );
 
-    setCartTotal(roundToTwo(productTotal + serviceTotal));
+    setCartTotal(Math.round(productTotal + serviceTotal));
   }, [products, services]);
 
   const handleServicesPrice = (serviceName, e) => {
+    let price;
+    if (e.target.value === "") {
+      price = 0;
+    } else {
+      price = parseFloat(e.target.value);
+    }
     e.preventDefault(); //why use this
     setServices((services) =>
       services.map((service) => {
         if (service.name === serviceName) {
           const updatedService = {
             ...service,
-            price: parseFloat(e.target.value),
+            price: price,
           };
           return updatedService;
         }
@@ -71,12 +77,18 @@ function Cart({ handleRefreshProducts }) {
 
   const handleServicesQuantity = (serviceName, e) => {
     e.preventDefault(); //why use this
+    let quantity;
+    if (e.target.value === "") {
+      quantity = 0;
+    } else {
+      quantity = parseInt(e.target.value);
+    }
     setServices((services) =>
       services.map((service) => {
         if (service.name === serviceName) {
           const updatedService = {
             ...service,
-            quantity: parseInt(e.target.value),
+            quantity: quantity,
           };
           return updatedService;
         }
@@ -192,24 +204,27 @@ function Cart({ handleRefreshProducts }) {
                 <div className="service-price">
                   <label htmlFor="service-price">Price: </label>
                   <input
-                    id="service-price"
-                    type="text"
+                    className="service-price-input"
+                    type="number"
+                    min="0"
                     value={service.price}
                     onChange={(e) => handleServicesPrice(service.name, e)}
                     onFocus={handleFocus}
+                    onWheel={(e) => e.target.blur()}
                   />
                 </div>
 
                 <div className="service-quantity">
                   <label htmlFor="service-quantity">Qty: </label>
                   <input
-                    id="service-quantity"
+                    className="service-quantity-input"
                     type="number"
                     step="1"
                     min="0"
                     value={service.quantity}
                     onChange={(e) => handleServicesQuantity(service.name, e)}
                     onFocus={handleFocus}
+                    onWheel={(e) => e.target.blur()}
                   />
                 </div>
               </div>

@@ -131,6 +131,18 @@
     background-color: #fbebbd;
 }
 
+/* Chrome, Safari, Edge, Opera */
+.service-price-input::-webkit-outer-spin-button,
+.service-price-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.service-price-input[type=number] {
+  -moz-appearance: textfield;
+}
+
 .cart-total{
     padding-top:15px;
     font-size: 25px;

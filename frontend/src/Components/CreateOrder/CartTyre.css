@@ -85,3 +85,15 @@
     background-color: #fbebbd;
 }
 
+/* Chrome, Safari, Edge, Opera */
+.cart-tyre-price-input::-webkit-outer-spin-button,
+.cart-tyre-price-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.cart-tyre-price-input[type=number] {
+  -moz-appearance: textfield;
+}
+

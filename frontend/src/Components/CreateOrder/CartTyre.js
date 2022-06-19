@@ -15,12 +15,18 @@ function CartTyre({ tyreData }) {
 
   const handlePrice = (e) => {
     e.preventDefault(); //why use this
+    let price;
+    if (e.target.value === "") {
+      price = 0;
+    } else {
+      price = parseFloat(e.target.value);
+    }
     setCart((cart) =>
       cart.map((product) => {
         if (product.itemCode === tyreData.itemCode) {
           const updatedProduct = {
             ...product,
-            price: parseFloat(e.target.value),
+            price: price,
           };
           return updatedProduct;
         }
@@ -33,12 +39,18 @@ function CartTyre({ tyreData }) {
 
   const handleQuantity = (e) => {
     e.preventDefault(); //why use this
+    let quantity;
+    if (e.target.value === "") {
+      quantity = 0;
+    } else {
+      quantity = parseInt(e.target.value);
+    }
     setCart((cart) =>
       cart.map((product) => {
         if (product.itemCode === tyreData.itemCode) {
           const updatedProduct = {
             ...product,
-            quantity: parseInt(e.target.value),
+            quantity: quantity,
           };
           return updatedProduct;
         }
@@ -55,23 +67,26 @@ function CartTyre({ tyreData }) {
         <div className="cart-tyre-price">
           <label htmlFor="price">Price: </label>
           <input
-            id="price"
-            type="text"
+            className="cart-tyre-price-input"
+            type="number"
+            min="1"
             value={tyreData.price}
             onChange={handlePrice}
             onFocus={handleFocus}
+            onWheel={(e) => e.target.blur()}
           />
         </div>
         <div className="cart-tyre-quantity">
           <label htmlFor="quantity">Qty: </label>
           <input
-            id="quantity"
+            className="cart-tyre-quantity-input"
             type="number"
             step="1"
             min="1"
             value={tyreData.quantity}
             onChange={handleQuantity}
             onFocus={handleFocus}
+            onWheel={(e) => e.target.blur()}
           />
         </div>
         <div>
