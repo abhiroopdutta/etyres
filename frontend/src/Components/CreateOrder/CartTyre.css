@@ -8,7 +8,7 @@
 .cart-tyre-name{
     /* background-color: yellow; */
     font-weight:700;
-    color:rgb(41, 40, 40);
+    color:var(--darkest);
 }
 
 .cart-tyre-details{
@@ -68,20 +68,20 @@
     border: 0.5px solid transparent;
     border-radius: 5px;
     outline: none;
-    background-color: #fdf4db;
-    color: #000000;
+    background-color: var(--light-yellow);
+    color: var(--darkest);
     font-size:medium;   
     font-weight:500;
     transition: background-color 0.1s ease-in-out, border 0.2s ease-in-out;
 }
 
 .cart-tyre input:focus{
-    border:0.5px dotted rgb(117, 117, 117);
-    background-color: #fbebbd;
+    border:0.5px dotted var(--darker);
+    background-color: var(--dark-yellow);
 }
 
 .cart-tyre input:hover{
-    background-color: #fbebbd;
+    background-color: var(--dark-yellow);
 }
 
 /* Chrome, Safari, Edge, Opera */

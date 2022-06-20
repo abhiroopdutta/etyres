@@ -1,5 +1,5 @@
 .navBar {
-    background-color: rgb(56, 54, 54);
+    background-color: var(--darkest);
     display:flex;
     justify-content: space-between;
     align-items: center;
@@ -7,7 +7,7 @@
   
   .nav-header{
     padding: 0.5rem 2.8rem;
-    color: rgb(255, 255, 255);
+    color: white;
     text-decoration: none; 
     font-size: 1.8rem;
     font-weight: 650;
@@ -25,7 +25,7 @@
 
 .nav-link{
   text-decoration: none; 
-  color: rgb(255, 255, 255);
+  color: white;
   font-size: 1.2rem;
   font-weight: 400;
   margin: 0;
@@ -35,8 +35,8 @@
   
 /* Change the color of links on hover */
 .navBar a:hover {
-  background-color: rgb(233, 225, 225);
-  color: rgb(44, 42, 42);
+  background-color: var(--lighter);
+  color: var(--darkest);
   }
   
 

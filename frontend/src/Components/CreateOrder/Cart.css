@@ -1,5 +1,5 @@
 .cart{
-    background-color: rgb(233, 225, 225);
+    background-color: var(--lighter);
     text-decoration: none; 
     display: flex;
     flex-direction: column;
@@ -22,8 +22,8 @@
     font-size: 28px;
     padding-bottom: 10px;
     /* background-color: rgb(204, 95, 95); */
-    color: rgb(44, 42, 42);
-    border-bottom: 3px solid rgb(175, 169, 169);
+    color: var(--darkest);
+    border-bottom: 3px solid var(--default);
 }
 
 .cart-invoice{
@@ -34,7 +34,7 @@
     display: flex;
     justify-content: flex-end;
     align-items: flex-end;
-    border-bottom: 3px solid rgb(175, 169, 169);
+    border-bottom: 3px solid var(--default);
     
 }
 
@@ -60,7 +60,7 @@
 }
 
 .service-name{
-    color:rgb(41, 40, 40);
+    color:var(--darkest);
     font-weight:700;
     text-transform: uppercase;
     /* background-color: rgb(93, 190, 255); */
@@ -94,8 +94,8 @@
     outline: none;
     border: 0.5px dotted transparent;
     border-radius: 5px;
-    background-color: #fdf4db;
-    color: #000000;
+    background-color: var(--light-yellow);
+    color: var(--darkest);
     font-size:medium;   
     font-weight:500;
     transition: background-color 0.1s ease-in-out, border 0.2s ease-in-out;
@@ -103,12 +103,12 @@
 
 
 .cart-services input:focus{
-    border:0.5px dotted rgb(117, 117, 117);
-    background-color: #fbebbd;
+    border:0.5px dotted var(--darker);
+    background-color: var(--dark-yellow);
 }
 
 .cart-services input:hover{
-    background-color: #fbebbd;
+    background-color: var(--dark-yellow);
 }
 
 /* Chrome, Safari, Edge, Opera */
@@ -127,7 +127,7 @@
     padding-top:15px;
     font-size: 25px;
     font-weight: 700;
-    color:rgb(24, 23, 23);
+    color:var(--darkest);
 }
 
 

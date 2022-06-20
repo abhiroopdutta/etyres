@@ -5,19 +5,19 @@
 }
 
 .products input{
-    border: 2px solid rgb(56, 54, 54);
+    border: 3px solid var(--darkest);
     border-radius: 8px;
     padding: 3px;
     outline: none;
-    color: #000000;
+    color: var(--darkest);
 }
 
 .products input:focus{
-    background-color: #fdf4db;
+    background-color: var(--light-yellow);
 }
 
 .products input:hover{
-    background-color: #fdf4db;
+    background-color: var(--light-yellow);
 }
 
 .product-filters{

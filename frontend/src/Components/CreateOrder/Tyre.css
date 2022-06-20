@@ -1,8 +1,8 @@
 .product {
     display: grid;
     grid-template-columns: 80px 220px;
-    background-color: rgb(255, 255, 255);
-    border-bottom:3px solid rgb(160, 153, 153);
+    background-color: white;
+    border-bottom:3px solid var(--default);
   }
 
 .product-title{

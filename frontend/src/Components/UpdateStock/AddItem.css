@@ -19,7 +19,7 @@
     flex-flow: column wrap;
     justify-content: flex-start;
     gap: 5px;
-    background-color: rgb(233, 225, 225);
+    background-color: var(--lighter);
     border-radius: 8px;
   }
 
@@ -27,15 +27,15 @@
       display:flex;
       flex-flow: row wrap;
       justify-content: space-between;
-      background-color: rgb(56, 54, 54);
-      color: rgb(255, 255, 255);
+      background-color: var(--darkest);
+      color: white;
       padding: 20px;
       border-radius: 8px 8px 0px 0px;
 
     }
 
     .close-new-item-modal{
-      color: rgb(56, 54, 54);
+      color: var(--darkest);
       font-weight: 800;
       cursor: pointer;
     }
