@@ -147,60 +147,62 @@ function PurchaseInvoice({ invoice, dispatchInvoices }) {
         </section>
       ) : null}
 
-      <table className="purchase-invoice-table">
-        <thead>
-          <tr>
-            <th>S.no.</th>
-            <th>Item Desc</th>
-            <th>Qty</th>
-            <th>Price</th>
-            {invoice.claim_invoice ? <th>Claim No.</th> : null}
-          </tr>
-        </thead>
-        {/* It is safe to use item_index as key here since the claim_items array doesn't change, but fix it in future */}
-        <tbody>
-          {invoice.claim_invoice
-            ? invoice.claim_items.map((service, claim_item_index) => (
-                <tr key={claim_item_index}>
-                  <td>{claim_item_index + 1}</td>
-                  <td>{service.item_desc}:</td>
-                  <td>{service.quantity}</td>
-                  <td>{service.item_total}</td>
-                  <td className="claim-number">
-                    <input
-                      type="text"
-                      placeholder="claim number"
-                      onChange={(e) =>
-                        dispatchInvoices({
-                          type: "UPDATE_CLAIM_NUMBER",
-                          invoiceNumber: invoice.invoice_number,
-                          field: "",
-                          value: e.target.value,
-                          claimIndex: claim_item_index,
-                        })
-                      }
-                    />
-                  </td>
-                </tr>
-              ))
-            : invoice.items.map((service, item_index) => (
-                <tr key={service.item_code}>
-                  <td>{item_index + 1}</td>
-                  <td>{service.item_desc}:</td>
-                  <td>{service.quantity}</td>
-                  <td>{service.item_total}</td>
-                </tr>
-              ))}
-        </tbody>
+      <div className="purchase-invoice-table-wrapper">
+        <table className="purchase-invoice-table">
+          <thead>
+            <tr>
+              <th>S.no.</th>
+              <th>Item Desc</th>
+              <th>Qty</th>
+              <th>Price</th>
+              {invoice.claim_invoice ? <th>Claim No.</th> : null}
+            </tr>
+          </thead>
+          {/* It is safe to use item_index as key here since the claim_items array doesn't change, but fix it in future */}
+          <tbody>
+            {invoice.claim_invoice
+              ? invoice.claim_items.map((service, claim_item_index) => (
+                  <tr key={claim_item_index}>
+                    <td>{claim_item_index + 1}</td>
+                    <td>{service.item_desc}:</td>
+                    <td>{service.quantity}</td>
+                    <td>{service.item_total}</td>
+                    <td className="claim-number">
+                      <input
+                        type="text"
+                        placeholder="claim number"
+                        onChange={(e) =>
+                          dispatchInvoices({
+                            type: "UPDATE_CLAIM_NUMBER",
+                            invoiceNumber: invoice.invoice_number,
+                            field: "",
+                            value: e.target.value,
+                            claimIndex: claim_item_index,
+                          })
+                        }
+                      />
+                    </td>
+                  </tr>
+                ))
+              : invoice.items.map((service, item_index) => (
+                  <tr key={service.item_code}>
+                    <td>{item_index + 1}</td>
+                    <td>{service.item_desc}:</td>
+                    <td>{service.quantity}</td>
+                    <td>{service.item_total}</td>
+                  </tr>
+                ))}
+          </tbody>
 
-        <tfoot>
-          <tr>
-            <th colSpan="3">Total</th>
-            <th>{invoice.invoice_total}</th>
-            {invoice.claim_invoice ? <th></th> : null}
-          </tr>
-        </tfoot>
-      </table>
+          <tfoot>
+            <tr>
+              <th colSpan="3">Total</th>
+              <th>{invoice.invoice_total}</th>
+              {invoice.claim_invoice ? <th></th> : null}
+            </tr>
+          </tfoot>
+        </table>
+      </div>
 
       <section className="invoice-price-difference">
         {price_match_component}

@@ -2,30 +2,60 @@
     margin: 0px 0px 10px 0px;
 }
 
+.purchase-invoice-table-wrapper{
+    border: 1px solid var(--default);
+    border-radius: 10px;
+}
+
 .purchase-invoice-table{
     font-family: arial, sans-serif;
     border-collapse: collapse;
     width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
   }
   
 table.purchase-invoice-table th {
-    background-color: #dddddd;
-    border: 1px solid #00000038;
-    padding:2px 4px;  
+    background-color: var(--default);
+    color: var(--darkest);
+    padding:6px;    
   }
   
 table.purchase-invoice-table td {
-    border: 1px solid #dddddd;
+    border-bottom: 1px solid var(--default);
     text-align: center;
-    padding: 4px;
+    padding: 6px;
+  }
+
+  table.purchase-invoice-table tr:last-child td{
+    border-bottom: none;
+    text-align: center;
   }
 
 .purchase-invoice{
-    background-color: rgb(233, 225, 225);
+    background-color: var(--lighter);
     padding:15px;
     border-radius: 12px;
     display: flex;
     flex-direction: column;
+}
+
+.purchase-invoice input{
+    background-color: white;
+    outline: none;
+    border: 1px solid var(--default);
+    border-radius: 5px;
+    transition: background-color 0.1s ease-in-out, border 0.2s ease-in-out;
+}
+
+.purchase-invoice input:hover{
+    background-color: var(--light-yellow);
+    
+}
+
+.purchase-invoice input:focus{
+    border: 1px solid var(--darkest);
+    background-color: var(--light-yellow);
 }
 
 .purchase-invoice-header{
@@ -48,22 +78,6 @@ table.purchase-invoice-table td {
 .invoice-date input{
     margin-left: 2px;
     padding: 0;
-    background-color: #ffffff;
-    outline: none;
-    border: 1px solid rgb(148, 148, 148);
-    border-radius: 5px;
-    transition: background-color 0.1s ease-in-out, border 0.2s ease-in-out;
-}
-
-.invoice-date input:hover{
-    background-color: #fdf4db;
-
-}
-
-
-.invoice-date input:focus{
-    border: 1px solid rgb(47, 47, 47);
-    background-color: #fdf4db;
 }
 
 .invoice-exists{
@@ -84,21 +98,6 @@ table.purchase-invoice-table td {
     margin:5px;
     padding-left: 2px;
     max-width:240px;
-    background-color: #ffffff;
-    outline: none;
-    border: 1px solid rgb(148, 148, 148);
-    border-radius: 5px;
-    transition: background-color 0.1s ease-in-out, border 0.2s ease-in-out;
-}
-
-.special-discount input:hover{
-    background-color: #fdf4db;
-
-}
-
-.special-discount input:focus{
-    border: 1px solid rgb(47, 47, 47);
-    background-color: #fdf4db;
 }
 
 .claim-overwrite{
@@ -115,19 +114,5 @@ table.purchase-invoice-table td {
     margin:5px;
     padding-left: 2px;
     max-width:240px;
-    background-color: #ffffff;
-    outline: none;
-    border: 1px solid rgb(148, 148, 148);
-    border-radius: 5px;
-    transition: background-color 0.1s ease-in-out, border 0.2s ease-in-out;
-}
 
-.claim-number input:hover{
-    background-color: #fdf4db;
-
-}
-
-.claim-number input:focus{
-    border: 1px solid rgb(47, 47, 47);
-    background-color: #fdf4db;
 }
