@@ -14,3 +14,39 @@
 .update-inventory{
     margin-top: 20px;
 }
+
+.update-stock input[type="file"] {
+    display: none;
+}
+
+.upload-button, .clear-button, .update-inventory {
+    text-decoration: none;
+    color:white;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    padding: 8px;
+    background-color: var(--darker);
+    cursor: pointer;
+    transition: box-shadow 0.1s ease-in-out, transform 0.2s ease-in-out, background-color 0.1s ease-in-out;
+
+} 
+
+.upload-button:active, .clear-button:active, .update-inventory:active{
+    box-shadow: 0 2px var(--darkest); 
+    transform: translateY(2px);
+}
+
+.upload-button:hover, .clear-button:hover, .update-inventory:hover{
+    background-color: var(--darkest); 
+}
+
+.clear-button:disabled, .update-inventory:disabled{
+    background-color: var(--default);
+    cursor: not-allowed;
+}
+
+.upload-button.disabled{
+    background-color: var(--default);
+    cursor: not-allowed;
+}

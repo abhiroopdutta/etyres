@@ -112,6 +112,7 @@ function UpdateStock() {
     []
   );
   const [existingInvoices, setExistingInvoices] = useState([]);
+  const [fileInputDisabled, setFileInputDisabled] = useState(false);
   const inputFileRef = useRef();
   const transitionProps = useMemo(
     () => ({
@@ -171,6 +172,18 @@ function UpdateStock() {
       }
     }
   }, [invoicesWithNewItems]);
+
+  useEffect(() => {
+    if (
+      invoices.length !== 0 ||
+      invoicesWithNewItems.length !== 0 ||
+      existingInvoices.length !== 0
+    ) {
+      setFileInputDisabled(true);
+    } else {
+      setFileInputDisabled(false);
+    }
+  }, [invoices, invoicesWithNewItems, existingInvoices]);
 
   const changeHandler = (e) => {
     e.preventDefault();
@@ -292,13 +305,18 @@ function UpdateStock() {
       <h3>Upload purchase invoices</h3>
       <form method="POST" action="" encType="multipart/form-data">
         <p>
-          <input
-            type="file"
-            disabled={
-              invoices.length !== 0 ||
-              invoicesWithNewItems.length !== 0 ||
-              existingInvoices.length !== 0
+          <label
+            htmlFor="purchase-invoice-upload"
+            className={
+              fileInputDisabled ? "upload-button disabled" : "upload-button"
             }
+          >
+            Choose files
+          </label>
+          <input
+            id="purchase-invoice-upload"
+            type="file"
+            disabled={fileInputDisabled}
             name="files"
             multiple
             onChange={changeHandler}
@@ -307,6 +325,7 @@ function UpdateStock() {
         </p>
       </form>
       <button
+        className="clear-button"
         disabled={
           invoices.length === 0 &&
           invoicesWithNewItems.length === 0 &&
