@@ -16,7 +16,7 @@
   }
   
 table.purchase-invoice-table th {
-    background-color: var(--default);
+    background-color: rgb(213, 205, 205);
     color: var(--darkest);
     padding:6px;    
   }
