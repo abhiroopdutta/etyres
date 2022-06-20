@@ -3,31 +3,43 @@
 }
 
 .invoice-with-new-items{
-    background-color: rgb(233, 225, 225);
+    background-color: var(--lighter);
     padding:15px;
     border-radius: 12px;
     display: flex;
     flex-direction: column;
 }
 
+.invoice-with-new-items-table-wrapper{
+  border: 1px solid var(--default);
+  border-radius: 10px;
+}
+
 .invoice-with-new-items-table{
     font-family: arial, sans-serif;
     border-collapse: collapse;
     width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
   }
   
 table.invoice-with-new-items-table th {
-    background-color: #dddddd;
-    border: 1px solid #00000038;
-    padding:2px 4px;  
+    background-color: var(--default);
+    color: var(--darkest);
+    padding:6px;  
+    font-weight: 700;
   }
   
 table.invoice-with-new-items-table td {
-    border: 1px solid #dddddd;
+    border-bottom: 1px solid var(--default);
     text-align: center;
-    padding: 4px;
+    padding: 6px;
   }
 
+  table.invoice-with-new-items-table tr:last-child td{
+    border-bottom: none;
+    text-align: center;
+  }
 .header{
     display: flex;
     flex-wrap: wrap;
@@ -39,15 +51,6 @@ table.invoice-with-new-items-table td {
 }
 
 .add-to-inventory-button{
-  border: 1px solid rgb(148, 148, 148);
-  border-radius: 5px;
-}
-
-.add-to-inventory-button:active{
-  box-shadow: 0 2px rgb(223, 223, 223); 
-  transform: translateY(2px);
-}
-
-.add-to-inventory-button:hover{
-  background-color: rgb(223, 223, 223); 
+ padding: 5px;
+ font-weight: 600;
 }

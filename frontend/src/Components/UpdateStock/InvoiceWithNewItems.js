@@ -3,6 +3,7 @@ import "./InvoiceWithNewItems.css";
 import AddItem from "./AddItem";
 import React from "react";
 import { useTransition, animated } from "@react-spring/web";
+import Button from "../Button";
 
 function InvoiceWithNewItems({ invoice, dispatchInvoicesWithNewItems }) {
   const [showModal, setShowModal] = useState(false);
@@ -29,40 +30,41 @@ function InvoiceWithNewItems({ invoice, dispatchInvoicesWithNewItems }) {
         <h4 className="invoice-number">Invoice no. {invoice.invoice_number}</h4>
       </header>
       <hr className="invoice-with-new-items-hr" />
-      <table className="invoice-with-new-items-table">
-        <thead>
-          <tr>
-            <th>S.no.</th>
-            <th>Item Desc</th>
-            <th>Qty</th>
-            <th>Price</th>
-            <th>inventory</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {invoice.items.map((item, index) => (
-            <tr key={item.item_code}>
-              <td>{index + 1}</td>
-              <td>{item.item_desc}:</td>
-              <td>{item.quantity}</td>
-              <td>{item.item_total}</td>
-              <td>
-                {item.not_found_in_inventory ? (
-                  <button
-                    className="add-to-inventory-button"
-                    onClick={() => handleUpdateInventory(item)}
-                  >
-                    Add to inventory
-                  </button>
-                ) : (
-                  <div>&#9989;</div>
-                )}
-              </td>
+      <div className="invoice-with-new-items-table-wrapper">
+        <table className="invoice-with-new-items-table">
+          <thead>
+            <tr>
+              <th>S.no.</th>
+              <th>Item Desc</th>
+              <th>Qty</th>
+              <th>Price</th>
+              <th>inventory</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            {invoice.items.map((item, index) => (
+              <tr key={item.item_code}>
+                <td>{index + 1}</td>
+                <td>{item.item_desc}:</td>
+                <td>{item.quantity}</td>
+                <td>{item.item_total}</td>
+                <td>
+                  {item.not_found_in_inventory ? (
+                    <Button
+                      className="add-to-inventory-button"
+                      onClick={() => handleUpdateInventory(item)}
+                      text="Add to Inventory"
+                    />
+                  ) : (
+                    <div>&#9989;</div>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {transitions((styles, showModal) =>
         showModal ? (
