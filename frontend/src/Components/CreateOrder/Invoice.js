@@ -628,8 +628,9 @@ function Invoice({
           onClick={(e) => {
             handleConfirmOrder(e);
           }}
+          // style={{ backgroundColor: "white", color: "rgb(60, 58, 58)" }}
         >
-          CONFIRM ORDER
+          Confirm Order
         </Button>
       </div>
     </div>

@@ -27,6 +27,7 @@
     border-radius: 12px;
     background-color: var(--darker);
     cursor: pointer;
+    font-weight: 600;
     transition: box-shadow 0.1s ease-in-out, transform 0.2s ease-in-out, background-color 0.1s ease-in-out;
 }
 
@@ -83,6 +84,7 @@
     border-radius: 12px;
     background-color: var(--darker);
     cursor: pointer;
+    font-weight: 600;
     transition: box-shadow 0.1s ease-in-out, transform 0.2s ease-in-out, background-color 0.1s ease-in-out;
 }
 
