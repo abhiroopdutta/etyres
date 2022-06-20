@@ -1,0 +1,105 @@
+.ant-table-content > table{
+    border-collapse: collapse;
+    border-radius: 1em;
+    overflow: hidden;
+    background-color:  var(--lightest);
+}
+
+.ant-table-thead > tr > th{
+    background-color: var(--darker);
+    text-decoration: none; 
+    color:  white;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.ant-table-tbody > tr > td{
+    border-bottom: 2px solid white;
+}
+
+.ant-table-tbody>tr:hover td {background: var(--lighter)!important;}
+
+.ant-btn-primary{
+    text-decoration: none;
+    color:white;
+    border: none;
+    border-radius: 12px;
+    background-color: var(--darker);
+    cursor: pointer;
+    transition: box-shadow 0.1s ease-in-out, transform 0.2s ease-in-out, background-color 0.1s ease-in-out;
+}
+
+.ant-btn-primary:active{
+    box-shadow: 0 2px var(--darkest); 
+    transform: translateY(2px);
+}
+
+.ant-btn-primary:hover{
+    background-color: var(--darkest); 
+}
+
+.ant-btn-primary:focus{
+    background-color: var(--darkest); 
+}
+
+.ant-dropdown-trigger{
+    color: var(--lighter);
+}
+
+.ant-dropdown-trigger:hover{
+    color: white;
+}
+
+.ant-dropdown-trigger:active{
+    color: white;
+}
+
+.ant-table-filter-trigger.active{
+    color: #ffd043;
+
+}
+
+.anticon-edit{
+    color: var(--darker);
+}
+
+.anticon-edit:hover{
+    color: var(--darkest); 
+}
+
+.anticon-edit:active{
+    color: var(--darkest); 
+}
+
+.anticon-edit:focus{
+    color: var(--darkest); 
+}
+
+.ant-btn-default{
+    text-decoration: none;
+    color:white;
+    border: none;
+    border-radius: 12px;
+    background-color: var(--darker);
+    cursor: pointer;
+    transition: box-shadow 0.1s ease-in-out, transform 0.2s ease-in-out, background-color 0.1s ease-in-out;
+}
+
+.ant-btn-default:active{
+    box-shadow: 0 2px var(--darkest); 
+    transform: translateY(5px);
+    color:white;
+
+}
+
+.ant-btn-default:hover{
+    background-color: var(--darkest); 
+    color:white;
+}
+
+.ant-btn-default:focus{
+    background-color: var(--darkest); 
+    color:white;
+
+}
