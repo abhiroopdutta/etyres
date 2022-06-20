@@ -117,7 +117,7 @@ function UpdateStock() {
   const transitionProps = useMemo(
     () => ({
       keys: (invoice) => invoice.invoice_number,
-      trail: 200,
+      trail: 150,
       config: { mass: 10, tension: 500, friction: 40, clamp: true },
       from: { opacity: 0 },
       enter: { opacity: 1 },
@@ -275,10 +275,10 @@ function UpdateStock() {
       fetch("/api/update_stock", requestOptions)
         .then((response) => response.json())
         .then((result) => {
-          handleClearInvoices();
           Modal.success({
             content: result,
           });
+          setTimeout(() => handleClearInvoices(), 400);
         });
     }
   };
