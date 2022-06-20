@@ -24,7 +24,7 @@
     text-decoration: none;
     color:white;
     border: none;
-    border-radius: 12px;
+    border-radius: 6px;
     background-color: var(--darker);
     cursor: pointer;
     font-weight: 600;
@@ -81,7 +81,7 @@
     text-decoration: none;
     color:white;
     border: none;
-    border-radius: 12px;
+    border-radius: 6px;
     background-color: var(--darker);
     cursor: pointer;
     font-weight: 600;
