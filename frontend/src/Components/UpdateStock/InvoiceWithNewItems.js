@@ -38,7 +38,7 @@ function InvoiceWithNewItems({ invoice, dispatchInvoicesWithNewItems }) {
               <th>Item Desc</th>
               <th>Qty</th>
               <th>Price</th>
-              <th>inventory</th>
+              <th>Inventory</th>
             </tr>
           </thead>
 
