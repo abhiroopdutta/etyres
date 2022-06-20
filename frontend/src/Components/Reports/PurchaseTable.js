@@ -11,7 +11,11 @@ import {
   Modal,
 } from "antd";
 import { DatePicker } from "../Antdesign_dayjs_components";
-import { SearchOutlined, EditFilled } from "@ant-design/icons";
+import {
+  SearchOutlined,
+  EditFilled,
+  DownloadOutlined,
+} from "@ant-design/icons";
 import PurchaseInvoiceModal from "./PurchaseInvoiceModal.js";
 import { dayjsUTC } from "../dayjsUTCLocal";
 const { RangePicker } = DatePicker;
@@ -310,7 +314,8 @@ function PurchaseTable({ exportToExcel }) {
           type="primary"
           onClick={handleExport}
           size="small"
-          style={{ width: 80 }}
+          style={{ width: 100 }}
+          icon={<DownloadOutlined />}
         >
           Export
         </Button>

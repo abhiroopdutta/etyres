@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import { Layout, Typography, Button, Divider, Modal } from "antd";
+import { Layout, Typography, Button, Modal } from "antd";
+import { DownloadOutlined } from "@ant-design/icons";
 import SalesTable from "./SalesTable";
 import PurchaseTable from "./PurchaseTable";
 import { dayjsLocal } from "../dayjsUTCLocal";
+import "./Reports.css";
 const { Title } = Typography;
 
 function Reports() {
@@ -104,15 +106,18 @@ function Reports() {
       <div className="sales-table">
         <SalesTable exportToExcel={handleGenerateFile} />
       </div>
-      <Divider />
+      <br />
+      <br />
+
       <div className="purchase-table">
         <PurchaseTable exportToExcel={handleGenerateFile} />
       </div>
-      <Divider />
+      <br />
 
       <div className="stock-report">
         <Title level={3}>Stock</Title>
         <Button
+          icon={<DownloadOutlined />}
           onClick={() => {
             handleGenerateFile({
               reportType: "stock",
@@ -127,9 +132,9 @@ function Reports() {
           Export Current Stock Report
         </Button>
       </div>
-      <Divider />
+      <br />
 
-      <div className="excel-report">
+      <div className="reset-stock">
         <br />
         <Button
           loading={loading}

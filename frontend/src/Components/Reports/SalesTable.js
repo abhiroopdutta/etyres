@@ -1,7 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Table, Input, Button, Space, Layout, Typography, Modal } from "antd";
 import { DatePicker } from "../Antdesign_dayjs_components";
-import { SearchOutlined, EditFilled } from "@ant-design/icons";
+import {
+  SearchOutlined,
+  EditFilled,
+  DownloadOutlined,
+} from "@ant-design/icons";
 import Invoice from "../CreateOrder/Invoice";
 import { dayjsUTC } from "../dayjsUTCLocal";
 const { RangePicker } = DatePicker;
@@ -270,7 +274,8 @@ function SalesTable({ exportToExcel }) {
           type="primary"
           onClick={handleExport}
           size="small"
-          style={{ width: 80 }}
+          style={{ width: 100 }}
+          icon={<DownloadOutlined />}
         >
           Export
         </Button>
