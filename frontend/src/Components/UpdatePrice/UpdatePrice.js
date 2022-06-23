@@ -155,7 +155,10 @@ function UpdatePrice() {
           pagination={false}
           rowKey={(item) => item.vehicleType}
         ></Table>
-        <label htmlFor="price-list-upload" className={"upload-button"}>
+        <label
+          htmlFor="price-list-upload"
+          className={loading ? "upload-button disabled" : "upload-button"}
+        >
           Choose file
         </label>
         <input
