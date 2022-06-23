@@ -57,21 +57,20 @@ function AddItem({
             () => message.success("Item added to inventory!", 2),
             1300
           );
+          setTimeout(() => toggleModal(false), 1800);
+          setTimeout(() => {
+            dispatchInvoicesWithNewItems({
+              type: "UPDATE_ITEM_STATUS",
+              invoiceNumber: invoiceNumber,
+              itemCode: item.item_code,
+            });
+          }, 2400);
         }
       } catch (err) {
         console.log(err.message);
       }
     };
     submit_item();
-
-    setTimeout(() => toggleModal(false), 1800);
-    setTimeout(() => {
-      dispatchInvoicesWithNewItems({
-        type: "UPDATE_ITEM_STATUS",
-        invoiceNumber: invoiceNumber,
-        itemCode: item.item_code,
-      });
-    }, 2400);
   };
   return (
     <div className="add-item-modal" onClick={handleCloseModal}>
