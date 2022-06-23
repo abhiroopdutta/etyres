@@ -15,7 +15,7 @@
     margin-top: 20px;
 }
 
-.update-stock input[type="file"] {
+input[type="file"] {
     display: none;
 }
 

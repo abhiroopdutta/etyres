@@ -155,12 +155,20 @@ function UpdatePrice() {
           pagination={false}
           rowKey={(item) => item.vehicleType}
         ></Table>
+        <label htmlFor="price-list-upload" className={"upload-button"}>
+          Choose file
+        </label>
         <input
           ref={inputFileRef}
           disabled={loading}
           type="file"
           onChange={changeHandler}
+          id="price-list-upload"
+          className="price-list-upload-input"
         />
+        <span style={{ margin: "10px" }}>{selectedFile?.name}</span>
+        <br />
+        <br />
         <Button loading={loading} onClick={handleSubmission}>
           Submit
         </Button>
