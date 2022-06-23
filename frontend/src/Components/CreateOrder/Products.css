@@ -26,13 +26,11 @@
     justify-content: flex-start;
     align-items: flex-end;
     column-gap: 15px;
-    padding-left: 23px;
 }
 
 .product-items{
     /* background-color: rgb(240, 72, 72); */
     display: flex;
-    padding-left: 23px;
     justify-content:flex-start;
     flex-wrap: wrap;
     row-gap: 20px;

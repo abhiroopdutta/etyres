@@ -139,7 +139,7 @@ function UpdatePrice() {
       style={{
         background: "rgba(256, 256, 256)",
         maxWidth: "40%",
-        margin: "44px",
+        margin: "22px 44px",
       }}
     >
       <Title level={4}>
