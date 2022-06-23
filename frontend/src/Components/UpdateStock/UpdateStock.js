@@ -2,8 +2,9 @@ import React, { useState, useRef, useReducer, useEffect, useMemo } from "react";
 import "./UpdateStock.css";
 import PurchaseInvoice from "./PurchaseInvoice";
 import InvoiceWithNewItems from "./InvoiceWithNewItems.js";
-import { Modal } from "antd";
+import { Modal, Typography } from "antd";
 import { useTransition, animated } from "@react-spring/web";
+const { Title } = Typography;
 
 function invoicesReducer(invoices, action) {
   switch (action.type) {
@@ -302,7 +303,9 @@ function UpdateStock() {
 
   return (
     <div className="update-stock">
-      <h3>Upload purchase invoices</h3>
+      <Title level={4} style={{ marginBottom: "15px" }}>
+        Upload purchase invoices
+      </Title>
       <form method="POST" action="" encType="multipart/form-data">
         <p>
           <label
