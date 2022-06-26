@@ -1,7 +1,9 @@
 # ETyres
-Etyres is an inventory management and invoicing web app focused on tyre dealerships, built with React, Flask and Mongo. 
-It is easy to use for people without accounting knowledge.
+Etyres is an inventory management and invoicing desktop web app focused on tyre dealerships, built with React, Flask and Mongo. 
+It is designed with a focus on negotations that take place between a seller and customer, GST invoice is computed accordingly.
 
+
+![Output sample](https://j.gifs.com/pZqkkX.gif)
 
 ### To run the dev build - 
 1. Download Docker for your OS
@@ -20,5 +22,6 @@ Feel free to fork it and make contributions.
 ### Todo
 
 - [ ] Make the server async.
-- [ ] Add feature to delete sale invoice, reverse stock.  
+- [ ] Add feature to delete sale invoice, reverse stock.
+- [ ] Make it mobile friendly.    
  
