@@ -45,23 +45,12 @@ function PurchaseTable({ exportToExcel }) {
     async function fetchTableData() {
       setLoading(true);
 
-      let dateChangedFilters = filters;
-      if (filters.invoiceDate.start && filters.invoiceDate.end) {
-        dateChangedFilters = {
-          ...filters,
-          invoiceDate: {
-            start: filters.invoiceDate.start.format("YYYY-MM-DD"),
-            end: filters.invoiceDate.end.format("YYYY-MM-DD"),
-          },
-        };
-      }
-
       const requestOptions = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           reportType: "purchase",
-          filters: dateChangedFilters,
+          filters: filters,
           sorters: sorters,
           pageRequest: pageRequest,
           maxItemsPerPage: maxItemsPerPage,

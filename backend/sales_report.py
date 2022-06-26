@@ -27,8 +27,8 @@ def get_sales_report(filters = {}, sorters = {}, pageRequest = 1, maxItemsPerPag
     if (filters["customerName"]):
         query &= Q(customerDetails__name__icontains=filters["customerName"])
     if (filters["invoiceDate"]["start"] and filters["invoiceDate"]["end"]):
-        start_datetime = datetime.datetime.strptime(filters["invoiceDate"]["start"] + " " + "00:00:00", '%Y-%m-%d %H:%M:%S')
-        end_datetime = datetime.datetime.strptime(filters["invoiceDate"]["end"] + " " + "23:59:59", '%Y-%m-%d %H:%M:%S')
+        start_datetime = datetime.datetime.strptime(filters["invoiceDate"]["start"][:10] + " " + "00:00:00", '%Y-%m-%d %H:%M:%S')
+        end_datetime = datetime.datetime.strptime(filters["invoiceDate"]["end"][:10] + " " + "23:59:59", '%Y-%m-%d %H:%M:%S')
         query &= Q(invoiceDate__gte=start_datetime) & Q(invoiceDate__lte=end_datetime)
 
     results["data"] = Sale.objects(query).order_by('-_id')[page_start:page_end]
@@ -58,8 +58,8 @@ def get_purchase_report(filters = {}, sorters = {}, pageRequest = 1, maxItemsPer
         else:
             query &= Q(claimInvoice=False)
     if (filters["invoiceDate"]["start"] and filters["invoiceDate"]["end"]):
-        start_datetime = datetime.datetime.strptime(filters["invoiceDate"]["start"] + " " + "00:00:00", '%Y-%m-%d %H:%M:%S')
-        end_datetime = datetime.datetime.strptime(filters["invoiceDate"]["end"] + " " + "23:59:59", '%Y-%m-%d %H:%M:%S')
+        start_datetime = datetime.datetime.strptime(filters["invoiceDate"]["start"][:10] + " " + "00:00:00", '%Y-%m-%d %H:%M:%S')
+        end_datetime = datetime.datetime.strptime(filters["invoiceDate"]["end"][:10] + " " + "23:59:59", '%Y-%m-%d %H:%M:%S')
         query &= Q(invoiceDate__gte=start_datetime) & Q(invoiceDate__lte=end_datetime)
 
     results["data"] = Purchase.objects(query).order_by('-invoiceDate')[page_start:page_end]

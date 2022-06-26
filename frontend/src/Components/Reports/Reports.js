@@ -47,9 +47,9 @@ function Reports() {
                 "download",
                 reportReqInfo.reportType +
                   "_report_" +
-                  reportReqInfo.filters.invoiceDate.start +
+                  reportReqInfo.filters.invoiceDate.start.format("YYYY-MM-DD") +
                   "__" +
-                  reportReqInfo.filters.invoiceDate.end +
+                  reportReqInfo.filters.invoiceDate.end.format("YYYY-MM-DD") +
                   ".xlsx"
               );
             }
