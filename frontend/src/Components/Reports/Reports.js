@@ -43,15 +43,16 @@ function Reports() {
                   ".xlsx"
               );
             } else {
-              link.setAttribute(
-                "download",
-                reportReqInfo.reportType +
-                  "_report_" +
+              let fileName = reportReqInfo.reportType + "_report_";
+              if (reportReqInfo.filters.invoiceDate.start) {
+                fileName +=
                   reportReqInfo.filters.invoiceDate.start.format("YYYY-MM-DD") +
                   "__" +
-                  reportReqInfo.filters.invoiceDate.end.format("YYYY-MM-DD") +
-                  ".xlsx"
-              );
+                  reportReqInfo.filters.invoiceDate.end.format("YYYY-MM-DD");
+              }
+              fileName += ".xlsx";
+
+              link.setAttribute("download", fileName);
             }
 
             // Append to html link element page
