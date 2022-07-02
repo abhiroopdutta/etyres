@@ -57,7 +57,7 @@ function Products({ refreshProducts }) {
             type="text"
             onChange={handleChange}
             value={filters.tyreSize}
-            placeholder="Enter tyre size"
+            placeholder="Search tyre, ex -1357012"
           />
         </div>
         <div className="in-stock-checkbox">
