@@ -2,6 +2,7 @@
 Etyres is an inventory management and invoicing desktop web app focused on tyre dealerships, built with React, Flask and Mongo. 
 It is designed with a focus on negotations that take place between a seller and customer, GST invoice is computed accordingly.
 
+Try the Live Demo - [ETyres](http://65.1.114.142/create_order) 
 
 ### Update price list (catalog)
 https://user-images.githubusercontent.com/19819930/175831985-0125d144-7558-4ffa-9939-12404e9b1e33.mp4
