@@ -34,5 +34,6 @@ Feel free to fork it and make contributions.
 
 - [ ] Make the server async.
 - [ ] Add feature to delete sale invoice, reverse stock.
-- [ ] Make it mobile friendly.    
+- [ ] Make it mobile friendly.
+- [ ] Add landing page.   
  
