@@ -8,6 +8,7 @@ import {
   Typography,
   Modal,
   Tag,
+  Select,
 } from "antd";
 import { DatePicker } from "../Antdesign_dayjs_components";
 import {
@@ -20,12 +21,14 @@ import { dayjsUTC } from "../dayjsUTCLocal";
 const { RangePicker } = DatePicker;
 const { Content } = Layout;
 const { Title, Text } = Typography;
+const { Option } = Select;
 
 function SalesTable({ exportToExcel }) {
   const [filters, setFilters] = useState({
     invoiceNumber: "",
     invoiceDate: { start: "", end: "" },
     invoiceTotal: "",
+    invoiceStatus: "",
     customerName: "",
   });
   const [sorters, setSorters] = useState({});
@@ -156,6 +159,35 @@ function SalesTable({ exportToExcel }) {
     setPageRequest(1);
     confirm();
   };
+
+  const getDropDownMenu = (dataIndex) => ({
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
+      <div style={{ padding: 8 }}>
+        <Select
+          defaultValue=""
+          style={{ width: 120 }}
+          onChange={(value) =>
+            handleDropDownMenuChange(dataIndex, confirm, value)
+          }
+        >
+          <Option value="paid">Paid</Option>
+          <Option value="due">Due</Option>
+          <Option value="cancelled">Cancelled</Option>
+          <Option value="">All</Option>
+        </Select>
+      </div>
+    ),
+    filtered: true,
+  });
+
+  const handleDropDownMenuChange = (dataIndex, confirm, value) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [dataIndex]: value,
+    }));
+    setPageRequest(1);
+    confirm();
+  };
   const handlePageChange = (pagination) => {
     let itemsAlreadyRequested = (pagination.current - 1) * pagination.pageSize;
     if (itemsAlreadyRequested <= pagination.total)
@@ -236,13 +268,16 @@ function SalesTable({ exportToExcel }) {
       key: "invoiceStatus",
       render: (invoiceStatus, invoice) => {
         if (invoice.invoiceNumber >= 1) {
-          if (invoiceStatus == "paid") return <Tag color="green">Paid</Tag>;
-          else if (invoiceStatus == "due") return <Tag color="orange">Due</Tag>;
+          if (invoiceStatus === "paid") return <Tag color="green">Paid</Tag>;
+          else if (invoiceStatus === "due")
+            return <Tag color="orange">Due</Tag>;
           else return <Tag color="red">Cancelled</Tag>;
         } else {
           return null;
         }
       },
+      ...getDropDownMenu("invoiceStatus"),
+      filteredValue: filters.invoiceStatus ? [filters.invoiceStatus] : null,
     },
     {
       title: "Action",
