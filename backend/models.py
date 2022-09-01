@@ -67,6 +67,7 @@ class ServiceItem(db.EmbeddedDocument):
 class Sale(db.Document):
     invoiceNumber = db.IntField(required=True, unique=True) 
     invoiceDate = db.DateTimeField(required=True, default=datetime.datetime.now)
+    invoiceStatus = db.StringField(required=True)
     invoiceTotal = db.IntField(required=True)
     invoiceRoundOff = db.FloatField(required=True)
     customerDetails = db.EmbeddedDocumentField(CustomerDetail)

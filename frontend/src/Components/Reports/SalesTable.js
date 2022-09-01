@@ -1,5 +1,14 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Table, Input, Button, Space, Layout, Typography, Modal } from "antd";
+import {
+  Table,
+  Input,
+  Button,
+  Space,
+  Layout,
+  Typography,
+  Modal,
+  Tag,
+} from "antd";
 import { DatePicker } from "../Antdesign_dayjs_components";
 import {
   SearchOutlined,
@@ -28,6 +37,7 @@ function SalesTable({ exportToExcel }) {
   const searchInputRef = useRef();
   const [showInvoice, setShowInvoice] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState({});
+  const [invoiceStatusUpdate, setInvoiceStatusUpdate] = useState(false);
 
   useEffect(() => {
     if (showInvoice) {
@@ -75,7 +85,7 @@ function SalesTable({ exportToExcel }) {
     return () => {
       didCancel = true;
     };
-  }, [filters, sorters, pageRequest, maxItemsPerPage]);
+  }, [filters, sorters, pageRequest, maxItemsPerPage, invoiceStatusUpdate]);
 
   const getSearchMenu = (dataIndex) => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
@@ -221,6 +231,20 @@ function SalesTable({ exportToExcel }) {
       filteredValue: filters.customerName ? [filters.customerName] : null,
     },
     {
+      title: "Invoice Status",
+      dataIndex: "invoiceStatus",
+      key: "invoiceStatus",
+      render: (invoiceStatus, invoice) => {
+        if (invoice.invoiceNumber >= 1) {
+          if (invoiceStatus == "paid") return <Tag color="green">Paid</Tag>;
+          else if (invoiceStatus == "due") return <Tag color="orange">Due</Tag>;
+          else return <Tag color="red">Cancelled</Tag>;
+        } else {
+          return null;
+        }
+      },
+    },
+    {
       title: "Action",
       key: "action",
       render: (text, invoice) =>
@@ -292,8 +316,10 @@ function SalesTable({ exportToExcel }) {
           defaultInvoiceDate={dayjsUTC(
             selectedInvoice.invoiceDate["$date"]
           ).format("YYYY-MM-DD")}
+          defaultInvoiceStatus={selectedInvoice.invoiceStatus}
           defaultCustomerDetails={selectedInvoice.customerDetails}
           hideInvoice={hideInvoice}
+          setInvoiceStatusUpdate={setInvoiceStatusUpdate}
         />
       ) : null}
     </Content>

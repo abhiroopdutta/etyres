@@ -227,6 +227,7 @@ def create_order(invoice):
 
     invoice_number = invoice["invoiceNumber"]
     invoice_date = invoice["invoiceDate"]
+    invoice_status = invoice["invoiceStatus"]
     invoice_total = invoice["invoiceTotal"]
     invoice_round_off = invoice["invoiceRoundOff"]
     products = invoice["products"]
@@ -303,6 +304,7 @@ def create_order(invoice):
     Sale(
         invoiceNumber = invoice_number, 
         invoiceDate = invoice_date,
+        invoiceStatus = invoice_status,
         invoiceTotal = invoice_total,
         invoiceRoundOff = invoice_round_off,
         customerDetails = customerDetails,
@@ -310,5 +312,56 @@ def create_order(invoice):
         serviceItems = service_items
 
         ).save()
+
+    return 0
+
+def update_invoice_status(invoice_status_request):
+    invoice = Sale.objects(invoiceNumber = invoice_status_request["invoiceNumber"]).first()
+    if invoice is None:
+        print(f'Trying to update status of invoice No. : {invoice_status_request["invoiceNumber"]} that does not exist in db')
+        return 1
+
+    old_invoice_status = invoice.invoiceStatus
+    new_invoice_status = invoice_status_request["invoiceStatus"]
+    if old_invoice_status == new_invoice_status:
+        print("Selected status is same as previous, no status update applied")
+        return 2
+
+    # cannot change status of cancelled invoices
+    if old_invoice_status == "cancelled":
+        print(f'Error! Cannot change status of invoice No. : {invoice_status_request["invoiceNumber"]} that is already cancelled')
+        return 3
+    # cannot change status of paid invoices to due
+    if old_invoice_status == "paid" and new_invoice_status == "due":
+        print(f'Error! Cannot change status of invoice No. : {invoice_status_request["invoiceNumber"]} from paid to due')
+        return 4
+
+    # only 2 types of status changes are possible
+
+    # 1. due -> paid
+    if old_invoice_status == "due" and new_invoice_status == "paid":
+        invoice.update(invoiceStatus = new_invoice_status)
+
+    # In case of cancellations, reverse the stock also
+    # 2. due/paid -> cancelled
+    if old_invoice_status in ["due", "paid"] and new_invoice_status == "cancelled":
+
+        if invoice.productItems:
+            # first check if each product exists in inventory
+            for product in invoice.productItems:
+                productFound = Product.objects(itemCode = product.itemCode).first()
+                if productFound is None:
+                    print(f'Error! {product["itemDesc"]}: {product["itemCode"]} not found in inventory while reversing stock, invoice could not be cancelled')
+                    return 5
+
+            # if each product exists in inventory, only then proceed to reverse stock for each product
+            for product in invoice.productItems:
+                productFound = Product.objects(itemCode = product.itemCode).first()
+                oldstock = productFound.stock
+                new_stock = oldstock + product.quantity
+                Product.objects(itemCode=product["itemCode"]).first().update(stock=new_stock)
+
+        invoice.update(invoiceStatus = new_invoice_status)
+
 
     return 0

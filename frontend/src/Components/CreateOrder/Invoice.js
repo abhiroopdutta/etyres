@@ -3,7 +3,12 @@ import { useReactToPrint } from "react-to-print";
 import { dayjsLocal } from "../dayjsUTCLocal";
 import "./Invoice.css";
 import { Modal, Button, Checkbox } from "antd";
-import { PrinterFilled, CloseCircleFilled } from "@ant-design/icons";
+import {
+  PrinterFilled,
+  CloseCircleFilled,
+  ExclamationCircleOutlined,
+} from "@ant-design/icons";
+const { confirm } = Modal;
 
 function getTodaysDate() {
   return dayjsLocal(new Date()).format("YYYY-MM-DD");
@@ -22,6 +27,7 @@ function Invoice({
   services,
   defaultInvoiceNumber = 0,
   defaultInvoiceDate = getTodaysDate(),
+  defaultInvoiceStatus = "due",
   defaultCustomerDetails = {
     name: "",
     address: "",
@@ -33,9 +39,11 @@ function Invoice({
   },
   defaultOrderConfirmed = false,
   hideInvoice,
+  setInvoiceStatusUpdate,
 }) {
   const [invoiceNumber, setInvoiceNumber] = useState(defaultInvoiceNumber);
   const [invoiceDate, setInvoiceDate] = useState(defaultInvoiceDate);
+  const [invoiceStatus, setInvoiceStatus] = useState(defaultInvoiceStatus);
   const [customerDetails, setCustomerDetails] = useState(
     defaultCustomerDetails
   );
@@ -132,6 +140,10 @@ function Invoice({
     console.log(e.target.value);
   };
 
+  const handleInvoiceStatus = (e) => {
+    setInvoiceStatus(e.target.value);
+  };
+
   const handleCustomerDetails = (e) => {
     setCustomerDetails((customerDetails) => ({
       ...customerDetails,
@@ -144,6 +156,7 @@ function Invoice({
     let invoiceData = {
       invoiceNumber: invoiceNumber,
       invoiceDate: invoiceDate,
+      invoiceStatus: invoiceStatus,
       customerDetails: customerDetails,
     };
     if (!IGSTRender) {
@@ -188,6 +201,67 @@ function Invoice({
     e.stopPropagation();
   };
 
+  const showConfirm = () => {
+    if (invoiceStatus == "cancelled") {
+      confirm({
+        title: "Are you sure you want to cancel this invoice?",
+        icon: <ExclamationCircleOutlined />,
+        content:
+          "This will reverse the product stock, please make sure to tally with physical stock",
+
+        onOk() {
+          handleUpdateInvoiceStatus();
+        },
+
+        onCancel() {
+          console.log("Cancel");
+        },
+      });
+    } else {
+      handleUpdateInvoiceStatus();
+    }
+  };
+
+  const handleUpdateInvoiceStatus = () => {
+    //prepare invoice status update to send to backend
+    let invoiceStatusData = {
+      invoiceNumber: invoiceNumber,
+      invoiceStatus: invoiceStatus,
+    };
+
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(invoiceStatusData),
+    };
+
+    const updateInvoice = async () => {
+      try {
+        const response = await fetch(
+          "/api/update_invoice_status",
+          requestOptions
+        );
+        const result = await response.json();
+        if (response.ok) {
+          Modal.success({
+            content: result,
+          });
+          //update parent sales table
+          setInvoiceStatusUpdate((prevValue) => !prevValue);
+        } else {
+          throw Error(result);
+        }
+      } catch (err) {
+        Modal.error({
+          content: err.message,
+        });
+        console.log(err.message);
+      }
+    };
+
+    updateInvoice();
+  };
+
   const toggleTaxInvoice = () => {
     setCustomerDetails((prevState) => ({
       ...prevState,
@@ -197,7 +271,6 @@ function Invoice({
     }));
     setIsTaxInvoice((isTaxInvoice) => !isTaxInvoice);
   };
-  console.log(customerDetails);
 
   return (
     <div
@@ -217,6 +290,17 @@ function Invoice({
           type="default"
           icon={<PrinterFilled />}
         ></Button>
+
+        <Button
+          type="default"
+          disabled={!orderConfirmed}
+          onClick={(e) => {
+            showConfirm();
+            e.stopPropagation();
+          }}
+        >
+          Update Invoice Status
+        </Button>
 
         {/* <Checkbox
           className="tax-invoice-button"
@@ -262,9 +346,18 @@ function Invoice({
               />
             </h4>
             <label htmlFor="invoice_status">Invoice status: </label>
-            <select id="invoice_status" name="invoice_status">
-              <option value="paid">paid</option>
+            <select
+              id="invoice_status"
+              name="invoice_status"
+              value={invoiceStatus}
+              disabled={!orderConfirmed}
+              onChange={(e) => {
+                handleInvoiceStatus(e);
+              }}
+            >
               <option value="due">due</option>
+              <option value="paid">paid</option>
+              <option value="cancelled">cancelled</option>
             </select>
           </header>
         </div>
