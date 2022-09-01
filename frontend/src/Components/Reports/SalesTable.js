@@ -30,6 +30,9 @@ function SalesTable({ exportToExcel }) {
     invoiceTotal: "",
     invoiceStatus: "",
     customerName: "",
+    customerContact: "",
+    customerVehicleNumber: "",
+    customerGSTIN: "",
   });
   const [sorters, setSorters] = useState({});
   const [pageRequest, setPageRequest] = useState(1);
@@ -261,6 +264,44 @@ function SalesTable({ exportToExcel }) {
         }
       },
       filteredValue: filters.customerName ? [filters.customerName] : null,
+    },
+    {
+      title: "Customer Contact",
+      dataIndex: ["customerDetails", "contact"],
+      key: ["customerDetails", "contact"],
+      ...getSearchMenu("customerContact"),
+      onFilterDropdownVisibleChange: (visible) => {
+        if (visible) {
+          setTimeout(() => searchInputRef.current.select(), 100);
+        }
+      },
+      filteredValue: filters.customerContact ? [filters.customerContact] : null,
+    },
+    {
+      title: "Customer Vehicle No.",
+      dataIndex: ["customerDetails", "vehicleNumber"],
+      key: ["customerDetails", "vehicleNumber"],
+      ...getSearchMenu("customerVehicleNumber"),
+      onFilterDropdownVisibleChange: (visible) => {
+        if (visible) {
+          setTimeout(() => searchInputRef.current.select(), 100);
+        }
+      },
+      filteredValue: filters.customerVehicleNumber
+        ? [filters.customerVehicleNumber]
+        : null,
+    },
+    {
+      title: "Customer GSTIN",
+      dataIndex: ["customerDetails", "GSTIN"],
+      key: ["customerDetails", "GSTIN"],
+      ...getSearchMenu("customerGSTIN"),
+      onFilterDropdownVisibleChange: (visible) => {
+        if (visible) {
+          setTimeout(() => searchInputRef.current.select(), 100);
+        }
+      },
+      filteredValue: filters.customerGSTIN ? [filters.customerGSTIN] : null,
     },
     {
       title: "Invoice Status",

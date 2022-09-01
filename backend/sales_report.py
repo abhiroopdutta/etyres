@@ -28,6 +28,12 @@ def get_sales_report(filters = {}, sorters = {}, pageRequest = 1, maxItemsPerPag
         query &= Q(invoiceStatus=filters["invoiceStatus"])
     if (filters["customerName"]):
         query &= Q(customerDetails__name__icontains=filters["customerName"])
+    if (filters["customerContact"]):
+        query &= Q(customerDetails__contact__icontains=filters["customerContact"])
+    if (filters["customerVehicleNumber"]):
+        query &= Q(customerDetails__vehicleNumber__icontains=filters["customerVehicleNumber"])
+    if (filters["customerGSTIN"]):
+        query &= Q(customerDetails__GSTIN__icontains=filters["customerGSTIN"])      
     if (filters["invoiceDate"]["start"] and filters["invoiceDate"]["end"]):
         start_datetime = datetime.datetime.strptime(filters["invoiceDate"]["start"][:10] + " " + "00:00:00", '%Y-%m-%d %H:%M:%S')
         end_datetime = datetime.datetime.strptime(filters["invoiceDate"]["end"][:10] + " " + "23:59:59", '%Y-%m-%d %H:%M:%S')
