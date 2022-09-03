@@ -103,7 +103,7 @@
 }
 
 .customer-details{
-  padding: 2% 0;
+  padding: 2% 0 3% 0;
 }
 
 .customer-details label{ 
@@ -154,14 +154,13 @@
 }
   
 .IGST-table, .rounding-table, .GST-table, .no-tax-invoice{
-  font-family: arial, sans-serif;
   border-collapse: collapse;
   width: 100%;
 }
 
 table.IGST-table th, table.GST-table th, table.no-tax-invoice th, table.rounding-table th {
   background-color: #dddddd;
-  color: rgb(62, 62, 62);
+  color: rgb(0, 0, 0);
   border: none;
   text-align: right;
   padding: 6px 12px;
@@ -169,7 +168,7 @@ table.IGST-table th, table.GST-table th, table.no-tax-invoice th, table.rounding
 
 table.IGST-table td, table.GST-table td, table.no-tax-invoice td, table.rounding-table td {
   text-align: right;
-  padding: 6px 12px;
+  padding: 4px 12px;
   border: none;
   border-bottom: 1px solid #dddddd;
 }
@@ -187,7 +186,7 @@ table.rounding-table td:nth-child(1), table.rounding-table th:nth-child(1){
 .bank-name, .bank-details, .eoe{
   float: left;
   font-weight: 400;
-  color: rgb(90, 90, 90);
+  color: rgb(0, 0, 0);
 
   font-style: italic;
 }
@@ -195,7 +194,7 @@ table.rounding-table td:nth-child(1), table.rounding-table th:nth-child(1){
 .signatory-name, .signature, .signatory{
   float:right;
   font-weight: 400;
-  color: rgb(90, 90, 90);
+  color: rgb(0, 0, 0);
   font-style: italic;
 }
 
