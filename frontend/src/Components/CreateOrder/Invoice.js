@@ -322,18 +322,18 @@ function Invoice({
       >
         <div className="invoice-header">
           <header className="shop-details">
-            <h4>EUREKA TYRES</h4>
-            <h4>APOLLO PV ZONE</h4>
-            <br />
+            <h4>EUREKA TYRES - APOLLO PV ZONE</h4>
             <address>
-              <p>GSTIN: 09FWTPD4101B1ZT</p>
-              <p>State: Uttar Pradesh, Code:09</p>
-              <p>52/42/6A, Tashkand Marg, Civil Lines, Allahabad</p>
-              <p>Uttar Pradesh - 211001 | +91 94355 55596</p>
+              GSTIN: 09FWTPD4101B1ZT, State: Uttar Pradesh, Code:09
             </address>
+            <address>
+              <address>52/42/6A, Tashkand Marg, Civil Lines, Allahabad</address>
+            </address>
+            <address>Uttar Pradesh - 211001 | Contact: +91 94355 55596</address>
           </header>
 
           <header className="invoice-details">
+            <br />
             <h4> Tax Invoice # {invoiceNumber}</h4>
             <h4>
               Invoice Date:{" "}

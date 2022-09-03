@@ -53,7 +53,7 @@
   /* margin: 0mm auto; */
   background: rgb(255, 255, 255);
   box-shadow: 0 0 0.5cm rgba(99, 98, 98, 0.5);
-  padding:40px 40px;
+  padding:28px 35px;
 }
 
 .invoice-header{
@@ -61,7 +61,7 @@
   justify-content: space-between;
 }
 
-.shop-details h4, .shop-details p{
+.shop-details h4, .shop-details address{
   margin: 0;
   padding: 0;
 }
@@ -69,13 +69,18 @@
 .shop-details h4{
   font-size: medium;
   font-weight: 600;
-  color: rgb(56, 56, 56);
-
+  color: rgb(30, 30, 30);
+  padding-bottom: 5px;
 }
+
 .shop-details address{
-  color: rgb(90, 90, 90);
+  color: rgb(30, 30, 30);
   font-weight: 400;
   font-style: italic;
+}
+
+.invoice-details{
+  padding-top: 6px;
 }
 
 .invoice-details h4, .invoice-details select, .invoice-details label, .invoice-details input{
@@ -83,9 +88,12 @@
   padding: 0;
   border: none;
   appearance: none;
-  color: rgb(56, 56, 56);
+  color: rgb(30, 30, 30);
   font-weight: 600;
   background-color: rgb(255, 255, 255);
+}
+.invoice-details input{
+  max-width:95px;
 }
 
 .invoice-details select:hover, .invoice-details input:hover{
