@@ -333,7 +333,6 @@ function Invoice({
           </header>
 
           <header className="invoice-details">
-            <br />
             <h4> Tax Invoice # {invoiceNumber}</h4>
             <h4>
               Invoice Date:{" "}
@@ -362,7 +361,7 @@ function Invoice({
           </header>
         </div>
         <hr />
-        <br />
+
         <div className="customer-details">
           <label htmlFor="name">Bill To: </label>
           <input
@@ -425,7 +424,17 @@ function Invoice({
                 disabled={orderConfirmed}
                 placeholder={orderConfirmed ? null : "Customer GSTIN"}
               />
-              <br />
+              <label htmlFor="state">State: </label>
+              <input
+                id="state"
+                name="state"
+                className="state"
+                type="text"
+                value={customerDetails.state}
+                onChange={handleCustomerDetails}
+                disabled={orderConfirmed}
+                placeholder={orderConfirmed ? null : "GST State"}
+              />
               <label htmlFor="stateCode">Code: </label>
               <input
                 id="stateCode"
@@ -438,24 +447,9 @@ function Invoice({
                 disabled={orderConfirmed}
                 placeholder={orderConfirmed ? null : "GST State Code"}
               />
-              <br />
-              <label htmlFor="state">State: </label>
-              <input
-                id="state"
-                name="state"
-                className="state"
-                type="text"
-                value={customerDetails.state}
-                onChange={handleCustomerDetails}
-                disabled={orderConfirmed}
-                placeholder={orderConfirmed ? null : "GST State"}
-              />
-              <br />
             </section>
           ) : null}
         </div>
-
-        <br />
 
         {isTaxInvoice ? (
           <div className="tax-invoice">
