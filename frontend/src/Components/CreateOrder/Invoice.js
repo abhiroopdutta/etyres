@@ -49,8 +49,6 @@ function Invoice({
   );
   const [GSTTable, setGSTTable] = useState();
   const [IGSTTable, setIGSTTable] = useState();
-  const [noTaxTable, setNoTaxTable] = useState();
-  const [isTaxInvoice, setIsTaxInvoice] = useState(true);
   const [orderConfirmed, setOrderConfirmed] = useState(defaultOrderConfirmed);
   //render different tables depending on IGST customer or not
   const [IGSTRender, SetIGSTRender] = useState(() => {
@@ -102,7 +100,6 @@ function Invoice({
         if (response.ok) {
           setGSTTable(result.GST_table);
           setIGSTTable(result.IGST_table);
-          setNoTaxTable(result.non_tax_table);
         } else {
           throw Error(result);
         }
@@ -262,16 +259,6 @@ function Invoice({
     updateInvoice();
   };
 
-  const toggleTaxInvoice = () => {
-    setCustomerDetails((prevState) => ({
-      ...prevState,
-      GSTIN: "",
-      stateCode: "",
-      state: "",
-    }));
-    setIsTaxInvoice((isTaxInvoice) => !isTaxInvoice);
-  };
-
   return (
     <div
       className="invoice"
@@ -301,18 +288,6 @@ function Invoice({
         >
           Update Invoice Status
         </Button>
-
-        {/* <Checkbox
-          className="tax-invoice-button"
-          onChange={toggleTaxInvoice}
-          disabled={
-            customerDetails.GSTIN !== "" ||
-            customerDetails.stateCode !== "" ||
-            customerDetails.state !== ""
-          }
-        >
-          No-GST Invoice
-        </Checkbox> */}
       </div>
 
       <div
@@ -410,235 +385,75 @@ function Invoice({
             disabled={orderConfirmed}
             placeholder={orderConfirmed ? null : "Customer Contact No."}
           />
-          {isTaxInvoice ? (
-            <section className="customer-details-gst">
-              <label htmlFor="GSTIN">GSTIN: </label>
-              <input
-                id="GSTIN"
-                name="GSTIN"
-                className="GSTIN"
-                type="text"
-                maxLength="15"
-                value={customerDetails.GSTIN}
-                onChange={handleIGST}
-                disabled={orderConfirmed}
-                placeholder={orderConfirmed ? null : "Customer GSTIN"}
-              />
-              <label htmlFor="state">State: </label>
-              <input
-                id="state"
-                name="state"
-                className="state"
-                type="text"
-                value={customerDetails.state}
-                onChange={handleCustomerDetails}
-                disabled={orderConfirmed}
-                placeholder={orderConfirmed ? null : "GST State"}
-              />
-              <label htmlFor="stateCode">Code: </label>
-              <input
-                id="stateCode"
-                name="stateCode"
-                className="stateCode"
-                type="text"
-                value={customerDetails.stateCode}
-                onChange={handleCustomerDetails}
-                maxLength="2"
-                disabled={orderConfirmed}
-                placeholder={orderConfirmed ? null : "GST State Code"}
-              />
-            </section>
-          ) : null}
+          <section className="customer-details-gst">
+            <label htmlFor="GSTIN">GSTIN: </label>
+            <input
+              id="GSTIN"
+              name="GSTIN"
+              className="GSTIN"
+              type="text"
+              maxLength="15"
+              value={customerDetails.GSTIN}
+              onChange={handleIGST}
+              disabled={orderConfirmed}
+              placeholder={orderConfirmed ? null : "Customer GSTIN"}
+            />
+            <label htmlFor="state">State: </label>
+            <input
+              id="state"
+              name="state"
+              className="state"
+              type="text"
+              value={customerDetails.state}
+              onChange={handleCustomerDetails}
+              disabled={orderConfirmed}
+              placeholder={orderConfirmed ? null : "GST State"}
+            />
+            <label htmlFor="stateCode">Code: </label>
+            <input
+              id="stateCode"
+              name="stateCode"
+              className="stateCode"
+              type="text"
+              value={customerDetails.stateCode}
+              onChange={handleCustomerDetails}
+              maxLength="2"
+              disabled={orderConfirmed}
+              placeholder={orderConfirmed ? null : "GST State Code"}
+            />
+          </section>
         </div>
 
-        {isTaxInvoice ? (
-          <div className="tax-invoice">
-            {IGSTRender ? (
-              <div className="IGST">
-                <table className="IGST-table">
-                  <thead>
-                    <tr>
-                      <th className="particulars">Particulars</th>
-                      <th className="HSNCode">HSN</th>
-                      <th className="Qty">Qty</th>
-                      <th className="Rate-per-item">Rate per Item</th>
-                      <th className="taxable-value">Taxable value</th>
-                      <th>IGST</th>
-                      <th className="value">Value</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {IGSTTable?.products.map((tyre, index) => (
-                      <tr key={tyre.itemCode}>
-                        <td>{tyre.itemDesc}</td>
-                        <td>{tyre.HSN}</td>
-                        <td>{tyre.quantity}</td>
-                        <td>{tyre.ratePerItem}</td>
-                        <td>{tyre.taxableValue}</td>
-                        <td className="IGST-cell">
-                          {String(tyre.IGSTAmount) +
-                            " (" +
-                            String(Math.round(tyre.IGST * 100)) +
-                            "%)"}
-                        </td>
-                        <td>{tyre.value}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-
-                  <tfoot>
-                    <tr>
-                      <th>Net Amount</th>
-                      <td>-</td>
-                      <td>{IGSTTable?.total.quantity}</td>
-                      <td>-</td>
-                      <td>{IGSTTable?.total.taxableValue}</td>
-                      <td>{IGSTTable?.total.IGSTAmount}</td>
-                      <td>{IGSTTable?.total.value}</td>
-                    </tr>
-                  </tfoot>
-                </table>
-                <br />
-                <table className="rounding-table">
-                  <thead>
-                    <tr>
-                      <td>Round Off</td>
-                      <td>{IGSTTable?.invoiceRoundOff}</td>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <th>TOTAL</th>
-                      <th>&#x20B9;{IGSTTable?.invoiceTotal}</th>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="GST">
-                <table className="GST-table">
-                  <thead>
-                    <tr>
-                      <th className="particulars">Particulars</th>
-                      <th className="HSNCode">HSN</th>
-                      <th className="Qty">Qty</th>
-                      <th className="Rate-per-item">Rate per Item</th>
-                      <th className="taxable-value">Taxable value</th>
-                      <th>CGST</th>
-                      <th>SGST</th>
-                      <th className="value">Value</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {GSTTable?.products.map((tyre, index) => (
-                      <tr key={tyre.itemCode}>
-                        <td>{tyre.itemDesc}</td>
-                        <td>{tyre.HSN}</td>
-                        <td>{tyre.quantity}</td>
-                        <td>{tyre.ratePerItem}</td>
-                        <td>{tyre.taxableValue}</td>
-                        <td>
-                          {String(tyre.CGSTAmount) +
-                            " (" +
-                            String(Math.round(tyre.CGST * 100)) +
-                            "%)"}
-                        </td>
-                        <td>
-                          {String(tyre.SGSTAmount) +
-                            " (" +
-                            String(Math.round(tyre.SGST * 100)) +
-                            "%)"}
-                        </td>
-                        <td>{tyre.value}</td>
-                      </tr>
-                    ))}
-
-                    {GSTTable?.services.map((service, index) => (
-                      <tr key={service.itemDesc}>
-                        <td>{service.itemDesc}</td>
-                        <td>{service.HSN}</td>
-                        <td>{service.quantity}</td>
-                        <td>{service.ratePerItem}</td>
-                        <td>{service.taxableValue}</td>
-                        <td>
-                          {String(service.CGSTAmount) +
-                            " (" +
-                            String(Math.round(service.CGST * 100)) +
-                            "%)"}
-                        </td>
-                        <td>
-                          {String(service.SGSTAmount) +
-                            " (" +
-                            String(Math.round(service.SGST * 100)) +
-                            "%)"}
-                        </td>
-                        <td>{service.value}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-
-                  <tfoot>
-                    <tr>
-                      <td>Net Amount</td>
-                      <td>-</td>
-                      <td>{GSTTable?.total.quantity}</td>
-                      <td>-</td>
-                      <td>{GSTTable?.total.taxableValue}</td>
-                      <td>{GSTTable?.total.CGSTAmount}</td>
-                      <td>{GSTTable?.total.SGSTAmount}</td>
-                      <td>{GSTTable?.total.value}</td>
-                    </tr>
-                  </tfoot>
-                </table>
-                <br />
-                <table className="rounding-table">
-                  <thead>
-                    <tr>
-                      <td>Round off</td>
-                      <td>{GSTTable?.invoiceRoundOff}</td>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    <tr>
-                      <th>TOTAL</th>
-                      <th>&#x20B9; {GSTTable?.invoiceTotal}</th>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div>
-            <table className="no-tax-invoice">
+        {IGSTRender ? (
+          <div className="IGST">
+            <table className="IGST-table">
               <thead>
                 <tr>
                   <th className="particulars">Particulars</th>
-                  <th className="unit-price">Unit Price</th>
+                  <th className="HSNCode">HSN</th>
                   <th className="Qty">Qty</th>
+                  <th className="Rate-per-item">Rate per Item</th>
+                  <th className="taxable-value">Taxable value</th>
+                  <th>IGST</th>
                   <th className="value">Value</th>
                 </tr>
               </thead>
 
               <tbody>
-                {noTaxTable?.products.map((product) => (
-                  <tr key={product.itemCode}>
-                    <td>{product.itemDesc}</td>
-                    <td>{product.price}</td>
-                    <td>{product.quantity}</td>
-                    <td>{product.value}</td>
-                  </tr>
-                ))}
-
-                {noTaxTable?.services.map((service) => (
-                  <tr key={service.itemDesc}>
-                    <td>{service.itemDesc}</td>
-                    <td>{service.price}</td>
-                    <td>{service.quantity}</td>
-                    <td>{service.value}</td>
+                {IGSTTable?.products.map((tyre, index) => (
+                  <tr key={tyre.itemCode}>
+                    <td>{tyre.itemDesc}</td>
+                    <td>{tyre.HSN}</td>
+                    <td>{tyre.quantity}</td>
+                    <td>{tyre.ratePerItem}</td>
+                    <td>{tyre.taxableValue}</td>
+                    <td className="IGST-cell">
+                      {String(tyre.IGSTAmount) +
+                        " (" +
+                        String(Math.round(tyre.IGST * 100)) +
+                        "%)"}
+                    </td>
+                    <td>{tyre.value}</td>
                   </tr>
                 ))}
               </tbody>
@@ -647,8 +462,11 @@ function Invoice({
                 <tr>
                   <th>Net Amount</th>
                   <td>-</td>
-                  <td>{noTaxTable?.total.quantity}</td>
-                  <td>{noTaxTable?.total.value}</td>
+                  <td>{IGSTTable?.total.quantity}</td>
+                  <td>-</td>
+                  <td>{IGSTTable?.total.taxableValue}</td>
+                  <td>{IGSTTable?.total.IGSTAmount}</td>
+                  <td>{IGSTTable?.total.value}</td>
                 </tr>
               </tfoot>
             </table>
@@ -656,17 +474,108 @@ function Invoice({
             <table className="rounding-table">
               <thead>
                 <tr>
-                  <th>Rounding off</th>
-                  <td>{noTaxTable?.invoiceRoundOff}</td>
+                  <td>Round Off</td>
+                  <td>{IGSTTable?.invoiceRoundOff}</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>TOTAL</th>
+                  <th>&#x20B9;{IGSTTable?.invoiceTotal}</th>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="GST">
+            <table className="GST-table">
+              <thead>
+                <tr>
+                  <th className="particulars">Particulars</th>
+                  <th className="HSNCode">HSN</th>
+                  <th className="Qty">Qty</th>
+                  <th className="Rate-per-item">Rate per Item</th>
+                  <th className="taxable-value">Taxable value</th>
+                  <th>CGST</th>
+                  <th>SGST</th>
+                  <th className="value">Value</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {GSTTable?.products.map((tyre, index) => (
+                  <tr key={tyre.itemCode}>
+                    <td>{tyre.itemDesc}</td>
+                    <td>{tyre.HSN}</td>
+                    <td>{tyre.quantity}</td>
+                    <td>{tyre.ratePerItem}</td>
+                    <td>{tyre.taxableValue}</td>
+                    <td>
+                      {String(tyre.CGSTAmount) +
+                        " (" +
+                        String(Math.round(tyre.CGST * 100)) +
+                        "%)"}
+                    </td>
+                    <td>
+                      {String(tyre.SGSTAmount) +
+                        " (" +
+                        String(Math.round(tyre.SGST * 100)) +
+                        "%)"}
+                    </td>
+                    <td>{tyre.value}</td>
+                  </tr>
+                ))}
+
+                {GSTTable?.services.map((service, index) => (
+                  <tr key={service.itemDesc}>
+                    <td>{service.itemDesc}</td>
+                    <td>{service.HSN}</td>
+                    <td>{service.quantity}</td>
+                    <td>{service.ratePerItem}</td>
+                    <td>{service.taxableValue}</td>
+                    <td>
+                      {String(service.CGSTAmount) +
+                        " (" +
+                        String(Math.round(service.CGST * 100)) +
+                        "%)"}
+                    </td>
+                    <td>
+                      {String(service.SGSTAmount) +
+                        " (" +
+                        String(Math.round(service.SGST * 100)) +
+                        "%)"}
+                    </td>
+                    <td>{service.value}</td>
+                  </tr>
+                ))}
+              </tbody>
+
+              <tfoot>
+                <tr>
+                  <td>Net Amount</td>
+                  <td>-</td>
+                  <td>{GSTTable?.total.quantity}</td>
+                  <td>-</td>
+                  <td>{GSTTable?.total.taxableValue}</td>
+                  <td>{GSTTable?.total.CGSTAmount}</td>
+                  <td>{GSTTable?.total.SGSTAmount}</td>
+                  <td>{GSTTable?.total.value}</td>
+                </tr>
+              </tfoot>
+            </table>
+            <br />
+            <table className="rounding-table">
+              <thead>
+                <tr>
+                  <td>Round off</td>
+                  <td>{GSTTable?.invoiceRoundOff}</td>
                 </tr>
               </thead>
 
               <tbody>
                 <tr>
-                  <th>Total</th>
-                  <td>
-                    <strong>&#x20B9;{noTaxTable?.invoiceTotal}</strong>
-                  </td>
+                  <th>TOTAL</th>
+                  <th>&#x20B9; {GSTTable?.invoiceTotal}</th>
                 </tr>
               </tbody>
             </table>
@@ -691,7 +600,6 @@ function Invoice({
             </div>
             <div className="signature"></div>
           </section>
-
           <br />
           <br />
           <section>
@@ -715,7 +623,6 @@ function Invoice({
           onClick={(e) => {
             handleConfirmOrder(e);
           }}
-          // style={{ backgroundColor: "white", color: "rgb(60, 58, 58)" }}
         >
           Confirm Order
         </Button>
