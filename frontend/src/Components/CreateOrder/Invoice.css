@@ -54,7 +54,7 @@
   /* margin: 0mm auto; */
   background: rgb(255, 255, 255);
   box-shadow: 0 0 0.5cm rgba(99, 98, 98, 0.5);
-  padding:1.8%;
+  padding:30px;
 }
 
 .invoice-header{
@@ -153,7 +153,7 @@
   background-color:  #fdf4db;
 }
   
-.IGST-table, .rounding-table, .GST-table, .no-tax-invoice{
+.IGST-table, .GST-table, .rounding-table, .no-tax-invoice{
   border-collapse: collapse;
   width: 100%;
 }
@@ -178,16 +178,95 @@ table.rounding-table td:nth-child(1), table.rounding-table th:nth-child(1){
   text-align: left;
 }
 
-.rounding-table {
-  width:30%;
-  float:right;
+table.rounding-table td{
+  padding: 10px 12px;
+
+}
+
+.rounding-table-container{
+  display: flex;
+  justify-content: flex-end;
+}
+
+.rounding-table{
+  width: 30%;
+}
+
+.payment-input-list-container{
+  display: flex;
+  justify-content: flex-end;
+}
+
+.payment-input-list{
+  padding: 5px 0 0 0;
+  margin: 0;
+  width: 30%;
+  display: flex;
+  flex-direction: column;
+}
+
+.payment-input-list label{
+  padding-left: 14px;
+  display: inline-block;
+  width: 50%;
+  font-weight:400;
+  color: rgb(0, 0, 0);
+}
+
+.payment-input-list input{
+  color: rgb(0, 0, 0);
+  outline: none;
+  border: 0.5px dotted transparent;
+  background-color: rgb(255, 255, 255);
+  text-align: right;
+  padding-right: 10px;
+  width: 50%;  
+  font-weight:400;
+  border-radius: 5px;
+  transition: background-color 0.1s ease-in-out, border 0.2s ease-in-out;
+}
+
+/* Chrome, Safari, Edge, Opera */
+.payment-input-list input::-webkit-outer-spin-button,
+.payment-input-list input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.payment-input-list input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.payment-input-list input:hover{
+  background-color: #fdf4db;
+}
+
+.payment-input-list input:focus{
+  border:0.5px dotted rgb(117, 117, 117);
+  background-color:  #fdf4db;
+}
+.payment-input-list strong{
+  background-color: #dddddd;
+  display: inline-block;
+  width: 50%;
+  text-align: right;
+  padding: 6px 12px;
+}
+
+.total-paid{
+  display: inline-block;
+  background-color: #dddddd;
+  width: 50%;
+  margin-top: 4px;
+  padding: 6px 12px;
+  font-weight: 700;
 }
 
 .bank-name, .bank-details, .eoe{
   float: left;
   font-weight: 400;
   color: rgb(0, 0, 0);
-
   font-style: italic;
 }
 

@@ -17,7 +17,7 @@ function getTodaysDate() {
 // -----------------------Invoice(creating, reading)--------------------------
 // This component can be used both while creating, and reading an invoice.
 // Optional parameters must not be used while creating an invoice.
-// When reading an invoice, defaultOrderConfirmed must be set to true
+// When updating an invoice, defaultOrderConfirmed must be set to true
 // and all other optional parameters must be initailized explicitly
 // otherwise the component may fail.
 // ---------------------------------------------------------------------------
@@ -44,12 +44,16 @@ function Invoice({
   const [invoiceNumber, setInvoiceNumber] = useState(defaultInvoiceNumber);
   const [invoiceDate, setInvoiceDate] = useState(defaultInvoiceDate);
   const [invoiceStatus, setInvoiceStatus] = useState(defaultInvoiceStatus);
+  const [savedInvoiceStatus, setSavedInvoiceStatus] =
+    useState(defaultInvoiceStatus);
   const [customerDetails, setCustomerDetails] = useState(
     defaultCustomerDetails
   );
+  const [payment, setPayment] = useState({ cash: 0, card: 0, UPI: 0 });
   const [GSTTable, setGSTTable] = useState();
   const [IGSTTable, setIGSTTable] = useState();
   const [orderConfirmed, setOrderConfirmed] = useState(defaultOrderConfirmed);
+  const [loading, setLoading] = useState(false);
   //render different tables depending on IGST customer or not
   const [IGSTRender, SetIGSTRender] = useState(() => {
     if (
@@ -114,6 +118,27 @@ function Invoice({
     getTableData();
   }, [products, services]);
 
+  //update invoice status depending on payment completed or not
+  useEffect(() => {
+    let total;
+    if (IGSTRender) {
+      total = IGSTTable?.invoiceTotal;
+    } else {
+      total = GSTTable?.invoiceTotal;
+    }
+    let totalPaid = payment.cash + payment.card + payment.UPI;
+    let due = total - totalPaid;
+    if (due === 0) {
+      setInvoiceStatus("paid");
+    } else if (due < 0) {
+      Modal.error({
+        content: "Error! Customer has paid more than total payable !",
+      });
+    } else if (due > 0) {
+      setInvoiceStatus("due");
+    }
+  }, [payment]);
+
   //if customer GSTIN doesn't start with 09, then IGST
   const handleIGST = (e) => {
     setCustomerDetails((customerDetails) => ({
@@ -137,10 +162,6 @@ function Invoice({
     console.log(e.target.value);
   };
 
-  const handleInvoiceStatus = (e) => {
-    setInvoiceStatus(e.target.value);
-  };
-
   const handleCustomerDetails = (e) => {
     setCustomerDetails((customerDetails) => ({
       ...customerDetails,
@@ -149,6 +170,7 @@ function Invoice({
   };
 
   const handleConfirmOrder = (e) => {
+    setLoading(true);
     //prepare full invoice data to send to backend
     let invoiceData = {
       invoiceNumber: invoiceNumber,
@@ -179,10 +201,12 @@ function Invoice({
         const response = await fetch("/api/place_order", requestOptions);
         const result = await response.json();
         if (response.ok) {
+          setLoading(false);
           Modal.success({
             content: result,
           });
           setOrderConfirmed(true);
+          setSavedInvoiceStatus(invoiceData.invoiceStatus);
         } else {
           throw Error(result);
         }
@@ -194,36 +218,44 @@ function Invoice({
       }
     };
 
-    place_order();
+    setTimeout(() => place_order(), 1000);
     e.stopPropagation();
   };
 
   const showConfirm = () => {
-    if (invoiceStatus == "cancelled") {
-      confirm({
-        title: "Are you sure you want to cancel this invoice?",
-        icon: <ExclamationCircleOutlined />,
-        content:
-          "This will reverse the product stock, please make sure to tally with physical stock",
+    confirm({
+      title: "Are you sure you want to cancel this invoice?",
+      icon: <ExclamationCircleOutlined />,
+      content:
+        "This will reverse the product stock, please make sure to tally with physical stock",
 
-        onOk() {
-          handleUpdateInvoiceStatus();
-        },
+      onOk() {
+        handleUpdateInvoiceStatus("cancelled");
+      },
 
-        onCancel() {
-          console.log("Cancel");
-        },
-      });
-    } else {
-      handleUpdateInvoiceStatus();
-    }
+      onCancel() {
+        console.log("Invoice Cancellation aborted");
+      },
+    });
+  };
+  const handleFocus = (e) => e.target.select();
+  const handlePayment = (e) => {
+    setPayment((payment) => {
+      let inputValue;
+      if (e.target.value === "") {
+        inputValue = 0;
+      } else {
+        inputValue = parseFloat(e.target.value);
+      }
+      return { ...payment, [e.target.id]: inputValue };
+    });
   };
 
-  const handleUpdateInvoiceStatus = () => {
+  const handleUpdateInvoiceStatus = (status) => {
     //prepare invoice status update to send to backend
     let invoiceStatusData = {
       invoiceNumber: invoiceNumber,
-      invoiceStatus: invoiceStatus,
+      invoiceStatus: status,
     };
 
     const requestOptions = {
@@ -244,7 +276,11 @@ function Invoice({
             content: result,
           });
           //update parent sales table
-          setInvoiceStatusUpdate((prevValue) => !prevValue);
+          if (setInvoiceStatusUpdate) {
+            setInvoiceStatusUpdate((prevValue) => !prevValue);
+          }
+          setSavedInvoiceStatus(invoiceStatusData.invoiceStatus);
+          setInvoiceStatus(invoiceStatusData.invoiceStatus);
         } else {
           throw Error(result);
         }
@@ -280,13 +316,13 @@ function Invoice({
 
         <Button
           type="default"
-          disabled={!orderConfirmed}
+          disabled={!orderConfirmed || savedInvoiceStatus === "cancelled"}
           onClick={(e) => {
             showConfirm();
             e.stopPropagation();
           }}
         >
-          Update Invoice Status
+          Cancel Invoice
         </Button>
       </div>
 
@@ -319,20 +355,7 @@ function Invoice({
                 onChange={(e) => handleInvoiceDate(e)}
               />
             </h4>
-            <label htmlFor="invoice_status">Invoice status: </label>
-            <select
-              id="invoice_status"
-              name="invoice_status"
-              value={invoiceStatus}
-              disabled={!orderConfirmed}
-              onChange={(e) => {
-                handleInvoiceStatus(e);
-              }}
-            >
-              <option value="due">due</option>
-              <option value="paid">paid</option>
-              <option value="cancelled">cancelled</option>
-            </select>
+            <h4> Invoice Status: {invoiceStatus}</h4>
           </header>
         </div>
         <hr />
@@ -563,29 +586,68 @@ function Invoice({
                 </tr>
               </tfoot>
             </table>
-            <br />
-            <table className="rounding-table">
-              <thead>
-                <tr>
-                  <td>Round off</td>
-                  <td>{GSTTable?.invoiceRoundOff}</td>
-                </tr>
-              </thead>
+            <div className="rounding-table-container">
+              <table className="rounding-table">
+                <thead>
+                  <tr>
+                    <td>Round off</td>
+                    <td>{GSTTable?.invoiceRoundOff}</td>
+                  </tr>
+                </thead>
 
-              <tbody>
-                <tr>
-                  <th>TOTAL</th>
-                  <th>&#x20B9; {GSTTable?.invoiceTotal}</th>
-                </tr>
-              </tbody>
-            </table>
+                <tbody>
+                  <tr>
+                    <th>TOTAL</th>
+                    <th>&#x20B9; {GSTTable?.invoiceTotal}</th>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
-
-        <br />
-        <br />
-        <br />
-        <br />
+        <div className="payment-input-list-container">
+          <ul className="payment-input-list">
+            <div>
+              <label htmlFor="cash">Cash</label>
+              <input
+                type="number"
+                id="cash"
+                onChange={handlePayment}
+                onFocus={handleFocus}
+                value={payment.cash}
+                disabled={["paid", "cancelled"].includes(savedInvoiceStatus)}
+              />
+            </div>
+            <div>
+              <label htmlFor="card">Card</label>
+              <input
+                type="number"
+                id="card"
+                onChange={handlePayment}
+                onFocus={handleFocus}
+                value={payment.card}
+                disabled={["paid", "cancelled"].includes(savedInvoiceStatus)}
+              />
+            </div>
+            <div>
+              <label htmlFor="UPI">UPI</label>
+              <input
+                type="number"
+                id="UPI"
+                onChange={handlePayment}
+                onFocus={handleFocus}
+                value={payment.UPI}
+                disabled={["paid", "cancelled"].includes(savedInvoiceStatus)}
+              />
+            </div>
+            <div>
+              <h4 className="total-paid">TOTAL PAID</h4>
+              <strong>
+                &#x20B9; {payment.cash + payment.card + payment.UPI}
+              </strong>
+            </div>
+          </ul>
+        </div>
         <br />
         <br />
         <footer>
@@ -619,12 +681,20 @@ function Invoice({
         />
         <Button
           type="default"
-          disabled={orderConfirmed}
+          loading={loading}
+          disabled={
+            savedInvoiceStatus === "paid" || savedInvoiceStatus === "cancelled"
+          }
           onClick={(e) => {
-            handleConfirmOrder(e);
+            if (!orderConfirmed) {
+              handleConfirmOrder(e);
+            } else {
+              handleUpdateInvoiceStatus(invoiceStatus);
+            }
+            e.stopPropagation();
           }}
         >
-          Confirm Order
+          {orderConfirmed ? "Update Invoice" : "Create Invoice"}
         </Button>
       </div>
     </div>
