@@ -4,13 +4,8 @@ import CartTyre from "./CartTyre";
 import "./Cart.css";
 import Invoice from "./Invoice";
 import { message } from "antd";
-import { useTransition, animated } from "@react-spring/web";
 import Button from "../Button";
 import { dayjsUTC } from "../dayjsUTCLocal";
-
-function roundToTwo(num) {
-  return +(Math.round(num + "e+2") + "e-2");
-}
 
 function Cart({ handleRefreshProducts }) {
   const { tyresContext, servicesContext } = useContext(CartContext);
@@ -35,12 +30,6 @@ function Cart({ handleRefreshProducts }) {
   const [payment, setPayment] = useState({ cash: 0, card: 0, UPI: 0 });
 
   const [previewInvoice, setPreviewInvoice] = useState(false);
-  const transitions = useTransition(previewInvoice, {
-    config: { mass: 1, tension: 500, friction: 40, clamp: true },
-    from: { opacity: 0 },
-    enter: { opacity: 1 },
-    leave: { opacity: 0 },
-  });
 
   useEffect(() => {
     let scrollBarWidth = window.innerWidth - document.body.clientWidth;
@@ -233,9 +222,6 @@ function Cart({ handleRefreshProducts }) {
               className="invoice-button"
               onClick={() => showInvoice()}
             />
-            {/* {transitions((styles, previewInvoice) =>
-              previewInvoice ? (
-                <animated.div style={styles}> */}
             <Invoice
               visible={previewInvoice}
               onCancel={hideInvoice}
@@ -251,9 +237,6 @@ function Cart({ handleRefreshProducts }) {
               savedPayment={payment}
               updateInvoiceInParent={getUpdatedInvoice}
             />
-            {/* </animated.div>
-              ) : null
-            )} */}
           </div>
         </div>
 

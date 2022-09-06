@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import { dayjsLocal } from "../dayjsUTCLocal";
 import "./Invoice.css";
-import { Modal, Button, Checkbox } from "antd";
+import { Modal, Button } from "antd";
 import {
   PrinterFilled,
   CloseCircleFilled,
