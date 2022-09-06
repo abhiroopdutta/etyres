@@ -17,18 +17,26 @@ function getTodaysDate() {
 // -----------------------Invoice(creating, reading)--------------------------
 // This component can be used both while creating, and reading an invoice.
 // Optional parameters must not be used while creating an invoice.
-// When updating an invoice, defaultOrderConfirmed must be set to true
+// When updating an invoice, updateMode must be set to true
 // and all other optional parameters must be initailized explicitly
 // otherwise the component may fail.
 // ---------------------------------------------------------------------------
 
 function Invoice({
+  updateMode,
   products,
   services,
-  defaultInvoiceNumber = 0,
-  defaultInvoiceDate = getTodaysDate(),
-  defaultInvoiceStatus = "due",
-  defaultCustomerDetails = {
+  savedInvoiceNumber,
+  savedInvoiceDate,
+  savedInvoiceStatus,
+  savedCustomerDetails,
+  hideInvoice,
+  updateInvoiceInParent,
+}) {
+  const [invoiceNumber, setInvoiceNumber] = useState();
+  const [invoiceDate, setInvoiceDate] = useState(getTodaysDate());
+  const [invoiceStatus, setInvoiceStatus] = useState("due");
+  const [customerDetails, setCustomerDetails] = useState({
     name: "",
     address: "",
     GSTIN: "",
@@ -36,36 +44,13 @@ function Invoice({
     state: "",
     vehicleNumber: "",
     contact: "",
-  },
-  defaultOrderConfirmed = false,
-  hideInvoice,
-  setInvoiceStatusUpdate,
-}) {
-  const [invoiceNumber, setInvoiceNumber] = useState(defaultInvoiceNumber);
-  const [invoiceDate, setInvoiceDate] = useState(defaultInvoiceDate);
-  const [invoiceStatus, setInvoiceStatus] = useState(defaultInvoiceStatus);
-  const [savedInvoiceStatus, setSavedInvoiceStatus] =
-    useState(defaultInvoiceStatus);
-  const [customerDetails, setCustomerDetails] = useState(
-    defaultCustomerDetails
-  );
+  });
   const [payment, setPayment] = useState({ cash: 0, card: 0, UPI: 0 });
   const [GSTTable, setGSTTable] = useState();
   const [IGSTTable, setIGSTTable] = useState();
-  const [orderConfirmed, setOrderConfirmed] = useState(defaultOrderConfirmed);
   const [loading, setLoading] = useState(false);
   //render different tables depending on IGST customer or not
-  const [IGSTRender, SetIGSTRender] = useState(() => {
-    if (
-      defaultCustomerDetails.GSTIN === "0" ||
-      defaultCustomerDetails.GSTIN.startsWith("09") ||
-      !defaultCustomerDetails.GSTIN
-    ) {
-      return false;
-    } else {
-      return true;
-    }
-  });
+  const [IGSTRender, setIGSTRender] = useState(false);
   const componentRef = useRef(null);
   const handlePrintInvoice = useReactToPrint({
     content: () => componentRef.current,
@@ -78,10 +63,33 @@ function Invoice({
         .then((res) => res.json())
         .then((number) => setInvoiceNumber(number));
     }
-    if (!orderConfirmed) {
+
+    // Get the invoice number if in create mode otherwise get saved invoice details
+    if (updateMode) {
+      setInvoiceNumber(savedInvoiceNumber);
+      setInvoiceDate(savedInvoiceDate);
+      setInvoiceStatus(savedInvoiceStatus);
+      setCustomerDetails(savedCustomerDetails);
+
+      if (
+        savedCustomerDetails.GSTIN === "0" ||
+        savedCustomerDetails.GSTIN.startsWith("09") ||
+        !savedCustomerDetails.GSTIN
+      ) {
+        setIGSTRender(false);
+      } else {
+        setIGSTRender(true);
+      }
+    } else {
       getNewInvoiceNumber();
     }
-  }, [orderConfirmed]);
+  }, [
+    updateMode,
+    savedInvoiceNumber,
+    savedInvoiceDate,
+    savedInvoiceStatus,
+    savedCustomerDetails,
+  ]);
 
   useEffect(() => {
     let data = {
@@ -120,6 +128,10 @@ function Invoice({
 
   //update invoice status depending on payment completed or not
   useEffect(() => {
+    // status of a paid/cancelled invoice cannot be updated
+    if (["paid", "cancelled"].includes(savedInvoiceStatus)) {
+      return;
+    }
     let total;
     if (IGSTRender) {
       total = IGSTTable?.invoiceTotal;
@@ -137,7 +149,7 @@ function Invoice({
     } else if (due > 0) {
       setInvoiceStatus("due");
     }
-  }, [payment]);
+  }, [payment, IGSTRender, GSTTable, IGSTTable, savedInvoiceStatus]);
 
   //if customer GSTIN doesn't start with 09, then IGST
   const handleIGST = (e) => {
@@ -151,9 +163,9 @@ function Invoice({
       e.target.value.startsWith("09") ||
       !e.target.value
     ) {
-      SetIGSTRender(false);
+      setIGSTRender(false);
     } else {
-      SetIGSTRender(true);
+      setIGSTRender(true);
     }
   };
 
@@ -205,8 +217,9 @@ function Invoice({
           Modal.success({
             content: result,
           });
-          setOrderConfirmed(true);
-          setSavedInvoiceStatus(invoiceData.invoiceStatus);
+
+          //notify parent to update props (update mode and rest of invoice props)
+          updateInvoiceInParent(invoiceNumber);
         } else {
           throw Error(result);
         }
@@ -218,8 +231,7 @@ function Invoice({
       }
     };
 
-    setTimeout(() => place_order(), 1000);
-    e.stopPropagation();
+    place_order();
   };
 
   const showConfirm = () => {
@@ -275,12 +287,9 @@ function Invoice({
           Modal.success({
             content: result,
           });
-          //update parent sales table
-          if (setInvoiceStatusUpdate) {
-            setInvoiceStatusUpdate((prevValue) => !prevValue);
-          }
-          setSavedInvoiceStatus(invoiceStatusData.invoiceStatus);
-          setInvoiceStatus(invoiceStatusData.invoiceStatus);
+
+          //notify parent to update its props (invoice props)
+          updateInvoiceInParent(invoiceNumber);
         } else {
           throw Error(result);
         }
@@ -299,13 +308,13 @@ function Invoice({
     <div
       className="invoice"
       onClick={() => {
-        hideInvoice(orderConfirmed);
+        hideInvoice(updateMode);
       }}
     >
       <div className="left-buttons-container">
         <Button
           size="large"
-          disabled={!orderConfirmed}
+          disabled={!updateMode}
           onClick={(e) => {
             handlePrintInvoice();
             e.stopPropagation();
@@ -316,7 +325,7 @@ function Invoice({
 
         <Button
           type="default"
-          disabled={!orderConfirmed || savedInvoiceStatus === "cancelled"}
+          disabled={!updateMode || savedInvoiceStatus === "cancelled"}
           onClick={(e) => {
             showConfirm();
             e.stopPropagation();
@@ -351,7 +360,7 @@ function Invoice({
                 type="date"
                 value={invoiceDate}
                 required="required"
-                disabled={orderConfirmed}
+                disabled={updateMode}
                 onChange={(e) => handleInvoiceDate(e)}
               />
             </h4>
@@ -369,8 +378,8 @@ function Invoice({
             type="text"
             value={customerDetails.name}
             onChange={handleCustomerDetails}
-            disabled={orderConfirmed}
-            placeholder={orderConfirmed ? null : "Customer Name"}
+            disabled={updateMode}
+            placeholder={updateMode ? null : "Customer Name"}
           />
           <br />
           <label htmlFor="address">Address: </label>
@@ -381,8 +390,8 @@ function Invoice({
             type="text"
             value={customerDetails.address}
             onChange={handleCustomerDetails}
-            disabled={orderConfirmed}
-            placeholder={orderConfirmed ? null : "Customer Address"}
+            disabled={updateMode}
+            placeholder={updateMode ? null : "Customer Address"}
           />
           <br />
           <label htmlFor="vehicleNumber">Vehicle No. : </label>
@@ -393,8 +402,8 @@ function Invoice({
             type="text"
             value={customerDetails.vehicleNumber}
             onChange={handleCustomerDetails}
-            disabled={orderConfirmed}
-            placeholder={orderConfirmed ? null : "Customer Vehicle No."}
+            disabled={updateMode}
+            placeholder={updateMode ? null : "Customer Vehicle No."}
           />
           <br />
           <label htmlFor="contact">Contact: </label>
@@ -405,8 +414,8 @@ function Invoice({
             type="text"
             value={customerDetails.contact}
             onChange={handleCustomerDetails}
-            disabled={orderConfirmed}
-            placeholder={orderConfirmed ? null : "Customer Contact No."}
+            disabled={updateMode}
+            placeholder={updateMode ? null : "Customer Contact No."}
           />
           <section className="customer-details-gst">
             <label htmlFor="GSTIN">GSTIN: </label>
@@ -418,8 +427,8 @@ function Invoice({
               maxLength="15"
               value={customerDetails.GSTIN}
               onChange={handleIGST}
-              disabled={orderConfirmed}
-              placeholder={orderConfirmed ? null : "Customer GSTIN"}
+              disabled={updateMode}
+              placeholder={updateMode ? null : "Customer GSTIN"}
             />
             <label htmlFor="state">State: </label>
             <input
@@ -429,8 +438,8 @@ function Invoice({
               type="text"
               value={customerDetails.state}
               onChange={handleCustomerDetails}
-              disabled={orderConfirmed}
-              placeholder={orderConfirmed ? null : "GST State"}
+              disabled={updateMode}
+              placeholder={updateMode ? null : "GST State"}
             />
             <label htmlFor="stateCode">Code: </label>
             <input
@@ -441,8 +450,8 @@ function Invoice({
               value={customerDetails.stateCode}
               onChange={handleCustomerDetails}
               maxLength="2"
-              disabled={orderConfirmed}
-              placeholder={orderConfirmed ? null : "GST State Code"}
+              disabled={updateMode}
+              placeholder={updateMode ? null : "GST State Code"}
             />
           </section>
         </div>
@@ -676,7 +685,7 @@ function Invoice({
         <Button
           size="large"
           type="default"
-          onClick={() => hideInvoice(orderConfirmed)}
+          onClick={() => hideInvoice(updateMode)}
           icon={<CloseCircleFilled />}
         />
         <Button
@@ -686,15 +695,15 @@ function Invoice({
             savedInvoiceStatus === "paid" || savedInvoiceStatus === "cancelled"
           }
           onClick={(e) => {
-            if (!orderConfirmed) {
+            e.stopPropagation();
+            if (!updateMode) {
               handleConfirmOrder(e);
             } else {
               handleUpdateInvoiceStatus(invoiceStatus);
             }
-            e.stopPropagation();
           }}
         >
-          {orderConfirmed ? "Update Invoice" : "Create Invoice"}
+          {updateMode ? "Update Invoice" : "Create Invoice"}
         </Button>
       </div>
     </div>

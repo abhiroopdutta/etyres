@@ -6,6 +6,7 @@ import Invoice from "./Invoice";
 import { message } from "antd";
 import { useTransition, animated } from "@react-spring/web";
 import Button from "../Button";
+import { dayjsUTC } from "../dayjsUTCLocal";
 
 function roundToTwo(num) {
   return +(Math.round(num + "e+2") + "e-2");
@@ -16,6 +17,21 @@ function Cart({ handleRefreshProducts }) {
   const [products, setProducts] = tyresContext;
   const [services, setServices] = servicesContext;
   const [cartTotal, setCartTotal] = useState(0);
+  const [invoiceUpdateMode, setInvoiceUpdateMode] = useState(false);
+  const [savedInvoice, setSavedInvoice] = useState({
+    invoiceNumber: 0,
+    invoiceDate: "",
+    invoiceStatus: "",
+    customerDetails: {
+      name: "",
+      address: "",
+      GSTIN: "",
+      stateCode: "",
+      state: "",
+      vehicleNumber: "",
+      contact: "",
+    },
+  });
 
   const [previewInvoice, setPreviewInvoice] = useState(false);
   const transitions = useTransition(previewInvoice, {
@@ -113,13 +129,30 @@ function Cart({ handleRefreshProducts }) {
     );
   };
 
-  const hideInvoice = (orderConfirmed) => {
-    if (orderConfirmed) {
+  const hideInvoice = (invoiceSaved) => {
+    setPreviewInvoice(false);
+    if (invoiceSaved) {
       emptyCart();
+      setInvoiceUpdateMode(false);
+      setSavedInvoice({
+        invoiceNumber: 0,
+        invoiceDate: "",
+        invoiceStatus: "",
+        customerDetails: {
+          name: "",
+          address: "",
+          GSTIN: "",
+          stateCode: "",
+          state: "",
+          vehicleNumber: "",
+          contact: "",
+        },
+      });
       handleRefreshProducts();
     }
-    setPreviewInvoice(false);
   };
+
+  console.log(products, previewInvoice);
 
   const showInvoice = () => {
     // don't show invoice if any item is out of stock
@@ -167,6 +200,27 @@ function Cart({ handleRefreshProducts }) {
     return;
   };
 
+  const getUpdatedInvoice = (invoiceNumber) => {
+    async function fetchUpdatedInvoice() {
+      try {
+        const response = await fetch(
+          `/api/get_sales_invoice?invoiceNumber=${invoiceNumber}`
+        );
+        const result = await response.json();
+        if (response.ok) {
+          setInvoiceUpdateMode(true);
+          setSavedInvoice(result);
+        } else {
+          throw Error(result);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    fetchUpdatedInvoice();
+  };
+
   return (
     <div className="cart-container">
       <div className="cart">
@@ -182,9 +236,17 @@ function Cart({ handleRefreshProducts }) {
               previewInvoice ? (
                 <animated.div style={styles}>
                   <Invoice
+                    updateMode={invoiceUpdateMode}
                     products={products}
                     services={services}
+                    savedInvoiceNumber={savedInvoice.invoiceNumber}
+                    savedInvoiceDate={dayjsUTC(
+                      savedInvoice.invoiceDate["$date"]
+                    ).format("YYYY-MM-DD")}
+                    savedInvoiceStatus={savedInvoice.invoiceStatus}
+                    savedCustomerDetails={savedInvoice.customerDetails}
                     hideInvoice={hideInvoice}
+                    updateInvoiceInParent={getUpdatedInvoice}
                   />
                 </animated.div>
               ) : null

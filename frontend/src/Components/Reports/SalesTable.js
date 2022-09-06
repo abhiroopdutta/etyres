@@ -43,7 +43,7 @@ function SalesTable({ exportToExcel }) {
   const searchInputRef = useRef();
   const [showInvoice, setShowInvoice] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState({});
-  const [invoiceStatusUpdate, setInvoiceStatusUpdate] = useState(false);
+  const [updatedInvoiceNumber, setUpdatedInvoiceNumber] = useState(0);
 
   useEffect(() => {
     if (showInvoice) {
@@ -91,7 +91,18 @@ function SalesTable({ exportToExcel }) {
     return () => {
       didCancel = true;
     };
-  }, [filters, sorters, pageRequest, maxItemsPerPage, invoiceStatusUpdate]);
+  }, [filters, sorters, pageRequest, maxItemsPerPage, updatedInvoiceNumber]);
+
+  useEffect(() => {
+    if (updatedInvoiceNumber === 0) {
+      return;
+    }
+    setSelectedInvoice(
+      salesInvoices.find(
+        (invoice) => invoice.invoiceNumber === updatedInvoiceNumber
+      )
+    );
+  }, [salesInvoices, updatedInvoiceNumber]);
 
   const getSearchMenu = (dataIndex) => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
@@ -217,6 +228,10 @@ function SalesTable({ exportToExcel }) {
     setSelectedInvoice({});
     setShowInvoice(false);
   }
+
+  const getUpdatedInvoice = (invoiceNumber) => {
+    setUpdatedInvoiceNumber(invoiceNumber);
+  };
 
   const columns = [
     {
@@ -385,17 +400,17 @@ function SalesTable({ exportToExcel }) {
       />
       {showInvoice ? (
         <Invoice
-          defaultOrderConfirmed={true}
+          updateMode={true}
           products={selectedInvoice.productItems}
           services={selectedInvoice.serviceItems}
-          defaultInvoiceNumber={selectedInvoice.invoiceNumber}
-          defaultInvoiceDate={dayjsUTC(
+          savedInvoiceNumber={selectedInvoice.invoiceNumber}
+          savedInvoiceDate={dayjsUTC(
             selectedInvoice.invoiceDate["$date"]
           ).format("YYYY-MM-DD")}
-          defaultInvoiceStatus={selectedInvoice.invoiceStatus}
-          defaultCustomerDetails={selectedInvoice.customerDetails}
+          savedInvoiceStatus={selectedInvoice.invoiceStatus}
+          savedCustomerDetails={selectedInvoice.customerDetails}
           hideInvoice={hideInvoice}
-          setInvoiceStatusUpdate={setInvoiceStatusUpdate}
+          updateInvoiceInParent={getUpdatedInvoice}
         />
       ) : null}
     </Content>
