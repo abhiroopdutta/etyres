@@ -138,6 +138,14 @@ def hello_world():
         ]).to_json()
     return Response(products, mimetype="application/json", status=200)
 
+@app.route("/api/get_sales_invoice", methods = ['GET'])
+def get_sale_invoice():
+    invoice_number = request.args["invoiceNumber"]
+    print(invoice_number)
+    sales_invoice = Sale.objects(invoiceNumber=invoice_number).first().to_json()
+    print(sales_invoice)
+    return Response(sales_invoice, mimetype="application/json", status=200)
+
 @app.route("/api/reset_stock", methods = ['GET'])
 def stock_reset():
     status = reset_stock()
