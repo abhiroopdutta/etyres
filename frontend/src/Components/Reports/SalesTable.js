@@ -400,6 +400,8 @@ function SalesTable({ exportToExcel }) {
       />
       {showInvoice ? (
         <Invoice
+          visible={showInvoice}
+          onCancel={hideInvoice}
           updateMode={true}
           products={selectedInvoice.productItems}
           services={selectedInvoice.serviceItems}
@@ -409,7 +411,7 @@ function SalesTable({ exportToExcel }) {
           ).format("YYYY-MM-DD")}
           savedInvoiceStatus={selectedInvoice.invoiceStatus}
           savedCustomerDetails={selectedInvoice.customerDetails}
-          hideInvoice={hideInvoice}
+          savedPayment={{ cash: 0, card: 0, UPI: 0 }}
           updateInvoiceInParent={getUpdatedInvoice}
         />
       ) : null}
