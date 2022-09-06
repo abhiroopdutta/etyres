@@ -43,8 +43,10 @@ function SalesTable({ exportToExcel }) {
   const searchInputRef = useRef();
   const [showInvoice, setShowInvoice] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState({});
-  const [updatedInvoiceNumber, setUpdatedInvoiceNumber] = useState(0);
-
+  const [invoiceUpdateSignal, setInvoiceUpdateSignal] = useState({
+    invoiceNumber: 0,
+    updateCount: 0,
+  });
   useEffect(() => {
     if (showInvoice) {
       document.body.style["overflow-y"] = "hidden";
@@ -91,18 +93,18 @@ function SalesTable({ exportToExcel }) {
     return () => {
       didCancel = true;
     };
-  }, [filters, sorters, pageRequest, maxItemsPerPage, updatedInvoiceNumber]);
+  }, [filters, sorters, pageRequest, maxItemsPerPage, invoiceUpdateSignal]);
 
   useEffect(() => {
-    if (updatedInvoiceNumber === 0) {
+    if (invoiceUpdateSignal.invoiceNumber === 0) {
       return;
     }
     setSelectedInvoice(
       salesInvoices.find(
-        (invoice) => invoice.invoiceNumber === updatedInvoiceNumber
+        (invoice) => invoice.invoiceNumber === invoiceUpdateSignal.invoiceNumber
       )
     );
-  }, [salesInvoices, updatedInvoiceNumber]);
+  }, [salesInvoices, invoiceUpdateSignal]);
 
   const getSearchMenu = (dataIndex) => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
@@ -225,12 +227,19 @@ function SalesTable({ exportToExcel }) {
   }
 
   function hideInvoice() {
+    setInvoiceUpdateSignal({
+      invoiceNumber: 0,
+      updateCount: 0,
+    });
     setSelectedInvoice({});
     setShowInvoice(false);
   }
 
   const getUpdatedInvoice = (invoiceNumber) => {
-    setUpdatedInvoiceNumber(invoiceNumber);
+    setInvoiceUpdateSignal((prevState) => ({
+      invoiceNumber: invoiceNumber,
+      updateCount: prevState.updateCount + 1,
+    }));
   };
 
   const columns = [
