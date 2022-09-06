@@ -32,6 +32,7 @@ function Cart({ handleRefreshProducts }) {
       contact: "",
     },
   });
+  const [payment, setPayment] = useState({ cash: 0, card: 0, UPI: 0 });
 
   const [previewInvoice, setPreviewInvoice] = useState(false);
   const transitions = useTransition(previewInvoice, {
@@ -129,9 +130,8 @@ function Cart({ handleRefreshProducts }) {
     );
   };
 
-  const hideInvoice = (invoiceSaved) => {
-    setPreviewInvoice(false);
-    if (invoiceSaved) {
+  const hideInvoice = () => {
+    if (invoiceUpdateMode) {
       emptyCart();
       setInvoiceUpdateMode(false);
       setSavedInvoice({
@@ -148,11 +148,11 @@ function Cart({ handleRefreshProducts }) {
           contact: "",
         },
       });
+      setPayment({ cash: 0, card: 0, UPI: 0 });
       handleRefreshProducts();
     }
+    setPreviewInvoice(false);
   };
-
-  console.log(products, previewInvoice);
 
   const showInvoice = () => {
     // don't show invoice if any item is out of stock
@@ -210,6 +210,7 @@ function Cart({ handleRefreshProducts }) {
         if (response.ok) {
           setInvoiceUpdateMode(true);
           setSavedInvoice(result);
+          setPayment({ cash: 0, card: 0, UPI: 0 });
         } else {
           throw Error(result);
         }
@@ -232,25 +233,27 @@ function Cart({ handleRefreshProducts }) {
               className="invoice-button"
               onClick={() => showInvoice()}
             />
-            {transitions((styles, previewInvoice) =>
+            {/* {transitions((styles, previewInvoice) =>
               previewInvoice ? (
-                <animated.div style={styles}>
-                  <Invoice
-                    updateMode={invoiceUpdateMode}
-                    products={products}
-                    services={services}
-                    savedInvoiceNumber={savedInvoice.invoiceNumber}
-                    savedInvoiceDate={dayjsUTC(
-                      savedInvoice.invoiceDate["$date"]
-                    ).format("YYYY-MM-DD")}
-                    savedInvoiceStatus={savedInvoice.invoiceStatus}
-                    savedCustomerDetails={savedInvoice.customerDetails}
-                    hideInvoice={hideInvoice}
-                    updateInvoiceInParent={getUpdatedInvoice}
-                  />
-                </animated.div>
+                <animated.div style={styles}> */}
+            <Invoice
+              visible={previewInvoice}
+              onCancel={hideInvoice}
+              updateMode={invoiceUpdateMode}
+              products={products}
+              services={services}
+              savedInvoiceNumber={savedInvoice.invoiceNumber}
+              savedInvoiceDate={dayjsUTC(
+                savedInvoice.invoiceDate["$date"]
+              ).format("YYYY-MM-DD")}
+              savedInvoiceStatus={savedInvoice.invoiceStatus}
+              savedCustomerDetails={savedInvoice.customerDetails}
+              savedPayment={payment}
+              updateInvoiceInParent={getUpdatedInvoice}
+            />
+            {/* </animated.div>
               ) : null
-            )}
+            )} */}
           </div>
         </div>
 

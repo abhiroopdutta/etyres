@@ -23,6 +23,8 @@ function getTodaysDate() {
 // ---------------------------------------------------------------------------
 
 function Invoice({
+  visible,
+  onCancel,
   updateMode,
   products,
   services,
@@ -30,9 +32,10 @@ function Invoice({
   savedInvoiceDate,
   savedInvoiceStatus,
   savedCustomerDetails,
-  hideInvoice,
+  savedPayment,
   updateInvoiceInParent,
 }) {
+  const [showHideClassName, setShowHideClassName] = useState();
   const [invoiceNumber, setInvoiceNumber] = useState();
   const [invoiceDate, setInvoiceDate] = useState(getTodaysDate());
   const [invoiceStatus, setInvoiceStatus] = useState("due");
@@ -56,6 +59,12 @@ function Invoice({
     content: () => componentRef.current,
   });
 
+  useEffect(() => {
+    setShowHideClassName(
+      visible ? "invoice display-block" : "invoice display-none"
+    );
+  }, [visible]);
+
   //Get invoice number from backend
   useEffect(() => {
     async function getNewInvoiceNumber() {
@@ -70,7 +79,7 @@ function Invoice({
       setInvoiceDate(savedInvoiceDate);
       setInvoiceStatus(savedInvoiceStatus);
       setCustomerDetails(savedCustomerDetails);
-
+      setPayment(savedPayment);
       if (
         savedCustomerDetails.GSTIN === "0" ||
         savedCustomerDetails.GSTIN.startsWith("09") ||
@@ -89,6 +98,7 @@ function Invoice({
     savedInvoiceDate,
     savedInvoiceStatus,
     savedCustomerDetails,
+    savedPayment,
   ]);
 
   useEffect(() => {
@@ -150,6 +160,30 @@ function Invoice({
       setInvoiceStatus("due");
     }
   }, [payment, IGSTRender, GSTTable, IGSTTable, savedInvoiceStatus]);
+
+  const handleInvoiceClose = () => {
+    //if update mode then reset every state to original
+    if (updateMode) {
+      setInvoiceNumber(0);
+      setInvoiceDate(getTodaysDate());
+      setInvoiceStatus("due");
+      setCustomerDetails({
+        name: "",
+        address: "",
+        GSTIN: "",
+        stateCode: "",
+        state: "",
+        vehicleNumber: "",
+        contact: "",
+      });
+      setPayment({ cash: 0, card: 0, UPI: 0 });
+      setGSTTable(null);
+      setIGSTTable(null);
+      setLoading(false);
+      setIGSTRender(false);
+    }
+    onCancel();
+  };
 
   //if customer GSTIN doesn't start with 09, then IGST
   const handleIGST = (e) => {
@@ -305,12 +339,7 @@ function Invoice({
   };
 
   return (
-    <div
-      className="invoice"
-      onClick={() => {
-        hideInvoice(updateMode);
-      }}
-    >
+    <div className={showHideClassName} onClick={handleInvoiceClose}>
       <div className="left-buttons-container">
         <Button
           size="large"
@@ -685,7 +714,7 @@ function Invoice({
         <Button
           size="large"
           type="default"
-          onClick={() => hideInvoice(updateMode)}
+          onClick={onCancel}
           icon={<CloseCircleFilled />}
         />
         <Button

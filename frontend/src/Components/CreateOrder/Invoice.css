@@ -281,3 +281,10 @@ table.rounding-table td{
   size: A4;
 }
 
+.display-block {
+  display: flex;
+}
+
+.display-none {
+  display: none;
+}
