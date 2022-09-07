@@ -420,7 +420,7 @@ function SalesTable({ exportToExcel }) {
           ).format("YYYY-MM-DD")}
           savedInvoiceStatus={selectedInvoice.invoiceStatus}
           savedCustomerDetails={selectedInvoice.customerDetails}
-          savedPayment={{ cash: 0, card: 0, UPI: 0 }}
+          savedPayment={selectedInvoice.payment}
           updateInvoiceInParent={getUpdatedInvoice}
         />
       ) : null}

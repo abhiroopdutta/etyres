@@ -26,8 +26,8 @@ function Cart({ handleRefreshProducts }) {
       vehicleNumber: "",
       contact: "",
     },
+    payment: { cash: 0, card: 0, UPI: 0 },
   });
-  const [payment, setPayment] = useState({ cash: 0, card: 0, UPI: 0 });
 
   const [previewInvoice, setPreviewInvoice] = useState(false);
 
@@ -136,8 +136,8 @@ function Cart({ handleRefreshProducts }) {
           vehicleNumber: "",
           contact: "",
         },
+        payment: { cash: 0, card: 0, UPI: 0 },
       });
-      setPayment({ cash: 0, card: 0, UPI: 0 });
       handleRefreshProducts();
     }
     setPreviewInvoice(false);
@@ -199,7 +199,6 @@ function Cart({ handleRefreshProducts }) {
         if (response.ok) {
           setInvoiceUpdateMode(true);
           setSavedInvoice(result);
-          setPayment({ cash: 0, card: 0, UPI: 0 });
         } else {
           throw Error(result);
         }
@@ -234,7 +233,7 @@ function Cart({ handleRefreshProducts }) {
               ).format("YYYY-MM-DD")}
               savedInvoiceStatus={savedInvoice.invoiceStatus}
               savedCustomerDetails={savedInvoice.customerDetails}
-              savedPayment={payment}
+              savedPayment={savedInvoice.payment}
               updateInvoiceInParent={getUpdatedInvoice}
             />
           </div>

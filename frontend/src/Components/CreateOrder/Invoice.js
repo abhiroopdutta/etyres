@@ -223,6 +223,7 @@ function Invoice({
       invoiceDate: invoiceDate,
       invoiceStatus: invoiceStatus,
       customerDetails: customerDetails,
+      payment: payment,
     };
     if (!IGSTRender) {
       invoiceData["invoiceTotal"] = GSTTable["invoiceTotal"];
@@ -302,6 +303,7 @@ function Invoice({
     let invoiceStatusData = {
       invoiceNumber: invoiceNumber,
       invoiceStatus: status,
+      payment: payment,
     };
 
     const requestOptions = {

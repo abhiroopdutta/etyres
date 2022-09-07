@@ -233,6 +233,7 @@ def create_order(invoice):
     products = invoice["products"]
     services = invoice["services"]
     customer_details = invoice["customerDetails"]
+    payment = invoice["payment"]
 
     # If empty invoice, then error code = 1
     if not products and not services:
@@ -309,8 +310,8 @@ def create_order(invoice):
         invoiceRoundOff = invoice_round_off,
         customerDetails = customerDetails,
         productItems = product_items,
-        serviceItems = service_items
-
+        serviceItems = service_items,
+        payment = payment
         ).save()
 
     return 0
@@ -337,7 +338,8 @@ def update_invoice_status(invoice_status_request):
 
     # 1. due -> paid/due
     if old_invoice_status == "due" and (new_invoice_status in ["paid", "due"]):
-        invoice.update(invoiceStatus = new_invoice_status)
+        payment = invoice_status_request["payment"]
+        invoice.update(invoiceStatus = new_invoice_status, payment = payment)
 
     # In case of cancellations, reverse the stock also
     # 2. due/paid -> cancelled

@@ -36,6 +36,11 @@ class Purchase(db.Document):
     invoiceTotal = db.FloatField(required=True)
     items = db.ListField(db.EmbeddedDocumentField(PurchaseItem))
 
+class Payment(db.EmbeddedDocument):
+    cash = db.FloatField(required=True)
+    card = db.FloatField(required=True)
+    UPI = db.FloatField(required=True)
+
 class CustomerDetail(db.EmbeddedDocument):
     name = db.StringField()
     address = db.StringField()
@@ -73,3 +78,4 @@ class Sale(db.Document):
     customerDetails = db.EmbeddedDocumentField(CustomerDetail)
     productItems =  db.ListField(db.EmbeddedDocumentField(ProductItem))
     serviceItems = db.ListField(db.EmbeddedDocumentField(ServiceItem))
+    payment = db.EmbeddedDocumentField(Payment)
