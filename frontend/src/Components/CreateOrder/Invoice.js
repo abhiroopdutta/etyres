@@ -533,21 +533,22 @@ function Invoice({
                 </tr>
               </tfoot>
             </table>
-            <br />
-            <table className="rounding-table">
-              <thead>
-                <tr>
-                  <td>Round Off</td>
-                  <td>{IGSTTable?.invoiceRoundOff}</td>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th>TOTAL</th>
-                  <th>&#x20B9;{IGSTTable?.invoiceTotal}</th>
-                </tr>
-              </tbody>
-            </table>
+            <div className="rounding-table-container">
+              <table className="rounding-table">
+                <thead>
+                  <tr>
+                    <td>Round Off</td>
+                    <td>{IGSTTable?.invoiceRoundOff}</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th>TOTAL</th>
+                    <th>&#x20B9;{IGSTTable?.invoiceTotal}</th>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         ) : (
           <div className="GST">
@@ -615,7 +616,7 @@ function Invoice({
 
               <tfoot>
                 <tr>
-                  <td>Net Amount</td>
+                  <th>Net Amount</th>
                   <td>-</td>
                   <td>{GSTTable?.total.quantity}</td>
                   <td>-</td>
