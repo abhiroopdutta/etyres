@@ -323,28 +323,25 @@ def update_invoice_status(invoice_status_request):
 
     old_invoice_status = invoice.invoiceStatus
     new_invoice_status = invoice_status_request["invoiceStatus"]
-    if old_invoice_status == new_invoice_status:
-        print("Selected status is same as previous, no status update applied")
-        return 2
 
     # cannot change status of cancelled invoices
     if old_invoice_status == "cancelled":
         print(f'Error! Cannot change status of invoice No. : {invoice_status_request["invoiceNumber"]} that is already cancelled')
         return 3
-    # cannot change status of paid invoices to due
-    if old_invoice_status == "paid" and new_invoice_status == "due":
-        print(f'Error! Cannot change status of invoice No. : {invoice_status_request["invoiceNumber"]} from paid to due')
+    # cannot change status of paid invoices to paid/due
+    if old_invoice_status == "paid" and (new_invoice_status in ["paid", "due"]):
+        print(f'Error! Cannot change status of invoice No. : {invoice_status_request["invoiceNumber"]} from paid to due/paid')
         return 4
 
     # only 2 types of status changes are possible
 
-    # 1. due -> paid
-    if old_invoice_status == "due" and new_invoice_status == "paid":
+    # 1. due -> paid/due
+    if old_invoice_status == "due" and (new_invoice_status in ["paid", "due"]):
         invoice.update(invoiceStatus = new_invoice_status)
 
     # In case of cancellations, reverse the stock also
     # 2. due/paid -> cancelled
-    if old_invoice_status in ["due", "paid"] and new_invoice_status == "cancelled":
+    elif old_invoice_status in ["due", "paid"] and new_invoice_status == "cancelled":
 
         if invoice.productItems:
             # first check if each product exists in inventory
