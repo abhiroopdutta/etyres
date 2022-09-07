@@ -184,8 +184,12 @@ function SalesTable({ exportToExcel }) {
           defaultValue={["due", "paid", "cancelled"]}
           style={{ width: 120 }}
           onChange={(value) =>
-            handleDropDownMenuChange(dataIndex, confirm, value)
+            setFilters((prevFilters) => ({
+              ...prevFilters,
+              [dataIndex]: value,
+            }))
           }
+          onBlur={() => handleDropDownMenuChange(confirm)}
         >
           <Option value="paid">Paid</Option>
           <Option value="due">Due</Option>
@@ -196,11 +200,7 @@ function SalesTable({ exportToExcel }) {
     filtered: true,
   });
 
-  const handleDropDownMenuChange = (dataIndex, confirm, value) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      [dataIndex]: value,
-    }));
+  const handleDropDownMenuChange = (confirm) => {
     setPageRequest(1);
     confirm();
   };
