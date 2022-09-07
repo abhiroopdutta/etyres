@@ -25,7 +25,7 @@ def get_sales_report(filters = {}, sorters = {}, pageRequest = 1, maxItemsPerPag
     if (filters["invoiceNumber"].isnumeric()):
         query &= Q(invoiceNumber=int(filters["invoiceNumber"]))
     if (filters["invoiceStatus"]):
-        query &= Q(invoiceStatus=filters["invoiceStatus"])
+        query &= Q(invoiceStatus__in=filters["invoiceStatus"])
     if (filters["customerName"]):
         query &= Q(customerDetails__name__icontains=filters["customerName"])
     if (filters["customerContact"]):

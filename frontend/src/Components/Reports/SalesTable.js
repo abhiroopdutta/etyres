@@ -28,7 +28,7 @@ function SalesTable({ exportToExcel }) {
     invoiceNumber: "",
     invoiceDate: { start: "", end: "" },
     invoiceTotal: "",
-    invoiceStatus: "",
+    invoiceStatus: ["due", "paid", "cancelled"],
     customerName: "",
     customerContact: "",
     customerVehicleNumber: "",
@@ -180,7 +180,8 @@ function SalesTable({ exportToExcel }) {
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
       <div style={{ padding: 8 }}>
         <Select
-          defaultValue=""
+          mode="multiple"
+          defaultValue={["due", "paid", "cancelled"]}
           style={{ width: 120 }}
           onChange={(value) =>
             handleDropDownMenuChange(dataIndex, confirm, value)
@@ -189,7 +190,6 @@ function SalesTable({ exportToExcel }) {
           <Option value="paid">Paid</Option>
           <Option value="due">Due</Option>
           <Option value="cancelled">Cancelled</Option>
-          <Option value="">All</Option>
         </Select>
       </div>
     ),
