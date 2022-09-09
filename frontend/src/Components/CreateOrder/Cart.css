@@ -91,24 +91,25 @@
 
 .cart-services input{
     max-width: 80px;
-    outline: none;
+    outline: 1px solid var(--default);
     border: 0.5px dotted transparent;
     border-radius: 5px;
-    background-color: var(--light-yellow);
+    background-color: var(--lightest);
     color: var(--darkest);
     font-size:medium;   
     font-weight:500;
     transition: background-color 0.1s ease-in-out, border 0.2s ease-in-out;
+    transition: outline 0.1s ease-in-out, border 0.2s ease-in-out;
 }
 
 
 .cart-services input:focus{
-    border:0.5px dotted var(--darker);
-    background-color: var(--dark-yellow);
+    background-color: var(--light-yellow);
+    outline: 1px solid var(--darker);
 }
 
 .cart-services input:hover{
-    background-color: var(--dark-yellow);
+    background-color: var(--light-yellow);
 }
 
 /* Chrome, Safari, Edge, Opera */

@@ -67,21 +67,22 @@
     max-width: 80px; 
     border: 0.5px solid transparent;
     border-radius: 5px;
-    outline: none;
-    background-color: var(--light-yellow);
+    outline: 1px solid var(--default);
+    background-color: var(--lightest);
     color: var(--darkest);
     font-size:medium;   
     font-weight:500;
     transition: background-color 0.1s ease-in-out, border 0.2s ease-in-out;
+    transition: outline 0.1s ease-in-out, border 0.2s ease-in-out;
 }
 
 .cart-tyre input:focus{
-    border:0.5px dotted var(--darker);
-    background-color: var(--dark-yellow);
+    background-color: var(--light-yellow);
+    outline: 1px solid var(--darker);
 }
 
 .cart-tyre input:hover{
-    background-color: var(--dark-yellow);
+    background-color: var(--light-yellow);
 }
 
 /* Chrome, Safari, Edge, Opera */
