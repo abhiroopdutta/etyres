@@ -99,7 +99,7 @@ function Reports() {
   return (
     <Layout
       style={{
-        background: "rgba(256, 256, 256)",
+        background: "rgb(248, 243, 243)",
         maxWidth: "90%",
         margin: "44px auto",
       }}

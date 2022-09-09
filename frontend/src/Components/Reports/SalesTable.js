@@ -378,8 +378,17 @@ function SalesTable({ exportToExcel }) {
     setSalesInvoices((prevInvoices) => [...prevInvoices, ...dummyRows]);
   }
   return (
-    <Content>
-      <Space style={{ display: "flex", justifyContent: "space-between" }}>
+    <Content
+      style={{
+        background: "rgb(248, 243, 243)",
+      }}
+    >
+      <Space
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
         <Title level={3} strong>
           Sales
         </Title>

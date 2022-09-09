@@ -137,7 +137,7 @@ function UpdatePrice() {
   return (
     <Layout
       style={{
-        background: "rgba(256, 256, 256)",
+        background: "rgb(248, 243, 243)",
         maxWidth: "40%",
         margin: "22px 44px",
       }}

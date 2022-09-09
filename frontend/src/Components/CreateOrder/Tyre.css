@@ -1,7 +1,6 @@
 .product {
     display: grid;
     grid-template-columns: 80px 220px;
-    background-color: white;
     border-bottom:3px solid var(--default);
   }
 
