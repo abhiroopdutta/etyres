@@ -1,0 +1,16 @@
+{
+    "theme_color": "#161616",
+    "background_color": "#211f1e",
+    "display": "standalone",
+    "scope": "/",
+    "start_url": "/",
+    "name": "ETyres",
+    "short_name": "ETyres",
+    "icons": [
+        {
+            "src": "./images/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}

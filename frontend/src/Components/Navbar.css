@@ -9,10 +9,9 @@
     padding: 0.5rem 2.8rem;
     color: white;
     text-decoration: none; 
-    font-size: 1.8rem;
-    font-weight: 650;
-    text-transform: uppercase;
+    font-size: 2rem;
     margin: 0;
+    font-family: 'Lobster', cursive;
   }
 
 /* Style the links inside the navigation bar */
