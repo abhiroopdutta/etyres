@@ -38,6 +38,7 @@ table.purchase-invoice-table td {
     border-radius: 12px;
     display: flex;
     flex-direction: column;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 }
 
 .purchase-invoice input{

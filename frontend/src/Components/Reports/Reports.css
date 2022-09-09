@@ -1,8 +1,13 @@
+.ant-table {
+    background-color: transparent;
+}
+
 .ant-table-content > table{
-    border-collapse: collapse;
+    /* border-collapse: collapse; */
     border-radius: 1em;
     overflow: hidden;
-    background-color:  var(--lightest);
+    background-color:  rgb(246, 238, 238);
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 }
 
 .ant-table-thead > tr > th{
@@ -15,7 +20,11 @@
 }
 
 .ant-table-tbody > tr > td{
-    border-bottom: 2px solid white;
+    border-bottom: 1px solid var(--default);
+}
+
+.ant-table-tbody > tr:last-child > td{
+    border-bottom: none;
 }
 
 .ant-table-tbody>tr:hover td {background: var(--lighter)!important;}
