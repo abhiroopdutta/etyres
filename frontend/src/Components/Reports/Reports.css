@@ -17,6 +17,7 @@
     font-size: 0.9rem;
     font-weight: 500;
     margin: 0;
+    border-bottom: none;
 }
 
 .ant-table-tbody > tr > td{
