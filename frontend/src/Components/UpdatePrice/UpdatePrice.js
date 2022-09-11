@@ -137,7 +137,7 @@ function UpdatePrice() {
   return (
     <Layout
       style={{
-        background: "rgb(248, 243, 243)",
+        background: "var(--global-app-color)",
         maxWidth: "40%",
         margin: "22px 44px",
       }}

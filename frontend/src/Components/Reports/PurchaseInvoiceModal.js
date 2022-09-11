@@ -76,7 +76,7 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
     >
       <Layout
         style={{
-          background: "rgba(256, 256, 256)",
+          background: "var(--global-app-color)",
           margin: "15px auto",
         }}
       >

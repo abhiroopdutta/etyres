@@ -1,7 +1,7 @@
 @import '~antd/dist/antd.css';
 
 body{
-  background-color: var(--lightest);
+  background-color: var(--global-app-color);
 }
 
 :root {
@@ -13,4 +13,6 @@ body{
 
     --light-yellow: #fdf4db;
     --dark-yellow: #fbebbd;
+
+    --global-app-color:  var(--lightest);
   }
