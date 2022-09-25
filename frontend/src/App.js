@@ -7,6 +7,7 @@ import CreateOrder from "./Components/CreateOrder/CreateOrder";
 import UpdatePrice from "./Components/UpdatePrice/UpdatePrice";
 import UpdateStock from "./Components/UpdateStock/UpdateStock";
 import Reports from "./Components/Reports/Reports";
+import Accounts from "./Components/Accounts/Accounts";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/update_stock" component={UpdateStock}></Route>
           <Route path="/update_price" component={UpdatePrice}></Route>
           <Route path="/reports" component={Reports}></Route>
+          <Route path="/accounts" component={Accounts}></Route>
         </Switch>
       </div>
     </Router>

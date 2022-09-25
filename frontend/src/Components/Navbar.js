@@ -21,6 +21,9 @@ function Navbar() {
         <Link className="nav-link" to="/reports">
           Reports
         </Link>
+        <Link className="nav-link" to="/accounts">
+          Accounts
+        </Link>
       </div>
     </nav>
   );
