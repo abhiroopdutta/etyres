@@ -79,3 +79,16 @@ class Sale(db.Document):
     productItems =  db.ListField(db.EmbeddedDocumentField(ProductItem))
     serviceItems = db.ListField(db.EmbeddedDocumentField(ServiceItem))
     payment = db.EmbeddedDocumentField(Payment)
+
+class Transaction(db.Document):
+    id = db.IntField(required=True)
+    date = db.DateTimeField(required=True, default=datetime.datetime.now)
+    amount = db.IntField(required=True)
+    status = db.StringField(required=True)
+    paymentMode = db.StringField(required=True)
+    description = db.StringField(required=True)
+
+class Headers(db.Document):
+    code = db.IntField(required=True)
+    name = db.StringField(required=True)
+    type = db.StringField(required=True)
