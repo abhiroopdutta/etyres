@@ -97,6 +97,19 @@
 
 .entity-name {
   font-weight: 700;
-  color: var(--darkest);
+  color: var(--darker);
   font-size: medium;
+  padding: 6px 6px;
+  margin-right: 5px;
+}
+
+.entity-name:hover {
+  background-color: rgb(208, 199, 199);
+  border-radius: 5px;
+  cursor: pointer;
+  color: var(--darkest);
+}
+.entity-name:active,
+.entity-name:focus {
+  color: var(--darkest);
 }

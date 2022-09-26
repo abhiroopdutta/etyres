@@ -30,13 +30,13 @@ function Cart() {
                 <div className={styles["entities"]}>
                     {[1, 2, 3, 4].map((product) => (
                         <div>
-                            <div><strong className={styles["entity-name"]}>item </strong></div>
-                            <div><strong className={styles["entity-name"]}>item </strong></div>
-                            <div><strong className={styles["entity-name"]}>item </strong></div>
-                            <div><strong className={styles["entity-name"]}>item </strong></div>
-                            <div><strong className={styles["entity-name"]}>item </strong></div>
-                            <div><strong className={styles["entity-name"]}>item </strong></div>
-                            <div><strong className={styles["entity-name"]}>item </strong></div>
+                            <div className={styles["entity-name"]}>Cashbox </div>
+                            <div className={styles["entity-name"]}>ICICI Bank </div>
+                            <div className={styles["entity-name"]}>Maharashtra Bank </div>
+                            <div className={styles["entity-name"]}>Rent </div>
+                            <div className={styles["entity-name"]}>Salary </div>
+                            <div className={styles["entity-name"]}>Electricity </div>
+                            <div className={styles["entity-name"]}>Food </div>
                         </div>
                     ))}
 
