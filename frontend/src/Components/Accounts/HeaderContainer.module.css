@@ -95,21 +95,47 @@
   border-radius: 10px;
 }
 
-.entity-name {
-  font-weight: 700;
-  color: var(--darker);
-  font-size: medium;
+.entity-container {
   padding: 6px 6px;
-  margin-right: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 5px;
+  transition: background-color 0.1s ease-in-out;
 }
 
-.entity-name:hover {
+.entity-container:hover {
   background-color: rgb(208, 199, 199);
-  border-radius: 5px;
   cursor: pointer;
+}
+.entity-container:active {
+  background-color: rgb(204, 196, 196);
+}
+
+.entity-container h4 {
+  margin: 0;
+  color: var(--darker);
+  font-size: medium;
+}
+.entity-container:hover h4 {
   color: var(--darkest);
 }
-.entity-name:active,
-.entity-name:focus {
+
+.info-icon {
+  display: none;
+  color: var(--darker);
+  font-size: medium;
+  transition: color 0.1s ease-in-out, transform 0.1s ease-in-out;
+}
+
+.entity-container:hover .info-icon {
+  display: block;
+}
+
+.info-icon:hover {
   color: var(--darkest);
+}
+.info-icon:active {
+  color: var(--darkest);
+  transform: translateY(1px);
 }

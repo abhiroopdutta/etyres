@@ -1,11 +1,12 @@
 import React, { useContext, useState, useEffect } from "react";
 import styles from "./HeaderContainer.module.css";
 import { message } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { SearchOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import Button from "../Button";
 import { dayjsUTC } from "../dayjsUTCLocal";
 
 function Cart() {
+    const headers = ["Cashbox", "ICICI Bank", "Maharashtra Bank", "Rent", "Employee Salary", "Electricity", "Misc"];
 
     return (
         <div className={styles["entities-container"]}>
@@ -20,7 +21,7 @@ function Cart() {
                 </div>
                 <div className={styles["entities-search"]}>
                     <label htmlFor="search-box"></label>
-                    <input id="search-box" type="text" placeholder="Find or search entities" />
+                    <input id="search-box" type="text" placeholder="Find or search headers" />
                     <SearchOutlined />
                 </div>
             </header>
@@ -28,15 +29,12 @@ function Cart() {
 
             <section className={styles["entities-section-container"]}>
                 <div className={styles["entities"]}>
-                    {[1, 2, 3, 4].map((product) => (
+                    {headers.map((header) => (
                         <div>
-                            <div className={styles["entity-name"]}>Cashbox </div>
-                            <div className={styles["entity-name"]}>ICICI Bank </div>
-                            <div className={styles["entity-name"]}>Maharashtra Bank </div>
-                            <div className={styles["entity-name"]}>Rent </div>
-                            <div className={styles["entity-name"]}>Salary </div>
-                            <div className={styles["entity-name"]}>Electricity </div>
-                            <div className={styles["entity-name"]}>Food </div>
+                            <div className={styles["entity-container"]}>
+                                <h4>{header}</h4>
+                                <InfoCircleOutlined className={styles["info-icon"]} />
+                            </div>
                         </div>
                     ))}
 
