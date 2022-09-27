@@ -88,7 +88,7 @@ class Transaction(db.Document):
     paymentMode = db.StringField(required=True)
     description = db.StringField(required=True)
 
-class Headers(db.Document):
+class Header(db.Document):
     code = db.IntField(required=True)
     name = db.StringField(required=True)
     type = db.StringField(required=True)
