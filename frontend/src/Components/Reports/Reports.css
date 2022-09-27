@@ -121,6 +121,14 @@
   border-radius: 12px;
   background-color: var(--lighter);
 }
+.ant-modal-header {
+  border-radius: 12px 12px 0 0;
+  background-color: var(--darker);
+}
+
+.ant-modal-title {
+  color: white;
+}
 
 .ant-layout {
   background-color: transparent;
