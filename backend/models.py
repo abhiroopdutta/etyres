@@ -81,7 +81,7 @@ class Sale(db.Document):
     payment = db.EmbeddedDocumentField(Payment)
 
 class Transaction(db.Document):
-    id = db.StringField(required=True)
+    transactionId = db.StringField(required=True)
     date = db.DateTimeField(required=True, default=datetime.datetime.now)
     amount = db.IntField(required=True)
     status = db.StringField(required=True)

@@ -5,7 +5,7 @@ from update_price import get_pv_price_details, update_price, load_to_db
 from update_stock import read_invoices, update_stock, process_invoice
 from create_order import create_order, compute_gst_tables, update_invoice_status
 from sales_report import report_handler, reset_stock, get_sales_report
-from account import add_header_item
+from account import add_header_item, add_transaction_item
 from models import Header, Product, Purchase, Sale
 from datetime import date, datetime
 import os
@@ -176,6 +176,12 @@ def add_header():
 def get_headers():
     headers = Header.objects().to_json()
     return Response(headers, mimetype="application/json", status=200)
+
+@app.route("/api/add_transaction", methods = ['POST'])
+def add_transaction():
+    data = request.get_json()
+    add_transaction_item(data)
+    return jsonify("success"), 200
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

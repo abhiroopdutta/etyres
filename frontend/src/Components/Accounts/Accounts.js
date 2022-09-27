@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Layout, DatePicker, Typography, Button, Col, Row, Modal, Form, Input, Select } from "antd";
+import { Layout, DatePicker, Typography, Button, Col, Row, Modal, Form, Input, Select, message } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
 import { dayjsLocal } from "../dayjsUTCLocal";
 import HeaderContainer from "./HeaderContainer";
@@ -10,6 +10,7 @@ const { TextArea } = Input;
 function Accounts() {
     const [visible, setVisible] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [transactionAdded, setTransactionAdded] = useState(false);
     const [headers, setHeaders] = useState([]);
     const [headersUpdated, setHeadersUpdated] = useState(false);
     const [paymentModes, setPaymentModes] = useState(["cash", "card", "UPI", "bankTransfer"]);
@@ -63,6 +64,42 @@ function Accounts() {
             setPaymentModes(["cash", "card", "UPI", "bankTransfer"]);
         }
     };
+
+    const handleAddTransaction = (new_transaction) => {
+        setLoading(true);
+        let transactionFormatted =
+        {
+            ...new_transaction,
+            dateTime: dayjsLocal(new_transaction["dateTime"]).format("YYYY-MM-DD HH:mm:ss")
+        }
+        console.log(transactionFormatted);
+        const requestOptions = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(transactionFormatted),
+        };
+
+        const submit_item = async () => {
+            try {
+                const response = await fetch("api/add_transaction", requestOptions);
+                if (response.ok) {
+                    setTimeout(() => {
+                        setLoading(false);
+                    }, 1000);
+                    setTimeout(
+                        () => message.success("Item added to inventory!", 2),
+                        1300
+                    );
+                    setTimeout(() => setVisible(false), 1800);
+                    setTimeout(() => setTransactionAdded((oldState) => !oldState), 1300);
+                }
+            } catch (err) {
+                console.log(err.message);
+            }
+        };
+        submit_item();
+    };
+
 
     return (
         <Layout
@@ -142,7 +179,7 @@ function Accounts() {
                         </Form.Item>
                         <Form.Item
                             label="Date Time"
-                            name="datetime"
+                            name="dateTime"
                             rules={[{ required: true, message: 'Please input transaction datetime!' }]}
                         >
                             <DatePicker
