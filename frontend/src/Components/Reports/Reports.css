@@ -1,117 +1,118 @@
 .ant-table {
-    background-color: transparent;
+  background-color: transparent;
 }
 
-.ant-table-content > table{
-    /* border-collapse: collapse; */
-    border-radius: 1em;
-    overflow: hidden;
-    background-color:  rgb(246, 238, 238);
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+.ant-table-content > table {
+  /* border-collapse: collapse; */
+  border-radius: 1em;
+  overflow: hidden;
+  background-color: rgb(246, 238, 238);
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 }
 
-.ant-table-thead > tr > th{
-    background-color: var(--darker);
-    text-decoration: none; 
-    color:  white;
-    font-size: 0.9rem;
-    font-weight: 500;
-    margin: 0;
-    border-bottom: none;
+.ant-table-thead > tr > th {
+  background-color: var(--darker);
+  text-decoration: none;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: 0;
+  border-bottom: none;
 }
 
-.ant-table-tbody > tr > td{
-    border-bottom: 1px solid var(--default);
+.ant-table-tbody > tr > td {
+  border-bottom: 1px solid var(--default);
 }
 
-.ant-table-tbody > tr:last-child > td{
-    border-bottom: none;
+.ant-table-tbody > tr:last-child > td {
+  border-bottom: none;
 }
 
-.ant-table-tbody>tr:hover td {background: var(--lighter)!important;}
-
-.ant-btn-primary{
-    text-decoration: none;
-    color:white;
-    border: none;
-    border-radius: 6px;
-    background-color: var(--darker);
-    cursor: pointer;
-    font-weight: 600;
-    transition: box-shadow 0.1s ease-in-out, transform 0.2s ease-in-out, background-color 0.1s ease-in-out;
+.ant-table-tbody > tr:hover td {
+  background: var(--lighter) !important;
 }
 
-.ant-btn-primary:active{
-    box-shadow: 0 2px var(--darkest); 
-    transform: translateY(2px);
+.ant-btn-primary {
+  text-decoration: none;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  background-color: var(--darker);
+  cursor: pointer;
+  font-weight: 600;
+  transition: box-shadow 0.1s ease-in-out, transform 0.2s ease-in-out,
+    background-color 0.1s ease-in-out;
 }
 
-.ant-btn-primary:hover{
-    background-color: var(--darkest); 
+.ant-btn-primary:active {
+  box-shadow: 0 2px var(--darkest);
+  transform: translateY(2px);
 }
 
-.ant-btn-primary:focus{
-    background-color: var(--darkest); 
+.ant-btn-primary:hover {
+  background-color: var(--darkest);
 }
 
-.ant-dropdown-trigger{
-    color: var(--lighter);
+.ant-btn-primary:focus {
+  background-color: var(--darkest);
 }
 
-.ant-dropdown-trigger:hover{
-    color: white;
+.ant-dropdown-trigger {
+  color: var(--lighter);
 }
 
-.ant-dropdown-trigger:active{
-    color: white;
+.ant-dropdown-trigger:hover {
+  color: white;
 }
 
-.ant-table-filter-trigger.active{
-    color: #ffd043;
-
+.ant-dropdown-trigger:active {
+  color: white;
 }
 
-.anticon-edit{
-    color: var(--darker);
+.ant-table-filter-trigger.active {
+  color: #ffd043;
 }
 
-.anticon-edit:hover{
-    color: var(--darkest); 
+.anticon-edit {
+  color: var(--darker);
 }
 
-.anticon-edit:active{
-    color: var(--darkest); 
+.anticon-edit:hover {
+  color: var(--darkest);
 }
 
-.anticon-edit:focus{
-    color: var(--darkest); 
+.anticon-edit:active {
+  color: var(--darkest);
 }
 
-.ant-btn-default{
-    text-decoration: none;
-    color:white;
-    border: none;
-    border-radius: 6px;
-    background-color: var(--darker);
-    cursor: pointer;
-    font-weight: 600;
-    transition: box-shadow 0.1s ease-in-out, transform 0.2s ease-in-out, background-color 0.1s ease-in-out;
+.anticon-edit:focus {
+  color: var(--darkest);
 }
 
-.ant-btn-default:active{
-    box-shadow: 0 2px var(--darkest); 
-    transform: translateY(5px);
-    color:white;
-
+.ant-btn-default {
+  text-decoration: none;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  background-color: var(--darker);
+  cursor: pointer;
+  font-weight: 600;
+  transition: box-shadow 0.1s ease-in-out, transform 0.2s ease-in-out,
+    background-color 0.1s ease-in-out;
 }
 
-.ant-btn-default:hover{
-    background-color: var(--darkest); 
-    color:white;
+.ant-btn-default:active {
+  box-shadow: 0 2px var(--darkest);
+  transform: translateY(5px);
+  color: white;
 }
 
-.ant-btn-default:focus{
-    background-color: var(--darkest); 
-    color:white;
+.ant-btn-default:hover {
+  background-color: var(--darkest);
+  color: white;
+}
 
+.ant-btn-default:focus {
+  background-color: var(--darkest);
+  color: white;
 }
