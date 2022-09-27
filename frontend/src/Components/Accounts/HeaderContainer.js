@@ -7,42 +7,10 @@ import { dayjsUTC } from "../dayjsUTCLocal";
 
 const { Option } = Select;
 
-function Cart() {
+function Cart({ headers, setHeadersUpdated }) {
 
     const [visible, setVisible] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [headersUpdated, setHeadersUpdated] = useState(false);
-    const [headers, setHeaders] = useState([]);
-
-    useEffect(() => {
-        let didCancel = false; // avoid fetch race conditions or set state on unmounted components
-        async function fetchHeaders() {
-
-            const requestOptions = {
-                method: "GET",
-                headers: { "Content-Type": "application/json" },
-            };
-            try {
-                const response = await fetch("/api/get_headers", requestOptions);
-                const result = await response.json();
-                if (response.ok && !didCancel) {
-                    console.log(result);
-                    setHeaders(result);
-                }
-            } catch (err) {
-                if (!didCancel) {
-                    Modal.error({
-                        content: err.message,
-                    });
-                    console.log(err.message);
-                }
-            }
-        }
-        fetchHeaders();
-        return () => {
-            didCancel = true;
-        };
-    }, [headersUpdated]);
 
     const closeModal = () => {
         setVisible(false);
