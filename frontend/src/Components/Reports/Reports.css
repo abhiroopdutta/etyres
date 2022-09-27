@@ -116,3 +116,12 @@
   background-color: var(--darkest);
   color: white;
 }
+
+.ant-modal-content {
+  border-radius: 12px;
+  background-color: var(--lighter);
+}
+
+.ant-layout {
+  background-color: transparent;
+}
