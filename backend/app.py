@@ -5,7 +5,8 @@ from update_price import get_pv_price_details, update_price, load_to_db
 from update_stock import read_invoices, update_stock, process_invoice
 from create_order import create_order, compute_gst_tables, update_invoice_status
 from sales_report import report_handler, reset_stock, get_sales_report
-from models import Product, Purchase, Sale
+from account import add_header_item
+from models import Header, Product, Purchase, Sale
 from datetime import date, datetime
 import os
 import json
@@ -165,6 +166,16 @@ def download():
     except FileNotFoundError:
         abort(404)
 
+@app.route("/api/add_header", methods = ['POST'])
+def add_header():
+    data = request.get_json()
+    add_header_item(data)
+    return jsonify("success"), 200
+
+@app.route("/api/get_headers", methods = ['GET'])
+def get_headers():
+    headers = Header.objects().to_json()
+    return Response(headers, mimetype="application/json", status=200)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

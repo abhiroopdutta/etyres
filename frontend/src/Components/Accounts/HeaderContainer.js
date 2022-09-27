@@ -11,8 +11,38 @@ function Cart() {
 
     const [visible, setVisible] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [headersUpdated, setHeadersUpdated] = useState(false);
+    const [headers, setHeaders] = useState([]);
 
-    const headers = ["Cashbox", "ICICI Bank", "Maharashtra Bank", "Rent", "Employee Salary", "Electricity", "Misc"];
+    useEffect(() => {
+        let didCancel = false; // avoid fetch race conditions or set state on unmounted components
+        async function fetchHeaders() {
+
+            const requestOptions = {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+            };
+            try {
+                const response = await fetch("/api/get_headers", requestOptions);
+                const result = await response.json();
+                if (response.ok && !didCancel) {
+                    console.log(result);
+                    setHeaders(result);
+                }
+            } catch (err) {
+                if (!didCancel) {
+                    Modal.error({
+                        content: err.message,
+                    });
+                    console.log(err.message);
+                }
+            }
+        }
+        fetchHeaders();
+        return () => {
+            didCancel = true;
+        };
+    }, [headersUpdated]);
 
     const closeModal = () => {
         setVisible(false);
@@ -20,17 +50,32 @@ function Cart() {
     const showModal = () => {
         setVisible(true);
     };
-    const handleOk = () => {
-        setLoading(true);
-        setTimeout(() => {
-            setVisible(false);
-            setLoading(false);
-        }, 2000);
-    };
 
-    const onFormSubmit = (values) => {
-        console.log(values);
-        handleOk();
+
+    const handleAddHeader = (new_header) => {
+        setLoading(true);
+
+        const requestOptions = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(new_header),
+        };
+
+        const submit_item = async () => {
+            try {
+                const response = await fetch("api/add_header", requestOptions);
+                if (response.ok) {
+                    setTimeout(() => {
+                        setLoading(false);
+                    }, 500);
+                    setTimeout(() => setVisible(false), 800);
+                    setTimeout(() => setHeadersUpdated((oldState) => !oldState), 800);
+                }
+            } catch (err) {
+                console.log(err.message);
+            }
+        };
+        submit_item();
     };
 
     return (
@@ -56,9 +101,9 @@ function Cart() {
             <section className={styles["entities-section-container"]}>
                 <div className={styles["entities"]}>
                     {headers.map((header) => (
-                        <div key={header}>
+                        <div key={header.code}>
                             <div className={styles["entity-container"]}>
-                                <h4>{header}</h4>
+                                <h4>{header.name}</h4>
                                 <InfoCircleOutlined className={styles["info-icon"]} />
                             </div>
                         </div>
@@ -71,7 +116,6 @@ function Cart() {
                 centered
                 destroyOnClose
                 onCancel={closeModal}
-                onOk={handleOk}
                 footer={null}
                 title="Add Header"
             >
@@ -84,16 +128,16 @@ function Cart() {
                         name="basic"
                         labelCol={{ span: 8 }}
                         wrapperCol={{ span: 16 }}
-                        onFinish={onFormSubmit}
+                        onFinish={handleAddHeader}
                         autoComplete="off"
-                        initialValues={{ remember: false, headerType: "cash" }}
+                        initialValues={{ remember: false, headerType: "regular" }}
                     >
                         <Form.Item
                             label="Header Name"
                             name="headerName"
                             rules={[{ required: true, message: 'Please input header name!' }]}
                         >
-                            <Input />
+                            <Input placeholder="ex - Electricity/Rent" />
                         </Form.Item>
 
                         <Form.Item
