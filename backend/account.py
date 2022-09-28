@@ -46,7 +46,7 @@ def get_filtered_transactions(filters = {}, sorters = {}, pageRequest = 1, maxIt
     page_start = (pageRequest-1)*maxItemsPerPage
     page_end = pageRequest*maxItemsPerPage
     query = Q(transactionId__not__contains="*") # dummy query
-
+    print(filters["header"])
     from_regexp = re.compile('^'+filters["header"])
     to_regexp = re.compile('^\d\d'+filters["header"])
     if (filters["header"]):

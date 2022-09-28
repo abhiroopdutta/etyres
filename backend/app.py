@@ -186,7 +186,6 @@ def add_transaction():
 @app.route("/api/get_transactions", methods = ['POST'])
 def get_transactions():
     data = request.get_json()
-    print(data)
     results = get_filtered_transactions(**data)
     return jsonify(results), 200
 
