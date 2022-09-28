@@ -7,10 +7,11 @@ import { dayjsUTC } from "../dayjsUTCLocal";
 
 const { Option } = Select;
 
-function Cart({ headers, setHeadersUpdated }) {
+function HeaderContainer({ headers, setHeadersUpdated, selectedHeader, setSelectedHeader }) {
 
     const [visible, setVisible] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [isActiveHeader, setIsActiveHeader] = useState(false);
 
     const closeModal = () => {
         setVisible(false);
@@ -46,6 +47,10 @@ function Cart({ headers, setHeadersUpdated }) {
         submit_item();
     };
 
+    const handleSetSelectedHeader = (header) => {
+        setSelectedHeader(header);
+    };
+
     return (
         <div className={styles["entities-container"]}>
             <header>
@@ -70,7 +75,12 @@ function Cart({ headers, setHeadersUpdated }) {
                 <div className={styles["entities"]}>
                     {headers.map((header) => (
                         <div key={header.code}>
-                            <div className={styles["entity-container"]}>
+                            <div
+                                className={selectedHeader?.code === header.code ?
+                                    `${styles["entity-container"]} ${styles["active"]}` :
+                                    `${styles["entity-container"]}`
+                                }
+                                onClick={() => handleSetSelectedHeader(header)}>
                                 <h4>{header.name}</h4>
                                 <InfoCircleOutlined className={styles["info-icon"]} />
                             </div>
@@ -136,4 +146,4 @@ function Cart({ headers, setHeadersUpdated }) {
     );
 }
 
-export default Cart;
+export default HeaderContainer;

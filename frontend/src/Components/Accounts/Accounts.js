@@ -3,6 +3,7 @@ import { Layout, DatePicker, Typography, Button, Col, Row, Modal, Form, Input, S
 import { DownloadOutlined } from "@ant-design/icons";
 import { dayjsLocal } from "../dayjsUTCLocal";
 import HeaderContainer from "./HeaderContainer";
+import TransactionTable from "./TransactionTable";
 const { Title } = Typography;
 const { Option } = Select;
 const { TextArea } = Input;
@@ -14,6 +15,7 @@ function Accounts() {
     const [headers, setHeaders] = useState([]);
     const [headersUpdated, setHeadersUpdated] = useState(false);
     const [paymentModes, setPaymentModes] = useState(["cash", "card", "UPI", "bankTransfer"]);
+    const [selectedHeader, setSelectedHeader] = useState();
 
     useEffect(() => {
         let didCancel = false; // avoid fetch race conditions or set state on unmounted components
@@ -28,6 +30,7 @@ function Accounts() {
                 const result = await response.json();
                 if (response.ok && !didCancel) {
                     setHeaders(result);
+                    setSelectedHeader(result[0]);
                 }
             } catch (err) {
                 if (!didCancel) {
@@ -104,7 +107,6 @@ function Accounts() {
     return (
         <Layout
             style={{
-                background: "var(--global-app-color)",
                 maxWidth: "95%",
                 margin: "44px auto",
             }}
@@ -119,12 +121,17 @@ function Accounts() {
                     </Button>
                 </Col>
             </Row>
-            <Row>
+            <Row gutter={30}>
                 <Col>
-                    <HeaderContainer headers={headers} setHeadersUpdated={setHeadersUpdated} />
+                    <HeaderContainer
+                        headers={headers}
+                        setHeadersUpdated={setHeadersUpdated}
+                        selectedHeader={selectedHeader}
+                        setSelectedHeader={setSelectedHeader}
+                    />
                 </Col>
-                <Col>
-
+                <Col flex={"auto"}>
+                    <TransactionTable headers={headers} selectedHeader={selectedHeader} transactionAdded={transactionAdded} />
                 </Col>
             </Row>
 

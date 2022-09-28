@@ -47,7 +47,7 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    filters: { ...filters, header: selectedHeader },
+                    filters: { ...filters, header: selectedHeader?.code ?? "00" },
                     sorters: sorters,
                     pageRequest: pageRequest,
                     maxItemsPerPage: maxItemsPerPage,
@@ -74,7 +74,7 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
         return () => {
             didCancel = true;
         };
-    }, [filters, sorters, pageRequest, maxItemsPerPage, transactionAdded]);
+    }, [filters, sorters, pageRequest, maxItemsPerPage, transactionAdded, selectedHeader]);
 
     const getSearchMenu = (dataIndex) => ({
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
@@ -205,7 +205,7 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
 
                 let fromCode = transaction.transactionId.slice(0, 2);
                 let toCode = transaction.transactionId.slice(2, 4);
-                if (selectedHeader === fromCode) {
+                if (selectedHeader?.code === fromCode) {
                     return headers.find((header) => header.code === toCode)?.name;
                 }
                 else {
@@ -241,7 +241,7 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
 
                 let fromCode = transaction.transactionId.slice(0, 2);
                 let toCode = transaction.transactionId.slice(2, 4);
-                if (selectedHeader === fromCode) {
+                if (selectedHeader?.code === fromCode) {
                     return <div>
                         <Tag color="red">-</Tag>
                         <Text>&#x20B9;{amount}</Text>
@@ -335,7 +335,7 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
         <Content>
             <Space style={{ display: "flex", justifyContent: "space-between" }}>
                 <Title level={3} strong>
-                    Purchase
+                    {selectedHeader?.name}
                 </Title>
                 <Button
                     type="primary"

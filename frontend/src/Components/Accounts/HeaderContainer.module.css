@@ -96,7 +96,8 @@
 }
 
 .entity-container {
-  padding: 6px 6px;
+  padding: 4px 6px;
+  margin: 4px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -108,7 +109,8 @@
   background-color: rgb(208, 199, 199);
   cursor: pointer;
 }
-.entity-container:active {
+.entity-container:active,
+.entity-container.active {
   background-color: rgb(204, 196, 196);
 }
 
@@ -117,7 +119,8 @@
   color: var(--darker);
   font-size: medium;
 }
-.entity-container:hover h4 {
+.entity-container:hover h4,
+.entity-container.active h4 {
   color: var(--darkest);
 }
 
@@ -128,7 +131,8 @@
   transition: color 0.1s ease-in-out, transform 0.1s ease-in-out;
 }
 
-.entity-container:hover .info-icon {
+.entity-container:hover .info-icon,
+.entity-container.active .info-icon {
   display: block;
 }
 
