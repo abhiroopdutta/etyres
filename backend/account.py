@@ -1,6 +1,7 @@
 from models import Transaction, Header
 from mongoengine import Q
 import datetime
+import re
 
 def add_header_item(header):
     previous_header = Header.objects().order_by('-_id').first()
@@ -32,3 +33,38 @@ def add_transaction_item(transaction):
         description = transaction["description"]
         ).save()
     return 0
+
+def get_filtered_transactions(filters = {}, sorters = {}, pageRequest = 1, maxItemsPerPage = 5):
+    results = {
+        "data": [],
+        "pagination": { 
+            "pageNumber": 0, 
+            "pageSize": 0, 
+            "totalResults" : 0 }
+        
+    }
+    page_start = (pageRequest-1)*maxItemsPerPage
+    page_end = pageRequest*maxItemsPerPage
+    query = Q(transactionId__not__contains="*") # dummy query
+
+    from_regexp = re.compile('^'+filters["header"])
+    to_regexp = re.compile('^\d\d'+filters["header"])
+    if (filters["header"]):
+        query &= Q(transactionId=from_regexp) | Q(transactionId=to_regexp)
+    if (filters["status"]):
+        query &= Q(status__in=filters["status"])
+    if (filters["paymentMode"]):
+        query &= Q(paymentMode__in=filters["paymentMode"])
+    if (filters["transactionId"]):
+        query &= Q(transactionId__icontains=filters["transactionId"])    
+    if (filters["date"]["start"] and filters["date"]["end"]):
+        start_datetime = datetime.datetime.strptime(filters["date"]["start"][:10] + " " + "00:00:00", '%Y-%m-%d %H:%M:%S')
+        end_datetime = datetime.datetime.strptime(filters["date"]["end"][:10] + " " + "23:59:59", '%Y-%m-%d %H:%M:%S')
+        query &= Q(date__gte=start_datetime) & Q(date__lte=end_datetime) 
+
+    results["data"] = Transaction.objects(query).order_by('-_id')[page_start:page_end]
+    results["pagination"]["totalResults"] = Transaction.objects(query).order_by('-_id')[page_start:page_end].count()
+    results["pagination"]["pageNumber"] = pageRequest
+    results["pagination"]["pageSize"] = len(results["data"])
+    print(results)
+    return results
