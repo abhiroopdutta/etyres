@@ -169,7 +169,7 @@ def download():
 @app.route("/api/add_header", methods = ['POST'])
 def add_header():
     data = request.get_json()
-    add_header_item(data)
+    add_header_item(**data)
     return jsonify("success"), 200
 
 @app.route("/api/get_headers", methods = ['GET'])
@@ -180,7 +180,7 @@ def get_headers():
 @app.route("/api/add_transaction", methods = ['POST'])
 def add_transaction():
     data = request.get_json()
-    add_transaction_item(data)
+    add_transaction_item(**data)
     return jsonify("success"), 200
 
 @app.route("/api/get_transactions", methods = ['POST'])

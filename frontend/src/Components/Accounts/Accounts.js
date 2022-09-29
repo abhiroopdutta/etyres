@@ -55,8 +55,8 @@ function Accounts() {
     };
 
     const handleFilterPaymentModes = (changedFields, allFields) => {
-        let fromFieldValue = allFields.find((field) => field.name[0] === "from")?.value;
-        let toFieldValue = allFields.find((field) => field.name[0] === "to")?.value;
+        let fromFieldValue = allFields.find((field) => field.name[0] === "transactionFrom")?.value;
+        let toFieldValue = allFields.find((field) => field.name[0] === "transactionTo")?.value;
         let fromFieldType = headers.find(header => header.code === fromFieldValue)?.type;
         let toFieldType = headers.find(header => header.code === toFieldValue)?.type;
         if (fromFieldType === "cash" || toFieldType === "cash") {
@@ -75,7 +75,7 @@ function Accounts() {
             ...new_transaction,
             dateTime: dayjsLocal(new_transaction["dateTime"]).format("YYYY-MM-DD HH:mm:ss")
         }
-        console.log(transactionFormatted);
+
         const requestOptions = {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -159,7 +159,7 @@ function Accounts() {
                     >
                         <Form.Item
                             label="From"
-                            name="from"
+                            name="transactionFrom"
                             rules={[{ required: true, message: 'Please select one!' }]}
                         >
                             <Select >
@@ -169,7 +169,7 @@ function Accounts() {
                         </Form.Item>
                         <Form.Item
                             label="To"
-                            name="to"
+                            name="transactionTo"
                             rules={[{ required: true, message: 'Please select one!' }]}
                         >
                             <Select >
