@@ -71,12 +71,10 @@ def get_filtered_transactions(filters = {}, sorters = {}, pageRequest = 1, maxIt
             balance -= transaction.amount
         else:
             balance += transaction.amount
-        print(transaction.transactionId, transaction.amount, balance)
 
     results["data"] = all_results[page_start:page_end]
     results["balance"] = balance
     results["pagination"]["totalResults"] = all_results.count()
     results["pagination"]["pageNumber"] = pageRequest
     results["pagination"]["pageSize"] = len(results["data"])
-    print(results)
     return results
