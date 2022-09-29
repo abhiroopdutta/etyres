@@ -1,3 +1,4 @@
+from unittest import result
 from models import Transaction, Header
 from mongoengine import Q
 import datetime
@@ -37,16 +38,16 @@ def add_transaction_item(transaction):
 def get_filtered_transactions(filters = {}, sorters = {}, pageRequest = 1, maxItemsPerPage = 5):
     results = {
         "data": [],
+        "balance": 0,
         "pagination": { 
             "pageNumber": 0, 
             "pageSize": 0, 
-            "totalResults" : 0 }
+            "totalResults" : 0 },
         
     }
     page_start = (pageRequest-1)*maxItemsPerPage
     page_end = pageRequest*maxItemsPerPage
     query = Q(transactionId__not__contains="*") # dummy query
-    print(filters["header"])
     from_regexp = re.compile('^'+filters["header"])
     to_regexp = re.compile('^\d\d'+filters["header"])
     if (filters["header"]):
@@ -62,8 +63,19 @@ def get_filtered_transactions(filters = {}, sorters = {}, pageRequest = 1, maxIt
         end_datetime = datetime.datetime.strptime(filters["date"]["end"][:10] + " " + "23:59:59", '%Y-%m-%d %H:%M:%S')
         query &= Q(date__gte=start_datetime) & Q(date__lte=end_datetime) 
 
-    results["data"] = Transaction.objects(query).order_by('-_id')[page_start:page_end]
-    results["pagination"]["totalResults"] = Transaction.objects(query).order_by('-_id')[page_start:page_end].count()
+    all_results = Transaction.objects(query).order_by('-_id')
+
+    balance = 0
+    for transaction in all_results:
+        if (re.search(from_regexp, transaction.transactionId) is not None):
+            balance -= transaction.amount
+        else:
+            balance += transaction.amount
+        print(transaction.transactionId, transaction.amount, balance)
+
+    results["data"] = all_results[page_start:page_end]
+    results["balance"] = balance
+    results["pagination"]["totalResults"] = all_results.count()
     results["pagination"]["pageNumber"] = pageRequest
     results["pagination"]["pageSize"] = len(results["data"])
     print(results)
