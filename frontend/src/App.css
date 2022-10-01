@@ -1,18 +1,18 @@
-@import '~antd/dist/antd.css';
+@import "~antd/dist/antd.css";
 
-body{
+body {
   background-color: var(--global-app-color);
 }
 
 :root {
-    --darkest: rgb(60, 58, 58);
-    --darker: rgb(113, 110, 110);
-    --default: rgb(175, 169, 169);
-    --lighter: rgb(233, 223, 223);
-    --lightest: rgb(248, 243, 243);
+  --darkest: rgb(60, 58, 58);
+  --darker: rgb(113, 110, 110);
+  --default: rgb(175, 169, 169);
+  --lighter: rgb(233, 223, 223);
+  --lightest: rgb(248, 243, 243);
 
-    --light-yellow: #fdf4db;
-    --dark-yellow: #fbebbd;
+  --light-yellow: #fdf4db;
+  --dark-yellow: #fbebbd;
 
-    --global-app-color:  var(--lightest);
-  }
+  --global-app-color: var(--lightest);
+}
