@@ -13,7 +13,7 @@
 .ant-table-thead > tr > th {
   background-color: var(--darker);
   text-decoration: none;
-  color: white;
+  color: var(--lightest);
   font-size: 0.9rem;
   font-weight: 500;
   margin: 0;
@@ -34,7 +34,7 @@
 
 .ant-btn-primary {
   text-decoration: none;
-  color: white;
+  color: var(--lightest);
   border: none;
   border-radius: 6px;
   background-color: var(--darker);
@@ -62,11 +62,11 @@
 }
 
 .ant-dropdown-trigger:hover {
-  color: white;
+  color: var(--lightest);
 }
 
 .ant-dropdown-trigger:active {
-  color: white;
+  color: var(--lightest);
 }
 
 .ant-table-filter-trigger.active {
@@ -91,7 +91,7 @@
 
 .ant-btn-default {
   text-decoration: none;
-  color: white;
+  color: var(--lightest);
   border: none;
   border-radius: 6px;
   background-color: var(--darker);
@@ -104,17 +104,17 @@
 .ant-btn-default:active {
   box-shadow: 0 2px var(--darkest);
   transform: translateY(5px);
-  color: white;
+  color: var(--lightest);
 }
 
 .ant-btn-default:hover {
   background-color: var(--darkest);
-  color: white;
+  color: var(--lightest);
 }
 
 .ant-btn-default:focus {
   background-color: var(--darkest);
-  color: white;
+  color: var(--lightest);
 }
 
 .ant-modal-content {
@@ -123,12 +123,12 @@
 }
 .ant-modal-header {
   border-radius: 12px 12px 0 0;
-  background-color: var(--darker);
+  background-color: var(--darkest);
   border: none;
 }
 
 .ant-modal-title {
-  color: white;
+  color: var(--lightest);
 }
 
 .ant-layout {
