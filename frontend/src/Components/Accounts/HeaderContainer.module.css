@@ -23,19 +23,16 @@
 }
 
 .entities-search {
-  padding: 10px 0;
-}
-
-.entities-search {
   margin: 10px 0;
   padding: 2px 7px;
   border-radius: 5px;
-  background-color: rgb(208, 199, 199);
+  background-color: var(--lightest);
+  outline: 1px solid var(--default);
 }
 
 .entities-search input {
   border: none;
-  background-color: transparent;
+  background-color: var(--lightest);
   color: var(--darker);
   font-size: 16px;
   font-weight: 500;
@@ -48,7 +45,7 @@
 .entities-search input::placeholder {
   /* Chrome, Firefox, Opera, Safari 10.1+ */
   color: var(--darker);
-  font-weight: 500;
+  font-weight: 400;
   font-size: 16px;
 
   opacity: 1; /* Firefox */
@@ -57,14 +54,14 @@
 .entities-search input:-ms-input-placeholder {
   /* Internet Explorer 10-11 */
   color: var(--darker);
-  font-weight: 500;
+  font-weight: 400;
   font-size: 16px;
 }
 
 .entities-search input::-ms-input-placeholder {
   /* Microsoft Edge */
   color: var(--darker);
-  font-weight: 500;
+  font-weight: 400;
   font-size: 16px;
 }
 
@@ -106,12 +103,12 @@
 }
 
 .entity-container:hover {
-  background-color: rgb(208, 199, 199);
+  background-color: rgb(212, 202, 202);
   cursor: pointer;
 }
 .entity-container:active,
 .entity-container.active {
-  background-color: rgb(204, 196, 196);
+  background-color: rgb(212, 202, 202);
 }
 
 .entity-container h4 {
