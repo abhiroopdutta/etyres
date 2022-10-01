@@ -21,7 +21,7 @@
 }
 
 .ant-table-tbody > tr > td {
-  border-bottom: 1px solid var(--default);
+  border-bottom: 1px solid rgb(225, 223, 223);
 }
 
 .ant-table-tbody > tr:last-child > td {

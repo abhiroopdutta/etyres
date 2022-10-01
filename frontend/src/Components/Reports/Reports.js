@@ -4,7 +4,6 @@ import { DownloadOutlined } from "@ant-design/icons";
 import SalesTable from "./SalesTable";
 import PurchaseTable from "./PurchaseTable";
 import { dayjsLocal } from "../dayjsUTCLocal";
-import "./Reports.css";
 const { Title } = Typography;
 
 function Reports() {
@@ -38,9 +37,9 @@ function Reports() {
               link.setAttribute(
                 "download",
                 reportReqInfo.reportType +
-                  "_report_" +
-                  dayjsLocal(new Date()).format("YYYY-MM-DD") +
-                  ".xlsx"
+                "_report_" +
+                dayjsLocal(new Date()).format("YYYY-MM-DD") +
+                ".xlsx"
               );
             } else {
               let fileName = reportReqInfo.reportType + "_report_";
