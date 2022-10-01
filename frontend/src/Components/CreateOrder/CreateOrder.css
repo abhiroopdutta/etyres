@@ -1,20 +1,20 @@
-.shop-container{
-    display: flex;
-    align-items:flex-start;
-    padding:22px 44px;
-    column-gap: 10px;
+.shop-container {
+  display: flex;
+  align-items: flex-start;
+  padding: 22px 44px;
+  column-gap: 10px;
 }
 
-.products{
-    flex:1.2;
-    /* background-color: yellow; */
+.products {
+  flex: 1.2;
+  /* background-color: yellow; */
 }
 
-.cart-container{
-    /* background-color: lightcoral; */
-    top:20px;
-    border-radius: 12px;
-    overflow-y: hidden; 
-    position: sticky;
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+.cart-container {
+  /* background-color: lightcoral; */
+  top: 20px;
+  border-radius: 12px;
+  overflow-y: hidden;
+  position: sticky;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 }
