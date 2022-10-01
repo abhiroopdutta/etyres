@@ -8,6 +8,8 @@ import UpdatePrice from "./Components/UpdatePrice/UpdatePrice";
 import UpdateStock from "./Components/UpdateStock/UpdateStock";
 import Reports from "./Components/Reports/Reports";
 import Accounts from "./Components/Accounts/Accounts";
+import './AntStyles.css'
+
 
 function App() {
   return (
