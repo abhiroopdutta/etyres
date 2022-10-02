@@ -1,29 +1,29 @@
 .navBar {
-    background-color: var(--darkest);
-    display:flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .nav-header{
-    padding: 0.5rem 2.8rem;
-    color: white;
-    text-decoration: none; 
-    font-size: 2rem;
-    margin: 0;
-    font-family: 'Lobster', cursive;
-  }
+  background-color: var(--darkest);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-header {
+  padding: 0.5rem 2.8rem;
+  color: white;
+  text-decoration: none;
+  font-size: 2rem;
+  margin: 0;
+  font-family: "Lobster", cursive;
+}
 
 /* Style the links inside the navigation bar */
-.nav-links-container{
-    display: flex;
-    align-items: center;
-    padding-right: 2.6rem;
-    gap: 0.6rem;
-  }
+.nav-links-container {
+  display: flex;
+  align-items: center;
+  padding-right: 2.6rem;
+  gap: 0.6rem;
+}
 
-.nav-link{
-  text-decoration: none; 
+.nav-link {
+  text-decoration: none;
   color: white;
   font-size: 1.2rem;
   font-weight: 400;
@@ -31,12 +31,9 @@
   padding: 1.3rem 1rem;
   /* text-transform: uppercase; */
 }
-  
+
 /* Change the color of links on hover */
 .nav-links-container a:hover {
   background-color: var(--lighter);
   color: var(--darkest);
-  }
-  
-
-   
+}

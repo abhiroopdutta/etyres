@@ -1,119 +1,118 @@
-.purchase-invoice-hr hr{
-    margin: 0px 0px 10px 0px;
+.purchase-invoice-hr hr {
+  margin: 0px 0px 10px 0px;
 }
 
-.purchase-invoice-table-wrapper{
-    border: 1px solid var(--default);
-    border-radius: 10px;
+.purchase-invoice-table-wrapper {
+  border: 1px solid var(--default);
+  border-radius: 10px;
 }
 
-.purchase-invoice-table{
-    font-family: arial, sans-serif;
-    border-collapse: collapse;
-    width: 100%;
-    border-radius: 10px;
-    overflow: hidden;
-  }
-  
+.purchase-invoice-table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
 table.purchase-invoice-table th {
-    background-color: rgb(213, 205, 205);
-    color: var(--darkest);
-    padding:6px;    
-  }
-  
+  background-color: rgb(213, 205, 205);
+  color: var(--darkest);
+  padding: 6px;
+}
+
 table.purchase-invoice-table td {
-    border-bottom: 1px solid var(--default);
-    text-align: center;
-    padding: 6px;
-  }
-
-  table.purchase-invoice-table tr:last-child td{
-    border-bottom: none;
-    text-align: center;
-  }
-
-.purchase-invoice{
-    background-color: var(--lighter);
-    padding:15px;
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  border-bottom: 1px solid var(--default);
+  text-align: center;
+  padding: 6px;
 }
 
-.purchase-invoice input{
-    background-color: white;
-    outline: none;
-    border: 1px solid var(--default);
-    border-radius: 5px;
-    transition: background-color 0.1s ease-in-out, border 0.2s ease-in-out;
+table.purchase-invoice-table tr:last-child td {
+  border-bottom: none;
+  text-align: center;
 }
 
-.purchase-invoice input:hover{
-    background-color: var(--light-yellow);
-    
+.purchase-invoice {
+  background-color: var(--lighter);
+  padding: 15px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 }
 
-.purchase-invoice input:focus{
-    border: 1px solid var(--darkest);
-    background-color: var(--light-yellow);
+.purchase-invoice input {
+  background-color: white;
+  outline: none;
+  border: 1px solid var(--default);
+  border-radius: 5px;
+  transition: background-color 0.1s ease-in-out, border 0.2s ease-in-out;
 }
 
-.purchase-invoice-header{
-    display: flex;
-    /* flex-wrap: wrap; */
-    justify-content: space-between;
+.purchase-invoice input:hover {
+  background-color: var(--light-yellow);
 }
 
-.purchase-invoice-number{
-    margin: 0;
-    padding-right: 25px;
+.purchase-invoice input:focus {
+  border: 1px solid var(--darkest);
+  background-color: var(--light-yellow);
 }
 
-.invoice-date{
-    font-weight: 500;
-    margin:0;
-    padding-left: 25px;
+.purchase-invoice-header {
+  display: flex;
+  /* flex-wrap: wrap; */
+  justify-content: space-between;
 }
 
-.invoice-date input{
-    margin-left: 2px;
-    padding: 0;
+.purchase-invoice-number {
+  margin: 0;
+  padding-right: 25px;
 }
 
-.invoice-exists{
-    margin:0;
-    padding: 0px 0px 10px 0px;
-
+.invoice-date {
+  font-weight: 500;
+  margin: 0;
+  padding-left: 25px;
 }
 
-.overwrite-checkbox, .claim_invoice, .overwrite_price_list, .special_discount{
-    margin-right:5px;
+.invoice-date input {
+  margin-left: 2px;
+  padding: 0;
 }
 
-.special-discount{
-    padding: 0px 0px 8px 0px;
+.invoice-exists {
+  margin: 0;
+  padding: 0px 0px 10px 0px;
 }
 
-.special-discount input{
-    margin:5px;
-    padding-left: 2px;
-    max-width:240px;
+.overwrite-checkbox,
+.claim_invoice,
+.overwrite_price_list,
+.special_discount {
+  margin-right: 5px;
 }
 
-.claim-overwrite{
-    margin:0;
-    padding: 0px 0px 10px 0px;
-
+.special-discount {
+  padding: 0px 0px 8px 0px;
 }
 
-.invoice-price-difference{
-    margin: 15px 0px 6px 0px;
+.special-discount input {
+  margin: 5px;
+  padding-left: 2px;
+  max-width: 240px;
 }
 
-.claim-number input{
-    margin:5px;
-    padding-left: 2px;
-    max-width:240px;
+.claim-overwrite {
+  margin: 0;
+  padding: 0px 0px 10px 0px;
+}
 
+.invoice-price-difference {
+  margin: 15px 0px 6px 0px;
+}
+
+.claim-number input {
+  margin: 5px;
+  padding-left: 2px;
+  max-width: 240px;
 }

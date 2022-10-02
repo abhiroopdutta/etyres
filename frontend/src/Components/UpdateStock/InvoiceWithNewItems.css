@@ -1,57 +1,57 @@
-.invoice-with-new-items-hr hr{
-    margin: 0px 0px 10px 0px;
+.invoice-with-new-items-hr hr {
+  margin: 0px 0px 10px 0px;
 }
 
-.invoice-with-new-items{
-    background-color: var(--lighter);
-    padding:15px;
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+.invoice-with-new-items {
+  background-color: var(--lighter);
+  padding: 15px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 }
 
-.invoice-with-new-items-table-wrapper{
+.invoice-with-new-items-table-wrapper {
   border: 1px solid var(--default);
   border-radius: 10px;
 }
 
-.invoice-with-new-items-table{
-    font-family: arial, sans-serif;
-    border-collapse: collapse;
-    width: 100%;
-    border-radius: 10px;
-    overflow: hidden;
-  }
-  
+.invoice-with-new-items-table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
 table.invoice-with-new-items-table th {
-    background-color: rgb(213, 205, 205);
-    color: var(--darkest);
-    padding:6px;  
-    font-weight: 700;
-  }
-  
+  background-color: rgb(213, 205, 205);
+  color: var(--darkest);
+  padding: 6px;
+  font-weight: 700;
+}
+
 table.invoice-with-new-items-table td {
-    border-bottom: 1px solid var(--default);
-    text-align: center;
-    padding: 6px;
-  }
-
-  table.invoice-with-new-items-table tr:last-child td{
-    border-bottom: none;
-    text-align: center;
-  }
-.header{
-    display: flex;
-    flex-wrap: wrap;
+  border-bottom: 1px solid var(--default);
+  text-align: center;
+  padding: 6px;
 }
 
-.invoice-number{
-    margin: 0;
-    padding: 0px 0px 5px 0px;
+table.invoice-with-new-items-table tr:last-child td {
+  border-bottom: none;
+  text-align: center;
+}
+.header {
+  display: flex;
+  flex-wrap: wrap;
 }
 
-.add-to-inventory-button{
- padding: 5px;
- font-size: 13px;
+.invoice-number {
+  margin: 0;
+  padding: 0px 0px 5px 0px;
+}
+
+.add-to-inventory-button {
+  padding: 5px;
+  font-size: 13px;
 }
