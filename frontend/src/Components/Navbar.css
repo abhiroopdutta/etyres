@@ -1,15 +1,16 @@
 .navBar {
-  background-color: var(--darkest);
+  background-color: var(--lightest);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: 3px dashed var(--default);
 }
 
 .nav-header {
   padding: 0.5rem 2.8rem;
-  color: white;
+  color: var(--darkest);
   text-decoration: none;
-  font-size: 2rem;
+  font-size: 2.2rem;
   margin: 0;
   font-family: "Lobster", cursive;
 }
@@ -24,9 +25,9 @@
 
 .nav-link {
   text-decoration: none;
-  color: white;
+  color: var(--darker);
   font-size: 1.2rem;
-  font-weight: 400;
+  font-weight: 500;
   margin: 0;
   padding: 1.3rem 1rem;
   /* text-transform: uppercase; */
