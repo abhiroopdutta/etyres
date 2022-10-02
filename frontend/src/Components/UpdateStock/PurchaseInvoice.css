@@ -16,7 +16,7 @@
 }
 
 table.purchase-invoice-table th {
-  background-color: rgb(213, 205, 205);
+  background-color: var(--dark);
   color: var(--darkest);
   padding: 6px;
 }
@@ -38,7 +38,6 @@ table.purchase-invoice-table tr:last-child td {
   border-radius: 12px;
   display: flex;
   flex-direction: column;
-  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 }
 
 .purchase-invoice input {

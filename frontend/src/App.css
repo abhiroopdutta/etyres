@@ -7,9 +7,10 @@ body {
 :root {
   --darkest: rgb(60, 58, 58);
   --darker: rgb(113, 110, 110);
+  --dark: #ccc8bc;
   --default: rgb(175, 169, 169);
-  --lighter: rgb(233, 223, 223);
-  --lightest: rgb(248, 243, 243);
+  --lighter: #e6e1d5;
+  --lightest: #f5f3e5;
 
   --light-yellow: #fdf4db;
   --dark-yellow: #fbebbd;

@@ -103,12 +103,12 @@
 }
 
 .entity-container:hover {
-  background-color: rgb(212, 202, 202);
+  background-color: var(--dark);
   cursor: pointer;
 }
 .entity-container:active,
 .entity-container.active {
-  background-color: rgb(212, 202, 202);
+  background-color: var(--dark);
 }
 
 .entity-container h4 {
