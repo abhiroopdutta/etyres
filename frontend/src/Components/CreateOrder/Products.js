@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Tyre from "./Tyre";
 import "./Products.css";
+import { SearchOutlined } from "@ant-design/icons";
 
 function Products({ refreshProducts }) {
   const [tyres, setTyres] = useState([]);
@@ -52,8 +53,12 @@ function Products({ refreshProducts }) {
   return (
     <div className="products">
       <div className="product-filters">
-        <div className="search-product">
+
+        <div className="products-search">
+          <SearchOutlined />
+          <label htmlFor="products-search"></label>
           <input
+            id="products-search"
             type="text"
             onChange={handleChange}
             value={filters.tyreSize}
@@ -76,7 +81,7 @@ function Products({ refreshProducts }) {
           <Tyre tyreData={tyre} key={tyre.itemCode} />
         ))}
       </div>
-    </div>
+    </div >
   );
 }
 
