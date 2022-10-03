@@ -96,6 +96,10 @@ function HeaderContainer({ headers, setHeadersUpdated, selectedHeader, setSelect
                 onCancel={closeModal}
                 footer={null}
                 title="Add Header"
+                bodyStyle={{
+                    backgroundColor: "var(--lighter)",
+                    borderRadius: "12px"
+                }}
             >
                 <Layout
                     style={{

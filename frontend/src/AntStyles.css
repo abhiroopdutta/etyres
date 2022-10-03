@@ -135,7 +135,15 @@
   background-color: transparent;
 }
 
-.ant-input {
+.ant-table-filter-dropdown {
+  background-color: var(--lightest);
+  border-radius: 10px;
+}
+
+.ant-input,
+.ant-picker,
+.ant-input-group-addon,
+.ant-select:not(.ant-select-customize-input) .ant-select-selector {
   background-color: var(--lightest);
   border-radius: 5px;
   border: none;
@@ -143,12 +151,43 @@
 }
 
 .ant-input:focus,
-.ant-input:active {
+.ant-picker-focused,
+.ant-input:active,
+.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input)
+  .ant-select-selector {
   box-shadow: none;
   background-color: var(--light-yellow);
   outline: 1px solid var(--darker);
 }
 
-.ant-input:hover {
+.ant-input:hover,
+.ant-picker:hover,
+.ant-select:not(.ant-select-customize-input) .ant-select-selector:hover {
   background-color: var(--light-yellow);
+}
+
+.ant-input::placeholder,
+.ant-picker-input input::placeholder {
+  /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: var(--darker);
+  font-weight: 300;
+  font-size: 16px;
+
+  opacity: 1; /* Firefox */
+}
+
+.ant-input input:-ms-input-placeholder,
+.ant-picker-input input::placeholder {
+  /* Internet Explorer 10-11 */
+  color: var(--darker);
+  font-weight: 300;
+  font-size: 16px;
+}
+
+.ant-input input::-ms-input-placeholder,
+.ant-picker-input input::placeholder {
+  /* Microsoft Edge */
+  color: var(--darker);
+  font-weight: 300;
+  font-size: 16px;
 }
