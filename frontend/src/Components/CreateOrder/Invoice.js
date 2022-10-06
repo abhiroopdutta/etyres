@@ -8,6 +8,7 @@ import {
   CloseCircleFilled,
   ExclamationCircleOutlined,
 } from "@ant-design/icons";
+import gstStateCodes from "./gstStateCodes.json";
 const { confirm } = Modal;
 
 function getTodaysDate() {
@@ -154,9 +155,9 @@ function Invoice({
       setInvoiceStatus("paid");
     } else if (due < 0) {
       if (visible) {
-      Modal.error({
-        content: "Error! Customer has paid more than total payable !",
-      });
+        Modal.error({
+          content: "Error! Customer has paid more than total payable !",
+        });
       }
     } else if (due > 0) {
       setInvoiceStatus("due");
@@ -191,7 +192,9 @@ function Invoice({
   const handleIGST = (e) => {
     setCustomerDetails((customerDetails) => ({
       ...customerDetails,
-      [e.target.name]: e.target.value,
+      "GSTIN": e.target.value,
+      "stateCode": e.target.value.slice(0, 2),
+      "state": gstStateCodes[e.target.value.slice(0, 2)]
     }));
 
     if (
@@ -463,29 +466,14 @@ function Invoice({
               disabled={updateMode}
               placeholder={updateMode ? null : "Customer GSTIN"}
             />
-            <label htmlFor="state">State: </label>
-            <input
-              id="state"
-              name="state"
-              className="state"
-              type="text"
-              value={customerDetails.state}
-              onChange={handleCustomerDetails}
-              disabled={updateMode}
-              placeholder={updateMode ? null : "GST State"}
-            />
-            <label htmlFor="stateCode">Code: </label>
-            <input
-              id="stateCode"
-              name="stateCode"
-              className="stateCode"
-              type="text"
-              value={customerDetails.stateCode}
-              onChange={handleCustomerDetails}
-              maxLength="2"
-              disabled={updateMode}
-              placeholder={updateMode ? null : "GST State Code"}
-            />
+            <div className="state">
+              <span>State:</span>
+              <span className="italic-text">{customerDetails.state}</span>
+            </div>
+            <div className="stateCode">
+              <span>Code:</span>
+              <span className="italic-text">{customerDetails.stateCode}</span>
+            </div>
           </section>
         </div>
 

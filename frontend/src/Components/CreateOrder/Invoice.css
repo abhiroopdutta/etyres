@@ -131,20 +131,30 @@
   transition: background-color 0.1s ease-in-out, border 0.2s ease-in-out;
 }
 
-.customer-details-gst label:nth-child(3),
-.customer-details-gst label:nth-child(5) {
-  padding-left: 0.8%;
-  min-width: 7%;
+.customer-details-gst {
+  display: flex;
 }
 
+.customer-details-gst > label,
+.customer-details-gst > .state,
+.customer-details-gst > .stateCode {
+  display: flex;
+  align-items: center;
+  color: rgb(0, 0, 0);
+}
 .customer-details-gst > .GSTIN {
-  width: 20%;
+  margin-right: 10px;
+  width: auto;
 }
 .customer-details-gst > .state {
-  width: 20%;
+  margin-right: 10px;
+  min-width: 160px;
 }
-.customer-details-gst > .stateCode {
-  width: 33%;
+
+.italic-text {
+  padding-left: 10px;
+  font-weight: 400;
+  font-style: italic;
 }
 
 .customer-details input:hover {
