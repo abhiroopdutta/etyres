@@ -1,12 +1,12 @@
-.invoice{
-  font-family:  Helvetica, sans-serif, Arial, sans-serif;
-  position: fixed; 
-  z-index: 99; 
+.invoice {
+  font-family: Helvetica, sans-serif, Arial, sans-serif;
+  position: fixed;
+  z-index: 99;
   left: 0;
   top: 0;
-  width: 100%; 
+  width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.9); 
+  background-color: rgba(0, 0, 0, 0.9);
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -16,35 +16,36 @@
 .invoice {
   -ms-overflow-style: none; /* for Internet Explorer, Edge */
   scrollbar-width: none; /* for Firefox */
-  overflow-y: scroll; 
+  overflow-y: scroll;
 }
 
 .invoice::-webkit-scrollbar {
   display: none; /* for Chrome, Safari, and Opera */
 }
 
-::placeholder{
+::placeholder {
   font-weight: 300;
   color: #b7b7b7;
 }
 
-.left-buttons-container, .right-buttons-container{
+.left-buttons-container,
+.right-buttons-container {
   padding: 1%;
   display: flex;
   flex-direction: column;
-  gap:50px;
+  gap: 50px;
 }
 
-.tax-invoice-button{
+.tax-invoice-button {
   background-color: white;
   padding: 5px;
 }
 
-.left-buttons-container{
+.left-buttons-container {
   align-items: flex-end;
 }
 
-.right-buttons-container{
+.right-buttons-container {
   align-items: flex-start;
 }
 
@@ -54,38 +55,42 @@
   /* margin: 0mm auto; */
   background: rgb(255, 255, 255);
   box-shadow: 0 0 0.5cm rgba(99, 98, 98, 0.5);
-  padding:30px;
+  padding: 30px;
 }
 
-.invoice-header{
+.invoice-header {
   display: flex;
   justify-content: space-between;
   padding-bottom: 0.6%;
 }
 
-.shop-details h4, .shop-details address{
+.shop-details h4,
+.shop-details address {
   margin: 0;
   padding: 0;
 }
 
-.shop-details h4{
+.shop-details h4 {
   font-size: medium;
   font-weight: 600;
   color: rgb(0, 0, 0);
   padding-bottom: 3%;
 }
 
-.shop-details address{
+.shop-details address {
   color: rgb(0, 0, 0);
   font-weight: 400;
   font-style: italic;
 }
 
-.invoice-details{
+.invoice-details {
   padding-top: 4.5%;
 }
 
-.invoice-details h4, .invoice-details select, .invoice-details label, .invoice-details input{
+.invoice-details h4,
+.invoice-details select,
+.invoice-details label,
+.invoice-details input {
   margin: 0;
   padding: 0;
   border: none;
@@ -94,71 +99,75 @@
   font-weight: 600;
   background-color: rgb(255, 255, 255);
 }
-.invoice-details input{
-  max-width:95px;
+.invoice-details input {
+  max-width: 95px;
 }
 
-.invoice-details select:hover, .invoice-details input:hover{
+.invoice-details select:hover,
+.invoice-details input:hover {
   background-color: #fdf4db;
 }
 
-.customer-details{
+.customer-details {
   padding: 2% 0 3% 0;
 }
 
-.customer-details label{ 
+.customer-details label {
   display: inline-block;
   min-width: 90px;
-  font-weight:400;
+  font-weight: 400;
   color: rgb(0, 0, 0);
 }
 
-
-.customer-details input{ 
+.customer-details input {
   color: rgb(0, 0, 0);
   outline: none;
   border: 0.5px dotted transparent;
   background-color: rgb(255, 255, 255);
-  width: 87%;  
-  font-weight:400;
+  width: 87%;
+  font-weight: 400;
   font-style: italic;
   border-radius: 5px;
   transition: background-color 0.1s ease-in-out, border 0.2s ease-in-out;
 }
 
-.customer-details-gst label:nth-child(3), .customer-details-gst label:nth-child(5){
+.customer-details-gst label:nth-child(3),
+.customer-details-gst label:nth-child(5) {
   padding-left: 0.8%;
   min-width: 7%;
 }
 
-.customer-details-gst > .GSTIN
-{
+.customer-details-gst > .GSTIN {
   width: 20%;
 }
-.customer-details-gst > .state
-{
+.customer-details-gst > .state {
   width: 20%;
 }
-.customer-details-gst > .stateCode
-{
+.customer-details-gst > .stateCode {
   width: 33%;
 }
 
-.customer-details input:hover{
+.customer-details input:hover {
   background-color: #fdf4db;
 }
 
-.customer-details input:focus{
-  border:0.5px dotted rgb(117, 117, 117);
-  background-color:  #fdf4db;
+.customer-details input:focus {
+  border: 0.5px dotted rgb(117, 117, 117);
+  background-color: #fdf4db;
 }
-  
-.IGST-table, .GST-table, .rounding-table, .no-tax-invoice{
+
+.IGST-table,
+.GST-table,
+.rounding-table,
+.no-tax-invoice {
   border-collapse: collapse;
   width: 100%;
 }
 
-table.IGST-table th, table.GST-table th, table.no-tax-invoice th, table.rounding-table th {
+table.IGST-table th,
+table.GST-table th,
+table.no-tax-invoice th,
+table.rounding-table th {
   background-color: #dddddd;
   color: rgb(0, 0, 0);
   border: none;
@@ -166,38 +175,44 @@ table.IGST-table th, table.GST-table th, table.no-tax-invoice th, table.rounding
   padding: 6px 12px;
 }
 
-table.IGST-table td, table.GST-table td, table.no-tax-invoice td, table.rounding-table td {
+table.IGST-table td,
+table.GST-table td,
+table.no-tax-invoice td,
+table.rounding-table td {
   text-align: right;
   padding: 4px 12px;
   border: none;
   border-bottom: 1px solid #dddddd;
 }
 
-table.IGST-table td:nth-child(1), table.GST-table td:nth-child(1), table.IGST-table th:nth-child(1), table.GST-table th:nth-child(1), 
-table.rounding-table td:nth-child(1), table.rounding-table th:nth-child(1){
+table.IGST-table td:nth-child(1),
+table.GST-table td:nth-child(1),
+table.IGST-table th:nth-child(1),
+table.GST-table th:nth-child(1),
+table.rounding-table td:nth-child(1),
+table.rounding-table th:nth-child(1) {
   text-align: left;
 }
 
-table.rounding-table td{
+table.rounding-table td {
   padding: 10px 12px;
-
 }
 
-.rounding-table-container{
+.rounding-table-container {
   display: flex;
   justify-content: flex-end;
 }
 
-.rounding-table{
+.rounding-table {
   width: 30%;
 }
 
-.payment-input-list-container{
+.payment-input-list-container {
   display: flex;
   justify-content: flex-end;
 }
 
-.payment-input-list{
+.payment-input-list {
   padding: 5px 0 0 0;
   margin: 0;
   width: 30%;
@@ -205,23 +220,23 @@ table.rounding-table td{
   flex-direction: column;
 }
 
-.payment-input-list label{
+.payment-input-list label {
   padding-left: 14px;
   display: inline-block;
   width: 50%;
-  font-weight:400;
+  font-weight: 400;
   color: rgb(0, 0, 0);
 }
 
-.payment-input-list input{
+.payment-input-list input {
   color: rgb(0, 0, 0);
   outline: none;
   border: 0.5px dotted transparent;
   background-color: rgb(255, 255, 255);
   text-align: right;
   padding-right: 10px;
-  width: 50%;  
-  font-weight:400;
+  width: 50%;
+  font-weight: 400;
   border-radius: 5px;
   transition: background-color 0.1s ease-in-out, border 0.2s ease-in-out;
 }
@@ -234,19 +249,19 @@ table.rounding-table td{
 }
 
 /* Firefox */
-.payment-input-list input[type=number] {
+.payment-input-list input[type="number"] {
   -moz-appearance: textfield;
 }
 
-.payment-input-list input:hover{
+.payment-input-list input:hover {
   background-color: #fdf4db;
 }
 
-.payment-input-list input:focus{
-  border:0.5px dotted rgb(117, 117, 117);
-  background-color:  #fdf4db;
+.payment-input-list input:focus {
+  border: 0.5px dotted rgb(117, 117, 117);
+  background-color: #fdf4db;
 }
-.payment-input-list strong{
+.payment-input-list strong {
   background-color: #dddddd;
   display: inline-block;
   width: 50%;
@@ -254,7 +269,7 @@ table.rounding-table td{
   padding: 6px 12px;
 }
 
-.total-paid{
+.total-paid {
   display: inline-block;
   background-color: #dddddd;
   width: 50%;
@@ -263,15 +278,19 @@ table.rounding-table td{
   font-weight: 700;
 }
 
-.bank-name, .bank-details, .eoe{
+.bank-name,
+.bank-details,
+.eoe {
   float: left;
   font-weight: 400;
   color: rgb(0, 0, 0);
   font-style: italic;
 }
 
-.signatory-name, .signature, .signatory{
-  float:right;
+.signatory-name,
+.signature,
+.signatory {
+  float: right;
   font-weight: 400;
   color: rgb(0, 0, 0);
   font-style: italic;
