@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useReactToPrint } from "react-to-print";
 import { dayjsLocal } from "../dayjsUTCLocal";
 import "./Invoice.css";
@@ -59,6 +59,15 @@ function Invoice({
   const handlePrintInvoice = useReactToPrint({
     content: () => componentRef.current,
   });
+  const regexGSTINPattern = useMemo(() => {
+    let regexStateCode = "(";
+    for (let stateCode in gstStateCodes) {
+      regexStateCode += stateCode + "|";
+    }
+    const regexGSTINPattern = regexStateCode.replace(/.$/, ")") + "[A-Z]{5}\\d{4}[A-Z]{1}[A-Z\\d]{1}[Z]{1}[A-Z\\d]{1}";
+    console.log(regexGSTINPattern);
+    return regexGSTINPattern;
+  }, []);
 
   useEffect(() => {
     setShowHideClassName(
@@ -345,6 +354,15 @@ function Invoice({
     updateInvoice();
   };
 
+  const handleSubmission = (e) => {
+    if (!updateMode) {
+      handleConfirmOrder(e);
+    } else {
+      handleUpdateInvoiceStatus(invoiceStatus);
+    }
+    e.preventDefault();
+  };
+
   return (
     <div className={showHideClassName} onClick={handleInvoiceClose}>
       <div className="left-buttons-container">
@@ -405,77 +423,80 @@ function Invoice({
         </div>
         <hr />
 
-        <div className="customer-details">
-          <label htmlFor="name">Bill To: </label>
-          <input
-            id="name"
-            name="name"
-            className="name"
-            type="text"
-            value={customerDetails.name}
-            onChange={handleCustomerDetails}
-            disabled={updateMode}
-            placeholder={updateMode ? null : "Customer Name"}
-          />
-          <br />
-          <label htmlFor="address">Address: </label>
-          <input
-            id="address"
-            name="address"
-            className="address"
-            type="text"
-            value={customerDetails.address}
-            onChange={handleCustomerDetails}
-            disabled={updateMode}
-            placeholder={updateMode ? null : "Customer Address"}
-          />
-          <br />
-          <label htmlFor="vehicleNumber">Vehicle No. : </label>
-          <input
-            id="vehicleNumber"
-            name="vehicleNumber"
-            className="vehicleNumber"
-            type="text"
-            value={customerDetails.vehicleNumber}
-            onChange={handleCustomerDetails}
-            disabled={updateMode}
-            placeholder={updateMode ? null : "Customer Vehicle No."}
-          />
-          <br />
-          <label htmlFor="contact">Contact: </label>
-          <input
-            id="contact"
-            name="contact"
-            className="contact"
-            type="text"
-            value={customerDetails.contact}
-            onChange={handleCustomerDetails}
-            disabled={updateMode}
-            placeholder={updateMode ? null : "Customer Contact No."}
-          />
-          <section className="customer-details-gst">
-            <label htmlFor="GSTIN">GSTIN: </label>
+        <form id="invoice-form" onSubmit={handleSubmission}>
+          <div className="customer-details">
+            <label htmlFor="name">Bill To: </label>
             <input
-              id="GSTIN"
-              name="GSTIN"
-              className="GSTIN"
+              id="name"
+              name="name"
+              className="name"
               type="text"
-              maxLength="15"
-              value={customerDetails.GSTIN}
-              onChange={handleIGST}
+              value={customerDetails.name}
+              onChange={handleCustomerDetails}
               disabled={updateMode}
-              placeholder={updateMode ? null : "Customer GSTIN"}
+              placeholder={updateMode ? null : "Customer Name"}
             />
-            <div className="state">
-              <span>State:</span>
-              <span className="italic-text">{customerDetails.state}</span>
-            </div>
-            <div className="stateCode">
-              <span>Code:</span>
-              <span className="italic-text">{customerDetails.stateCode}</span>
-            </div>
-          </section>
-        </div>
+            <br />
+            <label htmlFor="address">Address: </label>
+            <input
+              id="address"
+              name="address"
+              className="address"
+              type="text"
+              value={customerDetails.address}
+              onChange={handleCustomerDetails}
+              disabled={updateMode}
+              placeholder={updateMode ? null : "Customer Address"}
+            />
+            <br />
+            <label htmlFor="vehicleNumber">Vehicle No. : </label>
+            <input
+              id="vehicleNumber"
+              name="vehicleNumber"
+              className="vehicleNumber"
+              type="text"
+              value={customerDetails.vehicleNumber}
+              onChange={handleCustomerDetails}
+              disabled={updateMode}
+              placeholder={updateMode ? null : "Customer Vehicle No."}
+            />
+            <br />
+            <label htmlFor="contact">Contact: </label>
+            <input
+              id="contact"
+              name="contact"
+              className="contact"
+              type="text"
+              value={customerDetails.contact}
+              onChange={handleCustomerDetails}
+              disabled={updateMode}
+              placeholder={updateMode ? null : "Customer Contact No."}
+            />
+            <section className="customer-details-gst">
+              <label htmlFor="GSTIN">GSTIN: </label>
+              <input
+                id="GSTIN"
+                name="GSTIN"
+                className="GSTIN"
+                type="text"
+                maxLength="15"
+                value={customerDetails.GSTIN}
+                onChange={handleIGST}
+                disabled={updateMode}
+                placeholder={updateMode ? null : "Customer GSTIN"}
+                pattern={regexGSTINPattern}
+              />
+              <div className="state">
+                <span>State:</span>
+                <span className="italic-text">{customerDetails.state}</span>
+              </div>
+              <div className="stateCode">
+                <span>Code:</span>
+                <span className="italic-text">{customerDetails.stateCode}</span>
+              </div>
+            </section>
+          </div>
+        </form>
 
         {IGSTRender ? (
           <div className="IGST">
@@ -636,49 +657,53 @@ function Invoice({
             </div>
           </div>
         )}
-        <div className="payment-input-list-container">
-          <ul className="payment-input-list">
-            <div>
-              <label htmlFor="cash">Cash</label>
-              <input
-                type="number"
-                id="cash"
-                onChange={handlePayment}
-                onFocus={handleFocus}
-                value={payment.cash}
-                disabled={["paid", "cancelled"].includes(savedInvoiceStatus)}
-              />
-            </div>
-            <div>
-              <label htmlFor="card">Card</label>
-              <input
-                type="number"
-                id="card"
-                onChange={handlePayment}
-                onFocus={handleFocus}
-                value={payment.card}
-                disabled={["paid", "cancelled"].includes(savedInvoiceStatus)}
-              />
-            </div>
-            <div>
-              <label htmlFor="UPI">UPI</label>
-              <input
-                type="number"
-                id="UPI"
-                onChange={handlePayment}
-                onFocus={handleFocus}
-                value={payment.UPI}
-                disabled={["paid", "cancelled"].includes(savedInvoiceStatus)}
-              />
-            </div>
-            <div>
-              <h4 className="total-paid">TOTAL PAID</h4>
-              <strong>
-                &#x20B9; {payment.cash + payment.card + payment.UPI}
-              </strong>
-            </div>
-          </ul>
-        </div>
+
+        <form id="invoice-form" onSubmit={handleSubmission}>
+          <div className="payment-input-list-container">
+            <ul className="payment-input-list">
+              <div>
+                <label htmlFor="cash">Cash</label>
+                <input
+                  type="number"
+                  id="cash"
+                  onChange={handlePayment}
+                  onFocus={handleFocus}
+                  value={payment.cash}
+                  disabled={["paid", "cancelled"].includes(savedInvoiceStatus)}
+                />
+              </div>
+              <div>
+                <label htmlFor="card">Card</label>
+                <input
+                  type="number"
+                  id="card"
+                  onChange={handlePayment}
+                  onFocus={handleFocus}
+                  value={payment.card}
+                  disabled={["paid", "cancelled"].includes(savedInvoiceStatus)}
+                />
+              </div>
+              <div>
+                <label htmlFor="UPI">UPI</label>
+                <input
+                  type="number"
+                  id="UPI"
+                  onChange={handlePayment}
+                  onFocus={handleFocus}
+                  value={payment.UPI}
+                  disabled={["paid", "cancelled"].includes(savedInvoiceStatus)}
+                />
+              </div>
+              <div>
+                <h4 className="total-paid">TOTAL PAID</h4>
+                <strong>
+                  &#x20B9; {payment.cash + payment.card + payment.UPI}
+                </strong>
+              </div>
+            </ul>
+          </div>
+        </form>
+
         <br />
         <br />
         <footer>
@@ -713,17 +738,12 @@ function Invoice({
         <Button
           type="default"
           loading={loading}
+          form="invoice-form"
+          htmlType="submit"
           disabled={
             savedInvoiceStatus === "paid" || savedInvoiceStatus === "cancelled"
           }
-          onClick={(e) => {
-            e.stopPropagation();
-            if (!updateMode) {
-              handleConfirmOrder(e);
-            } else {
-              handleUpdateInvoiceStatus(invoiceStatus);
-            }
-          }}
+          onClick={(e) => e.stopPropagation()}
         >
           {updateMode ? "Update Invoice" : "Create Invoice"}
         </Button>
