@@ -153,9 +153,11 @@ function Invoice({
     if (due === 0) {
       setInvoiceStatus("paid");
     } else if (due < 0) {
+      if (visible) {
       Modal.error({
         content: "Error! Customer has paid more than total payable !",
       });
+      }
     } else if (due > 0) {
       setInvoiceStatus("due");
     }
