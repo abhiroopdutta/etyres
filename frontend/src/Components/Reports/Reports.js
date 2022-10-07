@@ -33,26 +33,23 @@ function Reports() {
             const url = window.URL.createObjectURL(new Blob([blob]));
             const link = document.createElement("a");
             link.href = url;
+            let fileName = "";
             if (reportReqInfo.reportType === "stock") {
-              link.setAttribute(
-                "download",
-                reportReqInfo.reportType +
-                "_report_" +
-                dayjsLocal(new Date()).format("YYYY-MM-DD") +
-                ".xlsx"
-              );
-            } else {
-              let fileName = reportReqInfo.reportType + "_report_";
-              if (reportReqInfo.filters.invoiceDate.start) {
-                fileName +=
-                  reportReqInfo.filters.invoiceDate.start.format("YYYY-MM-DD") +
-                  "__" +
-                  reportReqInfo.filters.invoiceDate.end.format("YYYY-MM-DD");
-              }
-              fileName += ".xlsx";
-
-              link.setAttribute("download", fileName);
+              fileName = `stock_report_${dayjsLocal(new Date()).format("YYYY-MM-DD")}.xlsx`;
             }
+            else {
+              let start_date_string = reportReqInfo.filters.invoiceDate.start.format("YYYY-MM-DD");
+              let end_date_string = reportReqInfo.filters.invoiceDate.end.format("YYYY-MM-DD");
+
+              if (reportReqInfo.export.type === "gstr1") {
+                fileName = `GSTR1_${start_date_string}__${end_date_string}.xlsx`;
+              }
+              else {
+                fileName = `${reportReqInfo.reportType}_${start_date_string}__${end_date_string}.xlsx`;
+              }
+            }
+
+            link.setAttribute("download", fileName);
 
             // Append to html link element page
             document.body.appendChild(link);
