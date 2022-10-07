@@ -5,8 +5,10 @@ from mongoengine import Q
 import datetime
 import openpyxl
 import os
+import json
 from openpyxl.styles import Border, Side, PatternFill, Font
-from openpyxl.styles.numbers import FORMAT_PERCENTAGE, FORMAT_NUMBER
+from openpyxl.styles.numbers import FORMAT_PERCENTAGE, FORMAT_NUMBER, FORMAT_NUMBER_00
+from openpyxl.cell import WriteOnlyCell
 wb = openpyxl.Workbook() 
 
 def get_sales_report(filters = {}, sorters = {}, pageRequest = 1, maxItemsPerPage = 5):
@@ -87,7 +89,7 @@ def report_handler(report_req_info):
                             report_req_info["maxItemsPerPage"])
         if (report_req_info["export"]["required"]):
             if report_req_info["export"]["type"] == "regular":
-            return export_sales_report(results["data"])
+                return export_sales_report(results["data"])
             elif report_req_info["export"]["type"] == "gstr1":
                 return export_gstr1_report(results["data"])
                 
@@ -232,6 +234,103 @@ def export_sales_report(invoices):
         cell_footer.fill = PatternFill("solid", fgColor="b4f05c")
         cell_footer.border = Border(left=Side(border_style="thin"),right=Side(border_style="thin"),top=Side(border_style="thin"),bottom=Side(border_style="thin"))
         cell_footer.font = Font(name="Calibri", bold=True)
+
+    wb.save(file_base_dir+filename)
+    return filename
+
+def get_gst_state_codes():
+	file_path = "./gstStateCodes.json"
+	f = open(file_path, "r")
+	gst_state_codes = json.loads(f.read())
+	f.close()
+	return gst_state_codes
+
+# helper function for export_gstr1_report
+def create_cell(sheet, value):
+    cell = WriteOnlyCell(sheet, value=value)
+    cell.number_format = FORMAT_NUMBER_00
+    return cell
+
+def export_gstr1_report(invoices):
+    file_base_dir = "./tempdata/sales_report/"
+    filename = str(datetime.datetime.now())+"gstr1.xlsx"
+    wb = openpyxl.Workbook(write_only=True)
+
+    # ----------------------------------------------b2b sheet----------------------------------------------
+    b2b_sheet = wb.create_sheet("b2b,sez,de")
+
+    gst_state_codes = get_gst_state_codes()
+    b2b_invoices = list(filter(lambda invoice: invoice.customerDetails.GSTIN != "", invoices))
+
+    b2b_summary = {
+            "No. of Recipients" : 0,
+            "No. of Invoices": 0,
+            "Total Invoice Value": 0,
+            "Total Taxable Value": 0,
+            "Total Cess": create_cell(b2b_sheet, 0.00)
+        }
+    b2b_summary["No. of Recipients"] = len(set(invoice.customerDetails.GSTIN for invoice in b2b_invoices))
+    b2b_summary["No. of Invoices"] = len(b2b_invoices)
+    
+    b2b_data = []
+    for invoice in b2b_invoices:
+        b2b_summary["Total Invoice Value"] += invoice.invoiceTotal
+
+        gst_tables = compute_gst_tables(invoice.productItems, invoice.serviceItems)
+        if (invoice.customerDetails.GSTIN == "" or invoice.customerDetails.GSTIN.startswith("09")):
+            tax_table = gst_tables["GST_table"]
+        else:
+            tax_table = gst_tables["IGST_table"]
+        products = tax_table["products"]
+        services = tax_table["services"]
+
+        for i, product in enumerate(products+services):
+            data = {
+                "GSTIN/UIN of Recipient": invoice.customerDetails.GSTIN,
+                "Receiver Name": invoice.customerDetails.name,
+                "Invoice Number": invoice.invoiceNumber,
+                "Invoice date": invoice.invoiceDate.strftime("%d-%b-%Y"), 
+                "Invoice Value": create_cell(b2b_sheet, invoice.invoiceTotal), 
+                "Place Of Supply": f"{invoice.customerDetails.stateCode}-{gst_state_codes[invoice.customerDetails.stateCode]}", 
+                "Reverse Charge": "N", 
+                "Applicable % of Tax Rate": "", 
+                "Invoice Type": "Regular B2B", 
+                "E-Commerce GSTIN": "", 
+                "Rate": create_cell(b2b_sheet, (product["CGST"] + product["SGST"] + product["IGST"])*100.00), 
+                "Taxable Value": create_cell(b2b_sheet, product["taxableValue"]),
+                "Cess Amount": create_cell(b2b_sheet, 0.00)
+            }
+            b2b_data.append(data)
+            b2b_summary["Total Taxable Value"] += product["taxableValue"]
+    b2b_summary["Total Invoice Value"] = create_cell(b2b_sheet, b2b_summary["Total Invoice Value"])
+    b2b_summary["Total Taxable Value"] = create_cell(b2b_sheet, b2b_summary["Total Taxable Value"])
+
+    title_row = ["Summary For B2B, SEZ, DE (4A, 4B, 6B, 6C)"] + ["" for i in range(11)] + ["HELP"]
+    summary_headers = ( ["No. of Recipients"] 
+                        + [""] 
+                        + ["No. of Invoices"]
+                        + [""]
+                        + ["Total Invoice Value"]
+                        +  ["" for i in range(6)]
+                        + ["Total Taxable Value"]
+                        + ["Total Cess"] )
+    summary_data = ( [b2b_summary["No. of Recipients"]] 
+                        + [""] 
+                        + [b2b_summary["No. of Invoices"]]
+                        + [""]
+                        + [b2b_summary["Total Invoice Value"]]
+                        +  ["" for i in range(6)]
+                        + [b2b_summary["Total Taxable Value"]]
+                        + [b2b_summary["Total Cess"]] )
+    column_headers = list(b2b_data[0])
+
+    b2b_sheet.append(title_row)
+    b2b_sheet.append(summary_headers)
+    b2b_sheet.append(summary_data)
+    b2b_sheet.append(column_headers)
+    for data in b2b_data:
+        b2b_sheet.append(list(data.values()))
+
 
     wb.save(file_base_dir+filename)
     return filename
