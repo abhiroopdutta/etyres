@@ -75,7 +75,7 @@ function SalesTable({ exportToExcel }) {
           sorters: sorters,
           pageRequest: pageRequest,
           maxItemsPerPage: maxItemsPerPage,
-          export: false,
+          export: { required: false, type: "" },
         }),
       };
       try {
@@ -216,14 +216,14 @@ function SalesTable({ exportToExcel }) {
       setPageRequest(pagination.current);
   };
 
-  const handleExport = () => {
+  const handleExport = (exportType) => {
     exportToExcel({
       reportType: "sale",
       filters: filters,
       sorters: sorters,
       pageRequest: 1,
       maxItemsPerPage: 10000,
-      export: true,
+      export: { required: true, type: exportType },
     });
   };
 
@@ -394,15 +394,26 @@ function SalesTable({ exportToExcel }) {
         <Title level={3} strong>
           Sales
         </Title>
-        <Button
-          type="primary"
-          onClick={handleExport}
-          size="small"
-          style={{ width: 100 }}
-          icon={<DownloadOutlined />}
-        >
-          Export
-        </Button>
+        <div>
+          <Button
+            type="primary"
+            onClick={() => handleExport("gstr1")}
+            size="small"
+            style={{ width: 100, marginRight: "10px" }}
+            icon={<DownloadOutlined />}
+          >
+            GSTR1
+          </Button>
+          <Button
+            type="primary"
+            onClick={() => handleExport("regular")}
+            size="small"
+            style={{ width: 100 }}
+            icon={<DownloadOutlined />}
+          >
+            Export
+          </Button>
+        </div>
       </Space>
 
       <Table

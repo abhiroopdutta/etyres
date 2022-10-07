@@ -60,7 +60,7 @@ function PurchaseTable({ exportToExcel }) {
           sorters: sorters,
           pageRequest: pageRequest,
           maxItemsPerPage: maxItemsPerPage,
-          export: false,
+          export: { required: false, type: "" },
         }),
       };
       try {
@@ -190,14 +190,14 @@ function PurchaseTable({ exportToExcel }) {
       setPageRequest(pagination.current);
   };
 
-  const handleExport = () => {
+  const handleExport = (exportType) => {
     exportToExcel({
       reportType: "purchase",
       filters: filters,
       sorters: sorters,
       pageRequest: 1,
       maxItemsPerPage: 10000,
-      export: true,
+      export: { required: true, type: exportType },
     });
   };
 
@@ -307,7 +307,7 @@ function PurchaseTable({ exportToExcel }) {
         </Title>
         <Button
           type="primary"
-          onClick={handleExport}
+          onClick={() => handleExport("regular")}
           size="small"
           style={{ width: 100 }}
           icon={<DownloadOutlined />}
