@@ -65,7 +65,13 @@ function SalesTable({ exportToExcel }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           reportType: "sale",
-          filters: filters,
+          filters: {
+            ...filters,
+            invoiceDate: {
+              start: filters.invoiceDate.start === "" ? "" : filters.invoiceDate.start.format("YYYY-MM-DD"),
+              end: filters.invoiceDate.end === "" ? "" : filters.invoiceDate.end.format("YYYY-MM-DD"),
+            }
+          },
           sorters: sorters,
           pageRequest: pageRequest,
           maxItemsPerPage: maxItemsPerPage,
