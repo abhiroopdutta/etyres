@@ -171,7 +171,7 @@ function Invoice({
     } else if (due > 0) {
       setInvoiceStatus("due");
     }
-  }, [payment, IGSTRender, GSTTable, IGSTTable, savedInvoiceStatus]);
+  }, [payment, IGSTRender, GSTTable, IGSTTable, savedInvoiceStatus, visible]);
 
   const handleInvoiceClose = () => {
     //if update mode then reset every state to original
