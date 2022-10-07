@@ -9,7 +9,7 @@ import json
 from openpyxl.styles import Border, Side, PatternFill, Font
 from openpyxl.styles.numbers import FORMAT_PERCENTAGE, FORMAT_NUMBER, FORMAT_NUMBER_00
 from openpyxl.cell import WriteOnlyCell
-wb = openpyxl.Workbook() 
+import pandas as pd
 
 def get_sales_report(filters = {}, sorters = {}, pageRequest = 1, maxItemsPerPage = 5):
     results = {
@@ -255,11 +255,11 @@ def export_gstr1_report(invoices):
     file_base_dir = "./tempdata/sales_report/"
     filename = str(datetime.datetime.now())+"gstr1.xlsx"
     wb = openpyxl.Workbook(write_only=True)
+    gst_state_codes = get_gst_state_codes()
 
     # ----------------------------------------------b2b sheet----------------------------------------------
     b2b_sheet = wb.create_sheet("b2b,sez,de")
 
-    gst_state_codes = get_gst_state_codes()
     b2b_invoices = list(filter(lambda invoice: invoice.customerDetails.GSTIN != "", invoices))
 
     b2b_summary = {
@@ -331,6 +331,61 @@ def export_gstr1_report(invoices):
     for data in b2b_data:
         b2b_sheet.append(list(data.values()))
 
+    # ----------------------------------------------b2cs sheet----------------------------------------------
+    b2c_sheet = wb.create_sheet("b2cs")
+    b2c_invoices = list(filter(lambda invoice: invoice.customerDetails.GSTIN == "", invoices))
+    
+    b2c_df_input = []
+    for invoice in b2c_invoices:
+        gst_tables = compute_gst_tables(invoice.productItems, invoice.serviceItems)
+        if (invoice.customerDetails.GSTIN == "" or invoice.customerDetails.GSTIN.startswith("09")):
+            tax_table = gst_tables["GST_table"]
+        else:
+            tax_table = gst_tables["IGST_table"]
+        products = tax_table["products"]
+        services = tax_table["services"]
+
+        for product in (products+services):
+            data = {
+                "Rate": (product["CGST"] + product["SGST"] + product["IGST"])*100.00, 
+                "Taxable Value": product["taxableValue"],
+            }
+            b2c_df_input.append(data)
+
+    b2c_df = pd.DataFrame(b2c_df_input)
+    grouped_data = b2c_df.groupby("Rate")["Taxable Value"].sum()
+
+    b2c_summary = {
+            "Total Taxable  Value" : 0,
+            "Total Cess": create_cell(b2c_sheet, 0.00)
+        }
+    b2c_data = []
+    for rate in grouped_data.index:
+        data = {
+                "Type": "OE",
+                "Place Of Supply": f"09-{gst_state_codes['09']}", 
+                "Applicable % of Tax Rate": "", 
+                "Rate": create_cell(b2c_sheet, rate), 
+                "Taxable Value": create_cell(b2c_sheet, grouped_data[rate]),
+                "Cess Amount": create_cell(b2b_sheet, 0.00),
+                "E-Commerce GSTIN": ""
+            }
+        b2c_data.append(data)
+        b2c_summary["Total Taxable  Value"] += grouped_data[rate]
+
+    b2c_summary["Total Taxable  Value"] = create_cell(b2c_sheet, b2c_summary["Total Taxable  Value"])
+    title_row = ["Summary For B2CS(7)"] + ["" for i in range(5)] + ["HELP"]
+
+    summary_headers = ["" for i in range(4)] + ["Total Taxable  Value", "Total Cess", ""]
+    summary_data = ["" for i in range(4)] + [b2c_summary["Total Taxable  Value"], b2c_summary["Total Cess"], ""]
+    column_headers = list(b2c_data[0])
+
+    b2c_sheet.append(title_row)
+    b2c_sheet.append(summary_headers)
+    b2c_sheet.append(summary_data)
+    b2c_sheet.append(column_headers)
+    for data in b2c_data:
+        b2c_sheet.append(list(data.values()))
 
     wb.save(file_base_dir+filename)
     return filename
