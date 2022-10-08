@@ -193,7 +193,13 @@ function PurchaseTable({ exportToExcel }) {
   const handleExport = (exportType) => {
     exportToExcel({
       reportType: "purchase",
-      filters: filters,
+      filters: {
+        ...filters,
+        invoiceDate: {
+          start: filters.invoiceDate.start === "" ? "" : filters.invoiceDate.start.format("YYYY-MM-DD"),
+          end: filters.invoiceDate.end === "" ? "" : filters.invoiceDate.end.format("YYYY-MM-DD"),
+        }
+      },
       sorters: sorters,
       pageRequest: 1,
       maxItemsPerPage: 10000,
