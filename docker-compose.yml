@@ -1,7 +1,6 @@
-version: '3.7'
+version: "3.7"
 
 services:
-
   react-app-prod:
     build:
       context: ./frontend
@@ -14,9 +13,9 @@ services:
     environment:
       TZ: "Asia/Kolkata"
     profiles: ["prod"]
-    
+
   flask-api-prod:
-    build: 
+    build:
       context: ./backend
       dockerfile: Dockerfile
     command: gunicorn --bind 0.0.0.0:5000 app:app
@@ -27,14 +26,14 @@ services:
     environment:
       MONGODB_HOST: mongodb
       TZ: "Asia/Kolkata"
-    depends_on: 
+    depends_on:
       - mongodb-prod
     volumes:
       - flaskproddata:/app/tempdata
     profiles: ["prod"]
 
   mongodb-prod:
-    image: mongo:5.0.3
+    image: mongo:6
     container_name: mongodb
     environment:
       MONGODB_DATA_DIR: /data/db
@@ -45,7 +44,7 @@ services:
       # - 27019:27019
     volumes:
       - mongoproddata:/data/db
-      - mongoprodconfig:/data/configdb  
+      - mongoprodconfig:/data/configdb
     profiles: ["prod"]
 
   react-app:
@@ -63,7 +62,7 @@ services:
     profiles: ["dev"]
 
   flask-api:
-    build: 
+    build:
       context: ./backend
       dockerfile: Dockerfile
     image: abhiroopdutta/etyres:flask-dev
@@ -76,13 +75,13 @@ services:
       TZ: "Asia/Kolkata"
     volumes:
       - ./backend:/app
-      - flaskdevdata:/app/tempdata 
-    depends_on: 
+      - flaskdevdata:/app/tempdata
+    depends_on:
       - mongodb
     profiles: ["dev"]
 
   mongodb:
-    image: mongo:5.0.3
+    image: mongo:6
     container_name: mongodb
     environment:
       MONGODB_DATA_DIR: /data/db
@@ -93,9 +92,9 @@ services:
       # - 27019:27019
     volumes:
       - mongodevdata:/data/db
-      - mongodevconfig:/data/configdb  
+      - mongodevconfig:/data/configdb
     profiles: ["dev"]
-    
+
 volumes:
   flaskproddata:
     driver: local
@@ -109,6 +108,3 @@ volumes:
     driver: local
   mongodevconfig:
     driver: local
-
-
-  
