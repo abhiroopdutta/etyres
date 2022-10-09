@@ -246,8 +246,8 @@ def get_gst_state_codes():
 	return gst_state_codes
 
 # helper function for export_gstr1_report
-def create_cell(sheet, value):
-    cell = WriteOnlyCell(sheet, value=value)
+def round_to_two(sheet, value):
+    cell = WriteOnlyCell(sheet, value=round(value, 2))
     cell.number_format = FORMAT_NUMBER_00
     return cell
 
