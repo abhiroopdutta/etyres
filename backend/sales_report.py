@@ -260,133 +260,85 @@ def export_gstr1_report(start_date, end_date):
     gstr1_report = prepare_gstr1_report(start_date, end_date)
     # ----------------------------------------------b2b sheet----------------------------------------------
     b2b_sheet = wb.create_sheet("b2b,sez,de")
+    b2b_summary = gstr1_report["b2bData"]["b2bSummary"]
+    b2b_items = gstr1_report["b2bData"]["b2bItems"]
 
-    b2b_invoices = list(filter(lambda invoice: invoice.customerDetails.GSTIN != "", invoices))
-
-    b2b_summary = {
-            "No. of Recipients" : 0,
-            "No. of Invoices": 0,
-            "Total Invoice Value": 0,
-            "Total Taxable Value": 0,
-            "Total Cess": create_cell(b2b_sheet, 0.00)
+    excel_b2b_summary = {
+            "No. of Recipients" : b2b_summary["countUniqB2bCustomer"],
+            "No. of Invoices": b2b_summary["countUniqB2bInvoices"],
+            "Total Invoice Value": round_to_two(b2b_sheet, b2b_summary["sumInvoiceTotal"]),
+            "Total Taxable Value": round_to_two(b2b_sheet, b2b_summary["sumTaxableValue"]),
+            "Total Cess": round_to_two(b2b_sheet, 0.00)
         }
-    b2b_summary["No. of Recipients"] = len(set(invoice.customerDetails.GSTIN for invoice in b2b_invoices))
-    b2b_summary["No. of Invoices"] = len(b2b_invoices)
-    
-    b2b_data = []
-    for invoice in b2b_invoices:
-        b2b_summary["Total Invoice Value"] += invoice.invoiceTotal
-
-        gst_tables = compute_gst_tables(invoice.productItems, invoice.serviceItems)
-        if (invoice.customerDetails.GSTIN == "" or invoice.customerDetails.GSTIN.startswith("09")):
-            tax_table = gst_tables["GST_table"]
-        else:
-            tax_table = gst_tables["IGST_table"]
-        products = tax_table["products"]
-        services = tax_table["services"]
-
-        for i, product in enumerate(products+services):
-            data = {
-                "GSTIN/UIN of Recipient": invoice.customerDetails.GSTIN,
-                "Receiver Name": invoice.customerDetails.name,
-                "Invoice Number": invoice.invoiceNumber,
-                "Invoice date": invoice.invoiceDate.strftime("%d-%b-%Y"), 
-                "Invoice Value": create_cell(b2b_sheet, invoice.invoiceTotal), 
-                "Place Of Supply": f"{invoice.customerDetails.stateCode}-{gst_state_codes[invoice.customerDetails.stateCode]}", 
+    excel_b2b_items = []
+    for b2b_item in b2b_items:
+        excel_b2b_items.append({
+            "GSTIN/UIN of Recipient": b2b_item["customerGSTIN"],
+            "Receiver Name": b2b_item["customerName"],
+            "Invoice Number": b2b_item["invoiceNumber"],
+            "Invoice date": b2b_item["invoiceDate"].strftime("%d-%b-%Y"), 
+            "Invoice Value": round_to_two(b2b_sheet, b2b_item["invoiceTotal"]), 
+            "Place Of Supply": f"09-{gst_state_codes['09']}", 
                 "Reverse Charge": "N", 
                 "Applicable % of Tax Rate": "", 
                 "Invoice Type": "Regular B2B", 
                 "E-Commerce GSTIN": "", 
-                "Rate": create_cell(b2b_sheet, (product["CGST"] + product["SGST"] + product["IGST"])*100.00), 
-                "Taxable Value": create_cell(b2b_sheet, product["taxableValue"]),
-                "Cess Amount": create_cell(b2b_sheet, 0.00)
-            }
-            b2b_data.append(data)
-            b2b_summary["Total Taxable Value"] += product["taxableValue"]
-    b2b_summary["Total Invoice Value"] = create_cell(b2b_sheet, b2b_summary["Total Invoice Value"])
-    b2b_summary["Total Taxable Value"] = create_cell(b2b_sheet, b2b_summary["Total Taxable Value"])
+            "Rate": round_to_two(b2b_sheet, b2b_item["itemRate"]), 
+            "Taxable Value": round_to_two(b2b_sheet, b2b_item["taxableValue"]),
+            "Cess Amount": round_to_two(b2b_sheet, 0.00)
+        })
 
     title_row = ["Summary For B2B, SEZ, DE (4A, 4B, 6B, 6C)"] + ["" for i in range(11)] + ["HELP"]
-    summary_headers = ( ["No. of Recipients"] 
-                        + [""] 
-                        + ["No. of Invoices"]
-                        + [""]
-                        + ["Total Invoice Value"]
-                        +  ["" for i in range(6)]
-                        + ["Total Taxable Value"]
-                        + ["Total Cess"] )
-    summary_data = ( [b2b_summary["No. of Recipients"]] 
-                        + [""] 
-                        + [b2b_summary["No. of Invoices"]]
-                        + [""]
-                        + [b2b_summary["Total Invoice Value"]]
-                        +  ["" for i in range(6)]
-                        + [b2b_summary["Total Taxable Value"]]
-                        + [b2b_summary["Total Cess"]] )
-    column_headers = list(b2b_data[0])
+    summary_headers = ( ["No. of Recipients", "", "No. of Invoices", "", "Total Invoice Value"] 
+                        + ["" for i in range(6)] 
+                        + ["Total Taxable Value", "Total Cess"])
+    summary_data = ([excel_b2b_summary["No. of Recipients"], "", excel_b2b_summary["No. of Invoices"], "", 
+                     excel_b2b_summary["Total Invoice Value"] ]
+                    +["" for i in range(6)]
+                    +[excel_b2b_summary["Total Taxable Value"], excel_b2b_summary["Total Cess"]])
+    column_headers = list(excel_b2b_items[0])
 
     b2b_sheet.append(title_row)
     b2b_sheet.append(summary_headers)
     b2b_sheet.append(summary_data)
     b2b_sheet.append(column_headers)
-    for data in b2b_data:
-        b2b_sheet.append(list(data.values()))
+    for excel_b2b_item in excel_b2b_items:
+        b2b_sheet.append(list(excel_b2b_item.values()))
 
     # ----------------------------------------------b2cs sheet----------------------------------------------
     b2c_sheet = wb.create_sheet("b2cs")
-    b2c_invoices = list(filter(lambda invoice: invoice.customerDetails.GSTIN == "", invoices))
+    b2c_summary = gstr1_report["b2cData"]["b2cSummary"]
+    b2c_items = gstr1_report["b2cData"]["b2cItems"]
     
-    b2c_df_input = []
-    for invoice in b2c_invoices:
-        gst_tables = compute_gst_tables(invoice.productItems, invoice.serviceItems)
-        if (invoice.customerDetails.GSTIN == "" or invoice.customerDetails.GSTIN.startswith("09")):
-            tax_table = gst_tables["GST_table"]
-        else:
-            tax_table = gst_tables["IGST_table"]
-        products = tax_table["products"]
-        services = tax_table["services"]
-
-        for product in (products+services):
-            data = {
-                "Rate": (product["CGST"] + product["SGST"] + product["IGST"])*100.00, 
-                "Taxable Value": product["taxableValue"],
+    excel_b2c_summary = {
+            "Total Taxable  Value" : round_to_two(b2c_sheet, b2c_summary["sumTaxableValue"]),
+            "Total Cess": round_to_two(b2c_sheet, 0.00)
             }
-            b2c_df_input.append(data)
-
-    b2c_df = pd.DataFrame(b2c_df_input)
-    grouped_data = b2c_df.groupby("Rate")["Taxable Value"].sum()
-
-    b2c_summary = {
-            "Total Taxable  Value" : 0,
-            "Total Cess": create_cell(b2c_sheet, 0.00)
-        }
-    b2c_data = []
-    for rate in grouped_data.index:
-        data = {
+    excel_b2c_items = []
+    for b2c_item in b2c_items:
+        excel_b2c_items.append({
                 "Type": "OE",
                 "Place Of Supply": f"09-{gst_state_codes['09']}", 
                 "Applicable % of Tax Rate": "", 
-                "Rate": create_cell(b2c_sheet, rate), 
-                "Taxable Value": create_cell(b2c_sheet, grouped_data[rate]),
-                "Cess Amount": create_cell(b2b_sheet, 0.00),
+            "Rate": round_to_two(b2c_sheet, b2c_item["rate"]), 
+            "Taxable Value": round_to_two(b2c_sheet, b2c_item["taxableValue"]),
+            "Cess Amount": round_to_two(b2c_sheet, 0.00),
                 "E-Commerce GSTIN": ""
-            }
-        b2c_data.append(data)
-        b2c_summary["Total Taxable  Value"] += grouped_data[rate]
+        })
 
-    b2c_summary["Total Taxable  Value"] = create_cell(b2c_sheet, b2c_summary["Total Taxable  Value"])
     title_row = ["Summary For B2CS(7)"] + ["" for i in range(5)] + ["HELP"]
 
     summary_headers = ["" for i in range(4)] + ["Total Taxable  Value", "Total Cess", ""]
-    summary_data = ["" for i in range(4)] + [b2c_summary["Total Taxable  Value"], b2c_summary["Total Cess"], ""]
-    column_headers = list(b2c_data[0])
+    summary_data = ["" for i in range(4)] + [excel_b2c_summary["Total Taxable  Value"], excel_b2c_summary["Total Cess"], ""]
+    column_headers = list(excel_b2c_items[0])
 
     b2c_sheet.append(title_row)
     b2c_sheet.append(summary_headers)
     b2c_sheet.append(summary_data)
     b2c_sheet.append(column_headers)
-    for data in b2c_data:
-        b2c_sheet.append(list(data.values()))
+    for excel_b2c_item in excel_b2c_items:
+        b2c_sheet.append(list(excel_b2c_item.values()))
+
 
     wb.save(file_base_dir+filename)
     return filename
