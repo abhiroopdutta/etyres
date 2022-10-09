@@ -1,5 +1,6 @@
 from create_order import compute_gst_tables
 from update_price import compute_size
+from mongo_agg_pipelines import prepare_gstr1_report
 from models import Purchase, Sale, Product
 from mongoengine import Q
 import datetime
@@ -91,7 +92,7 @@ def report_handler(report_req_info):
             if report_req_info["export"]["type"] == "regular":
                 return export_sales_report(results["data"])
             elif report_req_info["export"]["type"] == "gstr1":
-                return export_gstr1_report(results["data"])
+                return export_gstr1_report(report_req_info["filters"]["invoiceDate"]["start"], report_req_info["filters"]["invoiceDate"]["end"])
                 
         return results
     elif report_req_info["reportType"] == "purchase":
@@ -251,12 +252,12 @@ def round_to_two(sheet, value):
     cell.number_format = FORMAT_NUMBER_00
     return cell
 
-def export_gstr1_report(invoices):
+def export_gstr1_report(start_date, end_date):
     file_base_dir = "./tempdata/sales_report/"
     filename = str(datetime.datetime.now())+"gstr1.xlsx"
     wb = openpyxl.Workbook(write_only=True)
     gst_state_codes = get_gst_state_codes()
-
+    gstr1_report = prepare_gstr1_report(start_date, end_date)
     # ----------------------------------------------b2b sheet----------------------------------------------
     b2b_sheet = wb.create_sheet("b2b,sez,de")
 
