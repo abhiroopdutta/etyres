@@ -279,10 +279,10 @@ def export_gstr1_report(start_date, end_date):
             "Invoice date": b2b_item["invoiceDate"].strftime("%d-%b-%Y"), 
             "Invoice Value": round_to_two(b2b_sheet, b2b_item["invoiceTotal"]), 
             "Place Of Supply": f"09-{gst_state_codes['09']}", 
-                "Reverse Charge": "N", 
-                "Applicable % of Tax Rate": "", 
-                "Invoice Type": "Regular B2B", 
-                "E-Commerce GSTIN": "", 
+            "Reverse Charge": "N", 
+            "Applicable % of Tax Rate": "", 
+            "Invoice Type": "Regular B2B", 
+            "E-Commerce GSTIN": "", 
             "Rate": round_to_two(b2b_sheet, b2b_item["itemRate"]), 
             "Taxable Value": round_to_two(b2b_sheet, b2b_item["taxableValue"]),
             "Cess Amount": round_to_two(b2b_sheet, 0.00)
@@ -313,17 +313,17 @@ def export_gstr1_report(start_date, end_date):
     excel_b2c_summary = {
             "Total Taxable  Value" : round_to_two(b2c_sheet, b2c_summary["sumTaxableValue"]),
             "Total Cess": round_to_two(b2c_sheet, 0.00)
-            }
+        }
     excel_b2c_items = []
     for b2c_item in b2c_items:
         excel_b2c_items.append({
-                "Type": "OE",
-                "Place Of Supply": f"09-{gst_state_codes['09']}", 
-                "Applicable % of Tax Rate": "", 
+            "Type": "OE",
+            "Place Of Supply": f"09-{gst_state_codes['09']}", 
+            "Applicable % of Tax Rate": "", 
             "Rate": round_to_two(b2c_sheet, b2c_item["rate"]), 
             "Taxable Value": round_to_two(b2c_sheet, b2c_item["taxableValue"]),
             "Cess Amount": round_to_two(b2c_sheet, 0.00),
-                "E-Commerce GSTIN": ""
+            "E-Commerce GSTIN": ""
         })
 
     title_row = ["Summary For B2CS(7)"] + ["" for i in range(5)] + ["HELP"]
@@ -339,6 +339,114 @@ def export_gstr1_report(start_date, end_date):
     for excel_b2c_item in excel_b2c_items:
         b2c_sheet.append(list(excel_b2c_item.values()))
 
+# ----------------------------------------------hsn sheet----------------------------------------------
+    hsn_sheet = wb.create_sheet("hsn")
+    hsn_summary = gstr1_report["hsnData"]["hsnSummary"]
+    hsn_items = gstr1_report["hsnData"]["hsnItems"]
+    
+    excel_hsn_summary = {
+            "No. of HSN" : hsn_summary["countUniqHSN"],
+            "Total Value": "",
+            "Total Taxable Value": round_to_two(hsn_sheet, hsn_summary["sumTaxableValue"]),
+            "Total Integrated Tax": round_to_two(hsn_sheet, hsn_summary["sumIGSTAmount"]),
+            "Total Central Tax": round_to_two(hsn_sheet, hsn_summary["sumCGSTAmount"]),
+            "Total State/UT Tax": round_to_two(hsn_sheet, hsn_summary["sumSGSTAmount"]),
+            "Total Cess": round_to_two(hsn_sheet, 0.00)
+        }
+    excel_hsn_items = []
+    for item in hsn_items:
+        excel_hsn_items.append({
+            "HSN": item["hsn"],
+            "Description": "", 
+            "UQC": "NOS-NUMBERS", 
+            "Total Quantity": round_to_two(hsn_sheet, item["quantity"]), 
+            "Total Value": "",
+            "Rate": round_to_two(hsn_sheet, item["rate"]),
+            "Taxable Value": round_to_two(hsn_sheet, item["taxableValue"]),
+            "Integrated Tax Amount": round_to_two(hsn_sheet, item["IGSTAmount"]),
+            "Central Tax Amount" : round_to_two(hsn_sheet, item["CGSTAmount"]),
+            "State/UT Tax Amount": round_to_two(hsn_sheet, item["SGSTAmount"]),
+            "Cess Amount": round_to_two(hsn_sheet, 0.00)
+        })
+
+    title_row = ["Summary For HSN(12)"] + ["" for i in range(9)] + ["HELP"]
+    summary_headers = [
+        "No. of HSN", 
+        "", 
+        "", 
+        "", 
+        "Total Value", 
+        "", 
+        "Total Taxable Value", 
+        "Total Integrated Tax",
+        "Total Central Tax",
+        "Total State/UT Tax",
+        "Total Cess"
+        ]
+    summary_data = [
+        excel_hsn_summary["No. of HSN"], 
+        "", 
+        "", 
+        "", 
+        excel_hsn_summary["Total Value"], 
+        "", 
+        excel_hsn_summary["Total Taxable Value"], 
+        excel_hsn_summary["Total Integrated Tax"],
+        excel_hsn_summary["Total Central Tax"],
+        excel_hsn_summary["Total State/UT Tax"],
+        excel_hsn_summary["Total Cess"]
+        ]
+    column_headers = list(excel_hsn_items[0])
+
+    hsn_sheet.append(title_row)
+    hsn_sheet.append(summary_headers)
+    hsn_sheet.append(summary_data)
+    hsn_sheet.append(column_headers)
+    for excel_hsn_item in excel_hsn_items:
+        hsn_sheet.append(list(excel_hsn_item.values()))
+
+# ----------------------------------------------docs sheet----------------------------------------------
+    docs_sheet = wb.create_sheet("docs")
+    docs_summary = gstr1_report["docsData"]["docsSummary"]
+    docs_items = gstr1_report["docsData"]["docsItems"]
+    
+    excel_docs_summary = {
+            "Total Number" : docs_summary["totalDocs"],
+            "Total Cancelled": docs_summary["totalcancelledDocs"],
+        }
+    excel_docs_items = []
+    for item in docs_items:
+        excel_docs_items.append({
+            "Nature of Document": "Invoices for outward supply",
+            "Sr. No. From": item["minInvoiceNumber"], 
+            "Sr. No. To": item["maxInvoiceNumber"], 
+            "Total Number": item["paidInvoicesCount"], 
+            "Cancelled": item["cancelledInvoicesCount"],
+        })
+
+    title_row = ["Summary of documents issued during the tax period (13)"] + ["" for i in range(3)] + ["HELP"]
+    summary_headers = [
+        "", 
+        "", 
+        "", 
+        "Total Number", 
+        "Total Cancelled", 
+        ]
+    summary_data = [
+        "", 
+        "", 
+        "", 
+        excel_docs_summary["Total Number"], 
+        excel_docs_summary["Total Cancelled"], 
+        ]
+    column_headers = list(excel_docs_items[0])
+
+    docs_sheet.append(title_row)
+    docs_sheet.append(summary_headers)
+    docs_sheet.append(summary_data)
+    docs_sheet.append(column_headers)
+    for excel_docs_item in excel_docs_items:
+        docs_sheet.append(list(excel_docs_item.values()))
 
     wb.save(file_base_dir+filename)
     return filename
