@@ -1,7 +1,7 @@
 import datetime
 from models import Sale 
 
-def prepare_b2b_report(start_date, end_date):
+def prepare_gstr1_report(start_date, end_date):
     start_datetime = datetime.datetime.strptime(start_date + " " + "00:00:00", '%Y-%m-%d %H:%M:%S')
     end_datetime = datetime.datetime.strptime(end_date + " " + "23:59:59", '%Y-%m-%d %H:%M:%S')
 
@@ -44,8 +44,8 @@ def prepare_b2b_report(start_date, end_date):
 
                 #new computed fields from items
                 #even though IGST may not exist in service items, it still works, how?
-                "itemRate": {"$multiply": [{ "$sum": [ "$items.CGST", "$items.SGST", "$items.IGST" ] }, 100.00]},
-                "taxableValue": { "$multiply": [ "$items.ratePerItem", "$items.quantity" ] }
+                "itemRate": {"$round": [{"$multiply": [{ "$sum": [ "$items.CGST", "$items.SGST", "$items.IGST" ] }, 100.00]}, 2]},
+                "taxableValue": {"$round": [{ "$multiply": [ "$items.ratePerItem", "$items.quantity" ] }, 2]}
             } 
         },
         # Stage 5: Create 2 branches, one for invoices (above data) and one for summary
@@ -137,8 +137,8 @@ def prepare_b2b_report(start_date, end_date):
             {   
                 #new computed fields from items
                 #even though IGST may not exist in service items, it still works, how?
-                "itemRate": {"$multiply": [{ "$sum": [ "$items.CGST", "$items.SGST", "$items.IGST" ] }, 100.00]},
-                "taxableValue": { "$multiply": [ "$items.ratePerItem", "$items.quantity" ] }
+                "itemRate": {"$round": [{"$multiply": [{ "$sum": [ "$items.CGST", "$items.SGST", "$items.IGST" ] }, 100.00]}, 2]},
+                "taxableValue": {"$round": [{ "$multiply": [ "$items.ratePerItem", "$items.quantity" ] }, 2]}
             } 
         },
         # Stage 5: Group by rate, sum (taxableValue)
@@ -249,7 +249,7 @@ def prepare_b2b_report(start_date, end_date):
         # Stage 8: Create 2 branches, one for invoices (above data) and one for summary
         {
             "$facet": {
-                "hsnData": [{
+                "hsnItems": [{
                     "$project": {
                         "_id": 0,   
                         "hsn": "$_id.hsn",
@@ -305,7 +305,91 @@ def prepare_b2b_report(start_date, end_date):
     
     ]
 
-    b2b_data = Sale.objects().aggregate(hsn_data_pipeline)
-    
-    for data in b2b_data:
-        print(data)    
+    docs_data_pipeline = [
+        {
+            "$match": {
+                "invoiceDate": { "$gte": start_datetime, "$lte": end_datetime },
+            }
+        },
+        {
+            "$facet": {
+                "minInvoiceNumber": [
+                    {
+                        "$group": {
+                            "_id": "null",
+                            "value": { "$min": "$invoiceNumber" },
+                        }
+                    },
+                ],
+                "maxInvoiceNumber": [
+                    {
+                        "$group": {
+                            "_id": "null",
+                            "value": { "$max": "$invoiceNumber" }
+                        }
+                    },
+                ],
+                "paidInvoicesCount": [
+                    {
+                        "$match":{"invoiceStatus": "paid",}
+                    },
+                    {
+                        "$count": "value"
+                    }
+                ],
+                "cancelledInvoicesCount": [
+                    {
+                        "$match":{"invoiceStatus": "cancelled",}
+                    },
+                    {
+                        "$count": "value"
+                    }
+                ]
+            }
+        }
+    ]
+
+    b2b_data = list(Sale.objects().aggregate(b2b_data_pipeline))[0]
+    b2c_data = list(Sale.objects().aggregate(b2c_data_pipeline))[0]
+    hsn_data = list(Sale.objects().aggregate(hsn_data_pipeline))[0]
+    docs_data = list(Sale.objects().aggregate(docs_data_pipeline))[0]
+    return {
+        "b2bData": {
+            "b2bSummary": {
+                "countUniqB2bCustomer": b2b_data["countUniqB2bCustomer"][0]["value"],
+                "countUniqB2bInvoices": b2b_data["countUniqB2bInvoices"][0]["value"],
+                "sumInvoiceTotal": b2b_data["sumInvoiceTotal"][0]["value"],
+                "sumTaxableValue": b2b_data["sumTaxableValue"][0]["value"]
+            },
+            "b2bItems": b2b_data["b2bInvoices"]
+        },
+        "b2cData": {
+            "b2cSummary": {
+                "sumTaxableValue": b2c_data["sumTaxableValue"][0]["value"]
+            },
+            "b2cItems": b2c_data["b2cInvoices"]
+        },
+        "hsnData": {
+            "hsnSummary": {
+                "countUniqHSN": hsn_data["countUniqHSN"][0]["value"],
+                "sumTaxableValue": hsn_data["sumTaxableValue"][0]["value"],
+                "sumCGSTAmount": hsn_data["sumCGSTAmount"][0]["value"],
+                "sumSGSTAmount": hsn_data["sumSGSTAmount"][0]["value"],
+                "sumIGSTAmount": hsn_data["sumIGSTAmount"][0]["value"],
+            },
+            "hsnItems": hsn_data["hsnItems"]
+        },
+        "docsData": {
+            "docsSummary": {
+                "totalDocs": docs_data["paidInvoicesCount"][0]["value"],
+                "totalcancelledDocs": docs_data["cancelledInvoicesCount"][0]["value"] if docs_data["cancelledInvoicesCount"] else 0
+
+            },
+            "docsItems": [{
+                "minInvoiceNumber": docs_data["minInvoiceNumber"][0]["value"],
+                "maxInvoiceNumber": docs_data["maxInvoiceNumber"][0]["value"],
+                "paidInvoicesCount": docs_data["paidInvoicesCount"][0]["value"],
+                "cancelledInvoicesCount": docs_data["cancelledInvoicesCount"][0]["value"] if docs_data["cancelledInvoicesCount"] else 0
+            }],
+        },   
+    }
