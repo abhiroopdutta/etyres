@@ -48,7 +48,42 @@ def prepare_gstr1_report(start_date, end_date):
                 "taxableValue": {"$round": [{ "$multiply": [ "$items.ratePerItem", "$items.quantity" ] }, 2]}
             } 
         },
-        # Stage 5: Create 2 branches, one for invoices (above data) and one for summary
+        # Stage 5 : Sort by invoiceNumber
+        {   
+            "$sort": { "invoiceNumber": 1} 
+        },
+        # Stage 6: Group by invoiceNumber and itemRate, sum(taxableValue)
+        {
+            "$group": {
+            "_id": {
+                "invoiceNumber": "$invoiceNumber", 
+                "itemRate": "$itemRate"
+                },
+            "invoiceDate": {"$first": "$invoiceDate"},
+            "invoiceTotal": {"$first": "$invoiceTotal"},
+            "customerName": {"$first": "$customerName"},
+            "customerGSTIN": {"$first": "$customerGSTIN"},
+            "taxableValue": { "$sum": "$taxableValue"}
+            }
+        },
+        # Stage 7 : Sort by invoiceDate
+        {   
+            "$sort": { "invoiceDate": 1} 
+        },
+        # Stage 8: Project stage for reformatting data for further stages
+        {
+            "$project": {   
+                "_id": 0,
+                "invoiceNumber": "$_id.invoiceNumber",
+                "invoiceDate": "$invoiceDate",
+                "invoiceTotal": "$invoiceTotal",
+                "customerName": "$customerName",
+                "customerGSTIN": "$customerGSTIN",
+                "itemRate": "$_id.itemRate",
+                "taxableValue": "$taxableValue"
+            } 
+        },
+        # Stage 9 : Create 2 branches, one for invoices (above data) and one for summary
         {
             "$facet": {
                 "b2bInvoices": [{
