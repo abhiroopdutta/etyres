@@ -44,6 +44,7 @@ function Invoice({
     name: "",
     address: "",
     GSTIN: "",
+    POS: "09",
     stateCode: "",
     state: "",
     vehicleNumber: "",
@@ -90,15 +91,19 @@ function Invoice({
       setInvoiceStatus(savedInvoiceStatus);
       setCustomerDetails(savedCustomerDetails);
       setPayment(savedPayment);
-      if (
-        savedCustomerDetails.GSTIN === "0" ||
-        savedCustomerDetails.GSTIN.startsWith("09") ||
-        !savedCustomerDetails.GSTIN
-      ) {
-        setIGSTRender(false);
-      } else {
-        setIGSTRender(true);
-      }
+      //Saved invoices that have been incorrectly marked as IGST sale
+      //will be shown as GST sale but CGST, SGST will show 0
+      //correction can be done in such invoices by 
+      //adding the field POS=savedCustomerDetails.GSTIN.slice(0,2)
+      // if (
+      //   savedCustomerDetails.GSTIN === "0" ||
+      //   savedCustomerDetails.GSTIN.startsWith("09") ||
+      //   !savedCustomerDetails.GSTIN
+      // ) {
+      //   setIGSTRender(false);
+      // } else {
+      //   setIGSTRender(true);
+      // }
     } else {
       getNewInvoiceNumber();
     }
@@ -187,6 +192,7 @@ function Invoice({
         state: "",
         vehicleNumber: "",
         contact: "",
+        POS: "09"
       });
       setPayment({ cash: 0, card: 0, UPI: 0 });
       setGSTTable(null);
@@ -201,9 +207,7 @@ function Invoice({
   const handleIGST = (e) => {
     setCustomerDetails((customerDetails) => ({
       ...customerDetails,
-      "GSTIN": e.target.value,
-      "stateCode": e.target.value.slice(0, 2),
-      "state": gstStateCodes[e.target.value.slice(0, 2)]
+      [e.target.name]: e.target.value,
     }));
 
     if (
@@ -437,18 +441,6 @@ function Invoice({
               placeholder={updateMode ? null : "Customer Name"}
             />
             <br />
-            <label htmlFor="address">Address: </label>
-            <input
-              id="address"
-              name="address"
-              className="address"
-              type="text"
-              value={customerDetails.address}
-              onChange={handleCustomerDetails}
-              disabled={updateMode}
-              placeholder={updateMode ? null : "Customer Address"}
-            />
-            <br />
             <label htmlFor="vehicleNumber">Vehicle No. : </label>
             <input
               id="vehicleNumber"
@@ -472,29 +464,45 @@ function Invoice({
               disabled={updateMode}
               placeholder={updateMode ? null : "Customer Contact No."}
             />
-            <section className="customer-details-gst">
-              <label htmlFor="GSTIN">GSTIN: </label>
-              <input
-                id="GSTIN"
-                name="GSTIN"
-                className="GSTIN"
-                type="text"
-                maxLength="15"
-                value={customerDetails.GSTIN}
-                onChange={handleIGST}
-                disabled={updateMode}
-                placeholder={updateMode ? null : "Customer GSTIN"}
-                pattern={regexGSTINPattern}
-              />
-              <div className="state">
-                <span>State:</span>
-                <span className="italic-text">{customerDetails.state}</span>
-              </div>
-              <div className="stateCode">
-                <span>Code:</span>
-                <span className="italic-text">{customerDetails.stateCode}</span>
-              </div>
-            </section>
+            <label htmlFor="GSTIN">GSTIN: </label>
+            <input
+              id="GSTIN"
+              name="GSTIN"
+              className="GSTIN"
+              type="text"
+              maxLength="15"
+              value={customerDetails.GSTIN}
+              onChange={handleCustomerDetails}
+              disabled={updateMode}
+              placeholder={updateMode ? null : "Customer GSTIN"}
+              pattern={regexGSTINPattern}
+            />
+            <label htmlFor="address">Address: </label>
+            <input
+              id="address"
+              name="address"
+              className="address"
+              type="text"
+              value={customerDetails.address}
+              onChange={handleCustomerDetails}
+              disabled={updateMode}
+              placeholder={updateMode ? null : "Customer Address"}
+            />
+            <br />
+            <label htmlFor="POS">POS: </label>
+            <select
+              id="POS"
+              name="POS"
+              className="POS"
+              value={customerDetails.POS}
+              onChange={handleIGST}
+              disabled={updateMode}
+            >
+              {Object.keys(gstStateCodes).map((item) =>
+                <option value={item} key={item}>
+                  {`${gstStateCodes[item]} (${item})`}
+                </option>)}
+            </select>
           </div>
         </form>
 

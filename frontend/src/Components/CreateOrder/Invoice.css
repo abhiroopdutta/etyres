@@ -109,7 +109,7 @@
 }
 
 .customer-details {
-  padding: 2% 0 3% 0;
+  padding: 1% 0 1% 0;
 }
 
 .customer-details label {
@@ -131,37 +131,29 @@
   transition: background-color 0.1s ease-in-out, border 0.2s ease-in-out;
 }
 
-.customer-details-gst {
-  display: flex;
-}
-
-.customer-details-gst > label,
-.customer-details-gst > .state,
-.customer-details-gst > .stateCode {
-  display: flex;
-  align-items: center;
-  color: rgb(0, 0, 0);
-}
-.customer-details-gst > .GSTIN {
-  margin-right: 10px;
-  width: auto;
-}
-.customer-details-gst > .state {
-  margin-right: 10px;
-  min-width: 160px;
-}
-
-.italic-text {
-  padding-left: 10px;
+.POS {
+  width: 87%;
+  outline: none;
+  border: none;
+  appearance: none;
   font-weight: 400;
   font-style: italic;
+  color: rgb(0, 0, 0);
+  border: 0.5px dotted transparent;
+  border-radius: 5px;
+  transition: background-color 0.1s ease-in-out, border 0.2s ease-in-out;
+}
+select:disabled {
+  opacity: 1;
 }
 
-.customer-details input:hover {
+.customer-details input:hover,
+.POS:hover {
   background-color: #fdf4db;
 }
 
-.customer-details input:focus {
+.customer-details input:focus,
+.POS:focus {
   border: 0.5px dotted rgb(117, 117, 117);
   background-color: #fdf4db;
 }
