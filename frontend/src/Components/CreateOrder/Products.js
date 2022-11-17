@@ -2,42 +2,39 @@ import React, { useState, useEffect } from "react";
 import Tyre from "./Tyre";
 import "./Products.css";
 import { SearchOutlined } from "@ant-design/icons";
+import { DebounceInput } from 'react-debounce-input';
 
 function Products({ refreshProducts }) {
   const [tyres, setTyres] = useState([]);
   const [filters, setFilters] = useState({ tyreSize: "", inStock: true });
-  const [searchResults, setSearchResults] = useState([]);
+  let searchResults = tyres;
 
   useEffect(() => {
     fetch("/api/data")
       .then((res) => res.json())
       .then((data) => {
         setTyres(data);
-        setSearchResults(data);
-        setFilters({ tyreSize: "", inStock: true });
       });
   }, [refreshProducts]);
 
-  useEffect(() => {
-    let sizeFiltered = tyres;
-    if (filters.tyreSize.length > 0) {
-      sizeFiltered = tyres.filter((i) => {
-        return i.size.toString().match(filters.tyreSize);
-      });
-    }
+  let sizeFiltered = tyres;
+  if (filters.tyreSize.length > 0) {
+    sizeFiltered = tyres.filter((i) => {
+      return i.size.toString().match(filters.tyreSize);
+    });
+  }
 
-    let stockAndSizeFiltered = sizeFiltered;
-    if (filters.inStock) {
-      stockAndSizeFiltered = sizeFiltered.filter((i) => {
-        return i.stock > 0;
-      });
-    }
-    setSearchResults(stockAndSizeFiltered);
-  }, [filters, tyres]);
+  let stockAndSizeFiltered = sizeFiltered;
+  if (filters.inStock) {
+    stockAndSizeFiltered = sizeFiltered.filter((i) => {
+      return i.stock > 0;
+    });
+  }
+  searchResults = stockAndSizeFiltered;
 
   const handleChange = (e) => {
-    e.preventDefault(); //why use this
     setFilters({ ...filters, tyreSize: e.target.value });
+    console.log(e.target.value);
   };
 
   const handleInStock = () => {
@@ -57,13 +54,15 @@ function Products({ refreshProducts }) {
         <div className="products-search">
           <SearchOutlined />
           <label htmlFor="products-search"></label>
-          <input
+          <DebounceInput
+            debounceTimeout={300}
+            onChange={handleChange}
             id="products-search"
             type="text"
-            onChange={handleChange}
             value={filters.tyreSize}
             placeholder="Search tyre, ex -1357012"
           />
+
         </div>
         <div className="in-stock-checkbox">
           <label htmlFor="in_stock">In Stock </label>
