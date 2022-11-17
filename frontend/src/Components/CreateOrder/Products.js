@@ -3,20 +3,23 @@ import Tyre from "./Tyre";
 import "./Products.css";
 import { SearchOutlined } from "@ant-design/icons";
 import { DebounceInput } from 'react-debounce-input';
+import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
 
-function Products({ refreshProducts }) {
-  const [tyres, setTyres] = useState([]);
+function Products() {
   const [filters, setFilters] = useState({ tyreSize: "", inStock: true });
+  const { isLoading, isError, data: tyres, error } = useQuery({
+    queryKey: ["products"],
+    queryFn: () => axios.get("/api/data"),
+    select: (data) => data.data,
+    placeholder: []
+  })
+
+  if (isLoading) {
+    return null;
+  }
+
   let searchResults = tyres;
-
-  useEffect(() => {
-    fetch("/api/data")
-      .then((res) => res.json())
-      .then((data) => {
-        setTyres(data);
-      });
-  }, [refreshProducts]);
-
   let sizeFiltered = tyres;
   if (filters.tyreSize.length > 0) {
     sizeFiltered = tyres.filter((i) => {

@@ -5,17 +5,12 @@ import "./CreateOrder.css";
 import { CartProvider } from "./CartContext"; //understand objects in JS, and deconstructuring
 
 function CreateOrder() {
-  const [refreshProducts, setRefreshProducts] = useState(false);
-  const handleRefreshProducts = () => {
-    setRefreshProducts((refreshProducts) => !refreshProducts);
-  };
 
   return (
     <div className="shop-container">
       <CartProvider>
-        <Products refreshProducts={refreshProducts} className="products" />
+        <Products className="products" />
         <Cart
-          handleRefreshProducts={handleRefreshProducts}
           className="cart-container"
         />
       </CartProvider>

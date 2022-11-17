@@ -9,22 +9,30 @@ import UpdateStock from "./Components/UpdateStock/UpdateStock";
 import Reports from "./Components/Reports/Reports";
 import Accounts from "./Components/Accounts/Accounts";
 import './AntStyles.css'
+import {
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query'
 
+// Create a client
+const queryClient = new QueryClient()
 
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <Navbar />
-        <Switch>
-          <Route path="/create_order" component={CreateOrder}></Route>
-          <Route path="/update_stock" component={UpdateStock}></Route>
-          <Route path="/update_price" component={UpdatePrice}></Route>
-          <Route path="/reports" component={Reports}></Route>
-          <Route path="/accounts" component={Accounts}></Route>
-        </Switch>
-      </div>
-    </Router>
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <div className="App">
+          <Navbar />
+          <Switch>
+            <Route path="/create_order" component={CreateOrder}></Route>
+            <Route path="/update_stock" component={UpdateStock}></Route>
+            <Route path="/update_price" component={UpdatePrice}></Route>
+            <Route path="/reports" component={Reports}></Route>
+            <Route path="/accounts" component={Accounts}></Route>
+          </Switch>
+        </div>
+      </Router>
+    </QueryClientProvider>
   );
 }
 

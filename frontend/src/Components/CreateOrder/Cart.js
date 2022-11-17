@@ -6,8 +6,9 @@ import Invoice from "./Invoice";
 import { message } from "antd";
 import Button from "../Button";
 import { dayjsUTC } from "../dayjsUTCLocal";
+import { useQueryClient } from '@tanstack/react-query'
 
-function Cart({ handleRefreshProducts }) {
+function Cart() {
   const { tyresContext, servicesContext } = useContext(CartContext);
   const [products, setProducts] = tyresContext;
   const [services, setServices] = servicesContext;
@@ -30,6 +31,7 @@ function Cart({ handleRefreshProducts }) {
   });
 
   const [previewInvoice, setPreviewInvoice] = useState(false);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     let scrollBarWidth = window.innerWidth - document.body.clientWidth;
@@ -138,7 +140,10 @@ function Cart({ handleRefreshProducts }) {
         },
         payment: { cash: 0, card: 0, UPI: 0 },
       });
-      handleRefreshProducts();
+      queryClient.invalidateQueries({
+        queryKey: ['products'],
+        exact: true,
+      })
     }
     setPreviewInvoice(false);
   };
