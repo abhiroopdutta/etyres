@@ -36,10 +36,9 @@ function Invoice({
   savedPayment,
   updateInvoiceInParent,
 }) {
-  const [showHideClassName, setShowHideClassName] = useState();
   const [invoiceNumber, setInvoiceNumber] = useState();
   const [invoiceDate, setInvoiceDate] = useState(getTodaysDate());
-  const [invoiceStatus, setInvoiceStatus] = useState("due");
+  let invoiceStatus = "due";
   const [customerDetails, setCustomerDetails] = useState({
     name: "",
     address: "",
@@ -55,7 +54,7 @@ function Invoice({
   const [IGSTTable, setIGSTTable] = useState();
   const [loading, setLoading] = useState(false);
   //render different tables depending on IGST customer or not
-  const [IGSTRender, setIGSTRender] = useState(false);
+  let IGSTRender = false;
   const componentRef = useRef(null);
   const handlePrintInvoice = useReactToPrint({
     content: () => componentRef.current,
@@ -70,12 +69,6 @@ function Invoice({
     return regexGSTINPattern;
   }, []);
 
-  useEffect(() => {
-    setShowHideClassName(
-      visible ? "invoice display-block" : "invoice display-none"
-    );
-  }, [visible]);
-
   //Get invoice number from backend
   useEffect(() => {
     async function getNewInvoiceNumber() {
@@ -86,24 +79,13 @@ function Invoice({
 
     // Get the invoice number if in create mode otherwise get saved invoice details
     if (updateMode) {
-      setInvoiceNumber(savedInvoiceNumber);
-      setInvoiceDate(savedInvoiceDate);
-      setInvoiceStatus(savedInvoiceStatus);
+      invoiceStatus = savedInvoiceStatus;
       setCustomerDetails(savedCustomerDetails);
       setPayment(savedPayment);
       //Saved invoices that have been incorrectly marked as IGST sale
       //will be shown as GST sale but CGST, SGST will show 0
       //correction can be done in such invoices by 
       //adding the field POS=savedCustomerDetails.GSTIN.slice(0,2)
-      // if (
-      //   savedCustomerDetails.GSTIN === "0" ||
-      //   savedCustomerDetails.GSTIN.startsWith("09") ||
-      //   !savedCustomerDetails.GSTIN
-      // ) {
-      //   setIGSTRender(false);
-      // } else {
-      //   setIGSTRender(true);
-      // }
     } else {
       getNewInvoiceNumber();
     }
@@ -151,39 +133,39 @@ function Invoice({
     getTableData();
   }, [products, services]);
 
+
+  if (
+    customerDetails.POS === "0" ||
+    customerDetails.POS?.startsWith("09") ||
+    !customerDetails.POS
+  ) {
+    IGSTRender = false;
+  } else {
+    IGSTRender = true;
+  }
+
   //update invoice status depending on payment completed or not
-  useEffect(() => {
-    // status of a paid/cancelled invoice cannot be updated
-    if (["paid", "cancelled"].includes(savedInvoiceStatus)) {
-      return;
-    }
-    let total;
-    if (IGSTRender) {
-      total = IGSTTable?.invoiceTotal;
-    } else {
-      total = GSTTable?.invoiceTotal;
-    }
-    let totalPaid = payment.cash + payment.card + payment.UPI;
-    let due = total - totalPaid;
-    if (due === 0) {
-      setInvoiceStatus("paid");
-    } else if (due < 0) {
-      if (visible) {
-        Modal.error({
-          content: "Error! Customer has paid more than total payable !",
-        });
-      }
-    } else if (due > 0) {
-      setInvoiceStatus("due");
-    }
-  }, [payment, IGSTRender, GSTTable, IGSTTable, savedInvoiceStatus, visible]);
+  // status of a paid/cancelled invoice cannot be updated
+  let total;
+  if (IGSTRender) {
+    total = IGSTTable?.invoiceTotal;
+  } else {
+    total = GSTTable?.invoiceTotal;
+  }
+  let totalPaid = payment.cash + payment.card + payment.UPI;
+  let due = total - totalPaid;
+  if (due === 0) {
+    invoiceStatus = "paid";
+  } else if (due > 0) {
+    invoiceStatus = "due";
+  }
 
   const handleInvoiceClose = () => {
     //if update mode then reset every state to original
     if (updateMode) {
       setInvoiceNumber(0);
       setInvoiceDate(getTodaysDate());
-      setInvoiceStatus("due");
+      invoiceStatus = "due";
       setCustomerDetails({
         name: "",
         address: "",
@@ -198,27 +180,9 @@ function Invoice({
       setGSTTable(null);
       setIGSTTable(null);
       setLoading(false);
-      setIGSTRender(false);
+      IGSTRender = false;
     }
     onCancel();
-  };
-
-  //if customer GSTIN doesn't start with 09, then IGST
-  const handleIGST = (e) => {
-    setCustomerDetails((customerDetails) => ({
-      ...customerDetails,
-      [e.target.name]: e.target.value,
-    }));
-
-    if (
-      e.target.value === "0" ||
-      e.target.value.startsWith("09") ||
-      !e.target.value
-    ) {
-      setIGSTRender(false);
-    } else {
-      setIGSTRender(true);
-    }
   };
 
   const handleInvoiceDate = (e) => {
@@ -317,9 +281,19 @@ function Invoice({
   };
 
   const handleUpdateInvoiceStatus = (status) => {
+
+    if (due < 0) {
+      if (visible) {
+        Modal.error({
+          content: "Error! Customer has paid more than total payable !",
+        });
+      }
+      return;
+    }
+
     //prepare invoice status update to send to backend
     let invoiceStatusData = {
-      invoiceNumber: invoiceNumber,
+      invoiceNumber: savedInvoiceNumber,
       invoiceStatus: status,
       payment: payment,
     };
@@ -343,7 +317,7 @@ function Invoice({
           });
 
           //notify parent to update its props (invoice props)
-          updateInvoiceInParent(invoiceNumber);
+          updateInvoiceInParent(savedInvoiceNumber);
         } else {
           throw Error(result);
         }
@@ -368,7 +342,7 @@ function Invoice({
   };
 
   return (
-    <div className={showHideClassName} onClick={handleInvoiceClose}>
+    <div className={visible ? "invoice display-block" : "invoice display-none"} onClick={handleInvoiceClose}>
       <div className="left-buttons-container">
         <Button
           size="large"
@@ -411,12 +385,12 @@ function Invoice({
           </header>
 
           <header className="invoice-details">
-            <h4> Tax Invoice # {invoiceNumber}</h4>
+            <h4> Tax Invoice # {updateMode ? savedInvoiceNumber : invoiceNumber}</h4>
             <h4>
               Invoice Date:{" "}
               <input
                 type="date"
-                value={invoiceDate}
+                value={updateMode ? savedInvoiceDate : invoiceDate}
                 required="required"
                 disabled={updateMode}
                 onChange={(e) => handleInvoiceDate(e)}
@@ -495,7 +469,7 @@ function Invoice({
               name="POS"
               className="POS"
               value={customerDetails.POS}
-              onChange={handleIGST}
+              onChange={handleCustomerDetails}
               disabled={updateMode}
             >
               {Object.keys(gstStateCodes).map((item) =>
