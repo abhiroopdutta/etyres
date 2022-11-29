@@ -6,33 +6,23 @@ import Invoice from "./Invoice";
 import { message } from "antd";
 import Button from "../Button";
 import { dayjsUTC } from "../dayjsUTCLocal";
-import { useQueryClient } from '@tanstack/react-query'
+import { useQueryClient, useQuery } from '@tanstack/react-query';
+import axios from "axios";
 
 function Cart() {
   const { tyresContext, servicesContext } = useContext(CartContext);
   const [products, setProducts] = tyresContext;
   const [services, setServices] = servicesContext;
   const [cartTotal, setCartTotal] = useState(0);
-  const [invoiceUpdateMode, setInvoiceUpdateMode] = useState(false);
-  const [savedInvoice, setSavedInvoice] = useState({
-    invoiceNumber: 0,
-    invoiceDate: "",
-    invoiceStatus: "",
-    customerDetails: {
-      name: "",
-      address: "",
-      GSTIN: "",
-      stateCode: "",
-      state: "",
-      vehicleNumber: "",
-      contact: "",
-    },
-    payment: { cash: 0, card: 0, UPI: 0 },
-  });
-
   const [previewInvoice, setPreviewInvoice] = useState(false);
+  const [updatedInvoiceNumber, setUpdatedInvoiceNumber] = useState();
   const queryClient = useQueryClient();
-
+  const { isSuccess: isSuccessFetchSavedInvoice, data: savedInvoice, } = useQuery({
+    queryKey: ["invoice", updatedInvoiceNumber],
+    queryFn: () => axios.get(`/api/get_sales_invoice?invoiceNumber=${updatedInvoiceNumber}`),
+    select: (data) => data.data,
+    enabled: !!updatedInvoiceNumber,
+  })
   useEffect(() => {
     let scrollBarWidth = window.innerWidth - document.body.clientWidth;
     if (previewInvoice) {
@@ -122,24 +112,9 @@ function Cart() {
   };
 
   const hideInvoice = () => {
-    if (invoiceUpdateMode) {
+    if (isSuccessFetchSavedInvoice) {
       emptyCart();
-      setInvoiceUpdateMode(false);
-      setSavedInvoice({
-        invoiceNumber: 0,
-        invoiceDate: "",
-        invoiceStatus: "",
-        customerDetails: {
-          name: "",
-          address: "",
-          GSTIN: "",
-          stateCode: "",
-          state: "",
-          vehicleNumber: "",
-          contact: "",
-        },
-        payment: { cash: 0, card: 0, UPI: 0 },
-      });
+      setUpdatedInvoiceNumber(null);
       queryClient.invalidateQueries({
         queryKey: ['products'],
         exact: true,
@@ -194,27 +169,6 @@ function Cart() {
     return;
   };
 
-  const getUpdatedInvoice = (invoiceNumber) => {
-    async function fetchUpdatedInvoice() {
-      try {
-        const response = await fetch(
-          `/api/get_sales_invoice?invoiceNumber=${invoiceNumber}`
-        );
-        const result = await response.json();
-        if (response.ok) {
-          setInvoiceUpdateMode(true);
-          setSavedInvoice(result);
-        } else {
-          throw Error(result);
-        }
-      } catch (err) {
-        console.log(err);
-      }
-    }
-
-    fetchUpdatedInvoice();
-  };
-
   return (
     <div className="cart-container">
       <div className="cart">
@@ -226,21 +180,31 @@ function Cart() {
               className="invoice-button"
               onClick={() => showInvoice()}
             />
-            <Invoice
-              visible={previewInvoice}
-              onCancel={hideInvoice}
-              updateMode={invoiceUpdateMode}
-              products={products}
-              services={services}
-              savedInvoiceNumber={savedInvoice.invoiceNumber}
-              savedInvoiceDate={dayjsUTC(
-                savedInvoice.invoiceDate["$date"]
-              ).format("YYYY-MM-DD")}
-              savedInvoiceStatus={savedInvoice.invoiceStatus}
-              savedCustomerDetails={savedInvoice.customerDetails}
-              savedPayment={savedInvoice.payment}
-              updateInvoiceInParent={getUpdatedInvoice}
-            />
+            {isSuccessFetchSavedInvoice ?
+              <Invoice
+                visible={previewInvoice}
+                onCancel={hideInvoice}
+                updateMode={true}
+                products={savedInvoice.productItems}
+                services={savedInvoice.serviceItems}
+                updateInvoiceInParent={setUpdatedInvoiceNumber}
+                savedInvoiceNumber={savedInvoice.invoiceNumber}
+                savedInvoiceDate={dayjsUTC(
+                  savedInvoice.invoiceDate["$date"]
+                ).format("YYYY-MM-DD")}
+                savedInvoiceStatus={savedInvoice.invoiceStatus}
+                savedCustomerDetails={savedInvoice.customerDetails}
+                savedPayment={savedInvoice.payment}
+              /> :
+              <Invoice
+                visible={previewInvoice}
+                onCancel={hideInvoice}
+                updateMode={false}
+                products={products}
+                services={services}
+                updateInvoiceInParent={setUpdatedInvoiceNumber}
+              />
+            }
           </div>
         </div>
 

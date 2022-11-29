@@ -9,6 +9,8 @@ import {
   ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import gstStateCodes from "./gstStateCodes.json";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 const { confirm } = Modal;
 
 function getTodaysDate() {
@@ -36,7 +38,14 @@ function Invoice({
   savedPayment,
   updateInvoiceInParent,
 }) {
-  const [invoiceNumber, setInvoiceNumber] = useState();
+  const queryClient = useQueryClient();
+  const { data: invoiceNumber } = useQuery({
+    queryKey: ["invoiceNumber"],
+    queryFn: () => axios.get("/api/sales_invoice_number"),
+    select: (data) => data.data,
+    placeholder: 0,
+    enabled: !savedInvoiceNumber,
+  })
   const [invoiceDate, setInvoiceDate] = useState(getTodaysDate());
   let invoiceStatus = "due";
   const [customerDetails, setCustomerDetails] = useState({
@@ -50,9 +59,36 @@ function Invoice({
     contact: "",
   });
   const [payment, setPayment] = useState({ cash: 0, card: 0, UPI: 0 });
-  const [GSTTable, setGSTTable] = useState();
-  const [IGSTTable, setIGSTTable] = useState();
-  const [loading, setLoading] = useState(false);
+  const [taxTable, setTaxTable] = useState({
+    GSTTable: null,
+    IGSTTable: null
+  });
+  const { mutate: fetchInvoiceTable } = useMutation({
+    mutationFn: postBody => {
+      return axios.post('/api/get_gst_tables', postBody);
+    },
+    onSuccess: (response) =>
+      setTaxTable({
+        GSTTable: response.data.GST_table,
+        IGSTTable: response.data.IGST_table
+      })
+  })
+  let { GSTTable, IGSTTable } = taxTable;
+  const { isLoadingPlaceOrder, mutate: placeOrder } = useMutation({
+    mutationFn: postBody => {
+      return axios.post('/api/place_order', postBody)
+    },
+    onSuccess: (response, postBody) => {
+      Modal.success({
+        content: response.data,
+      });
+      //notify parent to update props (update mode and rest of invoice props)
+      queryClient.invalidateQueries({
+        queryKey: ["invoice", postBody.invoiceNumber],
+      });
+      updateInvoiceInParent(postBody.invoiceNumber);
+    }
+  })
   //render different tables depending on IGST customer or not
   let IGSTRender = false;
   const componentRef = useRef(null);
@@ -65,19 +101,11 @@ function Invoice({
       regexStateCode += stateCode + "|";
     }
     const regexGSTINPattern = regexStateCode.replace(/.$/, ")") + "[A-Z]{5}\\d{4}[A-Z]{1}[A-Z\\d]{1}[Z]{1}[A-Z\\d]{1}";
-    console.log(regexGSTINPattern);
     return regexGSTINPattern;
   }, []);
 
   //Get invoice number from backend
   useEffect(() => {
-    async function getNewInvoiceNumber() {
-      fetch("/api/sales_invoice_number")
-        .then((res) => res.json())
-        .then((number) => setInvoiceNumber(number));
-    }
-
-    // Get the invoice number if in create mode otherwise get saved invoice details
     if (updateMode) {
       invoiceStatus = savedInvoiceStatus;
       setCustomerDetails(savedCustomerDetails);
@@ -86,8 +114,6 @@ function Invoice({
       //will be shown as GST sale but CGST, SGST will show 0
       //correction can be done in such invoices by 
       //adding the field POS=savedCustomerDetails.GSTIN.slice(0,2)
-    } else {
-      getNewInvoiceNumber();
     }
   }, [
     updateMode,
@@ -99,40 +125,15 @@ function Invoice({
   ]);
 
   useEffect(() => {
-    let data = {
-      products: products,
-      services: services.filter((service) => {
-        return service.quantity > 0;
-      }),
-    };
-
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    };
-
-    const getTableData = async () => {
-      try {
-        const response = await fetch("/api/get_gst_tables", requestOptions);
-        const result = await response.json();
-        if (response.ok) {
-          setGSTTable(result.GST_table);
-          setIGSTTable(result.IGST_table);
-        } else {
-          throw Error(result);
-        }
-      } catch (err) {
-        Modal.error({
-          content: err.message,
-        });
-        console.log(err.message);
-      }
-    };
-
-    getTableData();
+    if (products.length > 0 || services.some(item => item.quantity > 0)) {
+      fetchInvoiceTable({
+        products: products,
+        services: services.filter((service) => {
+          return service.quantity > 0;
+        }),
+      });
+    }
   }, [products, services]);
-
 
   if (
     customerDetails.POS === "0" ||
@@ -163,9 +164,7 @@ function Invoice({
   const handleInvoiceClose = () => {
     //if update mode then reset every state to original
     if (updateMode) {
-      setInvoiceNumber(0);
       setInvoiceDate(getTodaysDate());
-      invoiceStatus = "due";
       setCustomerDetails({
         name: "",
         address: "",
@@ -177,17 +176,16 @@ function Invoice({
         POS: "09"
       });
       setPayment({ cash: 0, card: 0, UPI: 0 });
-      setGSTTable(null);
-      setIGSTTable(null);
-      setLoading(false);
-      IGSTRender = false;
+      setTaxTable({
+        GSTTable: null,
+        IGSTTable: null
+      });
     }
     onCancel();
   };
 
   const handleInvoiceDate = (e) => {
     setInvoiceDate(e.target.value);
-    console.log(e.target.value);
   };
 
   const handleCustomerDetails = (e) => {
@@ -198,7 +196,6 @@ function Invoice({
   };
 
   const handleConfirmOrder = (e) => {
-    setLoading(true);
     //prepare full invoice data to send to backend
     let invoiceData = {
       invoiceNumber: invoiceNumber,
@@ -219,36 +216,7 @@ function Invoice({
       invoiceData["invoiceRoundOff"] = IGSTTable["invoiceRoundOff"];
     }
 
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(invoiceData),
-    };
-
-    const place_order = async () => {
-      try {
-        const response = await fetch("/api/place_order", requestOptions);
-        const result = await response.json();
-        if (response.ok) {
-          setLoading(false);
-          Modal.success({
-            content: result,
-          });
-
-          //notify parent to update props (update mode and rest of invoice props)
-          updateInvoiceInParent(invoiceNumber);
-        } else {
-          throw Error(result);
-        }
-      } catch (err) {
-        Modal.error({
-          content: err.message,
-        });
-        console.log(err.message);
-      }
-    };
-
-    place_order();
+    placeOrder(invoiceData);
   };
 
   const showConfirm = () => {
@@ -468,9 +436,9 @@ function Invoice({
               id="POS"
               name="POS"
               className="POS"
-              value={customerDetails.POS}
+              value="09" //disabling this input temporarily
               onChange={handleCustomerDetails}
-              disabled={updateMode}
+              disabled
             >
               {Object.keys(gstStateCodes).map((item) =>
                 <option value={item} key={item}>
@@ -719,7 +687,7 @@ function Invoice({
         />
         <Button
           type="default"
-          loading={loading}
+          loading={isLoadingPlaceOrder}
           form="invoice-form"
           htmlType="submit"
           disabled={
