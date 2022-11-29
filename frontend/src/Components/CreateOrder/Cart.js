@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState } from "react";
 import { CartContext } from "./CartContext";
 import CartTyre from "./CartTyre";
 import "./Cart.css";
@@ -13,7 +13,7 @@ function Cart() {
   const { tyresContext, servicesContext } = useContext(CartContext);
   const [products, setProducts] = tyresContext;
   const [services, setServices] = servicesContext;
-  const [cartTotal, setCartTotal] = useState(0);
+  let cartTotal = 0;
   const [previewInvoice, setPreviewInvoice] = useState(false);
   const [updatedInvoiceNumber, setUpdatedInvoiceNumber] = useState();
   const queryClient = useQueryClient();
@@ -23,34 +23,29 @@ function Cart() {
     select: (data) => data.data,
     enabled: !!updatedInvoiceNumber,
   })
-  useEffect(() => {
-    let scrollBarWidth = window.innerWidth - document.body.clientWidth;
-    if (previewInvoice) {
-      document.body.style.overflowY = "hidden";
-      document.body.style.width = `calc(100% - ${scrollBarWidth}px)`;
-    } else {
-      setTimeout(() => {
-        document.body.style.overflowY = "scroll";
-        document.body.style.width = `100%`;
-      }, 300);
-    }
-  }, [previewInvoice]);
 
-  useEffect(() => {
-    let productTotal = products.reduce(
-      (productTotal, product) =>
-        productTotal + product.price * product.quantity,
-      0
-    );
+  let scrollBarWidth = window.innerWidth - document.body.clientWidth;
+  if (previewInvoice) {
+    document.body.style.overflowY = "hidden";
+    document.body.style.width = `calc(100% - ${scrollBarWidth}px)`;
+  } else {
+    document.body.style.overflowY = "scroll";
+    document.body.style.width = `100%`;
+  }
 
-    let serviceTotal = services.reduce(
-      (serviceTotal, service) =>
-        serviceTotal + service.price * service.quantity,
-      0
-    );
+  let productTotal = products.reduce(
+    (productTotal, product) =>
+      productTotal + product.price * product.quantity,
+    0
+  );
 
-    setCartTotal(Math.round(productTotal + serviceTotal));
-  }, [products, services]);
+  let serviceTotal = services.reduce(
+    (serviceTotal, service) =>
+      serviceTotal + service.price * service.quantity,
+    0
+  );
+
+  cartTotal = Math.round(productTotal + serviceTotal);
 
   const handleServicesPrice = (serviceName, e) => {
     let price;
