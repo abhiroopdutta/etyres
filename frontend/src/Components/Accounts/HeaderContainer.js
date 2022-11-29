@@ -1,8 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import styles from "./HeaderContainer.module.css";
-import { message, Modal, Form, Input, Layout, Select } from "antd";
+import { message, Modal, Form, Input, Layout, Select, Button } from "antd";
 import { SearchOutlined, InfoCircleOutlined } from "@ant-design/icons";
-import Button from "../Button";
 import { dayjsUTC } from "../dayjsUTCLocal";
 
 const { Option } = Select;
@@ -57,10 +56,10 @@ function HeaderContainer({ headers, setHeadersUpdated, selectedHeader, setSelect
                 <div className={styles["entities-header"]}>
                     <h5 className={styles["entities-title"]}>Headers</h5>
                     <Button
-                        text="+"
                         className={styles["add-entity-btn"]}
                         onClick={showModal}
-                    />
+                        type="default"
+                    >+</Button>
 
                 </div>
                 <div className={styles["entities-search"]}>
@@ -137,8 +136,8 @@ function HeaderContainer({ headers, setHeadersUpdated, selectedHeader, setSelect
                         <Form.Item wrapperCol={{ offset: 8, span: 16 }} style={{
                             margin: "0",
                         }}>
-                            <Button text="Add header" loading={loading} type="primary" htmlType="submit">
-                                Submit
+                            <Button loading={loading} type="primary" htmlType="submit">
+                                Add header
                             </Button>
                         </Form.Item>
                     </Form>

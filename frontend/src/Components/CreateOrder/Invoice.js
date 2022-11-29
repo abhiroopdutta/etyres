@@ -319,12 +319,12 @@ function Invoice({
             handlePrintInvoice();
             e.stopPropagation();
           }}
-          type="default"
+          type="primary"
           icon={<PrinterFilled />}
         ></Button>
 
         <Button
-          type="default"
+          type="primary"
           disabled={!updateMode || savedInvoiceStatus === "cancelled"}
           onClick={(e) => {
             showConfirm();
@@ -681,12 +681,12 @@ function Invoice({
       <div className="right-buttons-container">
         <Button
           size="large"
-          type="default"
+          type="primary"
           onClick={onCancel}
           icon={<CloseCircleFilled />}
         />
         <Button
-          type="default"
+          type="primary"
           loading={isLoadingPlaceOrder}
           form="invoice-form"
           htmlType="submit"

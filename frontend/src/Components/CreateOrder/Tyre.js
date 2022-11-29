@@ -3,7 +3,10 @@ import { CartContext } from "./CartContext";
 import "./Tyre.css";
 import TyreImg from "./tyre-img.png";
 import tubeImg from "./tube.png";
-import Button from "../Button";
+import { Button } from "antd";
+import {
+  ShoppingCartOutlined,
+} from "@ant-design/icons";
 
 //object deconstruction in props
 function Tyre({ tyreData }) {
@@ -71,7 +74,9 @@ function Tyre({ tyreData }) {
       </div>
       <div className="product-stock">Items in stock:{tyreData.stock}</div>
       <div className="product-button">
-        <Button text="Add to Cart" onClick={() => addToCart(tyreData)} />
+        <Button type="default" onClick={() => addToCart(tyreData)} icon={<ShoppingCartOutlined />}>
+          Add to Cart
+        </Button>
       </div>
     </div>
   );

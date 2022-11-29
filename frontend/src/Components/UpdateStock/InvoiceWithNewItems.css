@@ -50,7 +50,7 @@ table.invoice-with-new-items-table tr:last-child td {
   padding: 0px 0px 5px 0px;
 }
 
-.add-to-inventory-button {
-  padding: 5px;
-  font-size: 13px;
+button.add-to-inventory-button {
+  letter-spacing: 1px;
+  padding: 5px 10px;
 }

@@ -32,7 +32,8 @@
   background: var(--dark) !important;
 }
 
-.ant-btn-primary {
+.ant-btn-primary,
+.ant-btn-default {
   text-decoration: none;
   color: var(--lightest);
   border: none;
@@ -44,16 +45,28 @@
     background-color 0.1s ease-in-out;
 }
 
-.ant-btn-primary:active {
+.ant-btn-default {
+  border-radius: 10px;
+  padding: 18px 10px;
+  display: flex;
+  align-items: center;
+}
+.ant-btn-primary:active,
+.ant-btn-default:active {
   box-shadow: 0 2px var(--darkest);
   transform: translateY(2px);
+  color: var(--lightest);
 }
 
-.ant-btn-primary:hover {
+.ant-btn-primary:hover,
+.ant-btn-default:hover {
+  color: var(--lightest);
   background-color: var(--darkest);
 }
 
-.ant-btn-primary:focus {
+.ant-btn-primary:focus,
+.ant-btn-default:focus {
+  color: var(--lightest);
   background-color: var(--darkest);
 }
 
@@ -87,34 +100,6 @@
 
 .anticon-edit:focus {
   color: var(--darkest);
-}
-
-.ant-btn-default {
-  text-decoration: none;
-  color: var(--lightest);
-  border: none;
-  border-radius: 6px;
-  background-color: var(--darker);
-  cursor: pointer;
-  font-weight: 600;
-  transition: box-shadow 0.1s ease-in-out, transform 0.2s ease-in-out,
-    background-color 0.1s ease-in-out;
-}
-
-.ant-btn-default:active {
-  box-shadow: 0 2px var(--darkest);
-  transform: translateY(5px);
-  color: var(--lightest);
-}
-
-.ant-btn-default:hover {
-  background-color: var(--darkest);
-  color: var(--lightest);
-}
-
-.ant-btn-default:focus {
-  background-color: var(--darkest);
-  color: var(--lightest);
 }
 
 .ant-modal-content {

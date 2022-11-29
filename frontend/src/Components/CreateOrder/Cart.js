@@ -3,8 +3,7 @@ import { CartContext } from "./CartContext";
 import CartTyre from "./CartTyre";
 import "./Cart.css";
 import Invoice from "./Invoice";
-import { message } from "antd";
-import Button from "../Button";
+import { message, Button } from "antd";
 import { dayjsUTC } from "../dayjsUTCLocal";
 import { useQueryClient, useQuery } from '@tanstack/react-query';
 import axios from "axios";
@@ -171,10 +170,12 @@ function Cart() {
           <div className="cart-title">CART SUMMARY</div>
           <div className="cart-invoice">
             <Button
-              text="Preview Invoice"
+              type="default"
               className="invoice-button"
               onClick={() => showInvoice()}
-            />
+            >
+              Preview Invoice
+            </Button>
             {isSuccessFetchSavedInvoice ?
               <Invoice
                 visible={previewInvoice}

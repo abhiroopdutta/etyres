@@ -172,7 +172,7 @@ function UpdatePrice() {
         <span style={{ margin: "10px" }}>{selectedFile?.name}</span>
         <br />
         <br />
-        <Button loading={loading} onClick={handleSubmission}>
+        <Button loading={loading} onClick={handleSubmission} type="primary">
           Submit
         </Button>
       </Content>

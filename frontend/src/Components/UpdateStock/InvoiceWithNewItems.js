@@ -3,7 +3,7 @@ import "./InvoiceWithNewItems.css";
 import AddItem from "./AddItem";
 import React from "react";
 import { useTransition, animated } from "@react-spring/web";
-import Button from "../Button";
+import { Button } from "antd";
 
 function InvoiceWithNewItems({ invoice, dispatchInvoicesWithNewItems }) {
   const [showModal, setShowModal] = useState(false);
@@ -52,10 +52,12 @@ function InvoiceWithNewItems({ invoice, dispatchInvoicesWithNewItems }) {
                 <td>
                   {item.not_found_in_inventory ? (
                     <Button
+                      type="primary"
                       className="add-to-inventory-button"
                       onClick={() => handleUpdateInventory(item)}
-                      text="Add to Inventory"
-                    />
+                    >
+                      +
+                    </Button>
                   ) : (
                     <div>&#9989;</div>
                   )}

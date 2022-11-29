@@ -1,8 +1,7 @@
 import "./AddItem.css";
 import { useState } from "react";
 import React from "react";
-import { message } from "antd";
-import Button from "../Button";
+import { message, Button } from "antd";
 
 function roundToTwo(num) {
   return +(Math.round(num + "e+2") + "e-2");
@@ -112,11 +111,13 @@ function AddItem({
 
         <footer className="add-item-footer">
           <Button
-            text="Add to Inventory"
+            type="default"
             className="add-item-modal-button"
             loading={loading}
             onClick={handleAddtoInventory}
-          />
+          >
+            Add to Inventory
+          </Button>
         </footer>
       </div>
     </div>

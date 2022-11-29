@@ -116,6 +116,7 @@ function Accounts() {
                     <Button
                         onClick={showModal}
                         style={{ marginBottom: "40px" }}
+                        type="primary"
                     >
                         + Add new transaction
                     </Button>
