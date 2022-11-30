@@ -48,9 +48,18 @@ def get_sales_report(filters = {}, sorters = {}, pageRequest = 1, maxItemsPerPag
     results["pagination"]["pageSize"] = len(results["data"])
     return results
 
-def get_purchase_report(filters = {}, sorters = {}, pageRequest = 1, maxItemsPerPage = 5):
+def get_purchase_report(
+    invoiceNumber= "",
+    invoiceDateFrom= "",
+    invoiceDateTo= "",
+    claimInvoice= "",
+    pageRequest= 1,
+    maxItemsPerPage= 5,
+):
+    pageRequest = int(pageRequest)
+    maxItemsPerPage = int(maxItemsPerPage)
     results = {
-        "data": [],
+        "invoices": [],
         "pagination": { 
             "pageNumber": 0, 
             "pageSize": 0, 
@@ -61,22 +70,22 @@ def get_purchase_report(filters = {}, sorters = {}, pageRequest = 1, maxItemsPer
     page_end = pageRequest*maxItemsPerPage
     query = Q(invoiceNumber__gte=0) # dummy query
     
-    if (filters["invoiceNumber"].isnumeric()):
-        query &= Q(invoiceNumber=int(filters["invoiceNumber"]))
-    if (filters["claimInvoice"]):
-        if (filters["claimInvoice"] == "true"):
+    if (invoiceNumber.isnumeric()):
+        query &= Q(invoiceNumber=int(invoiceNumber))
+    if (claimInvoice):
+        if (claimInvoice == "true"):
             query &= Q(claimInvoice=True)
         else:
             query &= Q(claimInvoice=False)
-    if (filters["invoiceDate"]["start"] and filters["invoiceDate"]["end"]):
-        start_datetime = datetime.datetime.strptime(filters["invoiceDate"]["start"][:10] + " " + "00:00:00", '%Y-%m-%d %H:%M:%S')
-        end_datetime = datetime.datetime.strptime(filters["invoiceDate"]["end"][:10] + " " + "23:59:59", '%Y-%m-%d %H:%M:%S')
+    if (invoiceDateFrom and invoiceDateTo):
+        start_datetime = datetime.datetime.strptime(invoiceDateFrom[:10] + " " + "00:00:00", '%Y-%m-%d %H:%M:%S')
+        end_datetime = datetime.datetime.strptime(invoiceDateTo[:10] + " " + "23:59:59", '%Y-%m-%d %H:%M:%S')
         query &= Q(invoiceDate__gte=start_datetime) & Q(invoiceDate__lte=end_datetime)
 
-    results["data"] = Purchase.objects(query).order_by('-invoiceDate')[page_start:page_end]
+    results["invoices"] = Purchase.objects(query).order_by('-invoiceDate')[page_start:page_end]
     results["pagination"]["totalResults"] = Purchase.objects(query).order_by('-invoiceDate')[page_start:page_end].count()
     results["pagination"]["pageNumber"] = pageRequest
-    results["pagination"]["pageSize"] = len(results["data"])
+    results["pagination"]["pageSize"] = len(results["invoices"])
     return results
 
 def report_handler(report_req_info):

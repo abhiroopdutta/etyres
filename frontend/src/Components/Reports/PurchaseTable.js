@@ -18,74 +18,67 @@ import {
 } from "@ant-design/icons";
 import PurchaseInvoiceModal from "./PurchaseInvoiceModal.js";
 import { dayjsUTC } from "../dayjsUTCLocal";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 const { Content } = Layout;
 const { Title, Text } = Typography;
 
 function PurchaseTable({ exportToExcel }) {
-  const [filters, setFilters] = useState({
+  const [query, setQuery] = useState({
     invoiceNumber: "",
-    invoiceDate: { start: "", end: "" },
-    invoiceTotal: "",
+    invoiceDateFrom: "",
+    invoiceDateTo: "",
     claimInvoice: "",
-  });
-  const [sorters, setSorters] = useState({});
-  const [pageRequest, setPageRequest] = useState(1);
-  const [maxItemsPerPage, setMaxItemsPerPage] = useState(5);
+    pageRequest: 1,
+    maxItemsPerPage: 5,
+  })
   const [currentPage, setCurrentPage] = useState({});
-  const [salesInvoices, setSalesInvoices] = useState([]);
-  const [loading, setLoading] = useState(false);
   const searchInputRef = useRef();
   const [showInvoice, setShowInvoice] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState({});
 
-  useEffect(() => {
-    let didCancel = false; // avoid fetch race conditions or set state on unmounted components
-    async function fetchTableData() {
-      setLoading(true);
-
-      const requestOptions = {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          reportType: "purchase",
-          filters: {
-            ...filters,
-            invoiceDate: {
-              start: filters.invoiceDate.start === "" ? "" : filters.invoiceDate.start.format("YYYY-MM-DD"),
-              end: filters.invoiceDate.end === "" ? "" : filters.invoiceDate.end.format("YYYY-MM-DD"),
-            }
-          },
-          sorters: sorters,
-          pageRequest: pageRequest,
-          maxItemsPerPage: maxItemsPerPage,
-          export: { required: false, type: "" },
-        }),
-      };
-      try {
-        const response = await fetch("/api/reports", requestOptions);
-        const result = await response.json();
-        if (response.ok && !didCancel) {
-          setSalesInvoices(result.data);
-          setCurrentPage(result.pagination);
-          setLoading(false);
+  const { isLoading: isLoadingFetchPurchaseInvoices, data: purchaseInvoices, } = useQuery({
+    queryKey: ["purchase", query],
+    queryFn: () => axios.get("/api/purchase-invoices?" + new URLSearchParams({
+      ...query,
+      invoiceDateFrom: query.invoiceDateFrom ? query.invoiceDateFrom.format("YYYY-MM-DD") : "",
+      invoiceDateTo: query.invoiceDateTo ? query.invoiceDateTo.format("YYYY-MM-DD") : "",
+    }).toString()),
+    select: (result) => {
+      let invoices = result.data.invoices;
+      if (invoices.length !== query.maxItemsPerPage) {
+        let dummyRows = [];
+        for (let i = 1; i <= query.maxItemsPerPage - invoices.length; i++) {
+          dummyRows.push({ invoiceNumber: i / 10 });
         }
-      } catch (err) {
-        if (!didCancel) {
-          Modal.error({
-            content: err.message,
-          });
-          console.log(err.message);
-        }
+        return {
+          invoices: [...invoices, ...dummyRows],
+          pagination: result.data.pagination,
+        };
       }
-    }
-    fetchTableData();
-    return () => {
-      didCancel = true;
-    };
-  }, [filters, sorters, pageRequest, maxItemsPerPage]);
-
+      return {
+        invoices: result.data.invoices,
+        pagination: result.data.pagination,
+      };
+    },
+    onSuccess: (result) => {
+      setCurrentPage(result.pagination);
+    },
+    placeholderData: () => {
+      let dummyRows = [];
+      for (let i = 1; i <= query.maxItemsPerPage; i++) {
+        dummyRows.push({ invoiceNumber: i / 10 });
+      }
+      return {
+        data: {
+          invoices: dummyRows,
+          pagination: {},
+        }
+      };
+    },
+  });
   const getSearchMenu = (dataIndex) => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
       <div style={{ padding: 8 }}>
@@ -113,13 +106,12 @@ function PurchaseTable({ exportToExcel }) {
       </div>
     ),
   });
-
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
+    setQuery(oldState => ({
+      ...oldState,
       [dataIndex]: selectedKeys[0] ?? "",
+      pageRequest: 1
     }));
-    setPageRequest(1);
     confirm();
   };
 
@@ -145,14 +137,12 @@ function PurchaseTable({ exportToExcel }) {
   });
 
   const handleDateRange = (dataIndex, confirm, selectedKeys) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      [dataIndex]: {
-        start: selectedKeys[0] ?? "",
-        end: selectedKeys[1] ?? "",
-      },
+    setQuery(oldState => ({
+      ...oldState,
+      invoiceDateFrom: selectedKeys[0] ?? "",
+      invoiceDateTo: selectedKeys[1] ?? "",
+      pageRequest: 1
     }));
-    setPageRequest(1);
     confirm();
   };
 
@@ -176,34 +166,27 @@ function PurchaseTable({ exportToExcel }) {
   });
 
   const handleDropDownMenuChange = (dataIndex, confirm, value) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
+    setQuery(oldState => ({
+      ...oldState,
       [dataIndex]: value,
+      pageRequest: 1
     }));
-    setPageRequest(1);
     confirm();
   };
 
   const handlePageChange = (pagination) => {
     let itemsAlreadyRequested = (pagination.current - 1) * pagination.pageSize;
     if (itemsAlreadyRequested <= pagination.total)
-      setPageRequest(pagination.current);
+      setQuery(oldState => ({ ...oldState, pageRequest: pagination.current }));
   };
 
   const handleExport = (exportType) => {
     exportToExcel({
-      reportType: "purchase",
-      filters: {
-        ...filters,
-        invoiceDate: {
-          start: filters.invoiceDate.start === "" ? "" : filters.invoiceDate.start.format("YYYY-MM-DD"),
-          end: filters.invoiceDate.end === "" ? "" : filters.invoiceDate.end.format("YYYY-MM-DD"),
-        }
-      },
-      sorters: sorters,
-      pageRequest: 1,
-      maxItemsPerPage: 10000,
-      export: { required: true, type: exportType },
+      ...query,
+      invoiceDateFrom: query.invoiceDateFrom ? query.invoiceDateFrom.format("YYYY-MM-DD") : "",
+      invoiceDateTo: query.invoiceDateTo ? query.invoiceDateTo.format("YYYY-MM-DD") : "",
+      exportRequired: true,
+      exportType: "regular",
     });
   };
 
@@ -229,7 +212,7 @@ function PurchaseTable({ exportToExcel }) {
         }
       },
       render: (invoiceNumber) => (invoiceNumber >= 1 ? invoiceNumber : null),
-      filteredValue: filters.invoiceNumber ? [filters.invoiceNumber] : null,
+      filteredValue: query.invoiceNumber ? [query.invoiceNumber] : null,
     },
     {
       title: "Invoice Date",
@@ -241,8 +224,8 @@ function PurchaseTable({ exportToExcel }) {
           : null,
       ...getDateRangeMenu("invoiceDate"),
       filteredValue:
-        filters.invoiceDate.start && filters.invoiceDate.end
-          ? [filters.invoiceDate.start, filters.invoiceDate.end]
+        query.invoiceDateFrom && query.invoiceDateTo
+          ? [query.invoiceDateFrom, query.invoiceDateTo]
           : null,
     },
     {
@@ -301,7 +284,7 @@ function PurchaseTable({ exportToExcel }) {
       },
 
       ...getDropDownMenu("claimInvoice"),
-      filteredValue: filters.claimInvoice ? [filters.claimInvoice] : null,
+      filteredValue: query.claimInvoice ? [query.claimInvoice] : null,
     },
     {
       title: "Action",
@@ -329,13 +312,7 @@ function PurchaseTable({ exportToExcel }) {
     },
   ];
 
-  if (salesInvoices.length !== maxItemsPerPage) {
-    let dummyRows = [];
-    for (let i = 1; i <= maxItemsPerPage - salesInvoices.length; i++) {
-      dummyRows.push({ invoiceNumber: i / 10 });
-    }
-    setSalesInvoices((prevInvoices) => [...prevInvoices, ...dummyRows]);
-  }
+
 
   return (
     <Content>
@@ -355,14 +332,14 @@ function PurchaseTable({ exportToExcel }) {
       </Space>
 
       <Table
-        loading={loading}
+        loading={isLoadingFetchPurchaseInvoices}
         columns={columns}
-        dataSource={salesInvoices}
+        dataSource={purchaseInvoices?.invoices}
         rowKey={(invoice) => invoice.invoiceNumber}
         pagination={{
           simple: true,
           current: currentPage.pageNumber,
-          pageSize: maxItemsPerPage,
+          pageSize: query.maxItemsPerPage,
           total: currentPage.totalResults,
         }}
         onChange={handlePageChange}

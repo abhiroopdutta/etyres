@@ -4,7 +4,7 @@ from db import initialize_db
 from update_price import get_pv_price_details, update_price, load_to_db
 from update_stock import read_invoices, update_stock, process_invoice
 from create_order import create_order, compute_gst_tables, update_invoice_status, update_purchase_invoice_status
-from sales_report import report_handler, reset_stock, get_sales_report
+from sales_report import report_handler, reset_stock, get_sales_report, get_purchase_report
 from account import add_header_item, add_transaction_item, get_filtered_transactions
 from models import Header, Product, Purchase, Sale
 from datetime import date, datetime
@@ -151,6 +151,11 @@ def get_reports():
     report_req_info = request.get_json()
     filename = report_handler(report_req_info)
     return jsonify(filename)
+@app.route("/api/purchase-invoices", methods = ['GET'])
+def get_purchase_reports():
+    args = request.args.to_dict()
+    result = get_purchase_report(**args)
+    return result
 
 @app.route("/api/download", methods = ['GET'])
 def download():
