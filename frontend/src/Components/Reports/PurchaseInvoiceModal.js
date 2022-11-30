@@ -1,6 +1,12 @@
 import React, { useMemo } from "react";
-import { Modal, Table, Typography, Space, Layout, Divider } from "antd";
+import { Modal, Table, Typography, Space, Layout, Divider, Button } from "antd";
+import {
+  DeleteOutlined,
+  ExclamationCircleOutlined
+} from "@ant-design/icons";
 import { dayjsUTC } from "../dayjsUTCLocal";
+const { confirm } = Modal;
+
 const { Title } = Typography;
 
 function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
@@ -64,6 +70,26 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
     ],
     []
   );
+  const showConfirm = () => {
+    confirm({
+      centered: true,
+      title: "Are you sure you want to cancel this invoice?",
+      icon: <ExclamationCircleOutlined />,
+      content:
+        "This will reverse the product stock, please make sure to tally with physical stock",
+
+      onOk() {
+        handleCancelInvoice("cancelled");
+      },
+
+      onCancel() {
+        console.log("Invoice Cancellation aborted");
+      },
+    });
+  };
+  const handleCancelInvoice = () => {
+    console.log(invoice.invoiceNumber);
+  };
 
   return (
     <Modal
@@ -79,9 +105,20 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
           margin: "15px auto",
         }}
       >
-        <Space style={{ display: "flex", justifyContent: "space-between" }}>
-          <Title level={4}>Invoice No. {invoice.invoiceNumber}</Title>
-          <Title level={5}>
+        <Space style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <Title level={4} >Invoice No. {invoice.invoiceNumber} </Title>
+            <Title level={5} style={{ margin: "0" }}>
+              Invoice Status: Cancelled
+            </Title>
+            <Title level={5} style={{ margin: "0" }}>
+              Name: Apollo Tyres
+            </Title>
+            <Title level={5} style={{ margin: "0" }}>
+              GSTIN: 09FWTPD4101B1ZT
+            </Title>
+          </div >
+          <Title level={5} style={{ margin: "0" }}>
             Invoice Date:
             {invoice.invoiceDate
               ? dayjsUTC(invoice.invoiceDate["$date"]).format("DD/MM/YYYY")
@@ -103,8 +140,14 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
           }
           pagination={false}
         />
-        <Space style={{ display: "flex", justifyContent: "flex-end" }}>
-          <Title style={{ padding: "10px 20px 0px 20px" }} level={4}>
+        <Space style={{ display: "flex", justifyContent: "space-between", padding: "15px 0px 0px 0px" }}>
+          <Button
+            icon={<DeleteOutlined />}
+            onClick={showConfirm}
+          >
+            Cancel invoice
+          </Button>
+          <Title level={4}>
             Total &#x20B9;{invoice.invoiceTotal}
           </Title>
         </Space>
