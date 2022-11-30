@@ -18,34 +18,81 @@ import {
 } from "@ant-design/icons";
 import Invoice from "../CreateOrder/Invoice";
 import { dayjsUTC } from "../dayjsUTCLocal";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 const { RangePicker } = DatePicker;
 const { Content } = Layout;
 const { Title, Text } = Typography;
 const { Option } = Select;
 
 function SalesTable({ exportToExcel }) {
-  const [filters, setFilters] = useState({
+  const [query, setQuery] = useState({
     invoiceNumber: "",
-    invoiceDate: { start: "", end: "" },
-    invoiceTotal: "",
+    invoiceDateFrom: "",
+    invoiceDateTo: "",
     invoiceStatus: ["due", "paid", "cancelled"],
     customerName: "",
     customerContact: "",
     customerVehicleNumber: "",
     customerGSTIN: "",
+    pageRequest: 1,
+    maxItemsPerPage: 5,
   });
-  const [sorters, setSorters] = useState({});
-  const [pageRequest, setPageRequest] = useState(1);
-  const [maxItemsPerPage, setMaxItemsPerPage] = useState(5);
+
   const [currentPage, setCurrentPage] = useState({});
-  const [salesInvoices, setSalesInvoices] = useState([]);
-  const [loading, setLoading] = useState(false);
   const searchInputRef = useRef();
   const [showInvoice, setShowInvoice] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState({});
   const [invoiceUpdateSignal, setInvoiceUpdateSignal] = useState({
     invoiceNumber: 0,
     updateCount: 0,
+  });
+  const { isLoading: isLoadingFetchSalesInvoices, data: salesInvoices, } = useQuery({
+    queryKey: ["sale", query],
+    queryFn: () => {
+      let queryParams = new URLSearchParams({
+        ...query,
+        invoiceDateFrom: query.invoiceDateFrom ? query.invoiceDateFrom.format("YYYY-MM-DD") : "",
+        invoiceDateTo: query.invoiceDateTo ? query.invoiceDateTo.format("YYYY-MM-DD") : "",
+      });
+      queryParams.delete("invoiceStatus");
+      query.invoiceStatus.forEach(element => {
+        queryParams.append("invoiceStatus", element);
+      });
+      return axios.get("/api/sale-invoices?" + queryParams.toString());
+    },
+    select: (result) => {
+      let invoices = result.data.invoices;
+      if (invoices.length !== query.maxItemsPerPage) {
+        let dummyRows = [];
+        for (let i = 1; i <= query.maxItemsPerPage - invoices.length; i++) {
+          dummyRows.push({ invoiceNumber: i / 10 });
+        }
+        return {
+          invoices: [...invoices, ...dummyRows],
+          pagination: result.data.pagination,
+        };
+      }
+      return {
+        invoices: result.data.invoices,
+        pagination: result.data.pagination,
+      };
+    },
+    onSuccess: (result) => {
+      setCurrentPage(result.pagination);
+    },
+    placeholderData: () => {
+      let dummyRows = [];
+      for (let i = 1; i <= query.maxItemsPerPage; i++) {
+        dummyRows.push({ invoiceNumber: i / 10 });
+      }
+      return {
+        data: {
+          invoices: dummyRows,
+          pagination: {},
+        }
+      };
+    },
   });
   useEffect(() => {
     if (showInvoice) {
@@ -55,62 +102,16 @@ function SalesTable({ exportToExcel }) {
     }
   }, [showInvoice]);
 
-  useEffect(() => {
-    let didCancel = false; // avoid fetch race conditions or set state on unmounted components
-    async function fetchTableData() {
-      setLoading(true);
-
-      const requestOptions = {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          reportType: "sale",
-          filters: {
-            ...filters,
-            invoiceDate: {
-              start: filters.invoiceDate.start === "" ? "" : filters.invoiceDate.start.format("YYYY-MM-DD"),
-              end: filters.invoiceDate.end === "" ? "" : filters.invoiceDate.end.format("YYYY-MM-DD"),
-            }
-          },
-          sorters: sorters,
-          pageRequest: pageRequest,
-          maxItemsPerPage: maxItemsPerPage,
-          export: { required: false, type: "" },
-        }),
-      };
-      try {
-        const response = await fetch("/api/reports", requestOptions);
-        const result = await response.json();
-        if (response.ok && !didCancel) {
-          setSalesInvoices(result.data);
-          setCurrentPage(result.pagination);
-          setLoading(false);
-        }
-      } catch (err) {
-        if (!didCancel) {
-          Modal.error({
-            content: err.message,
-          });
-          console.log(err.message);
-        }
-      }
-    }
-    fetchTableData();
-    return () => {
-      didCancel = true;
-    };
-  }, [filters, sorters, pageRequest, maxItemsPerPage, invoiceUpdateSignal]);
-
-  useEffect(() => {
-    if (invoiceUpdateSignal.invoiceNumber === 0) {
-      return;
-    }
-    setSelectedInvoice(
-      salesInvoices.find(
-        (invoice) => invoice.invoiceNumber === invoiceUpdateSignal.invoiceNumber
-      )
-    );
-  }, [salesInvoices, invoiceUpdateSignal]);
+  // useEffect(() => {
+  //   if (invoiceUpdateSignal.invoiceNumber === 0) {
+  //     return;
+  //   }
+  //   setSelectedInvoice(
+  //     salesInvoices.find(
+  //       (invoice) => invoice.invoiceNumber === invoiceUpdateSignal.invoiceNumber
+  //     )
+  //   );
+  // }, [salesInvoices, invoiceUpdateSignal]);
 
   const getSearchMenu = (dataIndex) => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
@@ -141,11 +142,11 @@ function SalesTable({ exportToExcel }) {
   });
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
+    setQuery((oldState) => ({
+      ...oldState,
       [dataIndex]: selectedKeys[0] ?? "",
+      pageRequest: 1,
     }));
-    setPageRequest(1);
     confirm();
   };
 
@@ -171,14 +172,12 @@ function SalesTable({ exportToExcel }) {
   });
 
   const handleDateRange = (dataIndex, confirm, selectedKeys) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      [dataIndex]: {
-        start: selectedKeys[0] ?? "",
-        end: selectedKeys[1] ?? "",
-      },
+    setQuery(oldState => ({
+      ...oldState,
+      invoiceDateFrom: selectedKeys[0] ?? "",
+      invoiceDateTo: selectedKeys[1] ?? "",
+      pageRequest: 1
     }));
-    setPageRequest(1);
     confirm();
   };
 
@@ -190,12 +189,13 @@ function SalesTable({ exportToExcel }) {
           defaultValue={["due", "paid", "cancelled"]}
           style={{ width: 120 }}
           onChange={(value) =>
-            setFilters((prevFilters) => ({
-              ...prevFilters,
+            setQuery((oldState) => ({
+              ...oldState,
               [dataIndex]: value,
+              pageRequest: 1,
             }))
           }
-          onBlur={() => handleDropDownMenuChange(confirm)}
+          onBlur={confirm}
         >
           <Option value="paid">Paid</Option>
           <Option value="due">Due</Option>
@@ -206,30 +206,26 @@ function SalesTable({ exportToExcel }) {
     filtered: true,
   });
 
-  const handleDropDownMenuChange = (confirm) => {
-    setPageRequest(1);
-    confirm();
-  };
   const handlePageChange = (pagination) => {
     let itemsAlreadyRequested = (pagination.current - 1) * pagination.pageSize;
     if (itemsAlreadyRequested <= pagination.total)
-      setPageRequest(pagination.current);
+      setQuery(oldState => ({
+        ...oldState,
+        pageRequest: pagination.current,
+      }))
   };
 
   const handleExport = (exportType) => {
     exportToExcel({
       reportType: "sale",
-      filters: {
-        ...filters,
-        invoiceDate: {
-          start: filters.invoiceDate.start === "" ? "" : filters.invoiceDate.start.format("YYYY-MM-DD"),
-          end: filters.invoiceDate.end === "" ? "" : filters.invoiceDate.end.format("YYYY-MM-DD"),
-        }
+      exportType: exportType,
+      query: {
+        ...query,
+        invoiceDateFrom: query.invoiceDateFrom ? query.invoiceDateFrom.format("YYYY-MM-DD") : "",
+        invoiceDateTo: query.invoiceDateTo ? query.invoiceDateTo.format("YYYY-MM-DD") : "",
+        pageRequest: 1,
+        maxItemsPerPage: 10000,
       },
-      sorters: sorters,
-      pageRequest: 1,
-      maxItemsPerPage: 10000,
-      export: { required: true, type: exportType },
     });
   };
 
@@ -266,7 +262,7 @@ function SalesTable({ exportToExcel }) {
         }
       },
       render: (invoiceNumber) => (invoiceNumber >= 1 ? invoiceNumber : null),
-      filteredValue: filters.invoiceNumber ? [filters.invoiceNumber] : null,
+      filteredValue: query.invoiceNumber ? [query.invoiceNumber] : null,
     },
     {
       title: "Invoice Date",
@@ -278,8 +274,8 @@ function SalesTable({ exportToExcel }) {
           : null,
       ...getDateRangeMenu("invoiceDate"),
       filteredValue:
-        filters.invoiceDate.start && filters.invoiceDate.end
-          ? [filters.invoiceDate.start, filters.invoiceDate.end]
+        query.invoiceDateFrom && query.invoiceDateTo
+          ? [query.invoiceDateFrom, query.invoiceDateTo]
           : null,
     },
     {
@@ -299,7 +295,7 @@ function SalesTable({ exportToExcel }) {
           setTimeout(() => searchInputRef.current.select(), 100);
         }
       },
-      filteredValue: filters.customerName ? [filters.customerName] : null,
+      filteredValue: query.customerName ? [query.customerName] : null,
     },
     {
       title: "Customer Contact",
@@ -311,7 +307,7 @@ function SalesTable({ exportToExcel }) {
           setTimeout(() => searchInputRef.current.select(), 100);
         }
       },
-      filteredValue: filters.customerContact ? [filters.customerContact] : null,
+      filteredValue: query.customerContact ? [query.customerContact] : null,
     },
     {
       title: "Customer Vehicle No.",
@@ -323,8 +319,8 @@ function SalesTable({ exportToExcel }) {
           setTimeout(() => searchInputRef.current.select(), 100);
         }
       },
-      filteredValue: filters.customerVehicleNumber
-        ? [filters.customerVehicleNumber]
+      filteredValue: query.customerVehicleNumber
+        ? [query.customerVehicleNumber]
         : null,
     },
     {
@@ -337,7 +333,7 @@ function SalesTable({ exportToExcel }) {
           setTimeout(() => searchInputRef.current.select(), 100);
         }
       },
-      filteredValue: filters.customerGSTIN ? [filters.customerGSTIN] : null,
+      filteredValue: query.customerGSTIN ? [query.customerGSTIN] : null,
     },
     {
       title: "Invoice Status",
@@ -354,7 +350,7 @@ function SalesTable({ exportToExcel }) {
         }
       },
       ...getDropDownMenu("invoiceStatus"),
-      filteredValue: filters.invoiceStatus ? [filters.invoiceStatus] : null,
+      filteredValue: query.invoiceStatus ? [query.invoiceStatus] : null,
     },
     {
       title: "Action",
@@ -382,13 +378,6 @@ function SalesTable({ exportToExcel }) {
     },
   ];
 
-  if (salesInvoices.length !== maxItemsPerPage) {
-    let dummyRows = [];
-    for (let i = 1; i <= maxItemsPerPage - salesInvoices.length; i++) {
-      dummyRows.push({ invoiceNumber: i / 10 });
-    }
-    setSalesInvoices((prevInvoices) => [...prevInvoices, ...dummyRows]);
-  }
   return (
     <Content>
       <Space
@@ -423,14 +412,14 @@ function SalesTable({ exportToExcel }) {
       </Space>
 
       <Table
-        loading={loading}
+        loading={isLoadingFetchSalesInvoices}
         columns={columns}
-        dataSource={salesInvoices}
+        dataSource={salesInvoices?.invoices}
         rowKey={(invoice) => invoice.invoiceNumber}
         pagination={{
           simple: true,
           current: currentPage.pageNumber,
-          pageSize: maxItemsPerPage,
+          pageSize: query.maxItemsPerPage,
           total: currentPage.totalResults,
         }}
         onChange={handlePageChange}

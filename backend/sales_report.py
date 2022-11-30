@@ -12,9 +12,22 @@ from openpyxl.styles.numbers import FORMAT_PERCENTAGE, FORMAT_NUMBER, FORMAT_NUM
 from openpyxl.cell import WriteOnlyCell
 import pandas as pd
 
-def get_sales_report(filters = {}, sorters = {}, pageRequest = 1, maxItemsPerPage = 5):
+def get_sales_report(
+    invoiceNumber= "",
+    invoiceDateFrom= "",
+    invoiceDateTo= "",
+    invoiceStatus= ["due", "paid", "cancelled"],
+    customerName= "",
+    customerContact= "",
+    customerVehicleNumber= "",
+    customerGSTIN= "",
+    pageRequest= 1,
+    maxItemsPerPage= 5,
+):
+    pageRequest = int(pageRequest)
+    maxItemsPerPage = int(maxItemsPerPage)
     results = {
-        "data": [],
+        "invoices": [],
         "pagination": { 
             "pageNumber": 0, 
             "pageSize": 0, 
@@ -25,27 +38,27 @@ def get_sales_report(filters = {}, sorters = {}, pageRequest = 1, maxItemsPerPag
     page_end = pageRequest*maxItemsPerPage
     query = Q(invoiceNumber__gte=0) # dummy query
     
-    if (filters["invoiceNumber"].isnumeric()):
-        query &= Q(invoiceNumber=int(filters["invoiceNumber"]))
-    if (filters["invoiceStatus"]):
-        query &= Q(invoiceStatus__in=filters["invoiceStatus"])
-    if (filters["customerName"]):
-        query &= Q(customerDetails__name__icontains=filters["customerName"])
-    if (filters["customerContact"]):
-        query &= Q(customerDetails__contact__icontains=filters["customerContact"])
-    if (filters["customerVehicleNumber"]):
-        query &= Q(customerDetails__vehicleNumber__icontains=filters["customerVehicleNumber"])
-    if (filters["customerGSTIN"]):
-        query &= Q(customerDetails__GSTIN__icontains=filters["customerGSTIN"])      
-    if (filters["invoiceDate"]["start"] and filters["invoiceDate"]["end"]):
-        start_datetime = datetime.datetime.strptime(filters["invoiceDate"]["start"][:10] + " " + "00:00:00", '%Y-%m-%d %H:%M:%S')
-        end_datetime = datetime.datetime.strptime(filters["invoiceDate"]["end"][:10] + " " + "23:59:59", '%Y-%m-%d %H:%M:%S')
+    if (invoiceNumber.isnumeric()):
+        query &= Q(invoiceNumber=int(invoiceNumber))
+    if (invoiceStatus):
+        query &= Q(invoiceStatus__in=invoiceStatus)
+    if (customerName):
+        query &= Q(customerDetails__name__icontains=customerName)
+    if (customerContact):
+        query &= Q(customerDetails__contact__icontains=customerContact)
+    if (customerVehicleNumber):
+        query &= Q(customerDetails__vehicleNumber__icontains=customerVehicleNumber)
+    if (customerGSTIN):
+        query &= Q(customerDetails__GSTIN__icontains=customerGSTIN)      
+    if (invoiceDateFrom and invoiceDateTo):
+        start_datetime = datetime.datetime.strptime(invoiceDateFrom[:10] + " " + "00:00:00", '%Y-%m-%d %H:%M:%S')
+        end_datetime = datetime.datetime.strptime(invoiceDateTo[:10] + " " + "23:59:59", '%Y-%m-%d %H:%M:%S')
         query &= Q(invoiceDate__gte=start_datetime) & Q(invoiceDate__lte=end_datetime)
 
-    results["data"] = Sale.objects(query).order_by('-_id')[page_start:page_end]
+    results["invoices"] = Sale.objects(query).order_by('-_id')[page_start:page_end]
     results["pagination"]["totalResults"] = Sale.objects(query).order_by('-_id')[page_start:page_end].count()
     results["pagination"]["pageNumber"] = pageRequest
-    results["pagination"]["pageSize"] = len(results["data"])
+    results["pagination"]["pageSize"] = len(results["invoices"])
     return results
 
 def get_purchase_report(

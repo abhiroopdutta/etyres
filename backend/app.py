@@ -151,10 +151,18 @@ def get_reports():
     report_req_info = request.get_json()
     filename = report_handler(report_req_info)
     return jsonify(filename)
+
 @app.route("/api/purchase-invoices", methods = ['GET'])
 def get_purchase_reports():
     args = request.args.to_dict()
     result = get_purchase_report(**args)
+    return result
+    
+@app.route("/api/sale-invoices", methods = ['GET'])
+def get_sale_reports():
+    args = request.args.to_dict()
+    args["invoiceStatus"] = request.args.getlist("invoiceStatus")
+    result = get_sales_report(**args)
     return result
 
 @app.route("/api/download", methods = ['GET'])
