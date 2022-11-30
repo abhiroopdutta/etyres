@@ -3,7 +3,7 @@ from flask import send_from_directory, abort
 from db import initialize_db
 from update_price import get_pv_price_details, update_price, load_to_db
 from update_stock import read_invoices, update_stock, process_invoice
-from create_order import create_order, compute_gst_tables, update_invoice_status
+from create_order import create_order, compute_gst_tables, update_invoice_status, update_purchase_invoice_status
 from sales_report import report_handler, reset_stock, get_sales_report
 from account import add_header_item, add_transaction_item, get_filtered_transactions
 from models import Header, Product, Purchase, Sale
@@ -113,6 +113,11 @@ def invoice_status_update():
         return jsonify("Error! Cannot change status of invoice from paid to due"), 400     
     elif status == 5:
         return jsonify("Error! Product not found in inventory, invoice could not be cancelled"), 400     
+
+@app.route("/api/update_purchase_invoice_status", methods = ['POST'])
+def purchase_invoice_status_update():
+    invoice_status_request = request.get_json()
+    return update_purchase_invoice_status(invoice_status_request)
 
 @app.route("/api/sales_invoice_number", methods = ['GET'])
 def sales_invoice_number():

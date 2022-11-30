@@ -1,5 +1,6 @@
 from models import CustomerDetail, Product, ProductItem, Purchase, PurchaseItem, Sale, ServiceItem
 import datetime
+from flask import jsonify
 
 def compute_gst_tables(products, services):
     GST_table = {
@@ -364,3 +365,52 @@ def update_invoice_status(invoice_status_request):
 
 
     return 0
+    
+def update_purchase_invoice_status(invoice_status_request):
+    invoice = Purchase.objects(invoiceNumber = invoice_status_request["invoiceNumber"]).first()
+    if invoice is None:
+        print(f'Trying to update status of invoice No. : {invoice_status_request["invoiceNumber"]} that does not exist in db')
+        return (jsonify("Error! Invoice not found in db"), 400)
+
+    old_invoice_status = invoice.invoiceStatus
+    new_invoice_status = invoice_status_request["invoiceStatus"]
+
+    # cannot change status of cancelled invoices
+    if old_invoice_status == "cancelled":
+        print(f'Error! Cannot change status of invoice No. : {invoice_status_request["invoiceNumber"]} that is already cancelled')
+        return (jsonify("Error! Cannot change status of already cancelled invoice"), 400)
+    # cannot change status of paid invoices to paid/due
+    if old_invoice_status == "paid" and (new_invoice_status in ["paid", "due"]):
+        print(f'Error! Cannot change status of invoice No. : {invoice_status_request["invoiceNumber"]} from paid to due/paid')
+        return (jsonify("Error! Cannot change status of invoice from paid to due"), 400)     
+
+    # only 2 types of status changes are possible
+
+    # implement payment method for purchase invoice later
+    # 1. due -> paid/due
+    # if old_invoice_status == "due" and (new_invoice_status in ["paid", "due"]):
+    #     payment = invoice_status_request["payment"]
+    #     invoice.update(invoiceStatus = new_invoice_status, payment = payment)
+
+    # In case of cancellations, reverse the stock also
+    # 2. due/paid -> cancelled
+    elif old_invoice_status in ["due", "paid"] and new_invoice_status == "cancelled":
+
+        if invoice.items:
+            # first check if each product exists in inventory
+            for product in invoice.items:
+                productFound = Product.objects(itemCode = product.itemCode).first()
+                if productFound is None:
+                    print(f'Error! {product["itemDesc"]}: {product["itemCode"]} not found in inventory while reversing stock, invoice could not be cancelled')
+                    return (jsonify("Error! Product not found in inventory, invoice could not be cancelled"), 400 )    
+
+            # if each product exists in inventory, only then proceed to reverse stock for each product
+            for product in invoice.items:
+                productFound = Product.objects(itemCode = product.itemCode).first()
+                oldstock = productFound.stock
+                new_stock = oldstock - product.quantity
+                Product.objects(itemCode=product["itemCode"]).first().update(stock=new_stock)
+
+        invoice.update(invoiceStatus = new_invoice_status)
+
+    return (jsonify("Invoice status successfully updated"), 200)

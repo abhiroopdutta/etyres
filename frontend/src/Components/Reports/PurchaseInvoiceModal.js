@@ -5,11 +5,25 @@ import {
   ExclamationCircleOutlined
 } from "@ant-design/icons";
 import { dayjsUTC } from "../dayjsUTCLocal";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 const { confirm } = Modal;
 
 const { Title } = Typography;
 
 function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
+  const queryClient = useQueryClient();
+  const { isLoadingUpdateInvoiceStatus, mutate: updateInvoiceStatus } = useMutation({
+    mutationFn: postBody => {
+      return axios.post('/api/update_purchase_invoice_status', postBody)
+    },
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({
+        queryKey: ['products'],
+        exact: true,
+      })
+    }
+  })
   const columns = useMemo(
     () => [
       {
@@ -88,7 +102,10 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
     });
   };
   const handleCancelInvoice = () => {
-    console.log(invoice.invoiceNumber);
+    updateInvoiceStatus({
+      invoiceNumber: invoice.invoiceNumber,
+      invoiceStatus: "cancelled",
+    });
   };
 
   return (
@@ -109,13 +126,13 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
           <div style={{ display: "flex", flexDirection: "column" }}>
             <Title level={4} >Invoice No. {invoice.invoiceNumber} </Title>
             <Title level={5} style={{ margin: "0" }}>
-              Invoice Status: Cancelled
+              Invoice Status: {invoice.invoiceStatus}
             </Title>
             <Title level={5} style={{ margin: "0" }}>
-              Name: Apollo Tyres
+              Supplier: {invoice.supplierDetails?.name}
             </Title>
             <Title level={5} style={{ margin: "0" }}>
-              GSTIN: 09FWTPD4101B1ZT
+              GSTIN: {invoice.supplierDetails?.GSTIN}
             </Title>
           </div >
           <Title level={5} style={{ margin: "0" }}>
@@ -144,6 +161,8 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
           <Button
             icon={<DeleteOutlined />}
             onClick={showConfirm}
+            disabled={invoice.invoiceStatus === "cancelled"}
+            loading={isLoadingUpdateInvoiceStatus}
           >
             Cancel invoice
           </Button>
