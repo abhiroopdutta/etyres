@@ -10,7 +10,6 @@ function Reports() {
   const [loading, setLoading] = useState(false);
 
   const handleGenerateFile = (reportReqInfo) => {
-    console.log(reportReqInfo);
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -38,10 +37,10 @@ function Reports() {
               fileName = `stock_report_${dayjsLocal(new Date()).format("YYYY-MM-DD")}.xlsx`;
             }
             else {
-              let start_date_string = reportReqInfo.filters.invoiceDate.start;
-              let end_date_string = reportReqInfo.filters.invoiceDate.end;
+              let start_date_string = reportReqInfo.query.invoiceDateFrom;
+              let end_date_string = reportReqInfo.query.invoiceDateTo;
 
-              if (reportReqInfo.export.type === "gstr1") {
+              if (reportReqInfo.exportType === "gstr1") {
                 fileName = `GSTR1_${start_date_string}__${end_date_string}.xlsx`;
               }
               else {

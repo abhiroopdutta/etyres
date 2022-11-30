@@ -182,11 +182,15 @@ function PurchaseTable({ exportToExcel }) {
 
   const handleExport = (exportType) => {
     exportToExcel({
-      ...query,
-      invoiceDateFrom: query.invoiceDateFrom ? query.invoiceDateFrom.format("YYYY-MM-DD") : "",
-      invoiceDateTo: query.invoiceDateTo ? query.invoiceDateTo.format("YYYY-MM-DD") : "",
-      exportRequired: true,
-      exportType: "regular",
+      reportType: "purchase",
+      exportType: exportType,
+      query: {
+        ...query,
+        invoiceDateFrom: query.invoiceDateFrom ? query.invoiceDateFrom.format("YYYY-MM-DD") : "",
+        invoiceDateTo: query.invoiceDateTo ? query.invoiceDateTo.format("YYYY-MM-DD") : "",
+        pageRequest: 1,
+        maxItemsPerPage: 10000,
+      }
     });
   };
 

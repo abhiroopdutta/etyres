@@ -106,25 +106,15 @@ def report_handler(report_req_info):
     if report_req_info["reportType"] == "stock":
         return stock_report()
     elif report_req_info["reportType"] == "sale":
-        results = get_sales_report(report_req_info["filters"], 
-                            report_req_info["sorters"], 
-                            report_req_info["pageRequest"], 
-                            report_req_info["maxItemsPerPage"])
-        if (report_req_info["export"]["required"]):
-            if report_req_info["export"]["type"] == "regular":
-                return export_sales_report(results["data"])
-            elif report_req_info["export"]["type"] == "gstr1":
-                return export_gstr1_report(report_req_info["filters"]["invoiceDate"]["start"], report_req_info["filters"]["invoiceDate"]["end"])
+        results = get_sales_report(**report_req_info["query"])
+        if report_req_info["exportType"] == "regular":
+            return export_sales_report(results["invoices"])
+        elif report_req_info["exportType"] == "gstr1":
+            return export_gstr1_report(report_req_info["query"]["invoiceDateFrom"], report_req_info["query"]["invoiceDateTo"])
                 
-        return results
     elif report_req_info["reportType"] == "purchase":
-        results = get_purchase_report(report_req_info["filters"], 
-                            report_req_info["sorters"], 
-                            report_req_info["pageRequest"], 
-                            report_req_info["maxItemsPerPage"])
-        if (report_req_info["export"]["required"]):
-            return export_purchase_report(results["data"])
-        return results
+        results = get_purchase_report(**report_req_info["query"])
+        return export_purchase_report(results["invoices"])
 
 def export_sales_report(invoices):
     file_base_dir = "./tempdata/sales_report/"
