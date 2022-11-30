@@ -253,6 +253,38 @@ function PurchaseTable({ exportToExcel }) {
         invoice.invoiceNumber >= 1 ? <Text>&#x20B9;{invoiceTotal}</Text> : null,
     },
     {
+      title: "Supplier Name",
+      dataIndex: ["supplierDetails", "name"],
+      key: ["supplierDetails", "name"],
+      render: (supplierName, invoice) =>
+        invoice.invoiceNumber >= 1 ? <Text>{supplierName}</Text> : null,
+    },
+    {
+      title: "Supplier GSTIN",
+      dataIndex: ["supplierDetails", "GSTIN"],
+      key: ["supplierDetails", "GSTIN"],
+      render: (supplierGSTIN, invoice) =>
+        invoice.invoiceNumber >= 1 ? <Text>{supplierGSTIN}</Text> : null,
+    },
+    {
+      title: "Invoice Status",
+      dataIndex: "invoiceStatus",
+      key: "invoiceStatus",
+      render: (invoiceStatus, invoice) => {
+        if (invoice.invoiceNumber >= 1) {
+          if (invoiceStatus === "paid")
+            return <Tag color="green">Paid</Tag>;
+          else if (invoiceStatus === "due")
+            return <Tag color="orange">Due</Tag>;
+          else
+            return <Tag color="red">Cancelled</Tag>;
+        }
+        else {
+          return null;
+        }
+      },
+    },
+    {
       title: "Invoice Type",
       dataIndex: "claimInvoice",
       key: "claimInvoice",

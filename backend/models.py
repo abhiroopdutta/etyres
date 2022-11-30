@@ -26,14 +26,20 @@ class ClaimItem(db.EmbeddedDocument):
     itemDesc = db.StringField(required=True)
     itemCode = db.StringField(required=True)
     claimNumber = db.IntField(required=True)
- 
+
+class SupplierDetail(db.EmbeddedDocument):
+    name = db.StringField()
+    GSTIN = db.StringField()
+
 class Purchase(db.Document):
     invoiceNumber = db.IntField(required=True, unique=True)
     invoiceDate = db.DateTimeField(required=True, default=datetime.datetime.now) 
+    invoiceStatus = db.StringField(required=True)
+    invoiceTotal = db.FloatField(required=True)
     specialDiscount = db.StringField(required=True)  
     claimInvoice = db.BooleanField(Required=True)
+    supplierDetails = db.EmbeddedDocumentField(SupplierDetail)
     claimItems = db.ListField(db.EmbeddedDocumentField(ClaimItem))
-    invoiceTotal = db.FloatField(required=True)
     items = db.ListField(db.EmbeddedDocumentField(PurchaseItem))
 
 class Payment(db.EmbeddedDocument):
