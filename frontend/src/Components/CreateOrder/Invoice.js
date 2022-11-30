@@ -74,7 +74,7 @@ function Invoice({
       })
   })
   let { GSTTable, IGSTTable } = taxTable;
-  const { isLoadingPlaceOrder, mutate: placeOrder } = useMutation({
+  const { isLoading: isLoadingPlaceOrder, mutate: placeOrder } = useMutation({
     mutationFn: postBody => {
       return axios.post('/api/place_order', postBody)
     },
@@ -86,9 +86,36 @@ function Invoice({
       queryClient.invalidateQueries({
         queryKey: ["invoice", postBody.invoiceNumber],
       });
+      //since stock changed, update products page
+      queryClient.invalidateQueries({
+        queryKey: ['products'],
+        exact: true,
+      });
       updateInvoiceInParent(postBody.invoiceNumber);
     }
-  })
+  });
+  const { isLoadingUpdateInvoice, mutate: updateInvoice } = useMutation({
+    mutationFn: postBody => axios.post("/api/update_invoice_status", postBody),
+    onSuccess: (response, postBody) => {
+      Modal.success({
+        content: response.data,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["invoice", postBody.invoiceNumber],
+      });
+      //update sale table
+      queryClient.invalidateQueries({
+        queryKey: ["sale"],
+      });
+      //since stock changed, update products page
+      if (postBody.invoiceStatus === "cancelled") {
+        queryClient.invalidateQueries({
+          queryKey: ['products'],
+          exact: true,
+        });
+      }
+    },
+  });
   //render different tables depending on IGST customer or not
   let IGSTRender = false;
   const componentRef = useRef(null);
@@ -260,44 +287,11 @@ function Invoice({
     }
 
     //prepare invoice status update to send to backend
-    let invoiceStatusData = {
+    updateInvoice({
       invoiceNumber: savedInvoiceNumber,
       invoiceStatus: status,
       payment: payment,
-    };
-
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(invoiceStatusData),
-    };
-
-    const updateInvoice = async () => {
-      try {
-        const response = await fetch(
-          "/api/update_invoice_status",
-          requestOptions
-        );
-        const result = await response.json();
-        if (response.ok) {
-          Modal.success({
-            content: result,
-          });
-
-          //notify parent to update its props (invoice props)
-          updateInvoiceInParent(savedInvoiceNumber);
-        } else {
-          throw Error(result);
-        }
-      } catch (err) {
-        Modal.error({
-          content: err.message,
-        });
-        console.log(err.message);
-      }
-    };
-
-    updateInvoice();
+    });
   };
 
   const handleSubmission = (e) => {
@@ -687,7 +681,7 @@ function Invoice({
         />
         <Button
           type="primary"
-          loading={isLoadingPlaceOrder}
+          loading={isLoadingPlaceOrder || isLoadingUpdateInvoice}
           form="invoice-form"
           htmlType="submit"
           disabled={

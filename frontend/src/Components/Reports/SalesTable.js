@@ -80,6 +80,12 @@ function SalesTable({ exportToExcel }) {
     },
     onSuccess: (result) => {
       setCurrentPage(result.pagination);
+      setSelectedInvoice(oldState => {
+        if (oldState.invoiceNumber) {
+          return result.invoices.find((invoice) => invoice.invoiceNumber === oldState.invoiceNumber);
+        }
+        return oldState;
+      });
     },
     placeholderData: () => {
       let dummyRows = [];

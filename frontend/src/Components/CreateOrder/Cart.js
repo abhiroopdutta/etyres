@@ -109,10 +109,6 @@ function Cart() {
     if (isSuccessFetchSavedInvoice) {
       emptyCart();
       setUpdatedInvoiceNumber(null);
-      queryClient.invalidateQueries({
-        queryKey: ['products'],
-        exact: true,
-      })
     }
     setPreviewInvoice(false);
   };

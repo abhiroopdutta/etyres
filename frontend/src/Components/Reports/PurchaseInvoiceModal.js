@@ -21,7 +21,14 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
       queryClient.invalidateQueries({
         queryKey: ['products'],
         exact: true,
-      })
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['purchase'],
+      });
+      Modal.success({
+        centered: true,
+        content: response.data,
+      });
     }
   })
   const columns = useMemo(
