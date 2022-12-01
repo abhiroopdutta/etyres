@@ -2,8 +2,10 @@ import React, { useState, useRef, useReducer, useEffect, useMemo } from "react";
 import "./UpdateStock.css";
 import PurchaseInvoice from "./PurchaseInvoice";
 import InvoiceWithNewItems from "./InvoiceWithNewItems.js";
-import { Modal, Typography } from "antd";
+import { Modal, Typography, Button } from "antd";
 import { useTransition, animated } from "@react-spring/web";
+import ManualInvoiceModal from "./ManualInvoiceModal.js";
+
 const { Title } = Typography;
 
 function invoicesReducer(invoices, action) {
@@ -126,6 +128,8 @@ function UpdateStock() {
     }),
     []
   );
+  const [showManualInvoice, setShowManualInvoice] = useState(false);
+
   const invoicesWithNewItemsTransitions = useTransition(
     invoicesWithNewItems,
     transitionProps
@@ -338,7 +342,12 @@ function UpdateStock() {
       >
         Clear
       </button>
-
+      <h2 style={{ margin: "15px 0" }}>OR</h2>
+      <Button
+        onClick={() => setShowManualInvoice(true)}
+      >
+        Update Manually
+      </Button>
       {existingInvoices.length !== 0 ? (
         <div>
           <br />
@@ -393,8 +402,8 @@ function UpdateStock() {
       </div>
 
       {invoices.length !== 0 ||
-      invoicesWithNewItems.length !== 0 ||
-      existingInvoices.length !== 0 ? (
+        invoicesWithNewItems.length !== 0 ||
+        existingInvoices.length !== 0 ? (
         <button
           disabled={
             invoicesWithNewItems.length !== 0 ||
@@ -411,6 +420,10 @@ function UpdateStock() {
       <br />
 
       <br />
+      <ManualInvoiceModal
+        visible={showManualInvoice}
+        hideInvoice={() => setShowManualInvoice(false)}
+      />
     </div>
   );
 }
