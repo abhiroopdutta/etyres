@@ -1,5 +1,5 @@
 import csv	
-from models import ClaimItem, Product, Purchase, PurchaseItem
+from models import ClaimItem, Product, Purchase, PurchaseItem, SupplierDetail
 import glob, os
 import datetime
 from itertools import repeat
@@ -174,12 +174,18 @@ def update_stock(invoices):
             else:
                 invoice_date = datetime.datetime.strptime(invoice["invoice_date"] + " " + "11:30:00", '%Y-%m-%d %H:%M:%S')
 
+            supplier_details = SupplierDetail(
+                name = "Apollo Tyres",
+                GSTIN = "09AAACA6990Q1ZW",
+            )
             purchase_invoice = Purchase(
                 invoiceDate =  invoice_date,
                 invoiceNumber = invoice_number, 
+                invoiceStatus = "paid",
                 specialDiscount = special_discount,
                 claimInvoice = claim_invoice,
                 claimItems = claim_items,
                 invoiceTotal = invoice_total,
-                items = items
+                items = items,
+                supplierDetails = supplier_details
                 ).save()
