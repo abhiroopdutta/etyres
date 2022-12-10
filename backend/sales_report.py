@@ -167,10 +167,11 @@ def export_sales_report(invoices):
     base_index = 0
     for invoice in invoices:
         gst_tables = compute_gst_tables(invoice.productItems, invoice.serviceItems)
-        if (invoice.customerDetails.GSTIN == "" or invoice.customerDetails.GSTIN.startswith("09")):
-            tax_table = gst_tables["GST_table"]
-        else:
-            tax_table = gst_tables["IGST_table"]
+        tax_table = gst_tables["GST_table"]
+        # if (invoice.customerDetails.POS.startswith("09")):
+        #     tax_table = gst_tables["GST_table"]
+        # else:
+        #     tax_table = gst_tables["IGST_table"]
         products = tax_table["products"]
         services = tax_table["services"]
 
