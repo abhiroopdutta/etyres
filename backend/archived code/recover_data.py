@@ -175,7 +175,7 @@ def fix_sale():
     #             rate_per_item = round((product.itemTotal/product.quantity)/1.28, 2)
     #             product.ratePerItem = rate_per_item
     #             product.CGST = 0.14
-    #             product.SGST = 1.14
+    #             product.SGST = 0.14
     #         product.IGST = 0.00
     #     invoice.save()
 
