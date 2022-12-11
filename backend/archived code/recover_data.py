@@ -1,4 +1,4 @@
-from models import CustomerDetail, Product, ProductItem, Purchase, PurchaseItem, Sale, ServiceItem
+from models import CustomerDetail, Product, ProductItem, Purchase, ProductItem, Sale, ServiceItem
 import datetime
 import openpyxl
 
@@ -44,7 +44,7 @@ def fix_purchase():
 
         *_, item_desc, item_code, hsn, quantity, taxable_val, tax, item_total = row
         invoice_total += item_total
-        new_item = PurchaseItem(
+        new_item = ProductItem(
             itemDesc = item_desc,
             itemCode = item_code,
             HSN = hsn,
@@ -160,4 +160,35 @@ def fix_sale():
     #         new_item_code = old_item_code[:-2]
     #         Sale.objects(invoiceNumber=invoice.invoiceNumber, productItems__itemCode=old_item_code).update(set__productItems__S__itemCode=new_item_code)
 
+
+#--------------------------------------------------------------------------------
+# made the model of sale item and purchase item same
+#--------------------------------------------------------------------------------
+    # for invoice in Purchase.objects:
+    #     for product in invoice.items:
+    #         if product.HSN == "8481":
+    #             rate_per_item = round((product.itemTotal/product.quantity)/1.18, 2)
+    #             product.ratePerItem = rate_per_item
+    #             product.CGST = 0.09
+    #             product.SGST = 0.09
+    #         else:
+    #             rate_per_item = round((product.itemTotal/product.quantity)/1.28, 2)
+    #             product.ratePerItem = rate_per_item
+    #             product.CGST = 0.14
+    #             product.SGST = 1.14
+    #         product.IGST = 0.00
+    #     invoice.save()
+
+    # for invoice in Purchase.objects:
+    #     for product in invoice.items:
+    #         del product.taxableValue
+    #         del product.tax
+    #         del product.itemTotal
+    #     invoice.save()
+
+    # for invoice in Sale.objects:
+    #     for product in invoice.productItems:
+    #         del product.costPrice
+    #     invoice.save()
+    # return True
     

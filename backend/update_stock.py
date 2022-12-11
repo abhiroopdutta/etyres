@@ -1,5 +1,5 @@
 import csv	
-from models import ClaimItem, Product, Purchase, PurchaseItem, SupplierDetail
+from models import ClaimItem, Product, Purchase, ProductItem, SupplierDetail
 import glob, os
 import datetime
 from itertools import repeat
@@ -124,32 +124,27 @@ def update_stock(invoices):
             for item in invoice["items"]:
 
                     #update products table first
-                    oldstock = Product.objects(itemCode=item["item_code"]).first().stock
+                    existingProduct = Product.objects(itemCode=item["item_code"]).first()
+                    oldstock = existingProduct.stock
                     new_stock = oldstock + item["quantity"]
                     if(invoice["overwrite_price_list"]):
                         #its not cost price, its item total, divide it by quantity first then update
                         cost_price = round(item["item_total"]/item["quantity"], 2)
-                        Product.objects(itemCode=item["item_code"]).first().update(stock=new_stock, costPrice=cost_price)
+                        existingProduct.update(stock=new_stock, costPrice=cost_price)
                     else:
-                        Product.objects(itemCode=item["item_code"]).first().update(stock=new_stock)
+                        existingProduct.update(stock=new_stock)
 
-                    #get extra details of each product from Products table, to prepare to load to Purchases table
-                    item_desc = Product.objects(itemCode=item["item_code"]).first().itemDesc
-                    item_code = item["item_code"]
-                    hsn = Product.objects(itemCode=item["item_code"]).first().HSN
-                    quantity = item["quantity"]
-                    taxable_value = item["taxable_value"]
-                    tax = item["tax"]
-                    item_total = item["item_total"]
+                    rate_per_item = round((item["item_total"]/item["quantity"])/(1.0 + existingProduct.GST), 2)
 
-                    new_item = PurchaseItem(
-                        itemDesc = item_desc, 
-                        itemCode = item_code, 
-                        HSN=hsn, 
-                        quantity=quantity, 
-                        taxableValue=taxable_value, 
-                        tax=tax, 
-                        itemTotal=item_total
+                    new_item = ProductItem(
+                        itemDesc = existingProduct.itemDesc, 
+                        itemCode = existingProduct.itemCode, 
+                        HSN = existingProduct.HSN, 
+                        ratePerItem = rate_per_item,
+                        quantity = item["quantity"], 
+                        CGST = round((existingProduct.GST/2), 2), 
+                        SGST = round((existingProduct.GST/2), 2),
+                        IGST = 0.0
                     )
 
                     items.append(new_item)

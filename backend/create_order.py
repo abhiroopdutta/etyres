@@ -1,4 +1,4 @@
-from models import CustomerDetail, Product, ProductItem, Purchase, PurchaseItem, Sale, ServiceItem
+from models import CustomerDetail, Product, ProductItem, Purchase, Sale, ServiceItem
 import datetime
 from flask import jsonify
 
@@ -18,7 +18,6 @@ def compute_gst_tables(products, services):
             "itemCode": product["itemCode"],
             "HSN": product["HSN"],
             "quantity": int(product["quantity"]),
-            "costPrice": float(product["costPrice"]),
             "ratePerItem": 0.0,
             "taxableValue": 0.0,
             "CGST": 0.0,
@@ -58,7 +57,6 @@ def compute_gst_tables(products, services):
             "itemCode": "",
             "HSN": service["HSN"],
             "quantity": int(service["quantity"]),
-            "costPrice": 0.0,
             "ratePerItem": 0.0,
             "taxableValue": 0.0,
             "CGST": 0.0,
@@ -130,7 +128,6 @@ def compute_gst_tables(products, services):
             "itemCode": product["itemCode"],
             "HSN": product["HSN"],
             "quantity": int(product["quantity"]),
-            "costPrice": float(product["costPrice"]),
             "ratePerItem": 0.0,
             "taxableValue": 0.0,
             "CGST": 0.0,
@@ -281,7 +278,6 @@ def create_order(invoice):
                 itemDesc = product["itemDesc"], 
                 itemCode = product["itemCode"], 
                 HSN = product["HSN"],
-                costPrice = product["costPrice"], 
                 ratePerItem = product["ratePerItem"], 
                 quantity = product["quantity"], 
                 CGST = product["CGST"], 

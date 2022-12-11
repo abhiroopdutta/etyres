@@ -12,14 +12,15 @@ class Product(db.Document):
     costPrice = db.FloatField(required=True)
     stock = db.IntField(required=True)
 
-class PurchaseItem(db.EmbeddedDocument):
+class ProductItem(db.EmbeddedDocument):
     itemDesc = db.StringField(required=True)
     itemCode = db.StringField(required=True)
     HSN = db.StringField(required=True)
+    ratePerItem = db.FloatField(required=True)
     quantity = db.IntField(required=True)
-    taxableValue = db.FloatField(required=True)
-    tax = db.FloatField(required=True)
-    itemTotal = db.FloatField(required=True)
+    CGST = db.FloatField(required=True)
+    SGST = db.FloatField(required=True)
+    IGST = db.FloatField(required=True)
 
 # add special discount attribute
 class ClaimItem(db.EmbeddedDocument):
@@ -40,7 +41,7 @@ class Purchase(db.Document):
     claimInvoice = db.BooleanField(Required=True)
     supplierDetails = db.EmbeddedDocumentField(SupplierDetail)
     claimItems = db.ListField(db.EmbeddedDocumentField(ClaimItem))
-    items = db.ListField(db.EmbeddedDocumentField(PurchaseItem))
+    items = db.ListField(db.EmbeddedDocumentField(ProductItem))
 
 class Payment(db.EmbeddedDocument):
     cash = db.FloatField(required=True)
@@ -56,16 +57,6 @@ class CustomerDetail(db.EmbeddedDocument):
     vehicleNumber = db.StringField()
     contact = db.StringField()
 
-class ProductItem(db.EmbeddedDocument):
-    itemDesc = db.StringField(required=True)
-    itemCode = db.StringField(required=True)
-    HSN = db.StringField(required=True)
-    costPrice = db.FloatField(required=True)
-    ratePerItem = db.FloatField(required=True)
-    quantity = db.IntField(required=True)
-    CGST = db.FloatField(required=True)
-    SGST = db.FloatField(required=True)
-    IGST = db.FloatField(required=True)
 
 class ServiceItem(db.EmbeddedDocument):
     name = db.StringField(required=True)

@@ -1,6 +1,6 @@
 import csv
 import datetime
-from models import Product, Purchase, PurchaseItem
+from models import Product, Purchase
 
 #this function is designed to use only on the initial software setup 
 #it takes a csv containing invoice number, invoice total and invoice date 
