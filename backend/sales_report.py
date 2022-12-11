@@ -469,10 +469,46 @@ def export_purchase_report(invoices):
     filename = str(datetime.datetime.now())+"purchase_report.xlsx"
     wb = openpyxl.Workbook() 
     sheet = wb.active
-
+    sheet.title = "Purchase Report"
     sheet.freeze_panes = 'A2'
 
-    column_headers = ["Invoice No.", "Invoice Date", "Claim Invoice", "Item Description", "Item Code", "HSN", "Qty", "Taxable Val", "Tax", "Total", "Size"]
+    column_headers = [
+        "Invoice No.", 
+        "Invoice Date", 
+        "Invoice Status", 
+        "Claim Invoice", 
+        "Supplier Name", 
+        "Supplier GSTIN", 
+        "Item Description", 
+        "Item Code", 
+        "HSN", 
+        "Qty", 
+        "Rate per Item", 
+        "Taxable Val", 
+        "CGST Rate", 
+        "CGST Amt", 
+        "SGST Rate", 
+        "SGST Amt", 
+        # "IGST Rate", 
+        # "IGST Amt", 
+        "Total",
+        "size"]
+
+    item_keys = [
+        "itemDesc",
+        "itemCode",
+        "HSN",
+        "quantity",
+        "ratePerItem",
+        "taxableValue",
+        "CGST",
+        "CGSTAmount",
+        "SGST",
+        "SGSTAmount",
+        # "IGST",
+        # "IGSTAmount",
+        "value",
+    ]
     
     for i, column_header in enumerate(column_headers):
         sheet.cell(row=1, column=i+1).value = column_header
@@ -480,20 +516,25 @@ def export_purchase_report(invoices):
     #find a better way to do the following, instead of using base index, use sheet.max_row ?
     base_index = 0
     for invoice in invoices:
-        total_items = len(invoice.items)
-        for i, product in enumerate(invoice.items):
+        gst_tables = compute_gst_tables(invoice.items, [])
+        tax_table = gst_tables["GST_table"]
+        products = tax_table["products"]
+
+        total_items = len(products)
+        for i, product in enumerate(products):
             row_index = i+2+base_index
             sheet.cell(row = row_index, column = 1).value = invoice.invoiceNumber
             sheet.cell(row = row_index, column = 2).value = invoice.invoiceDate.strftime("%d/%m/%Y")
-            sheet.cell(row = row_index, column = 3).value = "No" if invoice.claimInvoice ==0 else "Yes"
-            sheet.cell(row = row_index, column = 4).value = product.itemDesc
-            sheet.cell(row = row_index, column = 5).value = product.itemCode
-            sheet.cell(row = row_index, column = 6).value = int(product.HSN)
-            sheet.cell(row = row_index, column = 7).value = product.quantity
-            sheet.cell(row = row_index, column = 8).value = product.taxableValue
-            sheet.cell(row = row_index, column = 9).value = product.tax
-            sheet.cell(row = row_index, column = 10).value = product.itemTotal
-            sheet.cell(row = row_index, column = 11).value = compute_size(product.itemDesc)
+            sheet.cell(row = row_index, column = 3).value = invoice.invoiceStatus
+            sheet.cell(row = row_index, column = 4).value = "No" if invoice.claimInvoice ==0 else "Yes"
+            sheet.cell(row = row_index, column = 5).value = invoice.supplierDetails.name
+            sheet.cell(row = row_index, column = 6).value = invoice.supplierDetails.GSTIN
+
+            for j, item_key in enumerate(item_keys):
+                sheet.cell(row = row_index, column = 7+j).value = product[item_key]
+            
+            sheet.cell(row = row_index, column = 7+len(item_keys)).value = compute_size(product["itemDesc"])
+
         base_index += total_items
 
     total_row_index = sheet.max_row
@@ -501,17 +542,20 @@ def export_purchase_report(invoices):
     # total row label
     sheet.cell(row=total_row_index+1, column=2).value = "TOTAL"
     # total quantity
-    total_quantity = '= SUM(G2:G'+str(total_row_index)+')'
-    sheet.cell(row=total_row_index+1, column=7).value = total_quantity
+    total_quantity = '= SUM(J2:J'+str(total_row_index)+')'
+    sheet.cell(row=total_row_index+1, column=10).value = total_quantity
     # total taxable val
-    total_taxable_val = '= SUM(H2:H'+str(total_row_index)+')'
-    sheet.cell(row=total_row_index+1, column=8).value = total_taxable_val
+    total_taxable_val = '= SUM(L2:L'+str(total_row_index)+')'
+    sheet.cell(row=total_row_index+1, column=12).value = total_taxable_val
     # total CGST
-    total_tax = '= SUM(I2:I'+str(total_row_index)+')'
-    sheet.cell(row=total_row_index+1, column=9).value = total_tax
+    total_CGST = '= SUM(N2:N'+str(total_row_index)+')'
+    sheet.cell(row=total_row_index+1, column=14).value = total_CGST
+    # total SGST
+    total_SGST = '= SUM(P2:P'+str(total_row_index)+')'
+    sheet.cell(row=total_row_index+1, column=16).value = total_SGST
     # total 
-    total = '= SUM(J2:J'+str(total_row_index)+')'
-    sheet.cell(row=total_row_index+1, column=10).value = total
+    total = '= SUM(Q2:Q'+str(total_row_index)+')'
+    sheet.cell(row=total_row_index+1, column=17).value = total
 
     for i in range(2, sheet.max_row+1):
         sheet.cell(row=i, column=6).number_format = FORMAT_NUMBER
