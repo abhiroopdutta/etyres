@@ -6,7 +6,7 @@ from update_stock import read_invoices, update_stock, process_invoice
 from create_order import create_order, compute_gst_tables, update_invoice_status, update_purchase_invoice_status
 from sales_report import report_handler, reset_stock, get_sales_report, get_purchase_report
 from account import add_header_item, add_transaction_item, get_filtered_transactions
-from models import Header, Product, Purchase, Sale
+from models import Header, Product, Supplier, Sale
 from datetime import date, datetime
 import os
 import json
@@ -194,6 +194,11 @@ def add_transaction():
 def get_transactions():
     data = request.get_json()
     results = get_filtered_transactions(**data)
+    return jsonify(results), 200
+
+@app.route("/api/suppliers", methods = ['GET'])
+def get_suppliers():
+    results = Supplier.objects()
     return jsonify(results), 200
 
 if __name__ == '__main__':

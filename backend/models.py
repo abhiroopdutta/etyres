@@ -12,6 +12,10 @@ class Product(db.Document):
     costPrice = db.FloatField(required=True)
     stock = db.IntField(required=True)
 
+class Supplier(db.Document):
+    name = db.StringField()
+    GSTIN = db.StringField(unique=True)
+
 class ProductItem(db.EmbeddedDocument):
     itemDesc = db.StringField(required=True)
     itemCode = db.StringField(required=True)
