@@ -28,6 +28,11 @@
   border-bottom: none;
 }
 
+.ant-table-tbody > tr.ant-table-row:hover > td,
+.ant-table-tbody > tr > td.ant-table-cell-row-hover {
+  background-color: var(--lighter);
+}
+
 .ant-table-tbody > tr:hover td {
   background: var(--dark) !important;
 }
@@ -132,7 +137,9 @@
 .ant-input:focus,
 .ant-picker-focused,
 .ant-input:active,
-.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input)
+.ant-select-focused:not(.ant-select-disabled).ant-select:not(
+    .ant-select-customize-input
+  )
   .ant-select-selector {
   box-shadow: none;
   background-color: var(--light-yellow);
