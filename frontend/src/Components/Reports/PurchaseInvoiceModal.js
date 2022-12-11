@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { Modal, Table, Typography, Space, Layout, Divider, Button } from "antd";
 import {
   DeleteOutlined,
@@ -30,7 +30,25 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
         content: response.data,
       });
     }
+  });
+  const [taxTable, setTaxTable] = useState(null);
+  const { mutate: fetchInvoiceTable } = useMutation({
+    mutationFn: postBody => {
+      return axios.post('/api/get_gst_tables', postBody);
+    },
+    onSuccess: (response) =>
+      setTaxTable(response.data.GST_table)
   })
+
+  useEffect(() => {
+    if (invoice?.items?.length > 0) {
+      fetchInvoiceTable({
+        products: invoice.items,
+        services: [],
+      });
+    }
+  }, [invoice.items]);
+
   const columns = useMemo(
     () => [
       {
@@ -54,19 +72,33 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
         key: "quantity",
       },
       {
+        title: "Rate per Item",
+        dataIndex: "ratePerItem",
+        key: "ratePerItem",
+      },
+      {
         title: "Taxable Value",
         dataIndex: "taxableValue",
         key: "taxableValue",
       },
       {
-        title: "Tax",
-        dataIndex: "tax",
-        key: "tax",
+        title: "CGST",
+        dataIndex: "CGST",
+        key: "CGST",
+        render: (CGST, item) =>
+          `${item.CGSTAmount} (${Math.round(CGST * 100)}%)`,
       },
       {
-        title: "Item Total",
-        dataIndex: "itemTotal",
-        key: "itemTotal",
+        title: "SGST",
+        dataIndex: "SGST",
+        key: "SGST",
+        render: (SGST, item) =>
+          `${item.SGSTAmount} (${Math.round(SGST * 100)}%)`,
+      },
+      {
+        title: "Value",
+        dataIndex: "value",
+        key: "value",
       },
     ],
     []
@@ -122,7 +154,7 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
       destroyOnClose
       onCancel={hideInvoice}
       footer={null}
-      width={820}
+      width={900}
     >
       <Layout
         style={{
@@ -158,7 +190,7 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
 
         <Table
           columns={invoice.claimInvoice ? claimColumns : columns}
-          dataSource={invoice.claimInvoice ? invoice.claimItems : invoice.items}
+          dataSource={invoice.claimInvoice ? invoice.claimItems : taxTable?.products}
           rowKey={(item) =>
             invoice.claimInvoice ? item.claimNumber : item.itemCode
           }
