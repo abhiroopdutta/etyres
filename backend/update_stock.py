@@ -1,8 +1,9 @@
 import csv	
-from models import ClaimItem, Product, Purchase, ProductItem, SupplierDetail
+from models import ClaimItem, Product, Purchase, ProductItem, SupplierDetail, Supplier
 import glob, os
 import datetime
 from itertools import repeat
+from flask import jsonify
 
 def read_purchase_file(file):
     invoice = {
@@ -118,69 +119,85 @@ def read_invoices(directory):
 def update_stock(invoices):
     for invoice in invoices:
         #only process this invoice if it doesn't exist in DB
-        if(Purchase.objects(invoiceNumber=invoice["invoice_number"]).first() is None):
-            items = []
-            claim_items = []
-            for item in invoice["items"]:
+        if(Purchase.objects(invoiceNumber=invoice["invoice_number"]).first() is not None):
+            return (jsonify("Error! Invoice already exists!"), 400)
+            
+        items = []
+        claim_items = []
+        for item in invoice["items"]:
 
-                    #update products table first
-                    existingProduct = Product.objects(itemCode=item["item_code"]).first()
-                    oldstock = existingProduct.stock
-                    new_stock = oldstock + item["quantity"]
-                    if(invoice["overwrite_price_list"]):
-                        #its not cost price, its item total, divide it by quantity first then update
-                        cost_price = round(item["item_total"]/item["quantity"], 2)
-                        existingProduct.update(stock=new_stock, costPrice=cost_price)
-                    else:
-                        existingProduct.update(stock=new_stock)
+                #update products table first
+                existingProduct = Product.objects(itemCode=item["item_code"]).first()
+                oldstock = existingProduct.stock
+                new_stock = oldstock + item["quantity"]
+                if(invoice["overwrite_price_list"]):
+                    #its not cost price, its item total, divide it by quantity first then update
+                    cost_price = round(item["item_total"]/item["quantity"], 2)
+                    existingProduct.update(stock=new_stock, costPrice=cost_price)
+                else:
+                    existingProduct.update(stock=new_stock)
 
-                    rate_per_item = round((item["item_total"]/item["quantity"])/(1.0 + existingProduct.GST), 2)
+                rate_per_item = round((item["item_total"]/item["quantity"])/(1.0 + existingProduct.GST), 2)
 
-                    new_item = ProductItem(
-                        itemDesc = existingProduct.itemDesc, 
-                        itemCode = existingProduct.itemCode, 
-                        HSN = existingProduct.HSN, 
-                        ratePerItem = rate_per_item,
-                        quantity = item["quantity"], 
-                        CGST = round((existingProduct.GST/2), 2), 
-                        SGST = round((existingProduct.GST/2), 2),
-                        IGST = 0.0
-                    )
+                new_item = ProductItem(
+                    itemDesc = existingProduct.itemDesc, 
+                    itemCode = existingProduct.itemCode, 
+                    HSN = existingProduct.HSN, 
+                    ratePerItem = rate_per_item,
+                    quantity = item["quantity"], 
+                    CGST = round((existingProduct.GST/2), 2), 
+                    SGST = round((existingProduct.GST/2), 2),
+                    IGST = 0.0
+                )
 
-                    items.append(new_item)
+                items.append(new_item)
 
-            invoice_number = invoice["invoice_number"]
-            claim_invoice = invoice["claim_invoice"]
-            if claim_invoice:
-                for claim_item in invoice["claim_items"]:
-                    new_claim_item = ClaimItem(
-                        itemDesc = Product.objects(itemCode=claim_item["item_code"]).first().itemDesc,
-                        itemCode = claim_item["item_code"],
-                        claimNumber = claim_item["claim_number"]
-                    )
-                    claim_items.append(new_claim_item)
+        invoice_number = invoice["invoice_number"]
+        claim_invoice = invoice["claim_invoice"]
+        if claim_invoice:
+            for claim_item in invoice["claim_items"]:
+                new_claim_item = ClaimItem(
+                    itemDesc = Product.objects(itemCode=claim_item["item_code"]).first().itemDesc,
+                    itemCode = claim_item["item_code"],
+                    claimNumber = claim_item["claim_number"]
+                )
+                claim_items.append(new_claim_item)
 
-            invoice_total = invoice["invoice_total"]
-            special_discount = invoice["special_discount_type"] if(invoice["special_discount"]) else ""
+        invoice_total = invoice["invoice_total"]
+        special_discount = invoice["special_discount_type"] if(invoice["special_discount"]) else ""
 
-            # if invoice date selected by user is not today (back date entry), then add time 11:30 AM, manually
-            if invoice["invoice_date"] == datetime.datetime.now().strftime('%Y-%m-%d'):
-                invoice_date = datetime.datetime.now()
-            else:
-                invoice_date = datetime.datetime.strptime(invoice["invoice_date"] + " " + "11:30:00", '%Y-%m-%d %H:%M:%S')
+        # if invoice date selected by user is not today (back date entry), then add time 11:30 AM, manually
+        if invoice["invoice_date"] == datetime.datetime.now().strftime('%Y-%m-%d'):
+            invoice_date = datetime.datetime.now()
+        else:
+            invoice_date = datetime.datetime.strptime(invoice["invoice_date"] + " " + "11:30:00", '%Y-%m-%d %H:%M:%S')
 
+        
+        if ("supplier_GSTIN" in invoice):
             supplier_details = SupplierDetail(
-                name = "Apollo Tyres",
-                GSTIN = "09AAACA6990Q1ZW",
+                name = invoice["supplier_name"],
+                GSTIN = invoice["supplier_GSTIN"],
             )
-            purchase_invoice = Purchase(
-                invoiceDate =  invoice_date,
-                invoiceNumber = invoice_number, 
-                invoiceStatus = "paid",
-                specialDiscount = special_discount,
-                claimInvoice = claim_invoice,
-                claimItems = claim_items,
-                invoiceTotal = invoice_total,
-                items = items,
-                supplierDetails = supplier_details
-                ).save()
+        else:
+            supplier_details = SupplierDetail(
+            name = "Apollo Tyres",
+            GSTIN = "09AAACA6990Q1ZW",
+        )
+
+        # if new supplier then add to supplier collection
+        supplierFound = Supplier.objects(GSTIN=supplier_details.GSTIN).first()
+        if (supplierFound is None):
+            Supplier(GSTIN=supplier_details.GSTIN, name=supplier_details.name).save()
+
+        purchase_invoice = Purchase(
+            invoiceDate =  invoice_date,
+            invoiceNumber = invoice_number, 
+            invoiceStatus = "paid",
+            specialDiscount = special_discount,
+            claimInvoice = claim_invoice,
+            claimItems = claim_items,
+            invoiceTotal = invoice_total,
+            items = items,
+            supplierDetails = supplier_details
+            ).save()
+        return (jsonify("stock updated, invoice saved"), 200)

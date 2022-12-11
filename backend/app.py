@@ -66,8 +66,7 @@ def convert_to_normal_invoice():
 @app.route("/api/update_stock", methods = ['POST'])
 def update_purchase_stock():
     invoices = request.get_json()
-    update_stock(invoices) 
-    return jsonify("stock updated, invoice saved")
+    return update_stock(invoices) 
 
 @app.route("/api/add_item", methods = ['POST'])
 def add_item_to_inventory():
