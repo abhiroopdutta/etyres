@@ -61,6 +61,8 @@ def get_product_type(item_code):
 		return "tube"
 	elif (item_code == "RR100TR414A"):
 		return "valve"
+	elif (item_code[1] == "V"):
+		return "flap"
 	else:
 		return "tyre"
 
