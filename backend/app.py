@@ -4,7 +4,7 @@ from db import initialize_db
 from update_price import get_pv_price_details, update_price, load_to_db
 from update_stock import read_invoices, update_stock, process_invoice
 from create_order import create_order, compute_gst_tables, update_invoice_status, update_purchase_invoice_status
-from sales_report import report_handler, reset_stock, get_sales_report, get_purchase_report
+from reports import report_handler, reset_stock, get_sales_report, get_purchase_report
 from account import add_header_item, add_transaction_item, get_filtered_transactions
 from models import Header, Product, Supplier, Sale
 from datetime import date, datetime
