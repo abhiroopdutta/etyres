@@ -32,7 +32,11 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
         centered: true,
         content: response.data,
       });
-    }
+    },
+    onError: (response) => Modal.error({
+      centered: true,
+      content: response.response.data,
+    }),
   });
   const [taxTable, setTaxTable] = useState(null);
   const { mutate: fetchInvoiceTable } = useMutation({

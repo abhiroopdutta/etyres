@@ -14,7 +14,7 @@ function Accounts() {
     const [transactionAdded, setTransactionAdded] = useState(false);
     const [headers, setHeaders] = useState([]);
     const [headersUpdated, setHeadersUpdated] = useState(false);
-    const [paymentModes, setPaymentModes] = useState(["cash", "card", "UPI", "bankTransfer"]);
+    const [paymentModes, setPaymentModes] = useState(["cash", "card", "UPI", "bankTransfer", "creditNote"]);
     const [selectedHeader, setSelectedHeader] = useState();
 
     useEffect(() => {
@@ -64,7 +64,7 @@ function Accounts() {
             return;
         }
         else {
-            setPaymentModes(["cash", "card", "UPI", "bankTransfer"]);
+            setPaymentModes(["cash", "card", "UPI", "bankTransfer", "creditNote"]);
         }
     };
 

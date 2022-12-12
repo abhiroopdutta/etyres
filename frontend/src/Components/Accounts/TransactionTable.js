@@ -27,7 +27,7 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
         header: "",
         transactionId: "",
         date: { start: "", end: "" },
-        paymentMode: ["cash", "card", "UPI", "bankTransfer"],
+        paymentMode: ["cash", "card", "UPI", "bankTransfer", "creditNote"],
         status: ["due", "paid"],
     });
     const [sorters, setSorters] = useState({});

@@ -406,7 +406,7 @@ def update_invoice_status(invoice_status_request):
                 new_stock = oldstock + product.quantity
                 Product.objects(itemCode=product["itemCode"]).first().update(stock=new_stock)
 
-        # invoice.update(invoiceStatus = new_invoice_status)
+        invoice.update(invoiceStatus = new_invoice_status)
         for paymentMethod in invoice.payment:
             if paymentMethod in ["card", "UPI"]:
                 transactionFrom = "01"
@@ -448,8 +448,44 @@ def update_purchase_invoice_status(invoice_status_request):
 
     # 1. due -> paid/due
     if old_invoice_status == "due" and (new_invoice_status in ["paid", "due"]):
-        payment = invoice_status_request["payment"]
-        invoice.update(invoiceStatus = new_invoice_status, payment = payment)
+        new_payment = invoice_status_request["payment"]
+        old_payment = invoice.payment
+
+        diff_payment = {
+        }
+        for paymentMethod in old_payment:
+            diff_payment[paymentMethod] = new_payment[paymentMethod] - old_payment[paymentMethod]
+        
+        # no change in payment
+        if (all(value == 0 for value in diff_payment.values())):
+            return jsonify("Payment is same as previous, no change applied"), 400
+
+        # any value has decreased
+        if (any(value < 0 for value in diff_payment.values())):
+            return jsonify("Payment is less than previous, no change applied"), 400
+        
+        invoice.update(invoiceStatus = new_invoice_status, payment = new_payment)
+        for paymentMethod, paymentAmount in diff_payment.items():
+            if paymentMethod == "creditNote":
+                transactionFrom = "04"
+                paymentMode = "creditNote"
+            elif paymentMethod == "cash":
+                transactionFrom = "00"
+                paymentMode = "cash"
+            elif paymentMethod == "bank":
+                transactionFrom = "01"
+                paymentMode = "bankTransfer"
+
+            if paymentAmount > 0 :
+                add_transaction_item(
+                    transactionFrom = transactionFrom,
+                    transactionTo = "02",
+                    dateTime = datetime.datetime.now(),
+                    status = "paid",
+                    paymentMode = paymentMode,
+                    amount = paymentAmount,
+                    reference_id = invoice.invoiceNumber,
+                )
 
     # In case of cancellations, reverse the stock also
     # 2. due/paid -> cancelled
@@ -471,5 +507,26 @@ def update_purchase_invoice_status(invoice_status_request):
                 Product.objects(itemCode=product["itemCode"]).first().update(stock=new_stock)
 
         invoice.update(invoiceStatus = new_invoice_status)
+        for paymentMethod in invoice.payment:
+            if paymentMethod == "creditNote":
+                transactionTo = "04"
+                paymentMode = "creditNote"
+            elif paymentMethod == "cash":
+                transactionTo = "00"
+                paymentMode = "cash"
+            elif paymentMethod == "bank":
+                transactionTo = "01"
+                paymentMode = "bankTransfer"
+
+            if invoice.payment[paymentMethod] > 0 :
+                add_transaction_item(
+                    transactionFrom = "02",
+                    transactionTo = transactionTo,
+                    dateTime = datetime.datetime.now(),
+                    status = "paid",
+                    paymentMode = paymentMode,
+                    amount = invoice.payment[paymentMethod],
+                    reference_id = invoice.invoiceNumber,
+                )
 
     return (jsonify("Invoice status successfully updated"), 200)
