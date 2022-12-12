@@ -47,7 +47,6 @@ function Invoice({
     enabled: !savedInvoiceNumber,
   })
   const [invoiceDate, setInvoiceDate] = useState(getTodaysDate());
-  let invoiceStatus = "due";
   const [customerDetails, setCustomerDetails] = useState({
     name: "",
     address: "",
@@ -59,6 +58,7 @@ function Invoice({
     contact: "",
   });
   const [payment, setPayment] = useState({ cash: 0, card: 0, UPI: 0 });
+  let totalPaid = payment.cash + payment.card + payment.UPI;
   const [taxTable, setTaxTable] = useState({
     GSTTable: null,
     IGSTTable: null
@@ -134,7 +134,6 @@ function Invoice({
   //Get invoice number from backend
   useEffect(() => {
     if (updateMode) {
-      invoiceStatus = savedInvoiceStatus;
       setCustomerDetails(savedCustomerDetails);
       setPayment(savedPayment);
       //Saved invoices that have been incorrectly marked as IGST sale
@@ -172,21 +171,26 @@ function Invoice({
     IGSTRender = true;
   }
 
-  //update invoice status depending on payment completed or not
-  // status of a paid/cancelled invoice cannot be updated
-  let total;
-  if (IGSTRender) {
-    total = IGSTTable?.invoiceTotal;
-  } else {
-    total = GSTTable?.invoiceTotal;
-  }
-  let totalPaid = payment.cash + payment.card + payment.UPI;
-  let due = total - totalPaid;
-  if (due === 0) {
-    invoiceStatus = "paid";
-  } else if (due > 0) {
-    invoiceStatus = "due";
-  }
+  let due;
+  let invoiceStatus = () => {
+    //update invoice status depending on payment completed or not
+    // status of a paid/cancelled invoice cannot be updated
+    if (savedInvoiceStatus === "cancelled") {
+      return "cancelled";
+    }
+    let total;
+    if (IGSTRender) {
+      total = IGSTTable?.invoiceTotal;
+    } else {
+      total = GSTTable?.invoiceTotal;
+    }
+    due = total - totalPaid;
+    if (due === 0) {
+      return "paid";
+    } else if (due > 0) {
+      return "due";
+    }
+  };
 
   const handleInvoiceClose = () => {
     //if update mode then reset every state to original
@@ -227,7 +231,7 @@ function Invoice({
     let invoiceData = {
       invoiceNumber: invoiceNumber,
       invoiceDate: invoiceDate,
-      invoiceStatus: invoiceStatus,
+      invoiceStatus: invoiceStatus(),
       customerDetails: customerDetails,
       payment: payment,
     };
@@ -298,7 +302,7 @@ function Invoice({
     if (!updateMode) {
       handleConfirmOrder(e);
     } else {
-      handleUpdateInvoiceStatus(invoiceStatus);
+      handleUpdateInvoiceStatus(invoiceStatus());
     }
     e.preventDefault();
   };
@@ -358,7 +362,7 @@ function Invoice({
                 onChange={(e) => handleInvoiceDate(e)}
               />
             </h4>
-            <h4> Invoice Status: {invoiceStatus}</h4>
+            <h4> Invoice Status: {invoiceStatus()}</h4>
           </header>
         </div>
         <hr />
@@ -641,7 +645,7 @@ function Invoice({
               <div>
                 <h4 className="total-paid">TOTAL PAID</h4>
                 <strong>
-                  &#x20B9; {payment.cash + payment.card + payment.UPI}
+                  &#x20B9; {totalPaid}
                 </strong>
               </div>
             </ul>
