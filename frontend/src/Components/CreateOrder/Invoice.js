@@ -94,7 +94,7 @@ function Invoice({
       updateInvoiceInParent(postBody.invoiceNumber);
     }
   });
-  const { isLoadingUpdateInvoice, mutate: updateInvoice } = useMutation({
+  const { isLoading: isLoadingUpdateInvoice, mutate: updateInvoice } = useMutation({
     mutationFn: postBody => axios.post("/api/update_invoice_status", postBody),
     onSuccess: (response, postBody) => {
       Modal.success({
@@ -115,6 +115,9 @@ function Invoice({
         });
       }
     },
+    onError: (response) => Modal.error({
+      content: response.response.data,
+    }),
   });
   //render different tables depending on IGST customer or not
   let IGSTRender = false;
