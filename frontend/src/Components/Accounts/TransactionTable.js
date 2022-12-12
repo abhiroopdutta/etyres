@@ -190,7 +190,7 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
                     setTimeout(() => searchInputRef.current.select(), 100);
                 }
             },
-            render: (transactionId) => (parseInt(transactionId) >= 1 ? transactionId : null),
+            render: (transactionId) => (transactionId.includes("_") ? transactionId : null),
             filteredValue: filters.transactionId ? [filters.transactionId] : null,
         },
         {
@@ -199,12 +199,12 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
             render: (text, transaction) => {
 
                 //return null if its a dummy row
-                if (parseInt(transaction.transactionId) < 1) {
+                if (!transaction.transactionId.includes("_")) {
                     return null;
                 }
 
                 let fromCode = transaction.transactionId.slice(0, 2);
-                let toCode = transaction.transactionId.slice(2, 4);
+                let toCode = transaction.transactionId.slice(3, 5);
                 if (selectedHeader?.code === fromCode) {
                     return headers.find((header) => header.code === toCode)?.name;
                 }
@@ -235,7 +235,7 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
             render: (amount, transaction) => {
 
                 //return null if its a dummy row
-                if (parseInt(transaction.transactionId) < 1) {
+                if (!transaction.transactionId.includes("_")) {
                     return null;
                 }
 
@@ -263,7 +263,7 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
             dataIndex: "status",
             key: "status",
             render: (status, transaction) => {
-                if (parseInt(transaction.transactionId) >= 1) {
+                if (transaction.transactionId.includes("_")) {
                     return status === "due" ? (
                         <Tag color="orange">Due</Tag>
                     ) : (

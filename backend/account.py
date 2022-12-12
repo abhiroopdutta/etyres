@@ -17,17 +17,23 @@ def add_header_item(headerName, headerType):
         ).save()
     return 0
 
-def add_transaction_item(transactionFrom, transactionTo, dateTime, amount, status, paymentMode, description):
-    query = Q(transactionId__startswith=transactionFrom+transactionTo)
+def add_transaction_item(transactionFrom, transactionTo, dateTime, amount, status, paymentMode, description="", reference_id = ""):
+    query = Q(transactionId__startswith=f"{transactionFrom}_{transactionTo}_{reference_id}")
     previous_transaction = Transaction.objects(query).order_by('-_id').first()
     
     if(previous_transaction is None):
-        transaction_id = transactionFrom + transactionTo + "0"
+        transaction_id = f"{transactionFrom}_{transactionTo}_{reference_id}_0"
     else:
-        transaction_id = transactionFrom + transactionTo +  f'{(int(previous_transaction.transactionId[4:]) + 1)}'
+        transaction_number = int(previous_transaction.transactionId.split("_")[-1]) + 1 
+        transaction_id = f"{transactionFrom}_{transactionTo}_{reference_id}_{transaction_number}"
+
+    dateTimeObj = dateTime
+    if isinstance(dateTime, str):
+        dateTimeObj = datetime.datetime.strptime(dateTime, "%Y-%m-%d %H:%M:%S")
+
     Transaction(
         transactionId = transaction_id,
-        date = datetime.datetime.strptime(dateTime, "%Y-%m-%d %H:%M:%S"),
+        date = dateTimeObj,
         amount = amount,
         status = status,
         paymentMode = paymentMode,
@@ -49,7 +55,7 @@ def get_filtered_transactions(filters = {}, sorters = {}, pageRequest = 1, maxIt
     page_end = pageRequest*maxItemsPerPage
     query = Q(transactionId__not__contains="*") # dummy query
     from_regexp = re.compile('^'+filters["header"])
-    to_regexp = re.compile('^\d\d'+filters["header"])
+    to_regexp = re.compile('^\d\d_'+filters["header"])
     if (filters["header"]):
         query &= Q(transactionId=from_regexp) | Q(transactionId=to_regexp)
     if (filters["status"]):
