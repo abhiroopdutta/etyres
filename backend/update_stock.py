@@ -189,7 +189,7 @@ def update_stock(invoices):
         if (supplierFound is None):
             Supplier(GSTIN=supplier_details.GSTIN, name=supplier_details.name).save()
 
-        payment = PurchasePayment(creditNote = 0.0, bank = 0.0)
+        payment = PurchasePayment(creditNote = 0.0, bank = 0.0, cash = 0.0)
         purchase_invoice = Purchase(
             invoiceDate =  invoice_date,
             invoiceNumber = invoice_number, 
@@ -202,4 +202,4 @@ def update_stock(invoices):
             supplierDetails = supplier_details,
             payment = payment,
             ).save()
-        return (jsonify("stock updated, invoice saved"), 200)
+    return (jsonify("stock updated, invoice saved"), 200)
