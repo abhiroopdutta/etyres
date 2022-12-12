@@ -47,7 +47,14 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    filters: { ...filters, header: selectedHeader?.code ?? "00" },
+                    filters: {
+                        ...filters,
+                        header: selectedHeader?.code ?? "00",
+                        date: {
+                            start: filters.date.start.format("YYYY-MM-DD"),
+                            end: filters.date.end.format("YYYY-MM-DD")
+                        }
+                    },
                     sorters: sorters,
                     pageRequest: pageRequest,
                     maxItemsPerPage: maxItemsPerPage,
