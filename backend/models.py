@@ -36,6 +36,10 @@ class SupplierDetail(db.EmbeddedDocument):
     name = db.StringField()
     GSTIN = db.StringField()
 
+class PurchasePayment(db.EmbeddedDocument):
+    creditNote = db.FloatField(required=True)
+    bank = db.FloatField(required=True)
+    
 class Purchase(db.Document):
     invoiceNumber = db.IntField(required=True, unique=True)
     invoiceDate = db.DateTimeField(required=True, default=datetime.datetime.now) 
@@ -46,6 +50,7 @@ class Purchase(db.Document):
     supplierDetails = db.EmbeddedDocumentField(SupplierDetail)
     claimItems = db.ListField(db.EmbeddedDocumentField(ClaimItem))
     items = db.ListField(db.EmbeddedDocumentField(ProductItem))
+    payment = db.EmbeddedDocumentField(PurchasePayment)
 
 class Payment(db.EmbeddedDocument):
     cash = db.FloatField(required=True)

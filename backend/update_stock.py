@@ -1,5 +1,5 @@
 import csv	
-from models import ClaimItem, Product, Purchase, ProductItem, SupplierDetail, Supplier
+from models import ClaimItem, Product, Purchase, ProductItem, SupplierDetail, Supplier, PurchasePayment
 import glob, os
 import datetime
 from itertools import repeat
@@ -189,15 +189,17 @@ def update_stock(invoices):
         if (supplierFound is None):
             Supplier(GSTIN=supplier_details.GSTIN, name=supplier_details.name).save()
 
+        payment = PurchasePayment(creditNote = 0.0, bank = 0.0)
         purchase_invoice = Purchase(
             invoiceDate =  invoice_date,
             invoiceNumber = invoice_number, 
-            invoiceStatus = "paid",
+            invoiceStatus = "due",
             specialDiscount = special_discount,
             claimInvoice = claim_invoice,
             claimItems = claim_items,
             invoiceTotal = invoice_total,
             items = items,
-            supplierDetails = supplier_details
+            supplierDetails = supplier_details,
+            payment = payment,
             ).save()
         return (jsonify("stock updated, invoice saved"), 200)
