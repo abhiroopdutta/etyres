@@ -99,20 +99,8 @@ def stock_out():
 @app.route("/api/update_invoice_status", methods = ['POST'])
 def invoice_status_update():
     invoice_status_request = request.get_json()
-    status = update_invoice_status(invoice_status_request)
-    if status == 0:
-        return jsonify("Invoice status successfully updated"), 200
-    elif status == 1:
-        return jsonify("Error! Invoice not found in db"), 400
-    elif status == 2:
-        return jsonify("Selected status is same as previous, no status update applied"), 400
-    elif status == 3:
-        return jsonify("Error! Cannot change status of already cancelled invoice"), 400
-    elif status == 4:
-        return jsonify("Error! Cannot change status of invoice from paid to due"), 400     
-    elif status == 5:
-        return jsonify("Error! Product not found in inventory, invoice could not be cancelled"), 400     
-
+    return update_invoice_status(invoice_status_request)
+        
 @app.route("/api/update_purchase_invoice_status", methods = ['POST'])
 def purchase_invoice_status_update():
     invoice_status_request = request.get_json()

@@ -1,6 +1,7 @@
 from models import CustomerDetail, Product, ProductItem, Purchase, Sale, ServiceItem
 import datetime
 from flask import jsonify
+from account import add_transaction_item
 
 def compute_gst_tables(products, services):
     GST_table = {
@@ -311,13 +312,30 @@ def create_order(invoice):
         payment = payment
         ).save()
 
+    for paymentMethod, paymentAmount in payment.items():
+        if paymentMethod in ["card", "UPI"]:
+            transactionTo = "01"
+        elif paymentMethod == "cash":
+            transactionTo = "00"
+        
+        if paymentAmount > 0 :
+            add_transaction_item(
+                transactionFrom = "03",
+                transactionTo = transactionTo,
+                dateTime = datetime.datetime.now(),
+                status = "paid",
+                paymentMode = paymentMethod,
+                amount = paymentAmount,
+                reference_id = invoice_number,
+            )
+        
     return 0
 
 def update_invoice_status(invoice_status_request):
     invoice = Sale.objects(invoiceNumber = invoice_status_request["invoiceNumber"]).first()
     if invoice is None:
         print(f'Trying to update status of invoice No. : {invoice_status_request["invoiceNumber"]} that does not exist in db')
-        return 1
+        return jsonify("Error! Invoice not found in db"), 400
 
     old_invoice_status = invoice.invoiceStatus
     new_invoice_status = invoice_status_request["invoiceStatus"]
@@ -325,18 +343,49 @@ def update_invoice_status(invoice_status_request):
     # cannot change status of cancelled invoices
     if old_invoice_status == "cancelled":
         print(f'Error! Cannot change status of invoice No. : {invoice_status_request["invoiceNumber"]} that is already cancelled')
-        return 3
+        return jsonify("Error! Cannot change status of already cancelled invoice"), 400
     # cannot change status of paid invoices to paid/due
     if old_invoice_status == "paid" and (new_invoice_status in ["paid", "due"]):
         print(f'Error! Cannot change status of invoice No. : {invoice_status_request["invoiceNumber"]} from paid to due/paid')
-        return 4
+        return jsonify("Error! Cannot change status of invoice from paid to due"), 400
 
     # only 2 types of status changes are possible
 
     # 1. due -> paid/due
     if old_invoice_status == "due" and (new_invoice_status in ["paid", "due"]):
-        payment = invoice_status_request["payment"]
-        invoice.update(invoiceStatus = new_invoice_status, payment = payment)
+        new_payment = invoice_status_request["payment"]
+        old_payment = invoice.payment
+
+        diff_payment = {
+        }
+        for paymentMethod in old_payment:
+            diff_payment[paymentMethod] = new_payment[paymentMethod] - old_payment[paymentMethod]
+        
+        # no change in payment
+        if (all(value == 0 for value in diff_payment.values())):
+            return jsonify("Payment is same as previous, no change applied"), 400
+
+        # any value has decreased
+        if (any(value < 0 for value in diff_payment.values())):
+            return jsonify("Payment is less than previous, no change applied"), 400
+        
+        invoice.update(invoiceStatus = new_invoice_status, payment = new_payment)
+        for paymentMethod, paymentAmount in diff_payment.items():
+            if paymentMethod in ["card", "UPI"]:
+                transactionTo = "01"
+            elif paymentMethod == "cash":
+                transactionTo = "00"
+
+            if paymentAmount > 0 :
+                add_transaction_item(
+                    transactionFrom = "03",
+                    transactionTo = transactionTo,
+                    dateTime = datetime.datetime.now(),
+                    status = "paid",
+                    paymentMode = paymentMethod,
+                    amount = paymentAmount,
+                    reference_id = invoice.invoiceNumber,
+                )
 
     # In case of cancellations, reverse the stock also
     # 2. due/paid -> cancelled
@@ -348,7 +397,7 @@ def update_invoice_status(invoice_status_request):
                 productFound = Product.objects(itemCode = product.itemCode).first()
                 if productFound is None:
                     print(f'Error! {product["itemDesc"]}: {product["itemCode"]} not found in inventory while reversing stock, invoice could not be cancelled')
-                    return 5
+                    return jsonify("Error! Product not found in inventory, invoice could not be cancelled"), 400
 
             # if each product exists in inventory, only then proceed to reverse stock for each product
             for product in invoice.productItems:
@@ -357,10 +406,25 @@ def update_invoice_status(invoice_status_request):
                 new_stock = oldstock + product.quantity
                 Product.objects(itemCode=product["itemCode"]).first().update(stock=new_stock)
 
-        invoice.update(invoiceStatus = new_invoice_status)
+        # invoice.update(invoiceStatus = new_invoice_status)
+        for paymentMethod in invoice.payment:
+            if paymentMethod in ["card", "UPI"]:
+                transactionFrom = "01"
+            elif paymentMethod == "cash":
+                transactionFrom = "00"
 
+            if invoice.payment[paymentMethod] > 0 :
+                add_transaction_item(
+                    transactionFrom = transactionFrom,
+                    transactionTo = "03",
+                    dateTime = datetime.datetime.now(),
+                    status = "paid",
+                    paymentMode = paymentMethod,
+                    amount = invoice.payment[paymentMethod],
+                    reference_id = invoice.invoiceNumber,
+                )
 
-    return 0
+    return jsonify("Invoice status successfully updated"), 200
     
 def update_purchase_invoice_status(invoice_status_request):
     invoice = Purchase.objects(invoiceNumber = invoice_status_request["invoiceNumber"]).first()
