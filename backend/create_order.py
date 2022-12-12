@@ -382,11 +382,10 @@ def update_purchase_invoice_status(invoice_status_request):
 
     # only 2 types of status changes are possible
 
-    # implement payment method for purchase invoice later
     # 1. due -> paid/due
-    # if old_invoice_status == "due" and (new_invoice_status in ["paid", "due"]):
-    #     payment = invoice_status_request["payment"]
-    #     invoice.update(invoiceStatus = new_invoice_status, payment = payment)
+    if old_invoice_status == "due" and (new_invoice_status in ["paid", "due"]):
+        payment = invoice_status_request["payment"]
+        invoice.update(invoiceStatus = new_invoice_status, payment = payment)
 
     # In case of cancellations, reverse the stock also
     # 2. due/paid -> cancelled

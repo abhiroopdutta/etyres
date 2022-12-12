@@ -1,8 +1,9 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { Modal, Table, Typography, Space, Layout, Divider, Button } from "antd";
+import { Modal, Table, Typography, Space, Layout, Divider, Button, Input, Form } from "antd";
 import {
   DeleteOutlined,
-  ExclamationCircleOutlined
+  ExclamationCircleOutlined,
+  CreditCardOutlined
 } from "@ant-design/icons";
 import { dayjsUTC } from "../dayjsUTCLocal";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -17,11 +18,13 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
     mutationFn: postBody => {
       return axios.post('/api/update_purchase_invoice_status', postBody)
     },
-    onSuccess: (response) => {
-      queryClient.invalidateQueries({
-        queryKey: ['products'],
-        exact: true,
-      });
+    onSuccess: (response, postBody) => {
+      if (postBody.invoiceStatus === "cancelled") {
+        queryClient.invalidateQueries({
+          queryKey: ['products'],
+          exact: true,
+        });
+      }
       queryClient.invalidateQueries({
         queryKey: ['purchase'],
       });
@@ -38,8 +41,21 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
     },
     onSuccess: (response) =>
       setTaxTable(response.data.GST_table)
-  })
-
+  });
+  const [payment, setPayment] = useState({ creditNote: 0.0, cash: 0.0, bank: 0.0 });
+  let totalPaid = payment.creditNote + payment.bank + payment.cash;
+  let due;
+  let invoiceStatus = () => {
+    if (invoice.invoiceStatus === "cancelled") {
+      return "cancelled";
+    }
+    due = invoice.invoiceTotal - totalPaid;
+    if (due === 0) {
+      return "paid";
+    } else if (due > 0) {
+      return "due";
+    }
+  };
   useEffect(() => {
     if (invoice?.items?.length > 0) {
       fetchInvoiceTable({
@@ -47,7 +63,13 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
         services: [],
       });
     }
-  }, [invoice.items]);
+    if (invoice.payment) {
+      setPayment(invoice.payment);
+    }
+    else {
+      setPayment({ creditNote: 0.0, cash: 0.0, bank: 0.0 });
+    }
+  }, [invoice]);
 
   const columns = useMemo(
     () => [
@@ -132,7 +154,10 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
         "This will reverse the product stock, please make sure to tally with physical stock",
 
       onOk() {
-        handleCancelInvoice("cancelled");
+        updateInvoiceStatus({
+          invoiceNumber: invoice.invoiceNumber,
+          invoiceStatus: "cancelled",
+        });
       },
 
       onCancel() {
@@ -140,10 +165,22 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
       },
     });
   };
-  const handleCancelInvoice = () => {
+
+  const handleSetPayment = (e) => {
+    setPayment((prevState) => ({ ...prevState, [e.target.name]: Number(e.target.value) }));
+  };
+
+  const handleUpdatePayment = () => {
+    if (due < 0) {
+      Modal.error({
+        content: "Error! Customer has paid more than total payable !",
+      });
+      return;
+    }
     updateInvoiceStatus({
       invoiceNumber: invoice.invoiceNumber,
-      invoiceStatus: "cancelled",
+      invoiceStatus: invoiceStatus(),
+      payment: payment,
     });
   };
 
@@ -165,7 +202,7 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
           <div style={{ display: "flex", flexDirection: "column" }}>
             <Title level={4} >Invoice No. {invoice.invoiceNumber} </Title>
             <Title level={5} style={{ margin: "0" }}>
-              Invoice Status: {invoice.invoiceStatus}
+              Invoice Status: {invoiceStatus()}
             </Title>
             <Title level={5} style={{ margin: "0" }}>
               Supplier: {invoice.supplierDetails?.name}
@@ -196,7 +233,7 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
           }
           pagination={false}
         />
-        <Space style={{ display: "flex", justifyContent: "space-between", padding: "15px 0px 0px 0px" }}>
+        <Space style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", padding: "15px 0px 0px 0px" }}>
           <Button
             icon={<DeleteOutlined />}
             onClick={showConfirm}
@@ -205,9 +242,71 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
           >
             Cancel invoice
           </Button>
-          <Title level={4}>
-            Total &#x20B9;{invoice.invoiceTotal}
-          </Title>
+          <Layout >
+            <Form
+              name="payment-purchase"
+              labelCol={{ span: 14 }}
+              wrapperCol={{ span: 10 }}
+              size="small"
+              id="payment-purchase-form"
+              style={{ padding: "0", margin: "0" }}
+            >
+              <Form.Item
+                label="Total"
+                style={{ padding: "0", margin: "10px 0", fontWeight: "700" }}
+              >
+                <span>&#x20B9;{invoice.invoiceTotal}</span>
+              </Form.Item>
+
+              <Form.Item
+                label="Credit Note"
+                style={{ padding: "0", margin: "10px 0" }}
+              >
+                <Input
+                  type="number"
+                  name="creditNote"
+                  onChange={handleSetPayment}
+                  value={payment.creditNote}
+                />
+              </Form.Item>
+              <Form.Item
+                label="Bank"
+                style={{ padding: "0", margin: "10px 0" }}
+              >
+                <Input
+                  type="number"
+                  name="bank"
+                  onChange={handleSetPayment}
+                  value={payment.bank}
+                />
+              </Form.Item>
+              <Form.Item
+                label="Cash"
+                style={{ padding: "0", margin: "10px 0" }}
+              >
+                <Input
+                  type="number"
+                  name="cash"
+                  onChange={handleSetPayment}
+                  value={payment.cash}
+                />
+              </Form.Item>
+              <Form.Item
+                label="Total Paid"
+                style={{ padding: "0", margin: "10px 0", fontWeight: "700" }}
+              >
+                <span>&#x20B9;{totalPaid}</span>
+              </Form.Item>
+            </Form>
+            <Button
+              icon={<CreditCardOutlined />}
+              onClick={handleUpdatePayment}
+              disabled={["paid", "cancelled"].includes(invoice.invoiceStatus)}
+              loading={isLoadingUpdateInvoiceStatus}
+            >
+              Update payment
+            </Button>
+          </Layout>
         </Space>
       </Layout>
     </Modal>

@@ -39,6 +39,7 @@ class SupplierDetail(db.EmbeddedDocument):
 class PurchasePayment(db.EmbeddedDocument):
     creditNote = db.FloatField(required=True)
     bank = db.FloatField(required=True)
+    cash = db.FloatField(required=True)
     
 class Purchase(db.Document):
     invoiceNumber = db.IntField(required=True, unique=True)
