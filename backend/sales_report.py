@@ -65,6 +65,9 @@ def get_purchase_report(
     invoiceNumber= "",
     invoiceDateFrom= "",
     invoiceDateTo= "",
+    invoiceStatus= ["due", "paid", "cancelled"],
+    supplierName = "",
+    supplierGSTIN = "",
     claimInvoice= "",
     pageRequest= 1,
     maxItemsPerPage= 5,
@@ -85,6 +88,12 @@ def get_purchase_report(
     
     if (invoiceNumber.isnumeric()):
         query &= Q(invoiceNumber=int(invoiceNumber))
+    if (invoiceStatus):
+        query &= Q(invoiceStatus__in=invoiceStatus)
+    if (supplierName):
+        query &= Q(supplierDetails__name__icontains=supplierName)
+    if (supplierGSTIN):
+        query &= Q(supplierDetails__GSTIN__icontains=supplierGSTIN)      
     if (claimInvoice):
         if (claimInvoice == "true"):
             query &= Q(claimInvoice=True)

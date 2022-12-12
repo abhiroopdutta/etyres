@@ -154,6 +154,7 @@ def get_reports():
 @app.route("/api/purchase-invoices", methods = ['GET'])
 def get_purchase_reports():
     args = request.args.to_dict()
+    args["invoiceStatus"] = request.args.getlist("invoiceStatus")
     result = get_purchase_report(**args)
     return result
     

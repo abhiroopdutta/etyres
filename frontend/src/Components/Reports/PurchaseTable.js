@@ -30,6 +30,9 @@ function PurchaseTable({ exportToExcel }) {
     invoiceNumber: "",
     invoiceDateFrom: "",
     invoiceDateTo: "",
+    invoiceStatus: ["due", "paid", "cancelled"],
+    supplierName: "",
+    supplierGSTIN: "",
     claimInvoice: "",
     pageRequest: 1,
     maxItemsPerPage: 5,
@@ -41,11 +44,18 @@ function PurchaseTable({ exportToExcel }) {
 
   const { isLoading: isLoadingFetchPurchaseInvoices, data: purchaseInvoices, } = useQuery({
     queryKey: ["purchase", query],
-    queryFn: () => axios.get("/api/purchase-invoices?" + new URLSearchParams({
-      ...query,
-      invoiceDateFrom: query.invoiceDateFrom ? query.invoiceDateFrom.format("YYYY-MM-DD") : "",
-      invoiceDateTo: query.invoiceDateTo ? query.invoiceDateTo.format("YYYY-MM-DD") : "",
-    }).toString()),
+    queryFn: () => {
+      let queryParams = new URLSearchParams({
+        ...query,
+        invoiceDateFrom: query.invoiceDateFrom ? query.invoiceDateFrom.format("YYYY-MM-DD") : "",
+        invoiceDateTo: query.invoiceDateTo ? query.invoiceDateTo.format("YYYY-MM-DD") : "",
+      });
+      queryParams.delete("invoiceStatus");
+      query.invoiceStatus.forEach(element => {
+        queryParams.append("invoiceStatus", element);
+      });
+      return axios.get("/api/purchase-invoices?" + queryParams.toString());
+    },
     select: (result) => {
       let invoices = result.data.invoices;
       if (invoices.length !== query.maxItemsPerPage) {
@@ -180,6 +190,31 @@ function PurchaseTable({ exportToExcel }) {
     confirm();
   };
 
+  const getDropDownMenuInvoiceStatus = (dataIndex) => ({
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
+      <div style={{ padding: 8 }}>
+        <Select
+          mode="multiple"
+          defaultValue={["due", "paid", "cancelled"]}
+          style={{ width: 120 }}
+          onChange={(value) =>
+            setQuery((oldState) => ({
+              ...oldState,
+              [dataIndex]: value,
+              pageRequest: 1,
+            }))
+          }
+          onBlur={confirm}
+        >
+          <Option value="paid">Paid</Option>
+          <Option value="due">Due</Option>
+          <Option value="cancelled">Cancelled</Option>
+        </Select>
+      </div>
+    ),
+    filtered: true,
+  });
+
   const handlePageChange = (pagination) => {
     let itemsAlreadyRequested = (pagination.current - 1) * pagination.pageSize;
     if (itemsAlreadyRequested <= pagination.total)
@@ -249,6 +284,13 @@ function PurchaseTable({ exportToExcel }) {
       title: "Supplier Name",
       dataIndex: ["supplierDetails", "name"],
       key: ["supplierDetails", "name"],
+      ...getSearchMenu("supplierName"),
+      onFilterDropdownVisibleChange: (visible) => {
+        if (visible) {
+          setTimeout(() => searchInputRef.current.select(), 100);
+        }
+      },
+      filteredValue: query.supplierName ? [query.supplierName] : null,
       render: (supplierName, invoice) =>
         invoice.invoiceNumber >= 1 ? <Text>{supplierName}</Text> : null,
     },
@@ -256,6 +298,13 @@ function PurchaseTable({ exportToExcel }) {
       title: "Supplier GSTIN",
       dataIndex: ["supplierDetails", "GSTIN"],
       key: ["supplierDetails", "GSTIN"],
+      ...getSearchMenu("supplierGSTIN"),
+      onFilterDropdownVisibleChange: (visible) => {
+        if (visible) {
+          setTimeout(() => searchInputRef.current.select(), 100);
+        }
+      },
+      filteredValue: query.supplierGSTIN ? [query.supplierGSTIN] : null,
       render: (supplierGSTIN, invoice) =>
         invoice.invoiceNumber >= 1 ? <Text>{supplierGSTIN}</Text> : null,
     },
@@ -276,6 +325,8 @@ function PurchaseTable({ exportToExcel }) {
           return null;
         }
       },
+      ...getDropDownMenuInvoiceStatus("invoiceStatus"),
+      filteredValue: query.invoiceStatus ? [query.invoiceStatus] : null,
     },
     {
       title: "Invoice Type",
