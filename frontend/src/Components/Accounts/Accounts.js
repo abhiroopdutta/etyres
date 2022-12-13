@@ -90,7 +90,7 @@ function Accounts() {
                         setLoading(false);
                     }, 1000);
                     setTimeout(
-                        () => message.success("Item added to inventory!", 2),
+                        () => message.success("Transaction Added!", 2),
                         1300
                     );
                     setTimeout(() => setVisible(false), 1800);

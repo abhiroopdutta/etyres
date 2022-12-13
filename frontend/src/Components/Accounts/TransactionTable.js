@@ -34,7 +34,7 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
     const [pageRequest, setPageRequest] = useState(1);
     const [maxItemsPerPage, setMaxItemsPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState({});
-    const [transactions, setTransactions] = useState([]);
+    const [transactions, setTransactions] = useState({ data: [], balance: 0 });
     const [loading, setLoading] = useState(false);
     const searchInputRef = useRef();
 
@@ -64,7 +64,7 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
                 const response = await fetch("/api/get_transactions", requestOptions);
                 const result = await response.json();
                 if (response.ok && !didCancel) {
-                    setTransactions(result.data);
+                    setTransactions({ data: result.data, balance: result.balance });
                     setCurrentPage(result.pagination);
                     setLoading(false);
                 }
@@ -304,6 +304,10 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
                     {
                         value: "bankTransfer",
                         text: "Bank Transfer"
+                    },
+                    {
+                        value: "creditNote",
+                        text: "Credit Note"
                     }
                 ]),
         },
@@ -330,12 +334,15 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
         },
     ];
 
-    if (transactions.length !== maxItemsPerPage) {
+    if (transactions.data.length !== maxItemsPerPage) {
         let dummyRows = [];
-        for (let i = 1; i <= maxItemsPerPage - transactions.length; i++) {
+        for (let i = 1; i <= maxItemsPerPage - transactions.data.length; i++) {
             dummyRows.push({ transactionId: (i / 10).toString() });
         }
-        setTransactions((prevTransactions) => [...prevTransactions, ...dummyRows]);
+        setTransactions((prevTransactions) => ({
+            ...prevTransactions,
+            data: [...prevTransactions.data, ...dummyRows]
+        }));
     }
 
     return (
@@ -344,21 +351,15 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
                 <Title level={3} strong>
                     {selectedHeader?.name}
                 </Title>
-                <Button
-                    type="primary"
-                    // onClick={handleExport}
-                    size="small"
-                    style={{ width: 100 }}
-                    icon={<DownloadOutlined />}
-                >
-                    Export
-                </Button>
+                <Title level={3} strong>
+                    Balance: &#x20B9;{transactions?.balance}
+                </Title>
             </Space>
 
             <Table
                 loading={loading}
                 columns={columns}
-                dataSource={transactions}
+                dataSource={transactions.data}
                 rowKey={(transaction) => transaction.transactionId}
                 pagination={{
                     simple: true,
