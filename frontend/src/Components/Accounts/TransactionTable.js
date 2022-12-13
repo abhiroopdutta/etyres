@@ -51,8 +51,8 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
                         ...filters,
                         header: selectedHeader?.code ?? "00",
                         date: {
-                            start: filters.date.start.format("YYYY-MM-DD"),
-                            end: filters.date.end.format("YYYY-MM-DD")
+                            start: filters.date.start ? filters.date.start.format("YYYY-MM-DD") : "",
+                            end: filters.date.end ? filters.date.end.format("YYYY-MM-DD") : "",
                         }
                     },
                     sorters: sorters,
