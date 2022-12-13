@@ -9,13 +9,13 @@ function Navbar() {
         <h1 className="nav-header">ETyres</h1>
       </Link>
       <div className="nav-links-container">
-        <Link className="nav-link" to="/create_order">
+        <Link className="nav-link" to="/create-order">
           Create Order
         </Link>
-        <Link className="nav-link" to="/update_stock">
+        <Link className="nav-link" to="/update-stock">
           Update Purchases
         </Link>
-        <Link className="nav-link" to="/update_price">
+        <Link className="nav-link" to="/update-price">
           Update Price List
         </Link>
         <Link className="nav-link" to="/reports">

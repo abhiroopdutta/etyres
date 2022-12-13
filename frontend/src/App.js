@@ -24,9 +24,9 @@ function App() {
         <div className="App">
           <Navbar />
           <Switch>
-            <Route path="/create_order" component={CreateOrder}></Route>
-            <Route path="/update_stock" component={UpdateStock}></Route>
-            <Route path="/update_price" component={UpdatePrice}></Route>
+            <Route path="/create-order" component={CreateOrder}></Route>
+            <Route path="/update-stock" component={UpdateStock}></Route>
+            <Route path="/update-price" component={UpdatePrice}></Route>
             <Route path="/reports" component={Reports}></Route>
             <Route path="/accounts" component={Accounts}></Route>
           </Switch>
