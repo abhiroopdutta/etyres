@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Modal, Button, Input, Form, Layout, Col, Row, Typography, Divider } from "antd";
+import { Modal, Button, Input, Form, Layout, Col, Row, Typography, Divider, message } from "antd";
 import { DatePicker } from "../Antdesign_dayjs_components";
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import axios from "axios";
@@ -11,7 +11,7 @@ const { Title } = Typography;
 
 function ServicesForm() {
     const [form] = Form.useForm();
-    const [services, setServices] = useState([
+    const [noTaxItems, setNoTaxItems] = useState([
         {
             label: "Fitting",
             name: "fitting",
@@ -57,7 +57,7 @@ function ServicesForm() {
     ]);
     const { mutate: createInvoice, isLoading: isLoadingCreateInvoice } = useMutation({
         mutationFn: postBody => {
-            return axios.post('/api/add-non-tax-invoice', postBody);
+            return axios.post('/api/no-tax-invoice', postBody);
         },
         onSuccess: (response) => {
             Modal.success({
@@ -68,7 +68,7 @@ function ServicesForm() {
 
         }
     });
-    let serviceTotal = Math.round(services.reduce(
+    let serviceTotal = Math.round(noTaxItems.reduce(
         (serviceTotal, service) =>
             serviceTotal + service.price * service.quantity,
         0
@@ -77,8 +77,8 @@ function ServicesForm() {
     const handleServicesPrice = (e) => {
         let fieldName = e.target.getAttribute("fieldname");
         let value = fieldName === "price" ? Number(e.target.value) : e.target.value ? parseInt(e.target.value) : 0
-        setServices((services) =>
-            services.map((service) => {
+        setNoTaxItems((noTaxItems) =>
+            noTaxItems.map((service) => {
                 if (service.name === e.target.name) {
                     const updatedService = {
                         ...service,
@@ -95,8 +95,8 @@ function ServicesForm() {
 
     const emptyCart = () => {
         form.resetFields();
-        setServices((services) =>
-            services.map((service) => {
+        setNoTaxItems((noTaxItems) =>
+            noTaxItems.map((service) => {
                 return {
                     ...service,
                     quantity: 0,
@@ -107,12 +107,16 @@ function ServicesForm() {
     };
 
     const handleCreateInvoice = (values) => {
+        if (noTaxItems.every((item) => (item.quantity === 0 || item.price === 0))) {
+            message.error("No items added! Please add atleast one item with non zero price, quantity.", 3);
+            return;
+        }
         createInvoice({
             invoiceDate: values.invoiceDate.format("YYYY-MM-DD"),
             invoiceTotal: serviceTotal,
             vehicleNumber: values.vehicleNumber,
             vehicleDesc: values.vehicleDesc,
-            serviceItems: services,
+            noTaxItems: noTaxItems.filter((item) => item.quantity > 0),
         });
     };
 
@@ -129,7 +133,7 @@ function ServicesForm() {
             </div>
             <Divider style={{ margin: "5px 0 15px 0", border: "1px solid var(--dark)" }} />
             <Form
-                name="services-vehicleDetails-form"
+                name="noTaxItems-vehicleDetails-form"
                 labelAlign="left"
                 labelCol={{ span: 8 }}
                 wrapperCol={{ span: 16 }}
@@ -161,10 +165,10 @@ function ServicesForm() {
                 </Form.Item>
             </Form>
             <Form
-                name="services-form"
+                name="noTaxItems-form"
                 labelAlign="right"
             >
-                {services.map((service) =>
+                {noTaxItems.map((service) =>
                     <React.Fragment key={service.name}>
                         <Row>
                             <Col>
@@ -212,6 +216,7 @@ function ServicesForm() {
             <Button
                 icon={<FileAddOutlined />}
                 onClick={() => form.submit()}
+                loading={isLoadingCreateInvoice}
             >
                 Create service invoice
             </Button>
