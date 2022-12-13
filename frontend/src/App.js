@@ -8,6 +8,7 @@ import UpdatePrice from "./Components/UpdatePrice/UpdatePrice";
 import UpdateStock from "./Components/UpdateStock/UpdateStock";
 import Reports from "./Components/Reports/Reports";
 import Accounts from "./Components/Accounts/Accounts";
+import Services from "./Components/Services/Services";
 import './AntStyles.css'
 import {
   QueryClient,
@@ -29,6 +30,7 @@ function App() {
             <Route path="/update-price" component={UpdatePrice}></Route>
             <Route path="/reports" component={Reports}></Route>
             <Route path="/accounts" component={Accounts}></Route>
+            <Route path="/Services" component={Services}></Route>
           </Switch>
         </div>
       </Router>
