@@ -6,13 +6,14 @@ from update_stock import read_invoices, update_stock, process_invoice
 from create_order import create_order, compute_gst_tables, update_invoice_status, update_purchase_invoice_status
 from reports import report_handler, reset_stock, get_sales_report, get_purchase_report
 from account import add_header_item, add_transaction_item, get_filtered_transactions
-from notax import add_no_tax_invoice
 from models import Header, Product, Supplier, Sale
 from datetime import date, datetime
 import os
 import json
+from apis import blueprint as api
 
 app = Flask(__name__)
+app.register_blueprint(api, url_prefix='/api/')
 app.config['MONGODB_SETTINGS'] = {
     'db': 'etyresdb',
     'host': os.environ['MONGODB_HOST'],
@@ -190,10 +191,6 @@ def get_suppliers():
     results = Supplier.objects()
     return jsonify(results), 200
 
-@app.route("/api/no-tax-invoice", methods = ['POST'])
-def no_tax_invoice():
-    data = request.get_json()
-    return add_no_tax_invoice(**data)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

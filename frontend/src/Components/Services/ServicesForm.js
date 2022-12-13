@@ -57,7 +57,7 @@ function ServicesForm() {
     ]);
     const { mutate: createInvoice, isLoading: isLoadingCreateInvoice } = useMutation({
         mutationFn: postBody => {
-            return axios.post('/api/no-tax-invoice', postBody);
+            return axios.post('/api/notax/invoices', postBody);
         },
         onSuccess: (response) => {
             Modal.success({

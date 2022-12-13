@@ -1,7 +1,9 @@
-from flask import jsonify
+from flask_restx import Namespace, Resource
+from flask import jsonify, request
 from models import NoTaxSale, NoTaxItem
 import datetime
 
+api = Namespace('notax', description='Non taxable sale related operations')
 
 def add_no_tax_invoice(invoiceDate, invoiceTotal, noTaxItems, vehicleNumber = "", vehicleDesc = ""):
     prev_invoice = NoTaxSale.objects().order_by('-_id').first()
@@ -34,4 +36,14 @@ def add_no_tax_invoice(invoiceDate, invoiceTotal, noTaxItems, vehicleNumber = ""
         vehicleDesc = vehicleDesc,
         serviceItems = no_tax_items,
     ).save()
-    return jsonify("Success! Invoice added."), 200
+    return "Success! Invoice added.", 200
+
+@api.route('/invoices')
+class NotaxInvoiceList(Resource):
+    def get(self):
+        '''List all non taxable sale invoices'''
+        return jsonify(NoTaxSale.objects().order_by('-_id'))
+
+    def post(self):
+        '''Create a new non taxable sale invoice'''
+        return add_no_tax_invoice(**request.get_json())
