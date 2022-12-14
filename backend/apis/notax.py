@@ -1,9 +1,10 @@
-from flask_restx import Namespace, Resource
+from flask_smorest import Blueprint
 from flask import jsonify, request
+from flask.views import MethodView
 from models import NoTaxSale, NoTaxItem
 import datetime
 
-api = Namespace('notax', description='Non taxable sale related operations')
+blp = Blueprint("notax", "notax", url_prefix="/notax", description="Operations related to non taxable sale invoices")
 
 def add_no_tax_invoice(invoiceDate, invoiceTotal, noTaxItems, vehicleNumber = "", vehicleDesc = ""):
     prev_invoice = NoTaxSale.objects().order_by('-_id').first()
@@ -38,8 +39,8 @@ def add_no_tax_invoice(invoiceDate, invoiceTotal, noTaxItems, vehicleNumber = ""
     ).save()
     return "Success! Invoice added.", 200
 
-@api.route('/invoices')
-class NotaxInvoiceList(Resource):
+@blp.route('/invoices')
+class NotaxInvoiceList(MethodView):
     def get(self):
         '''List all non taxable sale invoices'''
         return jsonify(NoTaxSale.objects().order_by('-_id'))

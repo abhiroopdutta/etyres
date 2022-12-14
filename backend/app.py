@@ -1,4 +1,4 @@
-from flask import Flask,jsonify, request, Response
+from flask import Flask,jsonify, request, Response, Blueprint
 from flask import send_from_directory, abort
 from db import initialize_db
 from update_price import get_pv_price_details, update_price, load_to_db
@@ -10,16 +10,24 @@ from models import Header, Product, Supplier, Sale
 from datetime import date, datetime
 import os
 import json
-from apis import blueprint as api
+from apis import initialize_api
 
 app = Flask(__name__)
-app.register_blueprint(api, url_prefix='/api/')
+app.config["API_TITLE"] = "ETyres API"
+app.config["API_VERSION"] = "v1"
+app.config["OPENAPI_VERSION"] = "3.0.2"
+app.config["OPENAPI_URL_PREFIX"] = "/"
+app.config["OPENAPI_SWAGGER_UI_PATH"] = "/swagger-ui"
+app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
+app.register_blueprint(Blueprint('api', __name__)) 
 app.config['MONGODB_SETTINGS'] = {
     'db': 'etyresdb',
     'host': os.environ['MONGODB_HOST'],
     #'host': 'localhost',
     'port': 27017
 }
+
+initialize_api(app)
 initialize_db(app)
 
 app.config["CLIENT_CSV"] = "./tempdata/sales_report"

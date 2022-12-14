@@ -1,14 +1,6 @@
-from flask_restx import Api
-from flask import Blueprint
-from .notax import api as ns1
+from flask_smorest import Api
+from .notax import blp as notax
 
-blueprint = Blueprint('api', __name__)
-api = Api(
-    blueprint,
-    title='ETyres API',
-    version='1.0',
-    description='A description',
-    # All API metadatas
-)
-
-api.add_namespace(ns1)
+def initialize_api(app):
+    api = Api(app)
+    api.register_blueprint(notax)
