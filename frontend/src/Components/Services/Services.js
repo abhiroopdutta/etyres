@@ -1,6 +1,7 @@
 import React from "react";
 import ServicesForm from "./ServicesForm";
 import { Layout, Col, Row } from "antd";
+import ServicesTable from "./ServicesTable";
 
 function Services() {
 
@@ -16,7 +17,7 @@ function Services() {
                     <ServicesForm />
                 </Col>
                 <Col flex={"auto"}>
-
+                    <ServicesTable />
                 </Col>
             </Row>
 

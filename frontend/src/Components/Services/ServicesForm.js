@@ -10,6 +10,7 @@ import {
 const { Title } = Typography;
 
 function ServicesForm() {
+    const queryClient = useQueryClient();
     const [form] = Form.useForm();
     const [noTaxItems, setNoTaxItems] = useState([
         {
@@ -60,12 +61,14 @@ function ServicesForm() {
             return axios.post('/api/notax/invoices', postBody);
         },
         onSuccess: (response) => {
-            Modal.success({
-                content: response.data,
-            });
+            message.success(
+                response.data, 3
+            );
             emptyCart();
             //invalidate query
-
+            queryClient.invalidateQueries({
+                queryKey: ["serviceInvoices"],
+            });
         }
     });
     let serviceTotal = Math.round(noTaxItems.reduce(
