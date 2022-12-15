@@ -72,6 +72,10 @@ def get_invoices(
     results["count"] = NoTaxSale.objects(query).count()
     return results
 
+def delete_invoice(invoice_number):
+    invoice_to_delete = NoTaxSale.objects.get(invoiceNumber = invoice_number)
+    invoice_to_delete.delete()
+
 class NoTaxSaleSchema(mamo.ModelSchema):
     class Meta:
         model = NoTaxSale
@@ -98,3 +102,14 @@ class NotaxInvoiceList(views.MethodView):
     def post(self):
         '''Create a new non taxable sale invoice'''
         return create_invoice(**request.get_json())
+
+@blp.route('/invoices/<invoice_number>')
+class NotaxInvoice(views.MethodView):
+    @blp.response(204)
+    def delete(self, invoice_number):
+        '''Delete non taxable sale invoice'''
+        try:
+            delete_invoice(invoice_number)
+        except :
+            flask_smorest.abort(404, message="Item not found.")
+

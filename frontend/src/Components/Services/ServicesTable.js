@@ -6,19 +6,23 @@ import {
     Space,
     Layout,
     Typography,
+    message,
+    Modal
 } from "antd";
 import { DatePicker } from "../Antdesign_dayjs_components";
 import {
     SearchOutlined,
-    EditFilled,
     DownloadOutlined,
+    DeleteFilled,
+    ExclamationCircleOutlined
 } from "@ant-design/icons";
 import { dayjsUTC } from "../dayjsUTCLocal";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 const { RangePicker } = DatePicker;
 const { Content } = Layout;
 const { Title, Text } = Typography;
+const { confirm } = Modal;
 
 function PurchaseTable({ exportToExcel }) {
     const [query, setQuery] = useState({
@@ -65,6 +69,21 @@ function PurchaseTable({ exportToExcel }) {
             data: [], headers: { "x-pagination": JSON.stringify({}) }
         }),
     });
+    const queryClient = useQueryClient();
+    const { mutate: deleteInvoice, isLoading: isLoadingDeleteInvoice } = useMutation({
+        mutationFn: invoiceNumber => {
+            return axios.delete(`/api/notax/invoices/${invoiceNumber}`, invoiceNumber);
+        },
+        onSuccess: (response) => {
+            message.success(
+                "Invoice deleted!", 3
+            );
+            queryClient.invalidateQueries({
+                queryKey: ["serviceInvoices"],
+            });
+        }
+    });
+
     const getSearchMenu = (dataIndex) => ({
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
             <div style={{ padding: 8 }}>
@@ -150,7 +169,22 @@ function PurchaseTable({ exportToExcel }) {
             }
         });
     };
+    const showConfirm = (invoiceNumber) => {
+        confirm({
+            title: "Are you sure you want to cancel this invoice?",
+            icon: <ExclamationCircleOutlined />,
+            content:
+                "This will reverse any transaction(s) associated with it.",
 
+            onOk() {
+                deleteInvoice(invoiceNumber);
+            },
+
+            onCancel() {
+                console.log("Invoice Cancellation aborted");
+            },
+        });
+    };
     const columns = [
         {
             title: "Invoice No.",
@@ -223,14 +257,15 @@ function PurchaseTable({ exportToExcel }) {
                         shape="round"
                         size="small"
                         type="link"
-                        icon={<EditFilled />}
+                        onClick={() => showConfirm(invoice.invoiceNumber)}
+                        icon={<DeleteFilled />}
                     ></Button>
                 ) : (
                     <Button
                         shape="round"
                         size="small"
                         type="link"
-                        icon={<EditFilled />}
+                        icon={<DeleteFilled />}
                         disabled
                     ></Button>
                 ),
@@ -264,6 +299,33 @@ function PurchaseTable({ exportToExcel }) {
                     current: serviceInvoices?.pagination?.page,
                     pageSize: query.page_size,
                     total: serviceInvoices?.pagination?.total,
+                }}
+                expandable={{
+                    rowExpandable: record => record.invoiceNumber >= 1,
+                    expandedRowRender: (record) => (
+                        <div >
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Item Name</th>
+                                        <th>Qty</th>
+                                        <th>Price</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {record.serviceItems.map((item) =>
+                                        <tr key={item.name}>
+                                            <td>{item.name}</td>
+                                            <td>{item.quantity}</td>
+                                            <td>&#x20B9;{item.price}</td>
+                                            <td>&#x20B9;{Math.round(item.price * item.quantity)}</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    ),
                 }}
                 onChange={handlePageChange}
             />

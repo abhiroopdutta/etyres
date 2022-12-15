@@ -37,6 +37,24 @@
   background: var(--dark) !important;
 }
 
+tr.ant-table-expanded-row > td {
+  background-color: var(--lighter);
+  transition: none;
+}
+
+.ant-table-row-expand-icon,
+.ant-table-row-expand-icon:focus {
+  background: var(--lighter);
+  color: var(--darkest);
+  border-color: var(--darker);
+}
+
+.ant-table-row-expand-icon:hover {
+  background: var(--lighter);
+  color: var(--darkest);
+  border-color: var(--darkest);
+}
+
 .ant-btn-primary,
 .ant-btn-default {
   text-decoration: none;
@@ -85,19 +103,23 @@
   color: var(--darkest);
 }
 
-.anticon-edit {
+.anticon-edit,
+.anticon-delete {
   color: var(--darker);
 }
 
-.anticon-edit:hover {
+.anticon-edit:hover,
+.anticon-delete:hover {
   color: var(--darkest);
 }
 
-.anticon-edit:active {
+.anticon-edit:active,
+.anticon-delete:active {
   color: var(--darkest);
 }
 
-.anticon-edit:focus {
+.anticon-edit:focus,
+.anticon-delete:focus {
   color: var(--darkest);
 }
 
