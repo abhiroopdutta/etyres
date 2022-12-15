@@ -7,6 +7,7 @@ import {
     FileAddOutlined,
     ClearOutlined
 } from "@ant-design/icons";
+import { dayjsLocal } from "../dayjsUTCLocal";
 const { Title } = Typography;
 
 function ServicesForm() {
@@ -69,7 +70,9 @@ function ServicesForm() {
             queryClient.invalidateQueries({
                 queryKey: ["serviceInvoices"],
             });
-        }
+        },
+        onError: (response) => message.error(response.response.data.status, 3),
+
     });
     let serviceTotal = Math.round(noTaxItems.reduce(
         (serviceTotal, service) =>
@@ -142,6 +145,7 @@ function ServicesForm() {
                 wrapperCol={{ span: 16 }}
                 onFinish={handleCreateInvoice}
                 form={form}
+                initialValues={{ invoiceDate: dayjsLocal() }}
             >
                 <Form.Item
                     label="Invoice Date"
