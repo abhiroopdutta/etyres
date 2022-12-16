@@ -35,8 +35,8 @@ function SalesTable({ exportToExcel }) {
     customerContact: "",
     customerVehicleNumber: "",
     customerGSTIN: "",
-    pageRequest: 1,
-    maxItemsPerPage: 5,
+    page: 1,
+    page_size: 5,
   });
 
   const [currentPage, setCurrentPage] = useState({});
@@ -50,55 +50,51 @@ function SalesTable({ exportToExcel }) {
   const { isLoading: isLoadingFetchSalesInvoices, data: salesInvoices, } = useQuery({
     queryKey: ["sale", query],
     queryFn: () => {
-      let queryParams = new URLSearchParams({
-        ...query,
-        invoiceDateFrom: query.invoiceDateFrom ? query.invoiceDateFrom.format("YYYY-MM-DD") : "",
-        invoiceDateTo: query.invoiceDateTo ? query.invoiceDateTo.format("YYYY-MM-DD") : "",
-      });
+      let queryParams = new URLSearchParams();
+      for (let [key, value] of Object.entries(query)) {
+        if (value) {
+          if (["invoiceDateFrom", "invoiceDateTo"].includes(key)) {
+            queryParams.append(key, value.format("YYYY-MM-DD"));
+          }
+          else {
+            queryParams.append(key, value);
+          }
+        }
+      }
       queryParams.delete("invoiceStatus");
       query.invoiceStatus.forEach(element => {
         queryParams.append("invoiceStatus", element);
       });
-      return axios.get("/api/sale-invoices?" + queryParams.toString());
+      return axios.get("/api/sales/invoices?" + queryParams.toString());
     },
     select: (result) => {
-      let invoices = result.data.invoices;
-      if (invoices.length !== query.maxItemsPerPage) {
+      let responseData = result.data;
+      let transformedData = result.data;
+      if (responseData.length !== query.page_size) {
         let dummyRows = [];
-        for (let i = 1; i <= query.maxItemsPerPage - invoices.length; i++) {
+        for (let i = 1; i <= query.page_size - responseData.length; i++) {
           dummyRows.push({ invoiceNumber: i / 10 });
         }
-        return {
-          invoices: [...invoices, ...dummyRows],
-          pagination: result.data.pagination,
-        };
+        transformedData = [...responseData, ...dummyRows];
       }
+
       return {
-        invoices: result.data.invoices,
-        pagination: result.data.pagination,
+        data: transformedData,
+        pagination: JSON.parse(result?.headers["x-pagination"]),
       };
     },
     onSuccess: (result) => {
       setCurrentPage(result.pagination);
       setSelectedInvoice(oldState => {
         if (oldState.invoiceNumber) {
-          return result.invoices.find((invoice) => invoice.invoiceNumber === oldState.invoiceNumber);
+          return result.data.find((invoice) => invoice.invoiceNumber === oldState.invoiceNumber);
         }
         return oldState;
       });
     },
-    placeholderData: () => {
-      let dummyRows = [];
-      for (let i = 1; i <= query.maxItemsPerPage; i++) {
-        dummyRows.push({ invoiceNumber: i / 10 });
-      }
-      return {
-        data: {
-          invoices: dummyRows,
-          pagination: {},
-        }
-      };
-    },
+    placeholderData: () => ({
+      data: [], headers: { "x-pagination": JSON.stringify({}) }
+    }),
   });
   useEffect(() => {
     if (showInvoice) {
@@ -151,7 +147,7 @@ function SalesTable({ exportToExcel }) {
     setQuery((oldState) => ({
       ...oldState,
       [dataIndex]: selectedKeys[0] ?? "",
-      pageRequest: 1,
+      page: 1,
     }));
     confirm();
   };
@@ -182,7 +178,7 @@ function SalesTable({ exportToExcel }) {
       ...oldState,
       invoiceDateFrom: selectedKeys[0] ?? "",
       invoiceDateTo: selectedKeys[1] ?? "",
-      pageRequest: 1
+      page: 1
     }));
     confirm();
   };
@@ -198,7 +194,7 @@ function SalesTable({ exportToExcel }) {
             setQuery((oldState) => ({
               ...oldState,
               [dataIndex]: value,
-              pageRequest: 1,
+              page: 1,
             }))
           }
           onBlur={confirm}
@@ -217,7 +213,7 @@ function SalesTable({ exportToExcel }) {
     if (itemsAlreadyRequested <= pagination.total)
       setQuery(oldState => ({
         ...oldState,
-        pageRequest: pagination.current,
+        page: pagination.current,
       }))
   };
 
@@ -229,8 +225,8 @@ function SalesTable({ exportToExcel }) {
         ...query,
         invoiceDateFrom: query.invoiceDateFrom ? query.invoiceDateFrom.format("YYYY-MM-DD") : "",
         invoiceDateTo: query.invoiceDateTo ? query.invoiceDateTo.format("YYYY-MM-DD") : "",
-        pageRequest: 1,
-        maxItemsPerPage: 10000,
+        page: 1,
+        page_size: 10000,
       },
     });
   };
@@ -276,7 +272,7 @@ function SalesTable({ exportToExcel }) {
       key: "invoiceDate",
       render: (invoiceDate) =>
         invoiceDate
-          ? dayjsUTC(invoiceDate["$date"]).format("DD/MM/YYYY")
+          ? dayjsUTC(invoiceDate).format("DD/MM/YYYY")
           : null,
       ...getDateRangeMenu("invoiceDate"),
       filteredValue:
@@ -420,13 +416,13 @@ function SalesTable({ exportToExcel }) {
       <Table
         loading={isLoadingFetchSalesInvoices}
         columns={columns}
-        dataSource={salesInvoices?.invoices}
+        dataSource={salesInvoices?.data}
         rowKey={(invoice) => invoice.invoiceNumber}
         pagination={{
           simple: true,
-          current: currentPage.pageNumber,
-          pageSize: query.maxItemsPerPage,
-          total: currentPage.totalResults,
+          current: salesInvoices?.pagination?.page,
+          pageSize: query.page_size,
+          total: salesInvoices?.pagination?.total,
         }}
         onChange={handlePageChange}
       />
@@ -439,7 +435,7 @@ function SalesTable({ exportToExcel }) {
           services={selectedInvoice.serviceItems}
           savedInvoiceNumber={selectedInvoice.invoiceNumber}
           savedInvoiceDate={dayjsUTC(
-            selectedInvoice.invoiceDate["$date"]
+            selectedInvoice.invoiceDate
           ).format("YYYY-MM-DD")}
           savedInvoiceStatus={selectedInvoice.invoiceStatus}
           savedCustomerDetails={selectedInvoice.customerDetails}

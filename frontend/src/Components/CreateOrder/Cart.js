@@ -18,7 +18,7 @@ function Cart() {
   const queryClient = useQueryClient();
   const { isSuccess: isSuccessFetchSavedInvoice, data: savedInvoice, } = useQuery({
     queryKey: ["invoice", updatedInvoiceNumber],
-    queryFn: () => axios.get(`/api/get_sales_invoice?invoiceNumber=${updatedInvoiceNumber}`),
+    queryFn: () => axios.get(`/api/sales/invoices/${updatedInvoiceNumber}`),
     select: (data) => data.data,
     enabled: !!updatedInvoiceNumber,
   })
@@ -182,8 +182,7 @@ function Cart() {
                 updateInvoiceInParent={setUpdatedInvoiceNumber}
                 savedInvoiceNumber={savedInvoice.invoiceNumber}
                 savedInvoiceDate={dayjsUTC(
-                  savedInvoice.invoiceDate["$date"]
-                ).format("YYYY-MM-DD")}
+                  savedInvoice.invoiceDate).format("YYYY-MM-DD")}
                 savedInvoiceStatus={savedInvoice.invoiceStatus}
                 savedCustomerDetails={savedInvoice.customerDetails}
                 savedPayment={savedInvoice.payment}

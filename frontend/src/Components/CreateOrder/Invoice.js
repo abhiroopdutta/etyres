@@ -41,8 +41,8 @@ function Invoice({
   const queryClient = useQueryClient();
   const { data: invoiceNumber } = useQuery({
     queryKey: ["invoiceNumber"],
-    queryFn: () => axios.get("/api/sales_invoice_number"),
-    select: (data) => data.data,
+    queryFn: () => axios.get("/api/sales/new-invoice-number"),
+    select: (data) => data.data.invoiceNumber,
     placeholder: 0,
     enabled: !savedInvoiceNumber,
   })
@@ -76,7 +76,7 @@ function Invoice({
   let { GSTTable, IGSTTable } = taxTable;
   const { isLoading: isLoadingPlaceOrder, mutate: placeOrder } = useMutation({
     mutationFn: postBody => {
-      return axios.post('/api/place_order', postBody)
+      return axios.post('/api/sales/invoices', postBody)
     },
     onSuccess: (response, postBody) => {
       Modal.success({
@@ -95,7 +95,10 @@ function Invoice({
     }
   });
   const { isLoading: isLoadingUpdateInvoice, mutate: updateInvoice } = useMutation({
-    mutationFn: postBody => axios.post("/api/update_invoice_status", postBody),
+    mutationFn: postBody => axios.patch(`/api/sales/invoices/${postBody.invoiceNumber}`, {
+      invoiceStatus: postBody.invoiceStatus,
+      payment: postBody.payment,
+    }),
     onSuccess: (response, postBody) => {
       Modal.success({
         content: response.data,
@@ -154,10 +157,12 @@ function Invoice({
   ]);
 
   useEffect(() => {
-    if (products.length > 0 || services.some(item => item.quantity > 0)) {
+    let productItems = products ?? [];
+    let serviceItems = services ?? [];
+    if (productItems.length > 0 || serviceItems.some(item => item.quantity > 0)) {
       fetchInvoiceTable({
-        products: products,
-        services: services.filter((service) => {
+        products: productItems,
+        services: serviceItems.filter((service) => {
           return service.quantity > 0;
         }),
       });
@@ -240,13 +245,13 @@ function Invoice({
     };
     if (!IGSTRender) {
       invoiceData["invoiceTotal"] = GSTTable["invoiceTotal"];
-      invoiceData["products"] = GSTTable["products"];
-      invoiceData["services"] = GSTTable["services"];
+      invoiceData["productItems"] = GSTTable["products"];
+      invoiceData["serviceItems"] = GSTTable["services"];
       invoiceData["invoiceRoundOff"] = GSTTable["invoiceRoundOff"];
     } else {
       invoiceData["invoiceTotal"] = IGSTTable["invoiceTotal"];
-      invoiceData["products"] = IGSTTable["products"];
-      invoiceData["services"] = IGSTTable["services"];
+      invoiceData["productItems"] = IGSTTable["products"];
+      invoiceData["serviceItems"] = IGSTTable["services"];
       invoiceData["invoiceRoundOff"] = IGSTTable["invoiceRoundOff"];
     }
 

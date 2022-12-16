@@ -37,9 +37,9 @@ class SaleInvoiceList(views.MethodView):
         return result["data"]
 
     #Todo: Add marshmallow validation schema for arg
-    def post(self, args):
-        '''Create a new non taxable sale invoice'''
-        return sale_service.create_invoice(args)
+    def post(self):
+        '''Create a sale invoice'''
+        return sale_service.create_invoice(request.get_json())
 
 @blp.route('/invoices/<invoice_number>')
 class SaleInvoice(views.MethodView):
@@ -47,7 +47,7 @@ class SaleInvoice(views.MethodView):
     def get(self, invoice_number):
         '''Get sale invoice'''
         try:
-            sale_service.get_invoice(invoice_number)
+            return sale_service.get_invoice(invoice_number)
         except:
             flask_smorest.abort(400, message="Invalid invoice number, invoice not found")
 
@@ -58,6 +58,7 @@ class SaleInvoice(views.MethodView):
         
 @blp.route('/new-invoice-number')
 class SaleInvoiceNumber(views.MethodView):
+    @blp.response(200, SaleSchema(only=["invoiceNumber"]))
     def get(self):
         '''Get invoice number for generating new invoice'''
         return sale_service.get_new_invoice_number()

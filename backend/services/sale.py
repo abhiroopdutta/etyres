@@ -162,7 +162,8 @@ class SaleService:
         return results
 
     def get_invoice(self, invoice_number):
-        return Sale.objects(invoiceNumber=invoice_number).get()
+        sale = Sale.objects.get(invoiceNumber=invoice_number)
+        return sale
 
     def update_invoice(self, invoice_number, invoice_status, payment):
         invoice = Sale.objects(invoiceNumber = invoice_number).first()
@@ -265,6 +266,6 @@ class SaleService:
             invoice_number = 1
         else:
             invoice_number = previous_invoice.invoiceNumber + 1
-        return invoice_number
+        return {"invoiceNumber": invoice_number}
 
 sale_service = SaleService()
