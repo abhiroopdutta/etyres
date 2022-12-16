@@ -10,7 +10,7 @@ from models import Header, Product, Supplier, Sale
 from datetime import date, datetime
 import os
 import json
-from apis import initialize_api
+from routes import initialize_api
 
 app = Flask(__name__)
 app.config["API_TITLE"] = "ETyres API"
