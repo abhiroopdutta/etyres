@@ -3,10 +3,10 @@ from flask import send_from_directory, abort
 from db import initialize_db
 from update_price import get_pv_price_details, update_price, load_to_db
 from update_stock import read_invoices, update_stock, process_invoice
-from create_order import create_order, compute_gst_tables, update_invoice_status, update_purchase_invoice_status
-from reports import report_handler, reset_stock, get_sales_report, get_purchase_report
+from create_order import compute_gst_tables, update_purchase_invoice_status
+from reports import report_handler, reset_stock, get_purchase_report
 from account import add_header_item, add_transaction_item, get_filtered_transactions
-from models import Header, Product, Supplier, Sale
+from models import Header, Product, Supplier
 from datetime import date, datetime
 import os
 import json
@@ -91,51 +91,16 @@ def compute_table():
     data = request.get_json()
     result = compute_gst_tables(**data)
     return result, 200
-
-@app.route("/api/place_order", methods = ['POST'])
-def stock_out():
-    invoice = request.get_json()
-    status = create_order(invoice)
-    if status == 0:
-        return jsonify("stock updated, invoice saved"), 200
-    elif status == 1:
-        return jsonify("Error! invoice is empty"), 400
-    elif status == 2:
-        return jsonify("Error! invoice date selected is older than previous invoice date"), 400
-    elif status == 3:
-        return jsonify("Error! Item out of stock!", 400)
-
-@app.route("/api/update_invoice_status", methods = ['POST'])
-def invoice_status_update():
-    invoice_status_request = request.get_json()
-    return update_invoice_status(invoice_status_request)
-        
+   
 @app.route("/api/update_purchase_invoice_status", methods = ['POST'])
 def purchase_invoice_status_update():
     invoice_status_request = request.get_json()
     return update_purchase_invoice_status(invoice_status_request)
 
-@app.route("/api/sales_invoice_number", methods = ['GET'])
-def sales_invoice_number():
-    previous_invoice = Sale.objects().order_by('-_id').first()
-    if(previous_invoice is None):
-        invoice_number = 1
-    else:
-        invoice_number = previous_invoice.invoiceNumber + 1
-    return jsonify(invoice_number)
-
 @app.route("/api/data", methods = ['GET'])
 def hello_world():
     products = Product.objects().to_json()
     return Response(products, mimetype="application/json", status=200)
-
-@app.route("/api/get_sales_invoice", methods = ['GET'])
-def get_sale_invoice():
-    invoice_number = request.args["invoiceNumber"]
-    print(invoice_number)
-    sales_invoice = Sale.objects(invoiceNumber=invoice_number).first().to_json()
-    print(sales_invoice)
-    return Response(sales_invoice, mimetype="application/json", status=200)
 
 @app.route("/api/reset_stock", methods = ['GET'])
 def stock_reset():
@@ -155,13 +120,6 @@ def get_purchase_reports():
     result = get_purchase_report(**args)
     return result
     
-@app.route("/api/sale-invoices", methods = ['GET'])
-def get_sale_reports():
-    args = request.args.to_dict()
-    args["invoiceStatus"] = request.args.getlist("invoiceStatus")
-    result = get_sales_report(**args)
-    return result
-
 @app.route("/api/download", methods = ['GET'])
 def download():
     filename = request.args["name"]

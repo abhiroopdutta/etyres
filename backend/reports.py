@@ -12,54 +12,6 @@ from openpyxl.styles.numbers import FORMAT_PERCENTAGE, FORMAT_NUMBER, FORMAT_NUM
 from openpyxl.cell import WriteOnlyCell
 import pandas as pd
 
-def get_sales_report(
-    invoiceNumber= "",
-    invoiceDateFrom= "",
-    invoiceDateTo= "",
-    invoiceStatus= ["due", "paid", "cancelled"],
-    customerName= "",
-    customerContact= "",
-    customerVehicleNumber= "",
-    customerGSTIN= "",
-    pageRequest= 1,
-    maxItemsPerPage= 5,
-):
-    pageRequest = int(pageRequest)
-    maxItemsPerPage = int(maxItemsPerPage)
-    results = {
-        "invoices": [],
-        "pagination": { 
-            "pageNumber": 0, 
-            "pageSize": 0, 
-            "totalResults" : 0 }
-        
-    }
-    page_start = (pageRequest-1)*maxItemsPerPage
-    page_end = pageRequest*maxItemsPerPage
-    query = Q(invoiceNumber__gte=0) # dummy query
-    
-    if (invoiceNumber.isnumeric()):
-        query &= Q(invoiceNumber=int(invoiceNumber))
-    if (invoiceStatus):
-        query &= Q(invoiceStatus__in=invoiceStatus)
-    if (customerName):
-        query &= Q(customerDetails__name__icontains=customerName)
-    if (customerContact):
-        query &= Q(customerDetails__contact__icontains=customerContact)
-    if (customerVehicleNumber):
-        query &= Q(customerDetails__vehicleNumber__icontains=customerVehicleNumber)
-    if (customerGSTIN):
-        query &= Q(customerDetails__GSTIN__icontains=customerGSTIN)      
-    if (invoiceDateFrom and invoiceDateTo):
-        start_datetime = datetime.datetime.strptime(invoiceDateFrom[:10] + " " + "00:00:00", '%Y-%m-%d %H:%M:%S')
-        end_datetime = datetime.datetime.strptime(invoiceDateTo[:10] + " " + "23:59:59", '%Y-%m-%d %H:%M:%S')
-        query &= Q(invoiceDate__gte=start_datetime) & Q(invoiceDate__lte=end_datetime)
-
-    results["invoices"] = Sale.objects(query).order_by('-_id')[page_start:page_end]
-    results["pagination"]["totalResults"] = Sale.objects(query).order_by('-_id')[page_start:page_end].count()
-    results["pagination"]["pageNumber"] = pageRequest
-    results["pagination"]["pageSize"] = len(results["invoices"])
-    return results
 
 def get_purchase_report(
     invoiceNumber= "",
