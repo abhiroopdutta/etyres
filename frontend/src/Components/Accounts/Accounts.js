@@ -84,7 +84,7 @@ function Accounts() {
 
         const submit_item = async () => {
             try {
-                const response = await fetch("api/add_transaction", requestOptions);
+                const response = await fetch("api/transactions", requestOptions);
                 if (response.ok) {
                     setTimeout(() => {
                         setLoading(false);

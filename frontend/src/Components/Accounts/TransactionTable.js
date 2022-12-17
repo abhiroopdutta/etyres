@@ -17,71 +17,69 @@ import {
     DownloadOutlined,
 } from "@ant-design/icons";
 import { dayjsUTC } from "../dayjsUTCLocal";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 const { Content } = Layout;
 const { Title, Text } = Typography;
 
 function TransactionTable({ headers, selectedHeader, transactionAdded }) {
-    const [filters, setFilters] = useState({
-        header: "",
+    const [query, setQuery] = useState({
         transactionId: "",
-        date: { start: "", end: "" },
+        start: "",
+        end: "",
         paymentMode: ["cash", "card", "UPI", "bankTransfer", "creditNote"],
         status: ["due", "paid"],
+        page: 1,
+        page_size: 5,
     });
-    const [sorters, setSorters] = useState({});
-    const [pageRequest, setPageRequest] = useState(1);
-    const [maxItemsPerPage, setMaxItemsPerPage] = useState(5);
-    const [currentPage, setCurrentPage] = useState({});
-    const [transactions, setTransactions] = useState({ data: [], balance: 0 });
-    const [loading, setLoading] = useState(false);
     const searchInputRef = useRef();
-
-    useEffect(() => {
-        let didCancel = false; // avoid fetch race conditions or set state on unmounted components
-        async function fetchTableData() {
-            setLoading(true);
-
-            const requestOptions = {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    filters: {
-                        ...filters,
-                        header: selectedHeader?.code ?? "00",
-                        date: {
-                            start: filters.date.start ? filters.date.start.format("YYYY-MM-DD") : "",
-                            end: filters.date.end ? filters.date.end.format("YYYY-MM-DD") : "",
-                        }
-                    },
-                    sorters: sorters,
-                    pageRequest: pageRequest,
-                    maxItemsPerPage: maxItemsPerPage,
-                }),
-            };
-            try {
-                const response = await fetch("/api/get_transactions", requestOptions);
-                const result = await response.json();
-                if (response.ok && !didCancel) {
-                    setTransactions({ data: result.data, balance: result.balance });
-                    setCurrentPage(result.pagination);
-                    setLoading(false);
-                }
-            } catch (err) {
-                if (!didCancel) {
-                    Modal.error({
-                        content: err.message,
-                    });
-                    console.log(err.message);
+    const { isLoading: isLoadingTransactions, data: transactions, } = useQuery({
+        queryKey: ["transactions", selectedHeader, query],
+        queryFn: () => {
+            let queryParams = new URLSearchParams();
+            for (let [key, value] of Object.entries(query)) {
+                if (value) {
+                    if (["start", "end"].includes(key)) {
+                        queryParams.append(key, value.format("YYYY-MM-DD"));
+                    }
+                    else {
+                        queryParams.append(key, value);
+                    }
                 }
             }
-        }
-        fetchTableData();
-        return () => {
-            didCancel = true;
-        };
-    }, [filters, sorters, pageRequest, maxItemsPerPage, transactionAdded, selectedHeader]);
+            queryParams.delete("status");
+            queryParams.delete("paymentMode");
+            query.status.forEach(element => {
+                queryParams.append("status", element);
+            });
+            query.paymentMode.forEach(element => {
+                queryParams.append("paymentMode", element);
+            });
+            queryParams.append("header", selectedHeader?.code ?? "00")
+            return axios.get("/api/transactions?" + queryParams.toString());
+        },
+        select: (result) => {
+            let responseData = result.data;
+            let transformedData = result.data;
+            if (responseData.length !== query.page_size) {
+                let dummyRows = [];
+                for (let i = 1; i <= query.page_size - responseData.length; i++) {
+                    dummyRows.push({ transactionId: `${i / 10}` });
+                }
+                transformedData = [...responseData, ...dummyRows];
+            }
+
+            return {
+                data: transformedData,
+                pagination: JSON.parse(result?.headers["x-pagination"]),
+            };
+        },
+        placeholderData: () => ({
+            data: [], headers: { "x-pagination": JSON.stringify({}) }
+        }),
+    });
 
     const getSearchMenu = (dataIndex) => ({
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
@@ -112,11 +110,11 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
     });
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
-        setFilters((prevFilters) => ({
+        setQuery((prevFilters) => ({
             ...prevFilters,
             [dataIndex]: selectedKeys[0] ?? "",
+            page: 1,
         }));
-        setPageRequest(1);
         confirm();
     };
 
@@ -142,14 +140,12 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
     });
 
     const handleDateRange = (dataIndex, confirm, selectedKeys) => {
-        setFilters((prevFilters) => ({
+        setQuery((prevFilters) => ({
             ...prevFilters,
-            [dataIndex]: {
-                start: selectedKeys[0] ?? "",
-                end: selectedKeys[1] ?? "",
-            },
+            start: selectedKeys[0] ?? "",
+            end: selectedKeys[1] ?? "",
+            page: 1,
         }));
-        setPageRequest(1);
         confirm();
     };
 
@@ -172,18 +168,18 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
     });
 
     const handleDropDownMenuChange = (dataIndex, confirm, value) => {
-        setFilters((prevFilters) => ({
+        setQuery((prevFilters) => ({
             ...prevFilters,
             [dataIndex]: value,
+            page: 1,
         }));
-        setPageRequest(1);
         confirm();
     };
 
     const handlePageChange = (pagination) => {
         let itemsAlreadyRequested = (pagination.current - 1) * pagination.pageSize;
         if (itemsAlreadyRequested <= pagination.total)
-            setPageRequest(pagination.current);
+            setQuery((prevState) => ({ ...prevState, page: pagination.current }));
     };
 
     const columns = [
@@ -197,8 +193,8 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
                     setTimeout(() => searchInputRef.current.select(), 100);
                 }
             },
-            render: (transactionId) => (transactionId.includes("_") ? transactionId : null),
-            filteredValue: filters.transactionId ? [filters.transactionId] : null,
+            render: (transactionId) => (transactionId?.includes("_") ? transactionId : null),
+            filteredValue: query.transactionId ? [query.transactionId] : null,
         },
         {
             title: "Entity",
@@ -206,7 +202,7 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
             render: (text, transaction) => {
 
                 //return null if its a dummy row
-                if (!transaction.transactionId.includes("_")) {
+                if (!transaction.transactionId?.includes("_")) {
                     return null;
                 }
 
@@ -227,12 +223,12 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
             key: "date",
             render: (date) =>
                 date
-                    ? dayjsUTC(date["$date"]).format("DD/MM/YYYY")
+                    ? dayjsUTC(date).format("DD/MM/YYYY")
                     : null,
             ...getDateRangeMenu("date"),
             filteredValue:
-                filters.date.start && filters.date.end
-                    ? [filters.date.start, filters.date.end]
+                query.start && query.end
+                    ? [query.start, query.end]
                     : null,
         },
         {
@@ -242,7 +238,7 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
             render: (amount, transaction) => {
 
                 //return null if its a dummy row
-                if (!transaction.transactionId.includes("_")) {
+                if (!transaction.transactionId?.includes("_")) {
                     return null;
                 }
 
@@ -270,7 +266,7 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
             dataIndex: "status",
             key: "status",
             render: (status, transaction) => {
-                if (transaction.transactionId.includes("_")) {
+                if (transaction.transactionId?.includes("_")) {
                     return status === "due" ? (
                         <Tag color="orange">Due</Tag>
                     ) : (
@@ -334,17 +330,6 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
         },
     ];
 
-    if (transactions.data.length !== maxItemsPerPage) {
-        let dummyRows = [];
-        for (let i = 1; i <= maxItemsPerPage - transactions.data.length; i++) {
-            dummyRows.push({ transactionId: (i / 10).toString() });
-        }
-        setTransactions((prevTransactions) => ({
-            ...prevTransactions,
-            data: [...prevTransactions.data, ...dummyRows]
-        }));
-    }
-
     return (
         <Content>
             <Space style={{ display: "flex", justifyContent: "space-between" }}>
@@ -357,19 +342,18 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
             </Space>
 
             <Table
-                loading={loading}
+                loading={isLoadingTransactions}
                 columns={columns}
-                dataSource={transactions.data}
-                rowKey={(transaction) => transaction.transactionId}
+                dataSource={transactions?.data}
+                rowKey={(transaction) => transaction?.transactionId}
                 pagination={{
                     simple: true,
-                    current: currentPage.pageNumber,
-                    pageSize: maxItemsPerPage,
-                    total: currentPage.totalResults,
+                    current: transactions?.pagination?.page,
+                    pageSize: query.page_size,
+                    total: transactions?.pagination?.total,
                 }}
                 onChange={handlePageChange}
             />
-
         </Content>
     );
 }
