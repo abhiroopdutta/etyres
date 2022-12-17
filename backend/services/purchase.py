@@ -6,7 +6,7 @@ from itertools import repeat
 from flask import jsonify
 from mongoengine import Q
 from services.transaction import transaction_service
-
+from services.supplier import supplier_service
 
 class PurchaseService():
     def read_purchase_file(self, file):
@@ -191,7 +191,7 @@ class PurchaseService():
             # if new supplier then add to supplier collection
             supplierFound = Supplier.objects(GSTIN=supplier_details.GSTIN).first()
             if (supplierFound is None):
-                Supplier(GSTIN=supplier_details.GSTIN, name=supplier_details.name).save()
+                supplier_service.create_supplier(GSTIN=supplier_details.GSTIN, name=supplier_details.name)
 
             payment = PurchasePayment(creditNote = 0.0, bank = 0.0, cash = 0.0)
             purchase_invoice = Purchase(

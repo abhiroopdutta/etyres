@@ -109,11 +109,5 @@ def download():
     except FileNotFoundError:
         abort(404)
 
-@app.route("/api/suppliers", methods = ['GET'])
-def get_suppliers():
-    results = Supplier.objects()
-    return jsonify(results), 200
-
-
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
