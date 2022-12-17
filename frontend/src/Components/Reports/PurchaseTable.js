@@ -34,10 +34,9 @@ function PurchaseTable({ exportToExcel }) {
     supplierName: "",
     supplierGSTIN: "",
     claimInvoice: "",
-    pageRequest: 1,
-    maxItemsPerPage: 5,
+    page: 1,
+    page_size: 5,
   })
-  const [currentPage, setCurrentPage] = useState({});
   const searchInputRef = useRef();
   const [showInvoice, setShowInvoice] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState({});
@@ -45,55 +44,50 @@ function PurchaseTable({ exportToExcel }) {
   const { isLoading: isLoadingFetchPurchaseInvoices, data: purchaseInvoices, } = useQuery({
     queryKey: ["purchase", query],
     queryFn: () => {
-      let queryParams = new URLSearchParams({
-        ...query,
-        invoiceDateFrom: query.invoiceDateFrom ? query.invoiceDateFrom.format("YYYY-MM-DD") : "",
-        invoiceDateTo: query.invoiceDateTo ? query.invoiceDateTo.format("YYYY-MM-DD") : "",
-      });
+      let queryParams = new URLSearchParams();
+      for (let [key, value] of Object.entries(query)) {
+        if (value) {
+          if (["invoiceDateFrom", "invoiceDateTo"].includes(key)) {
+            queryParams.append(key, value.format("YYYY-MM-DD"));
+          }
+          else {
+            queryParams.append(key, value);
+          }
+        }
+      }
       queryParams.delete("invoiceStatus");
       query.invoiceStatus.forEach(element => {
         queryParams.append("invoiceStatus", element);
       });
-      return axios.get("/api/purchase-invoices?" + queryParams.toString());
+      return axios.get("/api/purchases/invoices?" + queryParams.toString());
     },
     select: (result) => {
-      let invoices = result.data.invoices;
-      if (invoices.length !== query.maxItemsPerPage) {
+      let responseData = result.data;
+      let transformedData = result.data;
+      if (responseData.length !== query.page_size) {
         let dummyRows = [];
-        for (let i = 1; i <= query.maxItemsPerPage - invoices.length; i++) {
+        for (let i = 1; i <= query.page_size - responseData.length; i++) {
           dummyRows.push({ invoiceNumber: i / 10 });
         }
-        return {
-          invoices: [...invoices, ...dummyRows],
-          pagination: result.data.pagination,
-        };
+        transformedData = [...responseData, ...dummyRows];
       }
+
       return {
-        invoices: result.data.invoices,
-        pagination: result.data.pagination,
+        data: transformedData,
+        pagination: JSON.parse(result?.headers["x-pagination"]),
       };
     },
     onSuccess: (result) => {
-      setCurrentPage(result.pagination);
       setSelectedInvoice(oldState => {
         if (oldState.invoiceNumber) {
-          return result.invoices.find((invoice) => invoice.invoiceNumber === oldState.invoiceNumber);
+          return result.data.find((invoice) => invoice.invoiceNumber === oldState.invoiceNumber);
         }
         return oldState;
       });
     },
-    placeholderData: () => {
-      let dummyRows = [];
-      for (let i = 1; i <= query.maxItemsPerPage; i++) {
-        dummyRows.push({ invoiceNumber: i / 10 });
-      }
-      return {
-        data: {
-          invoices: dummyRows,
-          pagination: {},
-        }
-      };
-    },
+    placeholderData: () => ({
+      data: [], headers: { "x-pagination": JSON.stringify({}) }
+    }),
   });
   const getSearchMenu = (dataIndex) => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
@@ -126,7 +120,7 @@ function PurchaseTable({ exportToExcel }) {
     setQuery(oldState => ({
       ...oldState,
       [dataIndex]: selectedKeys[0] ?? "",
-      pageRequest: 1
+      page: 1
     }));
     confirm();
   };
@@ -157,7 +151,7 @@ function PurchaseTable({ exportToExcel }) {
       ...oldState,
       invoiceDateFrom: selectedKeys[0] ?? "",
       invoiceDateTo: selectedKeys[1] ?? "",
-      pageRequest: 1
+      page: 1
     }));
     confirm();
   };
@@ -185,7 +179,7 @@ function PurchaseTable({ exportToExcel }) {
     setQuery(oldState => ({
       ...oldState,
       [dataIndex]: value,
-      pageRequest: 1
+      page: 1
     }));
     confirm();
   };
@@ -201,7 +195,7 @@ function PurchaseTable({ exportToExcel }) {
             setQuery((oldState) => ({
               ...oldState,
               [dataIndex]: value,
-              pageRequest: 1,
+              page: 1,
             }))
           }
           onBlur={confirm}
@@ -218,7 +212,7 @@ function PurchaseTable({ exportToExcel }) {
   const handlePageChange = (pagination) => {
     let itemsAlreadyRequested = (pagination.current - 1) * pagination.pageSize;
     if (itemsAlreadyRequested <= pagination.total)
-      setQuery(oldState => ({ ...oldState, pageRequest: pagination.current }));
+      setQuery(oldState => ({ ...oldState, page: pagination.current }));
   };
 
   const handleExport = (exportType) => {
@@ -229,8 +223,8 @@ function PurchaseTable({ exportToExcel }) {
         ...query,
         invoiceDateFrom: query.invoiceDateFrom ? query.invoiceDateFrom.format("YYYY-MM-DD") : "",
         invoiceDateTo: query.invoiceDateTo ? query.invoiceDateTo.format("YYYY-MM-DD") : "",
-        pageRequest: 1,
-        maxItemsPerPage: 10000,
+        page: 1,
+        page_size: 10000,
       }
     });
   };
@@ -265,7 +259,7 @@ function PurchaseTable({ exportToExcel }) {
       key: "invoiceDate",
       render: (invoiceDate) =>
         invoiceDate
-          ? dayjsUTC(invoiceDate["$date"]).format("DD/MM/YYYY")
+          ? dayjsUTC(invoiceDate).format("DD/MM/YYYY")
           : null,
       ...getDateRangeMenu("invoiceDate"),
       filteredValue:
@@ -395,13 +389,13 @@ function PurchaseTable({ exportToExcel }) {
       <Table
         loading={isLoadingFetchPurchaseInvoices}
         columns={columns}
-        dataSource={purchaseInvoices?.invoices}
+        dataSource={purchaseInvoices?.data}
         rowKey={(invoice) => invoice.invoiceNumber}
         pagination={{
           simple: true,
-          current: currentPage.pageNumber,
-          pageSize: query.maxItemsPerPage,
-          total: currentPage.totalResults,
+          current: purchaseInvoices?.pagination?.page,
+          pageSize: query.page_size,
+          total: purchaseInvoices?.pagination?.total,
         }}
         onChange={handlePageChange}
       />

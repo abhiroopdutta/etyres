@@ -87,7 +87,7 @@ function ManualInvoiceModal({ visible, hideInvoice }) {
     const [supplierOptions, setSupplierOptions] = useState([]);
     const { mutate: createInvoice, isLoading: isLoadingCreateInvoice } = useMutation({
         mutationFn: postBody => {
-            return axios.post('/api/update_stock', postBody);
+            return axios.post('/api/purchases/invoices', postBody);
         },
         onSuccess: (response) => {
             Modal.success({

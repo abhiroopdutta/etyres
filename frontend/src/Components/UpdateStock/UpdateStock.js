@@ -277,7 +277,7 @@ function UpdateStock() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(invoices),
       };
-      fetch("/api/update_stock", requestOptions)
+      fetch("/api/purchases/invoices", requestOptions)
         .then((response) => response.json())
         .then((result) => {
           Modal.success({

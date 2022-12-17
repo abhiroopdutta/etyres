@@ -16,7 +16,13 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
   const queryClient = useQueryClient();
   const { isLoadingUpdateInvoiceStatus, mutate: updateInvoiceStatus } = useMutation({
     mutationFn: postBody => {
-      return axios.post('/api/update_purchase_invoice_status', postBody)
+      let requestBody = {
+        invoiceStatus: postBody.invoiceStatus
+      };
+      if (postBody.invoiceStatus !== "cancelled") {
+        requestBody.payment = postBody.payment
+      }
+      return axios.patch(`/api/purchases/invoices/${postBody.invoiceNumber}`, requestBody)
     },
     onSuccess: (response, postBody) => {
       if (postBody.invoiceStatus === "cancelled") {
@@ -218,7 +224,7 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
           <Title level={5} style={{ margin: "0" }}>
             Invoice Date:
             {invoice.invoiceDate
-              ? dayjsUTC(invoice.invoiceDate["$date"]).format("DD/MM/YYYY")
+              ? dayjsUTC(invoice.invoiceDate).format("DD/MM/YYYY")
               : null}
           </Title>
         </Space>
