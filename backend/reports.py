@@ -13,54 +13,6 @@ from openpyxl.cell import WriteOnlyCell
 import pandas as pd
 
 
-def get_purchase_report(
-    invoiceNumber= "",
-    invoiceDateFrom= "",
-    invoiceDateTo= "",
-    invoiceStatus= ["due", "paid", "cancelled"],
-    supplierName = "",
-    supplierGSTIN = "",
-    claimInvoice= "",
-    pageRequest= 1,
-    maxItemsPerPage= 5,
-):
-    pageRequest = int(pageRequest)
-    maxItemsPerPage = int(maxItemsPerPage)
-    results = {
-        "invoices": [],
-        "pagination": { 
-            "pageNumber": 0, 
-            "pageSize": 0, 
-            "totalResults" : 0 }
-        
-    }
-    page_start = (pageRequest-1)*maxItemsPerPage
-    page_end = pageRequest*maxItemsPerPage
-    query = Q(invoiceNumber__gte=0) # dummy query
-    
-    if (invoiceNumber.isnumeric()):
-        query &= Q(invoiceNumber=int(invoiceNumber))
-    if (invoiceStatus):
-        query &= Q(invoiceStatus__in=invoiceStatus)
-    if (supplierName):
-        query &= Q(supplierDetails__name__icontains=supplierName)
-    if (supplierGSTIN):
-        query &= Q(supplierDetails__GSTIN__icontains=supplierGSTIN)      
-    if (claimInvoice):
-        if (claimInvoice == "true"):
-            query &= Q(claimInvoice=True)
-        else:
-            query &= Q(claimInvoice=False)
-    if (invoiceDateFrom and invoiceDateTo):
-        start_datetime = datetime.datetime.strptime(invoiceDateFrom[:10] + " " + "00:00:00", '%Y-%m-%d %H:%M:%S')
-        end_datetime = datetime.datetime.strptime(invoiceDateTo[:10] + " " + "23:59:59", '%Y-%m-%d %H:%M:%S')
-        query &= Q(invoiceDate__gte=start_datetime) & Q(invoiceDate__lte=end_datetime)
-
-    results["invoices"] = Purchase.objects(query).order_by('-invoiceDate')[page_start:page_end]
-    results["pagination"]["totalResults"] = Purchase.objects(query).order_by('-invoiceDate')[page_start:page_end].count()
-    results["pagination"]["pageNumber"] = pageRequest
-    results["pagination"]["pageSize"] = len(results["invoices"])
-    return results
 
 def report_handler(report_req_info):
     os.makedirs("./tempdata/sales_report/", exist_ok = True) #make the dir if it doesn't exist

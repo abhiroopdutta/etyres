@@ -2,15 +2,15 @@ from flask import Flask,jsonify, request, Response, Blueprint
 from flask import send_from_directory, abort
 from db import initialize_db
 from update_price import get_pv_price_details, update_price, load_to_db
-from update_stock import read_invoices, update_stock, process_invoice
-from create_order import compute_gst_tables, update_purchase_invoice_status
-from reports import report_handler, reset_stock, get_purchase_report
+from create_order import compute_gst_tables
+from reports import report_handler, reset_stock
 from account import add_header_item, add_transaction_item, get_filtered_transactions
 from models import Header, Product, Supplier
 from datetime import date, datetime
 import os
 import json
 from routes import initialize_api
+from services.purchase import purchase_service
 
 app = Flask(__name__)
 app.config["API_TITLE"] = "ETyres API"
@@ -62,20 +62,14 @@ def invoice_status():
             filepath = dir+new_name
             file.save(filepath)
 
-    invoices = read_invoices(dir)  
+    invoices = purchase_service.read_invoices(dir)  
     return invoices, 200
 
 @app.route("/api/process_invoice", methods = ['POST'])
 def convert_to_normal_invoice():
     invoice = request.get_json()
-    print(invoice)
-    converted_invoice = process_invoice(**invoice)
+    converted_invoice = purchase_service.process_invoice(**invoice)
     return converted_invoice, 200
-
-@app.route("/api/update_stock", methods = ['POST'])
-def update_purchase_stock():
-    invoices = request.get_json()
-    return update_stock(invoices) 
 
 @app.route("/api/add_item", methods = ['POST'])
 def add_item_to_inventory():
@@ -92,11 +86,6 @@ def compute_table():
     result = compute_gst_tables(**data)
     return result, 200
    
-@app.route("/api/update_purchase_invoice_status", methods = ['POST'])
-def purchase_invoice_status_update():
-    invoice_status_request = request.get_json()
-    return update_purchase_invoice_status(invoice_status_request)
-
 @app.route("/api/data", methods = ['GET'])
 def hello_world():
     products = Product.objects().to_json()
@@ -112,13 +101,6 @@ def get_reports():
     report_req_info = request.get_json()
     filename = report_handler(report_req_info)
     return jsonify(filename)
-
-@app.route("/api/purchase-invoices", methods = ['GET'])
-def get_purchase_reports():
-    args = request.args.to_dict()
-    args["invoiceStatus"] = request.args.getlist("invoiceStatus")
-    result = get_purchase_report(**args)
-    return result
     
 @app.route("/api/download", methods = ['GET'])
 def download():
