@@ -1,12 +1,11 @@
-from flask import Flask,jsonify, request, Response, Blueprint
+from flask import Flask,jsonify, request, Response
 from flask import send_from_directory, abort
 from db import initialize_db
 from update_price import get_pv_price_details, update_price, load_to_db
 from create_order import compute_gst_tables
 from reports import report_handler, reset_stock
-from account import add_header_item
-from models import Header, Product, Supplier
-from datetime import date, datetime
+from models import Product, Supplier
+from datetime import datetime
 import os
 import json
 from routes import initialize_api
@@ -109,17 +108,6 @@ def download():
         return send_from_directory(app.config["CLIENT_CSV"], filename, as_attachment=True)
     except FileNotFoundError:
         abort(404)
-
-@app.route("/api/add_header", methods = ['POST'])
-def add_header():
-    data = request.get_json()
-    add_header_item(**data)
-    return jsonify("success"), 200
-
-@app.route("/api/get_headers", methods = ['GET'])
-def get_headers():
-    headers = Header.objects().to_json()
-    return Response(headers, mimetype="application/json", status=200)
 
 @app.route("/api/suppliers", methods = ['GET'])
 def get_suppliers():

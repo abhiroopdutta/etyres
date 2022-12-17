@@ -26,7 +26,7 @@ function Accounts() {
                 headers: { "Content-Type": "application/json" },
             };
             try {
-                const response = await fetch("/api/get_headers", requestOptions);
+                const response = await fetch("/api/headers", requestOptions);
                 const result = await response.json();
                 if (response.ok && !didCancel) {
                     setHeaders(result);

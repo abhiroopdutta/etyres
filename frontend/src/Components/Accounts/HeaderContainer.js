@@ -31,7 +31,7 @@ function HeaderContainer({ headers, setHeadersUpdated, selectedHeader, setSelect
 
         const submit_item = async () => {
             try {
-                const response = await fetch("api/add_header", requestOptions);
+                const response = await fetch("api/headers", requestOptions);
                 if (response.ok) {
                     setTimeout(() => {
                         setLoading(false);
