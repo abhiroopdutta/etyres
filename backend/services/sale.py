@@ -1,7 +1,7 @@
 from models import CustomerDetail, Product, ProductItem, Purchase, Sale, ServiceItem
 import datetime
 from flask import jsonify
-from account import add_transaction_item
+from services.transaction import transaction_service
 from models import Sale, Product
 from mongoengine import Q
 import datetime
@@ -107,7 +107,7 @@ class SaleService:
                 transactionTo = "00"
             
             if paymentAmount > 0 :
-                add_transaction_item(
+                transaction_service.create_transaction(
                     transactionFrom = "03",
                     transactionTo = transactionTo,
                     dateTime = datetime.datetime.now(),
@@ -211,7 +211,7 @@ class SaleService:
                     transactionTo = "00"
 
                 if paymentAmount > 0 :
-                    add_transaction_item(
+                    transaction_service.create_transaction(
                         transactionFrom = "03",
                         transactionTo = transactionTo,
                         dateTime = datetime.datetime.now(),
@@ -248,7 +248,7 @@ class SaleService:
                     transactionFrom = "00"
 
                 if invoice.payment[paymentMethod] > 0 :
-                    add_transaction_item(
+                    transaction_service.create_transaction(
                         transactionFrom = transactionFrom,
                         transactionTo = "03",
                         dateTime = datetime.datetime.now(),

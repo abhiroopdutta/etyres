@@ -5,7 +5,7 @@ import datetime
 from itertools import repeat
 from flask import jsonify
 from mongoengine import Q
-from account import add_transaction_item
+from services.transaction import transaction_service
 
 
 class PurchaseService():
@@ -301,7 +301,7 @@ class PurchaseService():
                     paymentMode = "bankTransfer"
 
                 if paymentAmount > 0 :
-                    add_transaction_item(
+                    transaction_service.create_transaction(
                         transactionFrom = transactionFrom,
                         transactionTo = "02",
                         dateTime = datetime.datetime.now(),
@@ -343,7 +343,7 @@ class PurchaseService():
                     paymentMode = "bankTransfer"
 
                 if invoice.payment[paymentMethod] > 0 :
-                    add_transaction_item(
+                    transaction_service.create_transaction(
                         transactionFrom = "02",
                         transactionTo = transactionTo,
                         dateTime = datetime.datetime.now(),
