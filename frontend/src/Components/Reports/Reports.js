@@ -16,10 +16,10 @@ function Reports() {
       body: JSON.stringify(reportReqInfo),
     };
 
-    fetch("/api/reports", requestOptions)
+    fetch("/api/reports/", requestOptions)
       .then((response) => response.json())
       .then((filename) => {
-        fetch("/api/download?name=" + filename, {
+        fetch(`/api/reports/${filename}`, {
           method: "GET",
           headers: {
             "Content-Type":

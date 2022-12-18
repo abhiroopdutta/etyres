@@ -1,8 +1,7 @@
 from flask import Flask,jsonify, request
-from flask import send_from_directory, abort
 from db import initialize_db
 from create_order import compute_gst_tables
-from reports import report_handler, reset_stock
+from reports import reset_stock
 from datetime import datetime
 import os
 from routes import initialize_api
@@ -60,20 +59,6 @@ def compute_table():
 def stock_reset():
     status = reset_stock()
     return jsonify(status)
-
-@app.route("/api/reports", methods = ['POST'])
-def get_reports():
-    report_req_info = request.get_json()
-    filename = report_handler(report_req_info)
-    return jsonify(filename)
-    
-@app.route("/api/download", methods = ['GET'])
-def download():
-    filename = request.args["name"]
-    try:
-        return send_from_directory(app.config["CLIENT_CSV"], filename, as_attachment=True)
-    except FileNotFoundError:
-        abort(404)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
