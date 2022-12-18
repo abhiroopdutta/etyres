@@ -47,7 +47,7 @@ function AddItem({
 
     const submit_item = async () => {
       try {
-        const response = await fetch("api/add_item", requestOptions);
+        const response = await fetch("api/products", requestOptions);
         if (response.ok) {
           setTimeout(() => {
             setLoading(false);

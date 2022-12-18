@@ -5,6 +5,7 @@ from .purchase import blp as purchase
 from .transaction import blp as transaction
 from .header import blp as header
 from .supplier import blp as supplier
+from .product import blp as product
 
 def initialize_api(app):
     api = Api(app)
@@ -14,3 +15,4 @@ def initialize_api(app):
     api.register_blueprint(transaction)
     api.register_blueprint(header)
     api.register_blueprint(supplier)
+    api.register_blueprint(product)

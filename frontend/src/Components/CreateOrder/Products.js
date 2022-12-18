@@ -10,7 +10,7 @@ function Products() {
   const [filters, setFilters] = useState({ tyreSize: "", inStock: true });
   const { isLoading, isError, data: tyres, error } = useQuery({
     queryKey: ["products"],
-    queryFn: () => axios.get("/api/data"),
+    queryFn: () => axios.get("/api/products"),
     select: (data) => data.data,
     placeholder: []
   })

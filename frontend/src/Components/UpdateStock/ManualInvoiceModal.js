@@ -62,7 +62,7 @@ function ManualInvoiceModal({ visible, hideInvoice }) {
     }]);
     const { isLoading: isLoadingOptions, isError, data: options, error } = useQuery({
         queryKey: ["products"],
-        queryFn: () => axios.get("/api/data"),
+        queryFn: () => axios.get("/api/products"),
         select: (data) => {
             let result = data.data;
             return result.map(item => ({

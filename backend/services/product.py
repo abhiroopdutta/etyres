@@ -1,5 +1,5 @@
-import re
 from models import Product
+import re
 
 hsn_gst = {
 	"tyre": {
@@ -59,19 +59,24 @@ def categorize(vehicle_type, item_code):
 	else:
 		return vehicle_type.replace(" ", "_")+"_tyre"
 
-#check if item exists, then update the price, else insert the item as new item by computing all columns
-def load_to_db(vehicle_type, item_desc, item_code, cost_price):
-	size = compute_size(item_desc)
-	hsn = get_hsn(item_code)
-	category = categorize(vehicle_type, item_code)
-	gst = get_gst_rate(item_code)
-	Product(itemDesc = item_desc, 
-			itemCode = item_code, 
-			HSN = hsn, 
-			GST = gst, 
-			category = category, 
-			size = size, 
-			costPrice = cost_price, 
-			stock = 0).save()
-	
-	return 0
+class ProductService:
+    def create_product(self, vehicle_type, item_desc, item_code, cost_price):
+        size = compute_size(item_desc)
+        hsn = get_hsn(item_code)
+        category = categorize(vehicle_type, item_code)
+        gst = get_gst_rate(item_code)
+        Product(itemDesc = item_desc, 
+                itemCode = item_code, 
+                HSN = hsn, 
+                GST = gst, 
+                category = category, 
+                size = size, 
+                costPrice = cost_price, 
+                stock = 0).save()
+        return 0
+
+    def get_products(self):
+        products = Product.objects()
+        return products
+
+product_service = ProductService()
