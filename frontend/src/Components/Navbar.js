@@ -15,9 +15,6 @@ function Navbar() {
         <Link className="nav-link" to="/update-stock">
           Update Purchases
         </Link>
-        <Link className="nav-link" to="/update-price">
-          Update Price List
-        </Link>
         <Link className="nav-link" to="/reports">
           Reports
         </Link>

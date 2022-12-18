@@ -1,13 +1,12 @@
 from flask import Flask,jsonify, request, Response
 from flask import send_from_directory, abort
 from db import initialize_db
-from update_price import get_pv_price_details, update_price, load_to_db
+from update_price import load_to_db
 from create_order import compute_gst_tables
 from reports import report_handler, reset_stock
-from models import Product, Supplier
+from models import Product
 from datetime import datetime
 import os
-import json
 from routes import initialize_api
 from services.purchase import purchase_service
 
@@ -29,23 +28,6 @@ initialize_api(app)
 initialize_db(app)
 
 app.config["CLIENT_CSV"] = "./tempdata/sales_report"
-
-@app.route("/api/pv_price_details", methods = ['GET'])
-def price_details():
-    result = get_pv_price_details()
-    return jsonify(result)
-
-@app.route("/api/update_price", methods=['POST'])
-def update_inventory():
-    uploaded_file = request.files['file']
-    price_details = json.loads(request.form["priceDetails"])
-    if uploaded_file.filename != '':
-        new_name = str(datetime.now()).replace(" ", "_")+uploaded_file.filename
-        filepath = "./tempdata/"+new_name
-        uploaded_file.save(filepath)
-        update_price(price_details, filepath)
-        return jsonify("Price List Updated")
-    return jsonify("we didn't get it")
 
 @app.route("/api/read_invoice", methods = ['POST'])
 def invoice_status():
