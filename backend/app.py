@@ -1,7 +1,6 @@
 from flask import Flask,jsonify, request
 from db import initialize_db
 from create_order import compute_gst_tables
-from reports import reset_stock
 from datetime import datetime
 import os
 from routes import initialize_api
@@ -17,14 +16,11 @@ app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-
 app.config['MONGODB_SETTINGS'] = {
     'db': 'etyresdb',
     'host': os.environ['MONGODB_HOST'],
-    #'host': 'localhost',
     'port': 27017
 }
 
 initialize_api(app)
 initialize_db(app)
-
-app.config["CLIENT_CSV"] = "./tempdata/sales_report"
 
 @app.route("/api/read_invoice", methods = ['POST'])
 def invoice_status():
@@ -55,10 +51,5 @@ def compute_table():
     result = compute_gst_tables(**data)
     return result, 200
    
-@app.route("/api/reset_stock", methods = ['GET'])
-def stock_reset():
-    status = reset_stock()
-    return jsonify(status)
-
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

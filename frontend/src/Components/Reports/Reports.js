@@ -72,7 +72,7 @@ function Reports() {
       )
     ) {
       setLoading(true);
-      fetch("/api/reset_stock")
+      fetch("/api/products", { method: "PATCH" })
         .then((res) => res.json())
         .then((data) => {
           setLoading(false);

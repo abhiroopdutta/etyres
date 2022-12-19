@@ -26,3 +26,7 @@ class ProductList(views.MethodView):
         product_service.create_product(**data)
         return "success", 200
 
+    def patch(self):
+        '''Resets stock of each product to purchase-sale (bulk update)'''
+        return product_service.reset_products_stock()
+
