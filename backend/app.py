@@ -1,6 +1,6 @@
 from flask import Flask,jsonify, request
 from db import initialize_db
-from create_order import compute_gst_tables
+from gsttable import compute_gst_tables
 from datetime import datetime
 import os
 from routes import initialize_api
@@ -22,6 +22,8 @@ app.config['MONGODB_SETTINGS'] = {
 initialize_api(app)
 initialize_db(app)
 
+#--------------------------Non restful endpoints-----------------------------
+# Todo: Each of these must be converted to two requests (POST+GET),
 @app.route("/api/read_invoice", methods = ['POST'])
 def invoice_status():
     if 'files[]' not in request.files:
@@ -50,6 +52,7 @@ def compute_table():
     data = request.get_json()
     result = compute_gst_tables(**data)
     return result, 200
+#----------------------------------------------------------------------------
    
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

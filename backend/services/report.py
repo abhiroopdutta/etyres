@@ -6,7 +6,7 @@ import json
 from openpyxl.styles import Border, Side, PatternFill, Font
 from openpyxl.styles.numbers import FORMAT_PERCENTAGE, FORMAT_NUMBER, FORMAT_NUMBER_00
 from openpyxl.cell import WriteOnlyCell
-from create_order import compute_gst_tables
+from gsttable import compute_gst_tables
 from services.product import compute_size
 from models import Product, Sale
 from services.sale import sale_service
