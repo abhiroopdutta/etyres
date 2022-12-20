@@ -3,11 +3,11 @@ import React from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import "./App.css";
 import Navbar from "./Components/Navbar";
-import CreateOrder from "./Components/CreateOrder/CreateOrder";
-import UpdateStock from "./Components/UpdateStock/UpdateStock";
-import Reports from "./Components/Reports/Reports";
-import Accounts from "./Components/Accounts/Accounts";
-import Services from "./Components/Services/Services";
+import CreateOrder from "./pages/CreateOrder";
+import UpdateStock from "./pages/UpdateStock";
+import Reports from "./pages/Reports";
+import Accounts from "./pages/Accounts";
+import Services from "./pages/Services";
 import './AntStyles.css'
 import {
   QueryClient,

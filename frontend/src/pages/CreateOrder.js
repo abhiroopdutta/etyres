@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import Cart from "./Cart";
-import Products from "./Products";
+import Cart from "../Components/CreateOrder/Cart";
+import Products from "../Components/CreateOrder/Products";
 import "./CreateOrder.css";
-import { CartProvider } from "./CartContext"; //understand objects in JS, and deconstructuring
+import { CartProvider } from "../Components/CreateOrder/CartContext"; //understand objects in JS, and deconstructuring
 
 function CreateOrder() {
 

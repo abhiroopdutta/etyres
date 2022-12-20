@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Layout, Typography, Button, Modal } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
-import SalesTable from "./SalesTable";
-import PurchaseTable from "./PurchaseTable";
-import { dayjsLocal } from "../dayjsUTCLocal";
+import SalesTable from "../Components/Reports/SalesTable";
+import PurchaseTable from "../Components/Reports/PurchaseTable";
+import { dayjsLocal } from "../Components/dayjsUTCLocal";
 const { Title } = Typography;
 
 function Reports() {

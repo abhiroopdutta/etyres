@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Layout, DatePicker, Button, Col, Row, Modal, Form, Input, Select, message } from "antd";
-import { dayjsLocal } from "../dayjsUTCLocal";
-import HeaderContainer from "./HeaderContainer";
-import TransactionTable from "./TransactionTable";
+import { dayjsLocal } from "../Components/dayjsUTCLocal";
+import HeaderContainer from "../Components/Accounts/HeaderContainer";
+import TransactionTable from "../Components/Accounts/TransactionTable";
 import axios from 'axios';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 const { Option } = Select;

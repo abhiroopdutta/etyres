@@ -1,7 +1,7 @@
 import React from "react";
-import ServicesForm from "./ServicesForm";
+import ServicesForm from "../Components/Services/ServicesForm";
 import { Layout, Col, Row } from "antd";
-import ServicesTable from "./ServicesTable";
+import ServicesTable from "../Components/Services/ServicesTable";
 
 function Services() {
 

@@ -1,10 +1,10 @@
 import React, { useState, useRef, useReducer, useEffect, useMemo } from "react";
 import "./UpdateStock.css";
-import PurchaseInvoice from "./PurchaseInvoice";
-import InvoiceWithNewItems from "./InvoiceWithNewItems.js";
+import PurchaseInvoice from "../Components/UpdateStock/PurchaseInvoice";
+import InvoiceWithNewItems from "../Components/UpdateStock/InvoiceWithNewItems.js";
 import { Modal, Typography, Button } from "antd";
 import { useTransition, animated } from "@react-spring/web";
-import ManualInvoiceModal from "./ManualInvoiceModal.js";
+import ManualInvoiceModal from "../Components/UpdateStock/ManualInvoiceModal.js";
 
 const { Title } = Typography;
 
