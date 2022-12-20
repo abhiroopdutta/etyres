@@ -1,17 +1,24 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useState } from "react";
 import styles from "./HeaderContainer.module.css";
 import { message, Modal, Form, Input, Layout, Select, Button } from "antd";
 import { SearchOutlined, InfoCircleOutlined } from "@ant-design/icons";
-import { dayjsUTC } from "../dayjsUTCLocal";
-
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from 'axios';
 const { Option } = Select;
 
-function HeaderContainer({ headers, setHeadersUpdated, selectedHeader, setSelectedHeader }) {
-
+function HeaderContainer({ headers, selectedHeader, setSelectedHeader }) {
+    const queryClient = useQueryClient();
     const [visible, setVisible] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [isActiveHeader, setIsActiveHeader] = useState(false);
-
+    const { mutate: createHeader, isLoading: isLoadingCreateHeader } = useMutation({
+        mutationFn: (postBody) => axios.post("api/headers", postBody),
+        onSuccess: (response) => {
+            setVisible(false);
+            setTimeout(() => message.success("Header created!", 2), 700);
+            queryClient.invalidateQueries({
+                queryKey: ["headers"],
+            });
+        },
+    });
     const closeModal = () => {
         setVisible(false);
     };
@@ -19,31 +26,8 @@ function HeaderContainer({ headers, setHeadersUpdated, selectedHeader, setSelect
         setVisible(true);
     };
 
-
-    const handleAddHeader = (new_header) => {
-        setLoading(true);
-
-        const requestOptions = {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(new_header),
-        };
-
-        const submit_item = async () => {
-            try {
-                const response = await fetch("api/headers", requestOptions);
-                if (response.ok) {
-                    setTimeout(() => {
-                        setLoading(false);
-                    }, 500);
-                    setTimeout(() => setVisible(false), 800);
-                    setTimeout(() => setHeadersUpdated((oldState) => !oldState), 800);
-                }
-            } catch (err) {
-                console.log(err.message);
-            }
-        };
-        submit_item();
+    const handleAddHeader = (formData) => {
+        createHeader(formData)
     };
 
     const handleSetSelectedHeader = (header) => {
@@ -136,7 +120,7 @@ function HeaderContainer({ headers, setHeadersUpdated, selectedHeader, setSelect
                         <Form.Item wrapperCol={{ offset: 8, span: 16 }} style={{
                             margin: "0",
                         }}>
-                            <Button loading={loading} type="primary" htmlType="submit">
+                            <Button loading={isLoadingCreateHeader} type="primary" htmlType="submit">
                                 Add header
                             </Button>
                         </Form.Item>

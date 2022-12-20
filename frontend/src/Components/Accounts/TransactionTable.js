@@ -24,7 +24,7 @@ const { Option } = Select;
 const { Content } = Layout;
 const { Title, Text } = Typography;
 
-function TransactionTable({ headers, selectedHeader, transactionAdded }) {
+function TransactionTable({ headers, selectedHeader }) {
     const [query, setQuery] = useState({
         transactionId: "",
         start: "",
@@ -209,10 +209,10 @@ function TransactionTable({ headers, selectedHeader, transactionAdded }) {
                 let fromCode = transaction.transactionId.slice(0, 2);
                 let toCode = transaction.transactionId.slice(3, 5);
                 if (selectedHeader?.code === fromCode) {
-                    return headers.find((header) => header.code === toCode)?.name;
+                    return headers?.find((header) => header.code === toCode)?.name;
                 }
                 else {
-                    return headers.find((header) => header.code === fromCode)?.name;
+                    return headers?.find((header) => header.code === fromCode)?.name;
                 }
 
             }
