@@ -302,10 +302,32 @@ table.rounding-table td {
   size: A4;
 }
 
-.display-block {
+.open {
   display: flex;
+  animation: fade-in 300ms forwards;
 }
 
-.display-none {
+.close {
   display: none;
+}
+
+.closing {
+  animation: fade-out 300ms forwards;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0%;
+  }
+  to {
+    opacity: 100%;
+  }
+}
+@keyframes fade-out {
+  from {
+    opacity: 100%;
+  }
+  to {
+    opacity: 0%;
+  }
 }

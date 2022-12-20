@@ -65,6 +65,9 @@ function Reports() {
       });
   };
 
+
+
+
   const handleResetStock = () => {
     if (
       window.confirm(

@@ -96,24 +96,15 @@ function SalesTable({ exportToExcel }) {
       data: [], headers: { "x-pagination": JSON.stringify({}) }
     }),
   });
-  useEffect(() => {
-    if (showInvoice) {
-      document.body.style["overflow-y"] = "hidden";
-    } else {
-      document.body.style["overflow-y"] = "scroll";
-    }
-  }, [showInvoice]);
 
-  // useEffect(() => {
-  //   if (invoiceUpdateSignal.invoiceNumber === 0) {
-  //     return;
-  //   }
-  //   setSelectedInvoice(
-  //     salesInvoices.find(
-  //       (invoice) => invoice.invoiceNumber === invoiceUpdateSignal.invoiceNumber
-  //     )
-  //   );
-  // }, [salesInvoices, invoiceUpdateSignal]);
+  let scrollBarWidth = window.innerWidth - document.body.clientWidth;
+  if (showInvoice) {
+    document.body.style.overflowY = "hidden";
+    document.body.style.width = `calc(100% - ${scrollBarWidth}px)`;
+  } else {
+    document.body.style.overflowY = "scroll";
+    document.body.style.width = `100%`;
+  }
 
   const getSearchMenu = (dataIndex) => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (

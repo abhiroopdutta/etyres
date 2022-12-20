@@ -122,6 +122,8 @@ function Invoice({
       content: response.response.data,
     }),
   });
+  const [modalClosing, setModalClosing] = useState(false);
+
   //render different tables depending on IGST customer or not
   let IGSTRender = false;
   const componentRef = useRef(null);
@@ -220,6 +222,7 @@ function Invoice({
         IGSTTable: null
       });
     }
+    setModalClosing(false);
     onCancel();
   };
 
@@ -316,7 +319,16 @@ function Invoice({
   };
 
   return (
-    <div className={visible ? "invoice display-block" : "invoice display-none"} onClick={handleInvoiceClose}>
+    <div
+      className={`invoice ${visible ? "open" : "close"} ${modalClosing ? "closing" : ""}`}
+      onClick={() => setModalClosing(true)}
+      onAnimationEnd={() => {
+        if (modalClosing) {
+          handleInvoiceClose();
+        }
+        return;
+      }}
+    >
       <div className="left-buttons-container">
         <Button
           size="large"
