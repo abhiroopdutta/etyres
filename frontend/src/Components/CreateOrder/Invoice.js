@@ -9,8 +9,9 @@ import {
   ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import gstStateCodes from "./gstStateCodes.json";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
+import { useCreateSaleInvoice, useNewSaleInvoiceNumber, useUpdateSaleInvoice } from "../../api/sale";
 const { confirm } = Modal;
 
 function getTodaysDate() {
@@ -38,12 +39,7 @@ function Invoice({
   savedPayment,
   updateInvoiceInParent,
 }) {
-  const queryClient = useQueryClient();
-  const { data: invoiceNumber } = useQuery({
-    queryKey: ["invoiceNumber"],
-    queryFn: () => axios.get("/api/sales/new-invoice-number"),
-    select: (data) => data.data.invoiceNumber,
-    placeholder: 0,
+  const { data: invoiceNumber } = useNewSaleInvoiceNumber({
     enabled: !savedInvoiceNumber,
   })
   const [invoiceDate, setInvoiceDate] = useState(getTodaysDate());
@@ -74,49 +70,19 @@ function Invoice({
       })
   })
   let { GSTTable, IGSTTable } = taxTable;
-  const { isLoading: isLoadingPlaceOrder, mutate: placeOrder } = useMutation({
-    mutationFn: postBody => {
-      return axios.post('/api/sales/invoices', postBody)
-    },
+  const { isLoading: isLoadingPlaceOrder, mutate: placeOrder } = useCreateSaleInvoice({
     onSuccess: (response, postBody) => {
       Modal.success({
         content: response.data,
-      });
-      //notify parent to update props (update mode and rest of invoice props)
-      queryClient.invalidateQueries({
-        queryKey: ["invoice", postBody.invoiceNumber],
-      });
-      //since stock changed, update products page
-      queryClient.invalidateQueries({
-        queryKey: ['products'],
-        exact: true,
       });
       updateInvoiceInParent(postBody.invoiceNumber);
     }
   });
-  const { isLoading: isLoadingUpdateInvoice, mutate: updateInvoice } = useMutation({
-    mutationFn: postBody => axios.patch(`/api/sales/invoices/${postBody.invoiceNumber}`, {
-      invoiceStatus: postBody.invoiceStatus,
-      payment: postBody.payment,
-    }),
+  const { isLoading: isLoadingUpdateInvoice, mutate: updateInvoice } = useUpdateSaleInvoice({
     onSuccess: (response, postBody) => {
       Modal.success({
         content: response.data,
       });
-      queryClient.invalidateQueries({
-        queryKey: ["invoice", postBody.invoiceNumber],
-      });
-      //update sale table
-      queryClient.invalidateQueries({
-        queryKey: ["sale"],
-      });
-      //since stock changed, update products page
-      if (postBody.invoiceStatus === "cancelled") {
-        queryClient.invalidateQueries({
-          queryKey: ['products'],
-          exact: true,
-        });
-      }
     },
     onError: (response) => Modal.error({
       content: response.response.data,

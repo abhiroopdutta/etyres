@@ -18,8 +18,7 @@ import {
 } from "@ant-design/icons";
 import Invoice from "../CreateOrder/Invoice";
 import { dayjsUTC } from "../dayjsUTCLocal";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import { useSaleInvoiceList } from "../../api/sale";
 const { RangePicker } = DatePicker;
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -39,7 +38,6 @@ function SalesTable({ exportToExcel }) {
     page_size: 5,
   });
 
-  const [currentPage, setCurrentPage] = useState({});
   const searchInputRef = useRef();
   const [showInvoice, setShowInvoice] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState({});
@@ -47,44 +45,9 @@ function SalesTable({ exportToExcel }) {
     invoiceNumber: 0,
     updateCount: 0,
   });
-  const { isLoading: isLoadingFetchSalesInvoices, data: salesInvoices, } = useQuery({
-    queryKey: ["sale", query],
-    queryFn: () => {
-      let queryParams = new URLSearchParams();
-      for (let [key, value] of Object.entries(query)) {
-        if (value) {
-          if (["start", "end"].includes(key)) {
-            queryParams.append(key, value.format("YYYY-MM-DD"));
-          }
-          else {
-            queryParams.append(key, value);
-          }
-        }
-      }
-      queryParams.delete("invoiceStatus");
-      query.invoiceStatus.forEach(element => {
-        queryParams.append("invoiceStatus", element);
-      });
-      return axios.get("/api/sales/invoices?" + queryParams.toString());
-    },
-    select: (result) => {
-      let responseData = result.data;
-      let transformedData = result.data;
-      if (responseData.length !== query.page_size) {
-        let dummyRows = [];
-        for (let i = 1; i <= query.page_size - responseData.length; i++) {
-          dummyRows.push({ invoiceNumber: i / 10 });
-        }
-        transformedData = [...responseData, ...dummyRows];
-      }
-
-      return {
-        data: transformedData,
-        pagination: JSON.parse(result?.headers["x-pagination"]),
-      };
-    },
+  const { isLoading: isLoadingFetchSalesInvoices, data: salesInvoices, } = useSaleInvoiceList({
+    query: query,
     onSuccess: (result) => {
-      setCurrentPage(result.pagination);
       setSelectedInvoice(oldState => {
         if (oldState.invoiceNumber) {
           return result.data.find((invoice) => invoice.invoiceNumber === oldState.invoiceNumber);
@@ -92,9 +55,6 @@ function SalesTable({ exportToExcel }) {
         return oldState;
       });
     },
-    placeholderData: () => ({
-      data: [], headers: { "x-pagination": JSON.stringify({}) }
-    }),
   });
 
   let scrollBarWidth = window.innerWidth - document.body.clientWidth;

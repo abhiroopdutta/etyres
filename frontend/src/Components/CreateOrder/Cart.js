@@ -5,8 +5,7 @@ import "./Cart.css";
 import Invoice from "./Invoice";
 import { message, Button } from "antd";
 import { dayjsUTC } from "../dayjsUTCLocal";
-import { useQueryClient, useQuery } from '@tanstack/react-query';
-import axios from "axios";
+import { useSaleInvoice } from "../../api/sale";
 
 function Cart() {
   const { tyresContext, servicesContext } = useContext(CartContext);
@@ -15,13 +14,10 @@ function Cart() {
   let cartTotal = 0;
   const [previewInvoice, setPreviewInvoice] = useState(false);
   const [updatedInvoiceNumber, setUpdatedInvoiceNumber] = useState();
-  const queryClient = useQueryClient();
-  const { isSuccess: isSuccessFetchSavedInvoice, data: savedInvoice, } = useQuery({
-    queryKey: ["invoice", updatedInvoiceNumber],
-    queryFn: () => axios.get(`/api/sales/invoices/${updatedInvoiceNumber}`),
-    select: (data) => data.data,
+  const { isSuccess: isSuccessFetchSavedInvoice, data: savedInvoice, } = useSaleInvoice({
+    invoiceNumber: updatedInvoiceNumber,
     enabled: !!updatedInvoiceNumber,
-  })
+  });
 
   let scrollBarWidth = window.innerWidth - document.body.clientWidth;
   if (previewInvoice) {
