@@ -979,7 +979,7 @@ class ReportService:
             if report_req_info["exportType"] == "regular":
                 return export_sales_report(reports_dir, results["data"])
             elif report_req_info["exportType"] == "gstr1":
-                return export_gstr1_report(reports_dir, report_req_info["query"]["invoiceDateFrom"], report_req_info["query"]["invoiceDateTo"])
+                return export_gstr1_report(reports_dir, report_req_info["query"]["start"], report_req_info["query"]["end"])
                     
         elif report_req_info["reportType"] == "purchase":
             results = purchase_service.get_invoices(**report_req_info["query"])

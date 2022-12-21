@@ -40,8 +40,8 @@ class NoTaxSaleService:
     def get_invoices(
         self,
         invoiceNumber= "",
-        invoiceDateFrom= "",
-        invoiceDateTo= "",
+        start= "",
+        end= "",
         vehicleNumber = "",
         vehicleDesc = "",
         page= 1,
@@ -60,9 +60,9 @@ class NoTaxSaleService:
             query &= Q(vehicleNumber__icontains=vehicleNumber)
         if (vehicleDesc):
             query &= Q(vehicleDesc__icontains=vehicleDesc)      
-        if (invoiceDateFrom and invoiceDateTo):
-            start_datetime = datetime.datetime.strptime(invoiceDateFrom[:10] + " " + "00:00:00", '%Y-%m-%d %H:%M:%S')
-            end_datetime = datetime.datetime.strptime(invoiceDateTo[:10] + " " + "23:59:59", '%Y-%m-%d %H:%M:%S')
+        if (start and end):
+            start_datetime = datetime.datetime.strptime(start[:10] + " " + "00:00:00", '%Y-%m-%d %H:%M:%S')
+            end_datetime = datetime.datetime.strptime(end[:10] + " " + "23:59:59", '%Y-%m-%d %H:%M:%S')
             query &= Q(invoiceDate__gte=start_datetime) & Q(invoiceDate__lte=end_datetime)
 
         results["data"] = NoTaxSale.objects(query).order_by('-invoiceDate')[page_start:page_end]

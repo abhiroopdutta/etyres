@@ -28,8 +28,8 @@ const { Option } = Select;
 function SalesTable({ exportToExcel }) {
   const [query, setQuery] = useState({
     invoiceNumber: "",
-    invoiceDateFrom: "",
-    invoiceDateTo: "",
+    start: "",
+    end: "",
     invoiceStatus: ["due", "paid", "cancelled"],
     customerName: "",
     customerContact: "",
@@ -53,7 +53,7 @@ function SalesTable({ exportToExcel }) {
       let queryParams = new URLSearchParams();
       for (let [key, value] of Object.entries(query)) {
         if (value) {
-          if (["invoiceDateFrom", "invoiceDateTo"].includes(key)) {
+          if (["start", "end"].includes(key)) {
             queryParams.append(key, value.format("YYYY-MM-DD"));
           }
           else {
@@ -167,8 +167,8 @@ function SalesTable({ exportToExcel }) {
   const handleDateRange = (dataIndex, confirm, selectedKeys) => {
     setQuery(oldState => ({
       ...oldState,
-      invoiceDateFrom: selectedKeys[0] ?? "",
-      invoiceDateTo: selectedKeys[1] ?? "",
+      start: selectedKeys[0] ?? "",
+      end: selectedKeys[1] ?? "",
       page: 1
     }));
     confirm();
@@ -214,8 +214,8 @@ function SalesTable({ exportToExcel }) {
       exportType: exportType,
       query: {
         ...query,
-        invoiceDateFrom: query.invoiceDateFrom ? query.invoiceDateFrom.format("YYYY-MM-DD") : "",
-        invoiceDateTo: query.invoiceDateTo ? query.invoiceDateTo.format("YYYY-MM-DD") : "",
+        start: query.start ? query.start.format("YYYY-MM-DD") : "",
+        end: query.end ? query.end.format("YYYY-MM-DD") : "",
         page: 1,
         page_size: 10000,
       },
@@ -267,8 +267,8 @@ function SalesTable({ exportToExcel }) {
           : null,
       ...getDateRangeMenu("invoiceDate"),
       filteredValue:
-        query.invoiceDateFrom && query.invoiceDateTo
-          ? [query.invoiceDateFrom, query.invoiceDateTo]
+        query.start && query.end
+          ? [query.start, query.end]
           : null,
     },
     {

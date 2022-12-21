@@ -211,8 +211,8 @@ class PurchaseService():
     def get_invoices(
         self,
         invoiceNumber= "",
-        invoiceDateFrom= "",
-        invoiceDateTo= "",
+        start= "",
+        end= "",
         invoiceStatus= "",
         supplierName = "",
         supplierGSTIN = "",
@@ -241,9 +241,9 @@ class PurchaseService():
                 query &= Q(claimInvoice=True)
             else:
                 query &= Q(claimInvoice=False)
-        if (invoiceDateFrom and invoiceDateTo):
-            start_datetime = datetime.datetime.strptime(invoiceDateFrom[:10] + " " + "00:00:00", '%Y-%m-%d %H:%M:%S')
-            end_datetime = datetime.datetime.strptime(invoiceDateTo[:10] + " " + "23:59:59", '%Y-%m-%d %H:%M:%S')
+        if (start and end):
+            start_datetime = datetime.datetime.strptime(start[:10] + " " + "00:00:00", '%Y-%m-%d %H:%M:%S')
+            end_datetime = datetime.datetime.strptime(end[:10] + " " + "23:59:59", '%Y-%m-%d %H:%M:%S')
             query &= Q(invoiceDate__gte=start_datetime) & Q(invoiceDate__lte=end_datetime)
 
         results["data"] = Purchase.objects(query).order_by('-invoiceDate')[page_start:page_end]

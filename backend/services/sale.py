@@ -122,8 +122,8 @@ class SaleService:
     def get_invoices(
         self,
         invoiceNumber= "",
-        invoiceDateFrom= "",
-        invoiceDateTo= "",
+        start= "",
+        end= "",
         invoiceStatus= "",
         customerName= "",
         customerContact= "",
@@ -152,9 +152,9 @@ class SaleService:
             query &= Q(customerDetails__vehicleNumber__icontains=customerVehicleNumber)
         if (customerGSTIN):
             query &= Q(customerDetails__GSTIN__icontains=customerGSTIN)      
-        if (invoiceDateFrom and invoiceDateTo):
-            start_datetime = datetime.datetime.strptime(invoiceDateFrom[:10] + " " + "00:00:00", '%Y-%m-%d %H:%M:%S')
-            end_datetime = datetime.datetime.strptime(invoiceDateTo[:10] + " " + "23:59:59", '%Y-%m-%d %H:%M:%S')
+        if (start and end):
+            start_datetime = datetime.datetime.strptime(start[:10] + " " + "00:00:00", '%Y-%m-%d %H:%M:%S')
+            end_datetime = datetime.datetime.strptime(end[:10] + " " + "23:59:59", '%Y-%m-%d %H:%M:%S')
             query &= Q(invoiceDate__gte=start_datetime) & Q(invoiceDate__lte=end_datetime)
 
         results["data"] = Sale.objects(query).order_by('-_id')[page_start:page_end]

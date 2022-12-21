@@ -14,8 +14,8 @@ class PurchaseSchema(mamo.ModelSchema):
 
 class PurchaseQuerySchema(ma.Schema):
     invoiceNumber = ma.fields.Int()
-    invoiceDateFrom = ma.fields.Str()
-    invoiceDateTo = ma.fields.Str()
+    start = ma.fields.Str()
+    end = ma.fields.Str()
     invoiceStatus = ma.fields.List(ma.fields.Str(), validate=ma.validate.ContainsOnly(["due", "paid", "cancelled"]))
     supplierName = ma.fields.Str()
     supplierGSTIN = ma.fields.Str()

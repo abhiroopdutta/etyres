@@ -37,8 +37,8 @@ function Reports() {
               fileName = `stock_report_${dayjsLocal(new Date()).format("YYYY-MM-DD")}.xlsx`;
             }
             else {
-              let start_date_string = reportReqInfo.query.invoiceDateFrom;
-              let end_date_string = reportReqInfo.query.invoiceDateTo;
+              let start_date_string = reportReqInfo.query.start;
+              let end_date_string = reportReqInfo.query.end;
 
               if (reportReqInfo.exportType === "gstr1") {
                 fileName = `GSTR1_${start_date_string}__${end_date_string}.xlsx`;

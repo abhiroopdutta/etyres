@@ -14,8 +14,8 @@ class NoTaxSaleSchema(mamo.ModelSchema):
 
 class NoTaxSaleQuerySchema(ma.Schema):
     invoiceNumber = ma.fields.Int()
-    invoiceDateFrom = ma.fields.Str()
-    invoiceDateTo = ma.fields.Str()
+    start = ma.fields.Str()
+    end = ma.fields.Str()
     vehicleNumber = ma.fields.Str()
     vehicleDesc = ma.fields.Str()
 

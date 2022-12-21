@@ -16,8 +16,8 @@ class SaleSchema(mamo.ModelSchema):
 
 class SaleQuerySchema(ma.Schema):
     invoiceNumber = ma.fields.Int()
-    invoiceDateFrom = ma.fields.Str()
-    invoiceDateTo = ma.fields.Str()
+    start = ma.fields.Str()
+    end = ma.fields.Str()
     invoiceStatus = ma.fields.List(ma.fields.Str(), validate=ma.validate.ContainsOnly(["due", "paid", "cancelled"]))
     customerName = ma.fields.Str()
     customerContact = ma.fields.Str()
