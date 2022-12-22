@@ -1,24 +1,22 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import {
   Table,
-  Input,
   Button,
   Space,
   Layout,
   Typography,
   Select,
   Tag,
-  Modal,
 } from "antd";
 import { DatePicker } from "../Antdesign_dayjs_components";
 import {
-  SearchOutlined,
   EditFilled,
   DownloadOutlined,
 } from "@ant-design/icons";
 import PurchaseInvoiceModal from "./PurchaseInvoiceModal.js";
 import { dayjsUTC } from "../dayjsUTCLocal";
 import { usePurchaseInvoiceList } from "../../api/purchase";
+import { getSearchMenu } from "../TableSearchFilter";
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 const { Content } = Layout;
@@ -51,41 +49,6 @@ function PurchaseTable({ exportToExcel }) {
       });
     },
   });
-  const getSearchMenu = (dataIndex) => ({
-    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
-      <div style={{ padding: 8 }}>
-        <Input
-          ref={searchInputRef}
-          placeholder={`Search ${dataIndex}`}
-          value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
-          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-          style={{ marginBottom: 8, display: "block" }}
-        />
-        <Space>
-          <Button
-            type="primary"
-            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-            icon={<SearchOutlined />}
-            size="small"
-            style={{ width: 90 }}
-          >
-            Set Filter
-          </Button>
-        </Space>
-      </div>
-    ),
-  });
-  const handleSearch = (selectedKeys, confirm, dataIndex) => {
-    setQuery(oldState => ({
-      ...oldState,
-      [dataIndex]: selectedKeys[0] ?? "",
-      page: 1
-    }));
-    confirm();
-  };
 
   const getDateRangeMenu = (dataIndex) => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
@@ -206,12 +169,7 @@ function PurchaseTable({ exportToExcel }) {
       title: "Invoice No.",
       dataIndex: "invoiceNumber",
       key: "invoiceNumber",
-      ...getSearchMenu("invoiceNumber"),
-      onFilterDropdownVisibleChange: (visible) => {
-        if (visible) {
-          setTimeout(() => searchInputRef.current.select(), 100);
-        }
-      },
+      ...getSearchMenu("invoiceNumber", searchInputRef, setQuery),
       render: (invoiceNumber) => (invoiceNumber >= 1 ? invoiceNumber : null),
       filteredValue: query.invoiceNumber ? [query.invoiceNumber] : null,
     },
@@ -240,12 +198,7 @@ function PurchaseTable({ exportToExcel }) {
       title: "Supplier Name",
       dataIndex: ["supplierDetails", "name"],
       key: ["supplierDetails", "name"],
-      ...getSearchMenu("supplierName"),
-      onFilterDropdownVisibleChange: (visible) => {
-        if (visible) {
-          setTimeout(() => searchInputRef.current.select(), 100);
-        }
-      },
+      ...getSearchMenu("supplierName", searchInputRef, setQuery),
       filteredValue: query.supplierName ? [query.supplierName] : null,
       render: (supplierName, invoice) =>
         invoice.invoiceNumber >= 1 ? <Text>{supplierName}</Text> : null,
@@ -254,12 +207,7 @@ function PurchaseTable({ exportToExcel }) {
       title: "Supplier GSTIN",
       dataIndex: ["supplierDetails", "GSTIN"],
       key: ["supplierDetails", "GSTIN"],
-      ...getSearchMenu("supplierGSTIN"),
-      onFilterDropdownVisibleChange: (visible) => {
-        if (visible) {
-          setTimeout(() => searchInputRef.current.select(), 100);
-        }
-      },
+      ...getSearchMenu("supplierGSTIN", searchInputRef, setQuery),
       filteredValue: query.supplierGSTIN ? [query.supplierGSTIN] : null,
       render: (supplierGSTIN, invoice) =>
         invoice.invoiceNumber >= 1 ? <Text>{supplierGSTIN}</Text> : null,

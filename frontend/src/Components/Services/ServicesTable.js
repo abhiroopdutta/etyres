@@ -1,7 +1,6 @@
 import React, { useState, useRef } from "react";
 import {
     Table,
-    Input,
     Button,
     Space,
     Layout,
@@ -11,14 +10,12 @@ import {
 } from "antd";
 import { DatePicker } from "../Antdesign_dayjs_components";
 import {
-    SearchOutlined,
     DownloadOutlined,
     DeleteFilled,
     ExclamationCircleOutlined
 } from "@ant-design/icons";
 import { dayjsUTC } from "../dayjsUTCLocal";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import { getSearchMenu } from "../TableSearchFilter";
 import { useDeleteServiceInvoice, useServiceInvoiceList } from "../../api/service";
 const { RangePicker } = DatePicker;
 const { Content } = Layout;
@@ -46,41 +43,6 @@ function PurchaseTable({ exportToExcel }) {
         },
     });
 
-    const getSearchMenu = (dataIndex) => ({
-        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
-            <div style={{ padding: 8 }}>
-                <Input
-                    ref={searchInputRef}
-                    placeholder={`Search ${dataIndex}`}
-                    value={selectedKeys[0]}
-                    onChange={(e) =>
-                        setSelectedKeys(e.target.value ? [e.target.value] : [])
-                    }
-                    onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-                    style={{ marginBottom: 8, display: "block" }}
-                />
-                <Space>
-                    <Button
-                        type="primary"
-                        onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-                        icon={<SearchOutlined />}
-                        size="small"
-                        style={{ width: 90 }}
-                    >
-                        Set Filter
-                    </Button>
-                </Space>
-            </div>
-        ),
-    });
-    const handleSearch = (selectedKeys, confirm, dataIndex) => {
-        setQuery(oldState => ({
-            ...oldState,
-            [dataIndex]: selectedKeys[0] ?? "",
-            page: 1
-        }));
-        confirm();
-    };
     const getDateRangeMenu = (dataIndex) => ({
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
             <div>
@@ -152,12 +114,7 @@ function PurchaseTable({ exportToExcel }) {
             title: "Invoice No.",
             dataIndex: "invoiceNumber",
             key: "invoiceNumber",
-            ...getSearchMenu("invoiceNumber"),
-            onFilterDropdownVisibleChange: (visible) => {
-                if (visible) {
-                    setTimeout(() => searchInputRef.current.select(), 100);
-                }
-            },
+            ...getSearchMenu("invoiceNumber", searchInputRef, setQuery),
             render: (invoiceNumber) => (invoiceNumber >= 1 ? invoiceNumber : null),
             filteredValue: query.invoiceNumber ? [query.invoiceNumber] : null,
         },
@@ -186,12 +143,7 @@ function PurchaseTable({ exportToExcel }) {
             title: "Vehicle No.",
             dataIndex: "vehicleNumber",
             key: "vehicleNumber",
-            ...getSearchMenu("vehicleNumber"),
-            onFilterDropdownVisibleChange: (visible) => {
-                if (visible) {
-                    setTimeout(() => searchInputRef.current.select(), 100);
-                }
-            },
+            ...getSearchMenu("vehicleNumber", searchInputRef, setQuery),
             filteredValue: query.vehicleNumber ? [query.vehicleNumber] : null,
             render: (vehicleNumber, invoice) =>
                 invoice.invoiceNumber >= 1 ? <Text>{vehicleNumber}</Text> : null,
@@ -200,12 +152,7 @@ function PurchaseTable({ exportToExcel }) {
             title: "Vehicle Desc",
             dataIndex: "vehicleDesc",
             key: "vehicleDesc",
-            ...getSearchMenu("vehicleDesc"),
-            onFilterDropdownVisibleChange: (visible) => {
-                if (visible) {
-                    setTimeout(() => searchInputRef.current.select(), 100);
-                }
-            },
+            ...getSearchMenu("vehicleDesc", searchInputRef, setQuery),
             filteredValue: query.vehicleDesc ? [query.vehicleDesc] : null,
             render: (vehicleDesc, invoice) =>
                 invoice.invoiceNumber >= 1 ? <Text>{vehicleDesc}</Text> : null,

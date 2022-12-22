@@ -1,23 +1,20 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import {
     Table,
-    Input,
     Button,
     Space,
     Layout,
     Typography,
     Select,
     Tag,
-    Modal,
 } from "antd";
 import { DatePicker } from "../Antdesign_dayjs_components";
 import {
-    SearchOutlined,
     EditFilled,
-    DownloadOutlined,
 } from "@ant-design/icons";
 import { dayjsUTC } from "../dayjsUTCLocal";
 import { useTransactionList } from "../../api/account";
+import { getSearchMenu } from "../TableSearchFilter";
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 const { Content } = Layout;
@@ -40,42 +37,6 @@ function TransactionTable({ headers, selectedHeader }) {
             header: selectedHeader?.code ?? "00"
         }
     });
-    const getSearchMenu = (dataIndex) => ({
-        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
-            <div style={{ padding: 8 }}>
-                <Input
-                    ref={searchInputRef}
-                    placeholder={`Search ${dataIndex}`}
-                    value={selectedKeys[0]}
-                    onChange={(e) =>
-                        setSelectedKeys(e.target.value ? [e.target.value] : [])
-                    }
-                    onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-                    style={{ marginBottom: 8, display: "block" }}
-                />
-                <Space>
-                    <Button
-                        type="primary"
-                        onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-                        icon={<SearchOutlined />}
-                        size="small"
-                        style={{ width: 90 }}
-                    >
-                        Set Filter
-                    </Button>
-                </Space>
-            </div>
-        ),
-    });
-
-    const handleSearch = (selectedKeys, confirm, dataIndex) => {
-        setQuery((prevFilters) => ({
-            ...prevFilters,
-            [dataIndex]: selectedKeys[0] ?? "",
-            page: 1,
-        }));
-        confirm();
-    };
 
     const getDateRangeMenu = (dataIndex) => ({
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
@@ -146,12 +107,7 @@ function TransactionTable({ headers, selectedHeader }) {
             title: "ID",
             dataIndex: "transactionId",
             key: "transactionId",
-            ...getSearchMenu("transactionId"),
-            onFilterDropdownVisibleChange: (visible) => {
-                if (visible) {
-                    setTimeout(() => searchInputRef.current.select(), 100);
-                }
-            },
+            ...getSearchMenu("transactionId", searchInputRef, setQuery),
             render: (transactionId) => (transactionId?.includes("_") ? transactionId : null),
             filteredValue: query.transactionId ? [query.transactionId] : null,
         },

@@ -1,24 +1,22 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import {
   Table,
-  Input,
   Button,
   Space,
   Layout,
   Typography,
-  Modal,
   Tag,
   Select,
 } from "antd";
 import { DatePicker } from "../Antdesign_dayjs_components";
 import {
-  SearchOutlined,
   EditFilled,
   DownloadOutlined,
 } from "@ant-design/icons";
 import Invoice from "../CreateOrder/Invoice";
 import { dayjsUTC } from "../dayjsUTCLocal";
 import { useSaleInvoiceList } from "../../api/sale";
+import { getSearchMenu } from "../TableSearchFilter";
 const { RangePicker } = DatePicker;
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -61,43 +59,6 @@ function SalesTable({ exportToExcel }) {
     document.body.style.overflowY = "scroll";
     document.body.style.width = `100%`;
   }
-
-  const getSearchMenu = (dataIndex) => ({
-    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
-      <div style={{ padding: 8 }}>
-        <Input
-          ref={searchInputRef}
-          placeholder={`Search ${dataIndex}`}
-          value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
-          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-          style={{ marginBottom: 8, display: "block" }}
-        />
-        <Space>
-          <Button
-            type="primary"
-            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-            icon={<SearchOutlined />}
-            size="small"
-            style={{ width: 90 }}
-          >
-            Set Filter
-          </Button>
-        </Space>
-      </div>
-    ),
-  });
-
-  const handleSearch = (selectedKeys, confirm, dataIndex) => {
-    setQuery((oldState) => ({
-      ...oldState,
-      [dataIndex]: selectedKeys[0] ?? "",
-      page: 1,
-    }));
-    confirm();
-  };
 
   const getDateRangeMenu = (dataIndex) => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
@@ -193,12 +154,7 @@ function SalesTable({ exportToExcel }) {
       title: "Invoice No.",
       dataIndex: "invoiceNumber",
       key: "invoiceNumber",
-      ...getSearchMenu("invoiceNumber"),
-      onFilterDropdownVisibleChange: (visible) => {
-        if (visible) {
-          setTimeout(() => searchInputRef.current.select(), 100);
-        }
-      },
+      ...getSearchMenu("invoiceNumber", searchInputRef, setQuery),
       render: (invoiceNumber) => (invoiceNumber >= 1 ? invoiceNumber : null),
       filteredValue: query.invoiceNumber ? [query.invoiceNumber] : null,
     },
@@ -227,36 +183,21 @@ function SalesTable({ exportToExcel }) {
       title: "Customer Name",
       dataIndex: ["customerDetails", "name"],
       key: ["customerDetails", "name"],
-      ...getSearchMenu("customerName"),
-      onFilterDropdownVisibleChange: (visible) => {
-        if (visible) {
-          setTimeout(() => searchInputRef.current.select(), 100);
-        }
-      },
+      ...getSearchMenu("customerName", searchInputRef, setQuery),
       filteredValue: query.customerName ? [query.customerName] : null,
     },
     {
       title: "Customer Contact",
       dataIndex: ["customerDetails", "contact"],
       key: ["customerDetails", "contact"],
-      ...getSearchMenu("customerContact"),
-      onFilterDropdownVisibleChange: (visible) => {
-        if (visible) {
-          setTimeout(() => searchInputRef.current.select(), 100);
-        }
-      },
+      ...getSearchMenu("customerContact", searchInputRef, setQuery),
       filteredValue: query.customerContact ? [query.customerContact] : null,
     },
     {
       title: "Customer Vehicle No.",
       dataIndex: ["customerDetails", "vehicleNumber"],
       key: ["customerDetails", "vehicleNumber"],
-      ...getSearchMenu("customerVehicleNumber"),
-      onFilterDropdownVisibleChange: (visible) => {
-        if (visible) {
-          setTimeout(() => searchInputRef.current.select(), 100);
-        }
-      },
+      ...getSearchMenu("customerVehicleNumber", searchInputRef, setQuery),
       filteredValue: query.customerVehicleNumber
         ? [query.customerVehicleNumber]
         : null,
@@ -265,12 +206,7 @@ function SalesTable({ exportToExcel }) {
       title: "Customer GSTIN",
       dataIndex: ["customerDetails", "GSTIN"],
       key: ["customerDetails", "GSTIN"],
-      ...getSearchMenu("customerGSTIN"),
-      onFilterDropdownVisibleChange: (visible) => {
-        if (visible) {
-          setTimeout(() => searchInputRef.current.select(), 100);
-        }
-      },
+      ...getSearchMenu("customerGSTIN", searchInputRef, setQuery),
       filteredValue: query.customerGSTIN ? [query.customerGSTIN] : null,
     },
     {
