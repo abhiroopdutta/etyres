@@ -4,11 +4,22 @@ import { DownloadOutlined } from "@ant-design/icons";
 import SalesTable from "../Components/Reports/SalesTable";
 import PurchaseTable from "../Components/Reports/PurchaseTable";
 import { dayjsLocal } from "../Components/dayjsUTCLocal";
+import { useUpdateProductList } from "../api/product";
 const { Title } = Typography;
 
 function Reports() {
-  const [loading, setLoading] = useState(false);
-
+  const { mutate: resetStock, isLoading: isLoadingResetStock } = useUpdateProductList({
+    onSuccess: () => {
+      Modal.success({
+        content: "Stock was reset successfully",
+      });
+    },
+    onError: () => {
+      Modal.error({
+        content: "Stock could not be reset",
+      });
+    },
+  });
   const handleGenerateFile = (reportReqInfo) => {
     const requestOptions = {
       method: "POST",
@@ -65,30 +76,13 @@ function Reports() {
       });
   };
 
-
-
-
   const handleResetStock = () => {
     if (
       window.confirm(
         "This will overwride all manual stock modifications to products table \n Do you want to proceed?"
       )
     ) {
-      setLoading(true);
-      fetch("/api/products", { method: "PATCH" })
-        .then((res) => res.json())
-        .then((data) => {
-          setLoading(false);
-          if (data) {
-            Modal.success({
-              content: "Stock was reset successfully",
-            });
-          } else {
-            Modal.error({
-              content: "Stock could not be reset",
-            });
-          }
-        });
+      resetStock();
     } else {
       console.log("cancelled");
     }
@@ -136,7 +130,7 @@ function Reports() {
       <div className="reset-stock">
         <br />
         <Button
-          loading={loading}
+          loading={isLoadingResetStock}
           style={{ marginBottom: "40px" }}
           onClick={handleResetStock}
         >

@@ -1,19 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Tyre from "./Tyre";
 import "./Products.css";
 import { SearchOutlined } from "@ant-design/icons";
 import { DebounceInput } from 'react-debounce-input';
-import axios from "axios";
-import { useQuery } from "@tanstack/react-query";
+import { useProductList } from "../../api/product";
 
 function Products() {
   const [filters, setFilters] = useState({ tyreSize: "", inStock: true });
-  const { isLoading, isError, data: tyres, error } = useQuery({
-    queryKey: ["products"],
-    queryFn: () => axios.get("/api/products"),
-    select: (data) => data.data,
-    placeholder: []
-  })
+  const { isLoading, data: tyres, } = useProductList({});
 
   if (isLoading) {
     return null;

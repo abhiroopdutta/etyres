@@ -2,6 +2,7 @@ import "./AddItem.css";
 import { useState } from "react";
 import React from "react";
 import { message, Button } from "antd";
+import { useCreateProduct } from "../../api/product";
 
 function roundToTwo(num) {
   return +(Math.round(num + "e+2") + "e-2");
@@ -17,8 +18,22 @@ function AddItem({
   const [costPrice, setCostPrice] = useState(
     roundToTwo(item.item_total / item.quantity)
   );
-  const [loading, setLoading] = useState(false);
-
+  const { mutate: createProduct, isLoading: isLoadingCreateProduct } = useCreateProduct({
+    onSuccess: () => {
+      toggleModal(false);
+      setTimeout(
+        () => message.success("Item added to inventory!", 2),
+        700
+      );
+      setTimeout(() => {
+        dispatchInvoicesWithNewItems({
+          type: "UPDATE_ITEM_STATUS",
+          invoiceNumber: invoiceNumber,
+          itemCode: item.item_code,
+        });
+      }, 1100);
+    }
+  });
   const handleCloseModal = () => {
     toggleModal(false);
   };
@@ -32,44 +47,13 @@ function AddItem({
   };
 
   const handleAddtoInventory = () => {
-    setLoading(true);
-    let new_item = {
+    let newItem = {
       vehicle_type: vehicleType,
       item_desc: item.item_desc,
       item_code: item.item_code,
       cost_price: costPrice,
     };
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(new_item),
-    };
-
-    const submit_item = async () => {
-      try {
-        const response = await fetch("api/products", requestOptions);
-        if (response.ok) {
-          setTimeout(() => {
-            setLoading(false);
-          }, 1000);
-          setTimeout(
-            () => message.success("Item added to inventory!", 2),
-            1300
-          );
-          setTimeout(() => toggleModal(false), 1800);
-          setTimeout(() => {
-            dispatchInvoicesWithNewItems({
-              type: "UPDATE_ITEM_STATUS",
-              invoiceNumber: invoiceNumber,
-              itemCode: item.item_code,
-            });
-          }, 2400);
-        }
-      } catch (err) {
-        console.log(err.message);
-      }
-    };
-    submit_item();
+    createProduct(newItem);
   };
   return (
     <div className="add-item-modal" onClick={handleCloseModal}>
@@ -113,7 +97,7 @@ function AddItem({
           <Button
             type="default"
             className="add-item-modal-button"
-            loading={loading}
+            loading={isLoadingCreateProduct}
             onClick={handleAddtoInventory}
           >
             Add to Inventory

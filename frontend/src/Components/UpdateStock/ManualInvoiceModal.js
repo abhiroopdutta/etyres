@@ -4,9 +4,8 @@ import {
     DeleteOutlined,
 } from "@ant-design/icons";
 import { DatePicker } from "../Antdesign_dayjs_components";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import axios from "axios";
 import { useCreatePurchaseInvoice, useSupplierList } from "../../api/purchase";
+import { useProductList } from "../../api/product";
 
 function roundToTwo(num) {
     return +(Math.round(num + "e+2") + "e-2");
@@ -62,18 +61,7 @@ function ManualInvoiceModal({ visible, hideInvoice }) {
         itemTotal: 0,
         searchValue: null,
     }]);
-    const { isLoading: isLoadingOptions, isError, data: options, error } = useQuery({
-        queryKey: ["products"],
-        queryFn: () => axios.get("/api/products"),
-        select: (data) => {
-            let result = data.data;
-            return result.map(item => ({
-                ...item,
-                label: item.itemDesc,
-                value: item.itemCode,
-            }));
-        },
-        placeholder: [],
+    const { isLoading: isLoadingOptions, data: options } = useProductList({
         onSuccess: (data) => setFilterOptions(data),
     });
     const { isLoading: isLoadingSuppliers, data: suppliers } = useSupplierList();
