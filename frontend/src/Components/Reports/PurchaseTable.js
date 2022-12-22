@@ -40,7 +40,7 @@ function PurchaseTable({ exportToExcel }) {
   const [showInvoice, setShowInvoice] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState({});
 
-  const { isLoading: isLoadingFetchPurchaseInvoices, data: purchaseInvoices, } = usePurchaseInvoiceList({
+  const { isLoading: isLoadingPurchaseInvoices, isFetching: isFetchingPurchaseInvoices, data: purchaseInvoices, } = usePurchaseInvoiceList({
     query: query,
     onSuccess: (result) => {
       setSelectedInvoice(oldState => {
@@ -349,7 +349,7 @@ function PurchaseTable({ exportToExcel }) {
       </Space>
 
       <Table
-        loading={isLoadingFetchPurchaseInvoices}
+        loading={isLoadingPurchaseInvoices || isFetchingPurchaseInvoices}
         columns={columns}
         dataSource={purchaseInvoices?.data}
         rowKey={(invoice) => invoice.invoiceNumber}

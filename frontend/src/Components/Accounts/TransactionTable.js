@@ -34,7 +34,7 @@ function TransactionTable({ headers, selectedHeader }) {
         page_size: 5,
     });
     const searchInputRef = useRef();
-    const { isLoading: isLoadingTransactions, data: transactions, } = useTransactionList({
+    const { isLoading: isLoadingTransactions, isFetching: isFetchingTransactions, data: transactions, } = useTransactionList({
         query: {
             ...query,
             header: selectedHeader?.code ?? "00"
@@ -301,7 +301,7 @@ function TransactionTable({ headers, selectedHeader }) {
             </Space>
 
             <Table
-                loading={isLoadingTransactions}
+                loading={isLoadingTransactions || isFetchingTransactions}
                 columns={columns}
                 dataSource={transactions?.data}
                 rowKey={(transaction) => transaction?.transactionId}

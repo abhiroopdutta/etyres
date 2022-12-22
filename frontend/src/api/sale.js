@@ -60,9 +60,7 @@ export function useSaleInvoiceList({ query, onSuccess }) {
         queryFn: () => getSaleInvoices(stringifyQuery(query)),
         select: (result) => transformData(result, query.page_size),
         onSuccess: (result) => onSuccess(result),
-        placeholderData: () => ({
-            data: [], headers: { "x-pagination": JSON.stringify({}) }
-        }),
+        keepPreviousData: true,
     });
 }
 

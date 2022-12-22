@@ -55,6 +55,10 @@ tr.ant-table-expanded-row > td {
   border-color: var(--darkest);
 }
 
+.ant-spin-container::after {
+  background-color: transparent;
+}
+
 .ant-btn-primary,
 .ant-btn-default {
   text-decoration: none;

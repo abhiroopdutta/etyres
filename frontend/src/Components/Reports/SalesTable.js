@@ -45,7 +45,7 @@ function SalesTable({ exportToExcel }) {
     invoiceNumber: 0,
     updateCount: 0,
   });
-  const { isLoading: isLoadingFetchSalesInvoices, data: salesInvoices, } = useSaleInvoiceList({
+  const { isLoading: isLoadingSalesInvoices, isFetching: isFetchingSalesInvoices, data: salesInvoices, } = useSaleInvoiceList({
     query: query,
     onSuccess: (result) => {
       setSelectedInvoice(oldState => {
@@ -365,7 +365,7 @@ function SalesTable({ exportToExcel }) {
       </Space>
 
       <Table
-        loading={isLoadingFetchSalesInvoices}
+        loading={isLoadingSalesInvoices || isFetchingSalesInvoices}
         columns={columns}
         dataSource={salesInvoices?.data}
         rowKey={(invoice) => invoice.invoiceNumber}

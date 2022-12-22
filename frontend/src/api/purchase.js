@@ -62,9 +62,7 @@ export function usePurchaseInvoiceList({ query, onSuccess }) {
         queryFn: () => getPurchaseInvoices(stringifyQuery(query)),
         select: (result) => transformData(result, query.page_size),
         onSuccess: (result) => onSuccess(result),
-        placeholderData: () => ({
-            data: [], headers: { "x-pagination": JSON.stringify({}) }
-        }),
+        keepPreviousData: true,
     });
 }
 

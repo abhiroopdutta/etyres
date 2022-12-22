@@ -12,9 +12,7 @@ export function useTransactionList({ query }) {
         queryKey: ["transactionList", query],
         queryFn: () => getTransactions(stringifyQuery(query)),
         select: (result) => transformData(result, query.page_size),
-        placeholderData: () => ({
-            data: [], headers: { "x-pagination": JSON.stringify({}) }
-        }),
+        keepPreviousData: true,
     });
 }
 
