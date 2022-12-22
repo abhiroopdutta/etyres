@@ -41,10 +41,6 @@ function SalesTable({ exportToExcel }) {
   const searchInputRef = useRef();
   const [showInvoice, setShowInvoice] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState({});
-  const [invoiceUpdateSignal, setInvoiceUpdateSignal] = useState({
-    invoiceNumber: 0,
-    updateCount: 0,
-  });
   const { isLoading: isLoadingSalesInvoices, isFetching: isFetchingSalesInvoices, data: salesInvoices, } = useSaleInvoiceList({
     query: query,
     onSuccess: (result) => {
@@ -188,20 +184,9 @@ function SalesTable({ exportToExcel }) {
   }
 
   function hideInvoice() {
-    setInvoiceUpdateSignal({
-      invoiceNumber: 0,
-      updateCount: 0,
-    });
     setSelectedInvoice({});
     setShowInvoice(false);
   }
-
-  const getUpdatedInvoice = (invoiceNumber) => {
-    setInvoiceUpdateSignal((prevState) => ({
-      invoiceNumber: invoiceNumber,
-      updateCount: prevState.updateCount + 1,
-    }));
-  };
 
   const columns = [
     {
@@ -391,7 +376,6 @@ function SalesTable({ exportToExcel }) {
           savedInvoiceStatus={selectedInvoice.invoiceStatus}
           savedCustomerDetails={selectedInvoice.customerDetails}
           savedPayment={selectedInvoice.payment}
-          updateInvoiceInParent={getUpdatedInvoice}
         />
       ) : null}
     </Content>
