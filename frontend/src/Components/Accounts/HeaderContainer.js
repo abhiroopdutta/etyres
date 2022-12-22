@@ -2,21 +2,15 @@ import React, { useState } from "react";
 import styles from "./HeaderContainer.module.css";
 import { message, Modal, Form, Input, Layout, Select, Button } from "antd";
 import { SearchOutlined, InfoCircleOutlined } from "@ant-design/icons";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from 'axios';
+import { useCreateHeader } from "../../api/accounts";
 const { Option } = Select;
 
 function HeaderContainer({ headers, selectedHeader, setSelectedHeader }) {
-    const queryClient = useQueryClient();
     const [visible, setVisible] = useState(false);
-    const { mutate: createHeader, isLoading: isLoadingCreateHeader } = useMutation({
-        mutationFn: (postBody) => axios.post("api/headers", postBody),
+    const { mutate: createHeader, isLoading: isLoadingCreateHeader } = useCreateHeader({
         onSuccess: (response) => {
             setVisible(false);
             setTimeout(() => message.success("Header created!", 2), 700);
-            queryClient.invalidateQueries({
-                queryKey: ["headers"],
-            });
         },
     });
     const closeModal = () => {

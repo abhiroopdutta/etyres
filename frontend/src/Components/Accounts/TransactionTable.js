@@ -17,8 +17,7 @@ import {
     DownloadOutlined,
 } from "@ant-design/icons";
 import { dayjsUTC } from "../dayjsUTCLocal";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import { useTransactionList } from "../../api/accounts";
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 const { Content } = Layout;
@@ -35,52 +34,12 @@ function TransactionTable({ headers, selectedHeader }) {
         page_size: 5,
     });
     const searchInputRef = useRef();
-    const { isLoading: isLoadingTransactions, data: transactions, } = useQuery({
-        queryKey: ["transactions", selectedHeader, query],
-        queryFn: () => {
-            let queryParams = new URLSearchParams();
-            for (let [key, value] of Object.entries(query)) {
-                if (value) {
-                    if (["start", "end"].includes(key)) {
-                        queryParams.append(key, value.format("YYYY-MM-DD"));
-                    }
-                    else {
-                        queryParams.append(key, value);
-                    }
-                }
-            }
-            queryParams.delete("status");
-            queryParams.delete("paymentMode");
-            query.status.forEach(element => {
-                queryParams.append("status", element);
-            });
-            query.paymentMode.forEach(element => {
-                queryParams.append("paymentMode", element);
-            });
-            queryParams.append("header", selectedHeader?.code ?? "00")
-            return axios.get("/api/transactions?" + queryParams.toString());
-        },
-        select: (result) => {
-            let responseData = result.data;
-            let transformedData = result.data;
-            if (responseData.length !== query.page_size) {
-                let dummyRows = [];
-                for (let i = 1; i <= query.page_size - responseData.length; i++) {
-                    dummyRows.push({ transactionId: `${i / 10}` });
-                }
-                transformedData = [...responseData, ...dummyRows];
-            }
-
-            return {
-                data: transformedData,
-                pagination: JSON.parse(result?.headers["x-pagination"]),
-            };
-        },
-        placeholderData: () => ({
-            data: [], headers: { "x-pagination": JSON.stringify({}) }
-        }),
+    const { isLoading: isLoadingTransactions, data: transactions, } = useTransactionList({
+        query: {
+            ...query,
+            header: selectedHeader?.code ?? "00"
+        }
     });
-
     const getSearchMenu = (dataIndex) => ({
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
             <div style={{ padding: 8 }}>

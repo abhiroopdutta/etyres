@@ -3,8 +3,7 @@ import { Layout, DatePicker, Button, Col, Row, Modal, Form, Input, Select, messa
 import { dayjsLocal } from "../Components/dayjsUTCLocal";
 import HeaderContainer from "../Components/Accounts/HeaderContainer";
 import TransactionTable from "../Components/Accounts/TransactionTable";
-import axios from 'axios';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCreateTransaction, useHeaderList } from "../api/accounts";
 const { Option } = Select;
 const { TextArea } = Input;
 
@@ -12,27 +11,16 @@ function Accounts() {
     const [visible, setVisible] = useState(false);
     const [paymentModes, setPaymentModes] = useState(["cash", "card", "UPI", "bankTransfer", "creditNote"]);
     const [selectedHeader, setSelectedHeader] = useState();
-    const queryClient = useQueryClient();
 
-    const { data: headers } = useQuery({
-        queryKey: ["headers"],
-        queryFn: () => axios.get("/api/headers"),
-        select: (response) => response.data,
+    const { data: headers } = useHeaderList({
         onSuccess: (result) => setSelectedHeader(result[0]),
         onError: (err) => Modal.error({ content: err.message }),
     });
 
-    const { mutate: createTransaction, isLoading: isLoadingCreateTransaction } = useMutation({
-        mutationFn: (postBody) => axios.post("api/transactions", {
-            ...postBody,
-            dateTime: dayjsLocal(postBody["dateTime"]).format("YYYY-MM-DD HH:mm:ss")
-        }),
+    const { mutate: createTransaction, isLoading: isLoadingCreateTransaction } = useCreateTransaction({
         onSuccess: (response) => {
             setVisible(false);
             setTimeout(() => message.success("Transaction Added!", 2), 700);
-            queryClient.invalidateQueries({
-                queryKey: ["transactions"],
-            });
         },
     });
 
@@ -58,7 +46,10 @@ function Accounts() {
     };
 
     const handleAddTransaction = (formData) => {
-        createTransaction(formData);
+        createTransaction({
+            ...formData,
+            dateTime: dayjsLocal(formData["dateTime"]).format("YYYY-MM-DD HH:mm:ss")
+        });
 
     };
 
