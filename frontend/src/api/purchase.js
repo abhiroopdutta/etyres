@@ -5,7 +5,7 @@ import { stringifyQuery, transformData } from '../utils';
 const getPurchaseInvoices = (query) => axios.get(`/api/purchases/invoices?${query}`);
 const createPurchaseInvoice = (postBody) => axios.post(`/api/purchases/invoices`, postBody)
 const updatePurchaseInvoice = (invoiceNumber, postBody) => axios.patch(`/api/purchases/invoices/${invoiceNumber}`, postBody);
-const getSuppliers = () => axios.get("/api/suppliers");
+const getSuppliers = () => axios.get(`/api/suppliers`);
 
 export function useCreatePurchaseInvoice({ onSuccess }) {
     const queryClient = useQueryClient();
