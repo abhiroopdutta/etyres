@@ -8,14 +8,13 @@ import {
     Select,
     Tag,
 } from "antd";
-import { DatePicker } from "../Antdesign_dayjs_components";
 import {
     EditFilled,
 } from "@ant-design/icons";
 import { dayjsUTC } from "../dayjsUTCLocal";
 import { useTransactionList } from "../../api/account";
 import { getSearchMenu } from "../TableSearchFilter";
-const { RangePicker } = DatePicker;
+import { getDateRangeMenu } from "../TableDateFilter";
 const { Option } = Select;
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -37,37 +36,6 @@ function TransactionTable({ headers, selectedHeader }) {
             header: selectedHeader?.code ?? "00"
         }
     });
-
-    const getDateRangeMenu = (dataIndex) => ({
-        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
-            <div>
-                <RangePicker
-                    value={selectedKeys}
-                    onChange={(dates, dateStrings) => setSelectedKeys(dates ? dates : [])}
-                />
-                <Space>
-                    <Button
-                        type="primary"
-                        onClick={() => handleDateRange(dataIndex, confirm, selectedKeys)}
-                        size="small"
-                        style={{ width: 80 }}
-                    >
-                        Set Filter
-                    </Button>
-                </Space>
-            </div>
-        ),
-    });
-
-    const handleDateRange = (dataIndex, confirm, selectedKeys) => {
-        setQuery((prevFilters) => ({
-            ...prevFilters,
-            start: selectedKeys[0] ?? "",
-            end: selectedKeys[1] ?? "",
-            page: 1,
-        }));
-        confirm();
-    };
 
     const getDropDownMenu = (dataIndex, optionsList) => ({
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
@@ -140,7 +108,7 @@ function TransactionTable({ headers, selectedHeader }) {
                 date
                     ? dayjsUTC(date).format("DD/MM/YYYY")
                     : null,
-            ...getDateRangeMenu("date"),
+            ...getDateRangeMenu(setQuery),
             filteredValue:
                 query.start && query.end
                     ? [query.start, query.end]

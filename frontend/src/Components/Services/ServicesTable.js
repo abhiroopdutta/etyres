@@ -8,7 +8,6 @@ import {
     message,
     Modal
 } from "antd";
-import { DatePicker } from "../Antdesign_dayjs_components";
 import {
     DownloadOutlined,
     DeleteFilled,
@@ -16,8 +15,8 @@ import {
 } from "@ant-design/icons";
 import { dayjsUTC } from "../dayjsUTCLocal";
 import { getSearchMenu } from "../TableSearchFilter";
+import { getDateRangeMenu } from "../TableDateFilter";
 import { useDeleteServiceInvoice, useServiceInvoiceList } from "../../api/service";
-const { RangePicker } = DatePicker;
 const { Content } = Layout;
 const { Title, Text } = Typography;
 const { confirm } = Modal;
@@ -42,37 +41,6 @@ function PurchaseTable({ exportToExcel }) {
             );
         },
     });
-
-    const getDateRangeMenu = (dataIndex) => ({
-        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
-            <div>
-                <RangePicker
-                    value={selectedKeys}
-                    onChange={(dates, dateStrings) => setSelectedKeys(dates ? dates : [])}
-                />
-                <Space>
-                    <Button
-                        type="primary"
-                        onClick={() => handleDateRange(dataIndex, confirm, selectedKeys)}
-                        size="small"
-                        style={{ width: 80 }}
-                    >
-                        Set Filter
-                    </Button>
-                </Space>
-            </div>
-        ),
-    });
-
-    const handleDateRange = (dataIndex, confirm, selectedKeys) => {
-        setQuery(oldState => ({
-            ...oldState,
-            start: selectedKeys[0] ?? "",
-            end: selectedKeys[1] ?? "",
-            page: 1
-        }));
-        confirm();
-    };
 
     const handlePageChange = (pagination) => {
         let itemsAlreadyRequested = (pagination.current - 1) * pagination.pageSize;
@@ -126,7 +94,7 @@ function PurchaseTable({ exportToExcel }) {
                 invoiceDate
                     ? dayjsUTC(invoiceDate).format("DD/MM/YYYY")
                     : null,
-            ...getDateRangeMenu("invoiceDate"),
+            ...getDateRangeMenu(setQuery),
             filteredValue:
                 query.start && query.end
                     ? [query.start, query.end]

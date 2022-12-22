@@ -8,7 +8,6 @@ import {
   Tag,
   Select,
 } from "antd";
-import { DatePicker } from "../Antdesign_dayjs_components";
 import {
   EditFilled,
   DownloadOutlined,
@@ -17,7 +16,7 @@ import Invoice from "../CreateOrder/Invoice";
 import { dayjsUTC } from "../dayjsUTCLocal";
 import { useSaleInvoiceList } from "../../api/sale";
 import { getSearchMenu } from "../TableSearchFilter";
-const { RangePicker } = DatePicker;
+import { getDateRangeMenu } from "../TableDateFilter";
 const { Content } = Layout;
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -59,37 +58,6 @@ function SalesTable({ exportToExcel }) {
     document.body.style.overflowY = "scroll";
     document.body.style.width = `100%`;
   }
-
-  const getDateRangeMenu = (dataIndex) => ({
-    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
-      <div>
-        <RangePicker
-          value={selectedKeys}
-          onChange={(dates, dateStrings) => setSelectedKeys(dates ? dates : [])}
-        />
-        <Space>
-          <Button
-            type="primary"
-            onClick={() => handleDateRange(dataIndex, confirm, selectedKeys)}
-            size="small"
-            style={{ width: 80 }}
-          >
-            Set Filter
-          </Button>
-        </Space>
-      </div>
-    ),
-  });
-
-  const handleDateRange = (dataIndex, confirm, selectedKeys) => {
-    setQuery(oldState => ({
-      ...oldState,
-      start: selectedKeys[0] ?? "",
-      end: selectedKeys[1] ?? "",
-      page: 1
-    }));
-    confirm();
-  };
 
   const getDropDownMenu = (dataIndex) => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
@@ -166,7 +134,7 @@ function SalesTable({ exportToExcel }) {
         invoiceDate
           ? dayjsUTC(invoiceDate).format("DD/MM/YYYY")
           : null,
-      ...getDateRangeMenu("invoiceDate"),
+      ...getDateRangeMenu(setQuery),
       filteredValue:
         query.start && query.end
           ? [query.start, query.end]
