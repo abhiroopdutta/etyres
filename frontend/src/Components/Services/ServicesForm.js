@@ -8,6 +8,7 @@ import {
     ClearOutlined
 } from "@ant-design/icons";
 import { dayjsLocal } from "../dayjsUTCLocal";
+import { useCreateServiceInvoice } from "../../api/service";
 const { Title } = Typography;
 
 function ServicesForm() {
@@ -57,22 +58,14 @@ function ServicesForm() {
             price: 0,
         },
     ]);
-    const { mutate: createInvoice, isLoading: isLoadingCreateInvoice } = useMutation({
-        mutationFn: postBody => {
-            return axios.post('/api/notax/invoices', postBody);
-        },
+    const { mutate: createInvoice, isLoading: isLoadingCreateInvoice } = useCreateServiceInvoice({
         onSuccess: (response) => {
             message.success(
                 response.data, 3
             );
             emptyCart();
-            //invalidate query
-            queryClient.invalidateQueries({
-                queryKey: ["serviceInvoices"],
-            });
         },
         onError: (response) => message.error(response.response.data.status, 3),
-
     });
     let serviceTotal = Math.round(noTaxItems.reduce(
         (serviceTotal, service) =>

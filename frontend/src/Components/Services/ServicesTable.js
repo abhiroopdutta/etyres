@@ -19,6 +19,7 @@ import {
 import { dayjsUTC } from "../dayjsUTCLocal";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { useDeleteServiceInvoice, useServiceInvoiceList } from "../../api/service";
 const { RangePicker } = DatePicker;
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -36,52 +37,13 @@ function PurchaseTable({ exportToExcel }) {
     })
     const searchInputRef = useRef();
 
-    const { isLoading: isLoadingServiceInvoices, data: serviceInvoices } = useQuery({
-        queryKey: ["serviceInvoices", query],
-        queryFn: () => {
-            let queryParams = new URLSearchParams();
-            for (let [key, value] of Object.entries(query)) {
-                if (value) {
-                    if (["start", "end"].includes(key)) {
-                        queryParams.append(key, value.format("YYYY-MM-DD"));
-                    }
-                    else {
-                        queryParams.append(key, value);
-                    }
-                }
-            }
-
-            return axios.get("/api/notax/invoices?" + queryParams.toString());
-        },
-        select: (result) => {
-            let responseData = result.data;
-            let transformedData = result.data;
-            if (responseData.length !== query.page_size) {
-                let dummyRows = [];
-                for (let i = 1; i <= query.page_size - responseData.length; i++) {
-                    dummyRows.push({ invoiceNumber: i / 10 });
-                }
-                transformedData = [...responseData, ...dummyRows];
-            }
-            return { data: transformedData, pagination: JSON.parse(result?.headers["x-pagination"]) };
-        },
-        placeholderData: () => ({
-            data: [], headers: { "x-pagination": JSON.stringify({}) }
-        }),
-    });
-    const queryClient = useQueryClient();
-    const { mutate: deleteInvoice, isLoading: isLoadingDeleteInvoice } = useMutation({
-        mutationFn: invoiceNumber => {
-            return axios.delete(`/api/notax/invoices/${invoiceNumber}`, invoiceNumber);
-        },
+    const { isLoading: isLoadingServiceInvoices, data: serviceInvoices } = useServiceInvoiceList({ query: query });
+    const { mutate: deleteInvoice, isLoading: isLoadingDeleteInvoice } = useDeleteServiceInvoice({
         onSuccess: (response) => {
             message.success(
                 "Invoice deleted!", 3
             );
-            queryClient.invalidateQueries({
-                queryKey: ["serviceInvoices"],
-            });
-        }
+        },
     });
 
     const getSearchMenu = (dataIndex) => ({
