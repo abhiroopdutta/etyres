@@ -6,34 +6,16 @@ import {
   CreditCardOutlined
 } from "@ant-design/icons";
 import { dayjsUTC } from "../dayjsUTCLocal";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
+import { useUpdatePurchaseInvoice } from "../../api/purchase";
 const { confirm } = Modal;
 
 const { Title } = Typography;
 
 function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
-  const queryClient = useQueryClient();
-  const { isLoadingUpdateInvoiceStatus, mutate: updateInvoiceStatus } = useMutation({
-    mutationFn: postBody => {
-      let requestBody = {
-        invoiceStatus: postBody.invoiceStatus
-      };
-      if (postBody.invoiceStatus !== "cancelled") {
-        requestBody.payment = postBody.payment
-      }
-      return axios.patch(`/api/purchases/invoices/${postBody.invoiceNumber}`, requestBody)
-    },
+  const { isLoadingUpdateInvoiceStatus, mutate: updateInvoiceStatus } = useUpdatePurchaseInvoice({
     onSuccess: (response, postBody) => {
-      if (postBody.invoiceStatus === "cancelled") {
-        queryClient.invalidateQueries({
-          queryKey: ['products'],
-          exact: true,
-        });
-      }
-      queryClient.invalidateQueries({
-        queryKey: ['purchase'],
-      });
       Modal.success({
         centered: true,
         content: response.data,

@@ -5,6 +5,7 @@ import InvoiceWithNewItems from "../Components/UpdateStock/InvoiceWithNewItems.j
 import { Modal, Typography, Button } from "antd";
 import { useTransition, animated } from "@react-spring/web";
 import ManualInvoiceModal from "../Components/UpdateStock/ManualInvoiceModal.js";
+import { useCreatePurchaseInvoice } from "../api/purchase";
 
 const { Title } = Typography;
 
@@ -135,7 +136,14 @@ function UpdateStock() {
     transitionProps
   );
   const invoicesTransitions = useTransition(invoices, transitionProps);
-
+  const { mutate: createInvoice, isLoading: isLoadingCreateInvoice } = useCreatePurchaseInvoice({
+    onSuccess: (response) => {
+      Modal.success({
+        content: response.data,
+      });
+      setTimeout(() => handleClearInvoices(), 400);
+    },
+  });
   useEffect(() => {
     function readyToConvert(invoiceWithNewItems) {
       return invoiceWithNewItems.items.every(
@@ -272,19 +280,7 @@ function UpdateStock() {
       }
     }
     if (!selectOneError && !claimNumberError && !specialDiscountError) {
-      const requestOptions = {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(invoices),
-      };
-      fetch("/api/purchases/invoices", requestOptions)
-        .then((response) => response.json())
-        .then((result) => {
-          Modal.success({
-            content: result,
-          });
-          setTimeout(() => handleClearInvoices(), 400);
-        });
+      createInvoice(invoices);
     }
   };
 

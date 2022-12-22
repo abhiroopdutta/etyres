@@ -18,8 +18,7 @@ import {
 } from "@ant-design/icons";
 import PurchaseInvoiceModal from "./PurchaseInvoiceModal.js";
 import { dayjsUTC } from "../dayjsUTCLocal";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import { usePurchaseInvoiceList } from "../../api/purchase";
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 const { Content } = Layout;
@@ -41,42 +40,8 @@ function PurchaseTable({ exportToExcel }) {
   const [showInvoice, setShowInvoice] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState({});
 
-  const { isLoading: isLoadingFetchPurchaseInvoices, data: purchaseInvoices, } = useQuery({
-    queryKey: ["purchase", query],
-    queryFn: () => {
-      let queryParams = new URLSearchParams();
-      for (let [key, value] of Object.entries(query)) {
-        if (value) {
-          if (["start", "end"].includes(key)) {
-            queryParams.append(key, value.format("YYYY-MM-DD"));
-          }
-          else {
-            queryParams.append(key, value);
-          }
-        }
-      }
-      queryParams.delete("invoiceStatus");
-      query.invoiceStatus.forEach(element => {
-        queryParams.append("invoiceStatus", element);
-      });
-      return axios.get("/api/purchases/invoices?" + queryParams.toString());
-    },
-    select: (result) => {
-      let responseData = result.data;
-      let transformedData = result.data;
-      if (responseData.length !== query.page_size) {
-        let dummyRows = [];
-        for (let i = 1; i <= query.page_size - responseData.length; i++) {
-          dummyRows.push({ invoiceNumber: i / 10 });
-        }
-        transformedData = [...responseData, ...dummyRows];
-      }
-
-      return {
-        data: transformedData,
-        pagination: JSON.parse(result?.headers["x-pagination"]),
-      };
-    },
+  const { isLoading: isLoadingFetchPurchaseInvoices, data: purchaseInvoices, } = usePurchaseInvoiceList({
+    query: query,
     onSuccess: (result) => {
       setSelectedInvoice(oldState => {
         if (oldState.invoiceNumber) {
@@ -85,9 +50,6 @@ function PurchaseTable({ exportToExcel }) {
         return oldState;
       });
     },
-    placeholderData: () => ({
-      data: [], headers: { "x-pagination": JSON.stringify({}) }
-    }),
   });
   const getSearchMenu = (dataIndex) => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (

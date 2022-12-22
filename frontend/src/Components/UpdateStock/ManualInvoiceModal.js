@@ -6,6 +6,8 @@ import {
 import { DatePicker } from "../Antdesign_dayjs_components";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import axios from "axios";
+import { useCreatePurchaseInvoice, useSupplierList } from "../../api/purchase";
+
 function roundToTwo(num) {
     return +(Math.round(num + "e+2") + "e-2");
 }
@@ -74,27 +76,14 @@ function ManualInvoiceModal({ visible, hideInvoice }) {
         placeholder: [],
         onSuccess: (data) => setFilterOptions(data),
     });
-    const { isLoading: isLoadingSuppliers, isError: isErrorSuppliers, data: suppliers, error: errorSupplier } = useQuery({
-        queryKey: ["suppliers"],
-        queryFn: () => axios.get("/api/suppliers"),
-        select: (data) => data.data.map(supplier => ({
-            label: supplier.name,
-            value: supplier.name,
-            GSTIN: supplier.GSTIN,
-        })),
-        placeholder: [],
-    });
+    const { isLoading: isLoadingSuppliers, data: suppliers } = useSupplierList();
     const [supplierOptions, setSupplierOptions] = useState([]);
-    const { mutate: createInvoice, isLoading: isLoadingCreateInvoice } = useMutation({
-        mutationFn: postBody => {
-            return axios.post('/api/purchases/invoices', postBody);
-        },
+    const { mutate: createInvoice, isLoading: isLoadingCreateInvoice } = useCreatePurchaseInvoice({
         onSuccess: (response) => {
             Modal.success({
                 content: response.data,
                 onOk: handleClose,
             });
-
         }
     });
     const handleCreateInvoice = (values) => {
