@@ -17,7 +17,7 @@ import {
     DownloadOutlined,
 } from "@ant-design/icons";
 import { dayjsUTC } from "../dayjsUTCLocal";
-import { useTransactionList } from "../../api/accounts";
+import { useTransactionList } from "../../api/account";
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 const { Content } = Layout;
