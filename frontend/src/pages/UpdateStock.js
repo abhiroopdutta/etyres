@@ -116,7 +116,11 @@ function UpdateStock() {
     []
   );
   const [existingInvoices, setExistingInvoices] = useState([]);
-  const [fileInputDisabled, setFileInputDisabled] = useState(false);
+  const fileInputDisabled = (
+    invoices.length !== 0 ||
+    invoicesWithNewItems.length !== 0 ||
+    existingInvoices.length !== 0
+  );
   const inputFileRef = useRef();
   const transitionProps = useMemo(
     () => ({
@@ -185,18 +189,6 @@ function UpdateStock() {
       }
     }
   }, [invoicesWithNewItems]);
-
-  useEffect(() => {
-    if (
-      invoices.length !== 0 ||
-      invoicesWithNewItems.length !== 0 ||
-      existingInvoices.length !== 0
-    ) {
-      setFileInputDisabled(true);
-    } else {
-      setFileInputDisabled(false);
-    }
-  }, [invoices, invoicesWithNewItems, existingInvoices]);
 
   const changeHandler = (e) => {
     e.preventDefault();

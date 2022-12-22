@@ -1,14 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import "./PurchaseInvoice.css";
 
 function PurchaseInvoice({ invoice, dispatchInvoices }) {
-  const [priceDifference, setPriceDifference] = useState(0);
-
-  useEffect(() => {
-    let priceDiff =
-      Math.round(invoice.invoice_total) - Math.round(invoice.price_list_total);
-    setPriceDifference(priceDiff);
-  }, [invoice.invoice_total, invoice.price_list_total]);
+  let priceDifference = Math.round(invoice.invoice_total) - Math.round(invoice.price_list_total);
 
   let price_match_component;
   if (priceDifference > 0) {
@@ -162,36 +156,36 @@ function PurchaseInvoice({ invoice, dispatchInvoices }) {
           <tbody>
             {invoice.claim_invoice
               ? invoice.claim_items.map((service, claim_item_index) => (
-                  <tr key={claim_item_index}>
-                    <td>{claim_item_index + 1}</td>
-                    <td>{service.item_desc}:</td>
-                    <td>{service.quantity}</td>
-                    <td>{service.item_total}</td>
-                    <td className="claim-number">
-                      <input
-                        type="text"
-                        placeholder="claim number"
-                        onChange={(e) =>
-                          dispatchInvoices({
-                            type: "UPDATE_CLAIM_NUMBER",
-                            invoiceNumber: invoice.invoice_number,
-                            field: "",
-                            value: e.target.value,
-                            claimIndex: claim_item_index,
-                          })
-                        }
-                      />
-                    </td>
-                  </tr>
-                ))
+                <tr key={claim_item_index}>
+                  <td>{claim_item_index + 1}</td>
+                  <td>{service.item_desc}:</td>
+                  <td>{service.quantity}</td>
+                  <td>{service.item_total}</td>
+                  <td className="claim-number">
+                    <input
+                      type="text"
+                      placeholder="claim number"
+                      onChange={(e) =>
+                        dispatchInvoices({
+                          type: "UPDATE_CLAIM_NUMBER",
+                          invoiceNumber: invoice.invoice_number,
+                          field: "",
+                          value: e.target.value,
+                          claimIndex: claim_item_index,
+                        })
+                      }
+                    />
+                  </td>
+                </tr>
+              ))
               : invoice.items.map((service, item_index) => (
-                  <tr key={service.item_code}>
-                    <td>{item_index + 1}</td>
-                    <td>{service.item_desc}:</td>
-                    <td>{service.quantity}</td>
-                    <td>{service.item_total}</td>
-                  </tr>
-                ))}
+                <tr key={service.item_code}>
+                  <td>{item_index + 1}</td>
+                  <td>{service.item_desc}:</td>
+                  <td>{service.quantity}</td>
+                  <td>{service.item_total}</td>
+                </tr>
+              ))}
           </tbody>
 
           <tfoot>
