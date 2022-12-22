@@ -5,7 +5,6 @@ import {
     Space,
     Layout,
     Typography,
-    Select,
     Tag,
 } from "antd";
 import {
@@ -15,16 +14,38 @@ import { dayjsUTC } from "../dayjsUTCLocal";
 import { useTransactionList } from "../../api/account";
 import { getSearchMenu } from "../TableSearchFilter";
 import { getDateRangeMenu } from "../TableDateFilter";
-const { Option } = Select;
+import { getDropDownMenu } from "../TableDropDownFilter";
 const { Content } = Layout;
 const { Title, Text } = Typography;
 
 function TransactionTable({ headers, selectedHeader }) {
+    const paymentModeOptions = [
+        {
+            value: "cash",
+            label: "Cash"
+        },
+        {
+            value: "card",
+            label: "Card"
+        },
+        {
+            value: "UPI",
+            label: "UPI"
+        },
+        {
+            value: "bankTransfer",
+            label: "Bank Transfer"
+        },
+        {
+            value: "creditNote",
+            label: "Credit Note"
+        }
+    ];
     const [query, setQuery] = useState({
         transactionId: "",
         start: "",
         end: "",
-        paymentMode: ["cash", "card", "UPI", "bankTransfer", "creditNote"],
+        paymentMode: paymentModeOptions.map(option => option.value),
         status: ["due", "paid"],
         page: 1,
         page_size: 5,
@@ -36,33 +57,6 @@ function TransactionTable({ headers, selectedHeader }) {
             header: selectedHeader?.code ?? "00"
         }
     });
-
-    const getDropDownMenu = (dataIndex, optionsList) => ({
-        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
-            <div style={{ padding: 8 }}>
-                <Select
-                    mode="multiple"
-                    defaultValue={optionsList.map((option) => option.value)}
-                    style={{ width: 120 }}
-                    onChange={(value) =>
-                        handleDropDownMenuChange(dataIndex, confirm, value)
-                    }
-                >
-                    {optionsList.map((option) => <Option key={option.value} value={option.value}>{option.text}</Option>)}
-                </Select>
-            </div>
-        ),
-        filtered: true,
-    });
-
-    const handleDropDownMenuChange = (dataIndex, confirm, value) => {
-        setQuery((prevFilters) => ({
-            ...prevFilters,
-            [dataIndex]: value,
-            page: 1,
-        }));
-        confirm();
-    };
 
     const handlePageChange = (pagination) => {
         let itemsAlreadyRequested = (pagination.current - 1) * pagination.pageSize;
@@ -143,52 +137,18 @@ function TransactionTable({ headers, selectedHeader }) {
 
             }
         },
-
-        {
-            title: "Status",
-            dataIndex: "status",
-            key: "status",
-            render: (status, transaction) => {
-                if (transaction.transactionId?.includes("_")) {
-                    return status === "due" ? (
-                        <Tag color="orange">Due</Tag>
-                    ) : (
-                        <Tag color="green">Paid</Tag>
-                    );
-                } else {
-                    return null;
-                }
-            },
-
-            ...getDropDownMenu("status", [{ value: "paid", text: "Paid" }, { value: "due", text: "Due" }]),
-        },
         {
             title: "Payment Mode",
             dataIndex: "paymentMode",
             key: "paymentMode",
-            ...getDropDownMenu("paymentMode",
-                [
-                    {
-                        value: "cash",
-                        text: "Cash"
-                    },
-                    {
-                        value: "card",
-                        text: "Card"
-                    },
-                    {
-                        value: "UPI",
-                        text: "UPI"
-                    },
-                    {
-                        value: "bankTransfer",
-                        text: "Bank Transfer"
-                    },
-                    {
-                        value: "creditNote",
-                        text: "Credit Note"
-                    }
-                ]),
+            ...getDropDownMenu({
+                dataIndex: "paymentMode",
+                multiple: true,
+                defaultValue: paymentModeOptions.map(option => option.value),
+                options: paymentModeOptions,
+                setQuery: setQuery,
+            }),
+            filteredValue: query.paymentMode ? [query.paymentMode] : null,
         },
         {
             title: "Action",

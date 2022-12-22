@@ -5,7 +5,6 @@ import {
   Space,
   Layout,
   Typography,
-  Select,
   Tag,
 } from "antd";
 import {
@@ -17,7 +16,7 @@ import { dayjsUTC } from "../dayjsUTCLocal";
 import { usePurchaseInvoiceList } from "../../api/purchase";
 import { getSearchMenu } from "../TableSearchFilter";
 import { getDateRangeMenu } from "../TableDateFilter";
-const { Option } = Select;
+import { getDropDownMenu } from "../TableDropDownFilter.js";
 const { Content } = Layout;
 const { Title, Text } = Typography;
 
@@ -47,59 +46,6 @@ function PurchaseTable({ exportToExcel }) {
         return oldState;
       });
     },
-  });
-
-  const getDropDownMenu = (dataIndex) => ({
-    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
-      <div style={{ padding: 8 }}>
-        <Select
-          defaultValue=""
-          style={{ width: 120 }}
-          onChange={(value) =>
-            handleDropDownMenuChange(dataIndex, confirm, value)
-          }
-        >
-          <Option value="true">Claim</Option>
-          <Option value="false">Regular</Option>
-          <Option value="">All</Option>
-        </Select>
-      </div>
-    ),
-    filtered: true,
-  });
-
-  const handleDropDownMenuChange = (dataIndex, confirm, value) => {
-    setQuery(oldState => ({
-      ...oldState,
-      [dataIndex]: value,
-      page: 1
-    }));
-    confirm();
-  };
-
-  const getDropDownMenuInvoiceStatus = (dataIndex) => ({
-    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
-      <div style={{ padding: 8 }}>
-        <Select
-          mode="multiple"
-          defaultValue={["due", "paid", "cancelled"]}
-          style={{ width: 120 }}
-          onChange={(value) =>
-            setQuery((oldState) => ({
-              ...oldState,
-              [dataIndex]: value,
-              page: 1,
-            }))
-          }
-          onBlur={confirm}
-        >
-          <Option value="paid">Paid</Option>
-          <Option value="due">Due</Option>
-          <Option value="cancelled">Cancelled</Option>
-        </Select>
-      </div>
-    ),
-    filtered: true,
   });
 
   const handlePageChange = (pagination) => {
@@ -197,7 +143,17 @@ function PurchaseTable({ exportToExcel }) {
           return null;
         }
       },
-      ...getDropDownMenuInvoiceStatus("invoiceStatus"),
+      ...getDropDownMenu({
+        dataIndex: "invoiceStatus",
+        multiple: true,
+        defaultValue: ["due", "paid", "cancelled"],
+        options: [
+          { value: "paid", label: "Paid" },
+          { value: "due", label: "Due" },
+          { value: "cancelled", label: "Cancelled" },
+        ],
+        setQuery: setQuery,
+      }),
       filteredValue: query.invoiceStatus ? [query.invoiceStatus] : null,
     },
     {
@@ -216,7 +172,16 @@ function PurchaseTable({ exportToExcel }) {
         }
       },
 
-      ...getDropDownMenu("claimInvoice"),
+      ...getDropDownMenu({
+        dataIndex: "claimInvoice",
+        defaultValue: "",
+        options: [
+          { value: "true", label: "Claim" },
+          { value: "false", label: "Regular" },
+          { value: "", label: "All" },
+        ],
+        setQuery: setQuery,
+      }),
       filteredValue: query.claimInvoice ? [query.claimInvoice] : null,
     },
     {
@@ -244,8 +209,6 @@ function PurchaseTable({ exportToExcel }) {
         ),
     },
   ];
-
-
 
   return (
     <Content>

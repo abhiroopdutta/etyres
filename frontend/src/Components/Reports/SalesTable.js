@@ -6,7 +6,6 @@ import {
   Layout,
   Typography,
   Tag,
-  Select,
 } from "antd";
 import {
   EditFilled,
@@ -17,9 +16,9 @@ import { dayjsUTC } from "../dayjsUTCLocal";
 import { useSaleInvoiceList } from "../../api/sale";
 import { getSearchMenu } from "../TableSearchFilter";
 import { getDateRangeMenu } from "../TableDateFilter";
+import { getDropDownMenu } from "../TableDropDownFilter";
 const { Content } = Layout;
 const { Title, Text } = Typography;
-const { Option } = Select;
 
 function SalesTable({ exportToExcel }) {
   const [query, setQuery] = useState({
@@ -58,31 +57,6 @@ function SalesTable({ exportToExcel }) {
     document.body.style.overflowY = "scroll";
     document.body.style.width = `100%`;
   }
-
-  const getDropDownMenu = (dataIndex) => ({
-    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
-      <div style={{ padding: 8 }}>
-        <Select
-          mode="multiple"
-          defaultValue={["due", "paid", "cancelled"]}
-          style={{ width: 120 }}
-          onChange={(value) =>
-            setQuery((oldState) => ({
-              ...oldState,
-              [dataIndex]: value,
-              page: 1,
-            }))
-          }
-          onBlur={confirm}
-        >
-          <Option value="paid">Paid</Option>
-          <Option value="due">Due</Option>
-          <Option value="cancelled">Cancelled</Option>
-        </Select>
-      </div>
-    ),
-    filtered: true,
-  });
 
   const handlePageChange = (pagination) => {
     let itemsAlreadyRequested = (pagination.current - 1) * pagination.pageSize;
@@ -191,7 +165,17 @@ function SalesTable({ exportToExcel }) {
           return null;
         }
       },
-      ...getDropDownMenu("invoiceStatus"),
+      ...getDropDownMenu({
+        dataIndex: "invoiceStatus",
+        multiple: true,
+        defaultValue: ["due", "paid", "cancelled"],
+        options: [
+          { value: "paid", label: "Paid" },
+          { value: "due", label: "Due" },
+          { value: "cancelled", label: "Cancelled" },
+        ],
+        setQuery: setQuery,
+      }),
       filteredValue: query.invoiceStatus ? [query.invoiceStatus] : null,
     },
     {
