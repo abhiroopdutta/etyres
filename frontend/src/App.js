@@ -1,10 +1,9 @@
 import React from "react";
-
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import "./App.css";
 import Navbar from "./Components/Navbar";
 import CreateOrder from "./pages/CreateOrder";
-import UpdateStock from "./pages/UpdateStock";
+import UpdateStock from "./pages/UpdatePurchases";
 import Reports from "./pages/Reports";
 import Accounts from "./pages/Accounts";
 import Services from "./pages/Services";
