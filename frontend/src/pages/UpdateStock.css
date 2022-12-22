@@ -21,8 +21,7 @@ input[type="file"] {
 }
 
 .upload-button,
-.clear-button,
-.update-inventory {
+.clear-button {
   text-decoration: none;
   color: white;
   font-weight: 600;
@@ -36,20 +35,17 @@ input[type="file"] {
 }
 
 .upload-button:active,
-.clear-button:active,
-.update-inventory:active {
+.clear-button:active {
   box-shadow: 0 2px var(--darkest);
   transform: translateY(2px);
 }
 
 .upload-button:hover,
-.clear-button:hover,
-.update-inventory:hover {
+.clear-button:hover {
   background-color: var(--darkest);
 }
 
-.clear-button:disabled,
-.update-inventory:disabled {
+.clear-button:disabled {
   background-color: var(--default);
   cursor: not-allowed;
 }

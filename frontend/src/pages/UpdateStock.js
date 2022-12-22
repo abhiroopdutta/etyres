@@ -400,7 +400,7 @@ function UpdateStock() {
       {invoices.length !== 0 ||
         invoicesWithNewItems.length !== 0 ||
         existingInvoices.length !== 0 ? (
-        <button
+        <Button
           disabled={
             invoicesWithNewItems.length !== 0 ||
             (existingInvoices.length !== 0 &&
@@ -409,9 +409,10 @@ function UpdateStock() {
           }
           className="update-inventory"
           onClick={handleUpdateStock}
+          loading={isLoadingCreateInvoice}
         >
           Update inventory and save invoices
-        </button>
+        </Button>
       ) : null}
       <br />
 
