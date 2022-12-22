@@ -120,7 +120,6 @@ function TransactionTable({ headers, selectedHeader }) {
                 }
 
                 let fromCode = transaction.transactionId.slice(0, 2);
-                let toCode = transaction.transactionId.slice(2, 4);
                 if (selectedHeader?.code === fromCode) {
                     return <div>
                         <Tag color="red">-</Tag>

@@ -4,7 +4,7 @@ import "./CartTyre.css";
 
 //object deconstruction in props
 function CartTyre({ tyreData }) {
-  const { tyresContext, servicesContext } = useContext(CartContext);
+  const { tyresContext } = useContext(CartContext);
   const [cart, setCart] = tyresContext;
 
   const removeFromCart = (tyreData) => {

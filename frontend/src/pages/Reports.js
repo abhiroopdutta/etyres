@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Layout, Typography, Button, Modal } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
 import SalesTable from "../Components/Reports/SalesTable";

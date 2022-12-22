@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { stringifyQuery, transformData } from '../utils';
 
 const getProducts = () => axios.get(`/api/products`);
 const createProduct = (postBody) => axios.post(`/api/products`, postBody);

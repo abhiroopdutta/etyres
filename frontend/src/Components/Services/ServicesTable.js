@@ -34,7 +34,7 @@ function PurchaseTable({ exportToExcel }) {
     const searchInputRef = useRef();
 
     const { isLoading: isLoadingServiceInvoices, data: serviceInvoices } = useServiceInvoiceList({ query: query });
-    const { mutate: deleteInvoice, isLoading: isLoadingDeleteInvoice } = useDeleteServiceInvoice({
+    const { mutate: deleteInvoice } = useDeleteServiceInvoice({
         onSuccess: (response) => {
             message.success(
                 "Invoice deleted!", 3

@@ -48,6 +48,9 @@ function itemsReducer(items, action) {
                 return element;
             });
         }
+
+        default:
+            return items;
     }
 };
 
