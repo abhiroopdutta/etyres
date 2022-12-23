@@ -1,16 +1,14 @@
-import React, { useMemo, useState, useReducer } from "react";
-import { Modal, Table, message, Space, Button, Form, Input, Select, AutoComplete } from "antd";
-import {
-    DeleteOutlined,
-} from "@ant-design/icons";
+import React, { useState, useReducer } from "react";
+import { Modal, message, Space, Button, Form, Input, Select, AutoComplete } from "antd";
 import { DatePicker } from "../Antdesign_dayjs_components";
 import { useCreatePurchaseInvoice, useSupplierList } from "../../api/purchase";
 import { useProductList } from "../../api/product";
+import { useHeaderList } from "../../api/account";
+import StockPurchaseTable from "./StockPurchaseTable";
+import { roundToTwo } from "../../utils";
+const { Option } = Select;
 
-function roundToTwo(num) {
-    return +(Math.round(num + "e+2") + "e-2");
-}
-function itemsReducer(items, action) {
+function itemsReducer(stockItems, action) {
     switch (action.type) {
         case "RESET": {
             return [{
@@ -22,15 +20,15 @@ function itemsReducer(items, action) {
             }];
         }
         case "DELETE_ITEM": {
-            if (items.length > 1) {
-                return items.filter((element) => element.key !== action.key)
+            if (stockItems.length > 1) {
+                return stockItems.filter((element) => element.key !== action.key)
             }
-            return items;
+            return stockItems;
         }
 
         case "ADD_ITEM": {
-            return [...items, {
-                key: items.length + 1,
+            return [...stockItems, {
+                key: stockItems.length + 1,
                 itemCode: null,
                 quantity: 1,
                 itemTotal: 0,
@@ -38,7 +36,7 @@ function itemsReducer(items, action) {
         }
 
         case "UPDATE_ITEM_FIELD": {
-            return items.map((element) => {
+            return stockItems.map((element) => {
                 if (element.key === action.key) {
                     return {
                         ...element,
@@ -50,14 +48,14 @@ function itemsReducer(items, action) {
         }
 
         default:
-            return items;
+            return stockItems;
     }
 };
 
 function ManualInvoiceModal({ visible, hideInvoice }) {
     const [form] = Form.useForm();
-    const [filteredOptions, setFilterOptions] = useState([]);
-    const [items, dispatchItems] = useReducer(itemsReducer, [{
+    const [filterOptions, setFilterOptions] = useState([]);
+    const [stockItems, dispatchStockItems] = useReducer(itemsReducer, [{
         key: 1,
         itemCode: null,
         quantity: 1,
@@ -68,6 +66,7 @@ function ManualInvoiceModal({ visible, hideInvoice }) {
         onSuccess: (data) => setFilterOptions(data),
     });
     const { isLoading: isLoadingSuppliers, data: suppliers } = useSupplierList();
+    const { data: headers } = useHeaderList({});
     const [supplierOptions, setSupplierOptions] = useState([]);
     const { mutate: createInvoice, isLoading: isLoadingCreateInvoice } = useCreatePurchaseInvoice({
         onSuccess: (response) => {
@@ -78,7 +77,7 @@ function ManualInvoiceModal({ visible, hideInvoice }) {
         }
     });
     const handleCreateInvoice = (values) => {
-        let itemNotFilled = items?.some((item) => (item.itemTotal === 0 || item.itemCode === null));
+        let itemNotFilled = stockItems?.some((item) => (item.itemTotal === 0 || item.itemCode === null));
         if (itemNotFilled) {
             message.error(
                 "Please fill all item details before submitting",
@@ -89,10 +88,10 @@ function ManualInvoiceModal({ visible, hideInvoice }) {
         createInvoice([{
             invoice_number: values.invoiceNumber,
             invoice_date: values.invoiceDate.format("YYYY-MM-DD"),
-            invoice_total: roundToTwo(items?.reduce((invoiceTotal, item) => invoiceTotal + item.itemTotal, 0)),
+            invoice_total: roundToTwo(stockItems?.reduce((invoiceTotal, item) => invoiceTotal + item.itemTotal, 0)),
             supplier_name: values.supplierName,
             supplier_GSTIN: values.supplierGSTIN,
-            items: items.map((item) => ({
+            items: stockItems.map((item) => ({
                 item_code: item.itemCode,
                 quantity: item.quantity,
                 item_total: item.itemTotal,
@@ -118,136 +117,13 @@ function ManualInvoiceModal({ visible, hideInvoice }) {
             supplierGSTIN: selectedSupplier.GSTIN
         });
     };
-    const columns = useMemo(
-        () => [
-            {
-                title: "Item Desc",
-                dataIndex: "itemDesc",
-                key: "itemDesc",
-                render: (itemDesc, item) =>
-                    item.itemDesc === "TOTAL" ? <h4>{itemDesc}</h4> : itemDesc,
-            },
-            {
-                title: "Item Code",
-                dataIndex: "itemCode",
-                key: "itemCode",
-            },
-            {
-                title: "Qty",
-                dataIndex: "quantity",
-                key: "quantity",
-            },
-            {
-                title: "Item Total",
-                dataIndex: "itemTotal",
-                key: "itemTotal",
-            },
-            {
-                title: "Action",
-                dataIndex: "action",
-                key: "action",
-            },
-        ],
-        []
-    );
 
-    const handleSearch = (newValue, key) => {
-        if (!isLoadingOptions && newValue) {
-            setFilterOptions(options.filter((i) => {
-                return i.size.toString().match(newValue);
-            }));
-        }
-        dispatchItems({
-            type: "UPDATE_ITEM_FIELD",
-            key: key,
-            field: "searchValue",
-            value: newValue,
-        });
-
-        if (newValue !== "") {
-            dispatchItems({
-                type: "UPDATE_ITEM_FIELD",
-                key: key,
-                field: "itemCode",
-                value: null,
-            });
-        }
-    };
-    const inputList = items.map((item) => ({
-        key: item.key,
-        itemDesc:
-            <Select
-                showSearch
-                value={item.itemCode}
-                placeholder="Search tyres by entering size or name"
-                defaultActiveFirstOption={false}
-                showArrow={false}
-                filterOption={false}
-                onSearch={(newValue) => handleSearch(newValue, item.key)}
-                onChange={(value) => dispatchItems({
-                    type: "UPDATE_ITEM_FIELD",
-                    key: item.key,
-                    field: "itemCode",
-                    value: value,
-                })}
-                notFoundContent={null}
-                options={filteredOptions}
-                allowClear
-                searchValue={item.searchValue}
-                style={{ minWidth: "400px" }}
-            />,
-        itemCode: item.itemCode,
-        quantity:
-            <Input
-                type="number"
-                value={item.quantity}
-                step="1"
-                min="1"
-                onChange={(e) => dispatchItems({
-                    type: "UPDATE_ITEM_FIELD",
-                    key: item.key,
-                    field: "quantity",
-                    value: e.target.value === "" ? 1 : parseInt(e.target.value)
-                })}
-            />,
-        itemTotal:
-            <Input
-                type="number"
-                value={item.itemTotal}
-                onChange={(e) => dispatchItems({
-                    type: "UPDATE_ITEM_FIELD",
-                    key: item.key,
-                    field: "itemTotal",
-                    value: Number(e.target.value)
-                })}
-            />,
-        action: item.key === 1 ? null : <Button
-            icon={<DeleteOutlined />}
-            onClick={() => dispatchItems({
-                type: "DELETE_ITEM",
-                key: item.key,
-            })}
-        >
-        </Button>
-    }));
-
-    const totalRow = {
-        key: "total",
-        itemDesc: <h3 style={{ padding: "0" }}>TOTAL</h3>,
-        itemCode: "",
-        quantity:
-            <h3 style={{ padding: "0 0 0 10px" }}>
-                {roundToTwo(items?.reduce((totalQuantity, item) => totalQuantity + item.quantity, 0))}
-            </h3>,
-        itemTotal:
-            <h3 style={{ padding: "0" }}>
-                &#x20B9;{roundToTwo(items?.reduce((invoiceTotal, item) => invoiceTotal + item.itemTotal, 0))}
-            </h3>,
-        action: ""
+    const handlePurchaseType = (selectedValue) => {
+        console.log(selectedValue);
     }
 
     const handleClose = () => {
-        dispatchItems({ type: "RESET" });
+        dispatchStockItems({ type: "RESET" });
         setFilterOptions([]);
         setSupplierOptions([]);
         form.resetFields();
@@ -272,7 +148,7 @@ function ManualInvoiceModal({ visible, hideInvoice }) {
                 name="manual-purchase"
                 labelCol={{ span: 6 }}
                 wrapperCol={{ span: 14 }}
-                initialValues={{ remember: false, headerType: "regular" }}
+                initialValues={{ remember: false, headerType: "regular", purchaseType: "02" }}
                 form={form}
                 onFinish={handleCreateInvoice}
                 id="manual-purchase-form"
@@ -314,40 +190,28 @@ function ManualInvoiceModal({ visible, hideInvoice }) {
                         value="hello"
                     />
                 </Form.Item>
+                <Form.Item
+                    label="Purchase type"
+                    name="purchaseType"
+                    defaultValue="02"
+                    rules={[{ required: true, message: 'Please select one!' }]}
+                >
+                    <Select
+                        onSelect={handlePurchaseType}
+                    >
+                        {headers?.map((header) =>
+                            <Option key={header.code} value={header.code}>{header.name}</Option>)}
+                    </Select>
+                </Form.Item>
             </Form>
 
-            <Table
-                columns={columns}
-                dataSource={[...inputList, totalRow]}
-                rowKey={(item) => item.key}
-                pagination={false}
-                style={{ display: "flex", justifyContent: "center" }}
+            <StockPurchaseTable
+                items={stockItems}
+                dispatchItems={dispatchStockItems}
+                options={options ?? []}
+                filterOptions={filterOptions}
+                setFilterOptions={setFilterOptions}
             />
-            <Space
-                style={{ display: "flex", justifyContent: "flex-start", padding: "0 36px" }}
-
-            >
-                <Button
-                    type="primary"
-                    onClick={() => {
-                        let itemNotFilled = items?.some((item) => (item.itemTotal === 0 || item.itemCode === null));
-                        if (itemNotFilled) {
-                            message.error(
-                                "Please fill existing item fields before adding new items",
-                                3
-                            );
-                            return;
-                        }
-                        dispatchItems({
-                            type: "ADD_ITEM"
-                        })
-                    }
-                    }
-                >
-                    + Add item
-                </Button>,
-
-            </Space>
 
             <Space
                 style={{ display: "flex", justifyContent: "center", margin: "20px 0", width: "100%" }}

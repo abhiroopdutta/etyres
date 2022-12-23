@@ -35,3 +35,7 @@ export function transformData(result, pageSize) {
         pagination: JSON.parse(result?.headers["x-pagination"]),
     };
 }
+
+export function roundToTwo(num) {
+    return +(Math.round(num + "e+2") + "e-2");
+}
