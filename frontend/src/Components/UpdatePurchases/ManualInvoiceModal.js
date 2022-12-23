@@ -5,6 +5,7 @@ import { useCreatePurchaseInvoice, useSupplierList } from "../../api/purchase";
 import { useProductList } from "../../api/product";
 import { useHeaderList } from "../../api/account";
 import StockPurchaseTable from "./StockPurchaseTable";
+import OtherPurchaseTable from "./OtherPurchaseTable";
 import { roundToTwo } from "../../utils";
 const { Option } = Select;
 
@@ -55,6 +56,7 @@ function itemsReducer(stockItems, action) {
 function ManualInvoiceModal({ visible, hideInvoice }) {
     const [form] = Form.useForm();
     const [filterOptions, setFilterOptions] = useState([]);
+    const [purchaseType, setPurchaseType] = useState("02");
     const [stockItems, dispatchStockItems] = useReducer(itemsReducer, [{
         key: 1,
         itemCode: null,
@@ -119,7 +121,7 @@ function ManualInvoiceModal({ visible, hideInvoice }) {
     };
 
     const handlePurchaseType = (selectedValue) => {
-        console.log(selectedValue);
+        setPurchaseType(selectedValue);
     }
 
     const handleClose = () => {
@@ -205,13 +207,16 @@ function ManualInvoiceModal({ visible, hideInvoice }) {
                 </Form.Item>
             </Form>
 
-            <StockPurchaseTable
-                items={stockItems}
-                dispatchItems={dispatchStockItems}
-                options={options ?? []}
-                filterOptions={filterOptions}
-                setFilterOptions={setFilterOptions}
-            />
+            {purchaseType === "02" ?
+                <StockPurchaseTable
+                    items={stockItems}
+                    dispatchItems={dispatchStockItems}
+                    options={options ?? []}
+                    filterOptions={filterOptions}
+                    setFilterOptions={setFilterOptions}
+                /> :
+                <OtherPurchaseTable />
+            }
 
             <Space
                 style={{ display: "flex", justifyContent: "center", margin: "20px 0", width: "100%" }}

@@ -60,7 +60,8 @@ tr.ant-table-expanded-row > td {
 }
 
 .ant-btn-primary,
-.ant-btn-default {
+.ant-btn-default,
+.ant-btn-dashed {
   text-decoration: none;
   color: var(--lightest);
   border: none;
@@ -73,20 +74,23 @@ tr.ant-table-expanded-row > td {
 }
 
 .ant-btn-primary:active,
-.ant-btn-default:active {
+.ant-btn-default:active,
+.ant-btn-dashed:active {
   box-shadow: 0 2px var(--darkest);
   transform: translateY(2px);
   color: var(--lightest);
 }
 
 .ant-btn-primary:hover,
-.ant-btn-default:hover {
+.ant-btn-default:hover,
+.ant-btn-dashed:hover {
   color: var(--lightest);
   background-color: var(--darkest);
 }
 
 .ant-btn-primary:focus,
-.ant-btn-default:focus {
+.ant-btn-default:focus,
+.ant-btn-dashed:focus {
   color: var(--lightest);
   background-color: var(--darkest);
 }
