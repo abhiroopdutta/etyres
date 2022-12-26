@@ -6,6 +6,8 @@ class SupplierService:
         return results
 
     def create_supplier(self, GSTIN, name):
-        Supplier(GSTIN=GSTIN, name=name).save()   
+        supplier = Supplier(GSTIN=GSTIN, name=name)
+        supplier.save()   
+        return supplier
 
 supplier_service = SupplierService()

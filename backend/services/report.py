@@ -716,8 +716,8 @@ def export_purchase_report(reports_dir, invoices):
             sheet.cell(row = row_index, column = 2).value = invoice.invoiceDate.strftime("%d/%m/%Y")
             sheet.cell(row = row_index, column = 3).value = invoice.invoiceStatus
             sheet.cell(row = row_index, column = 4).value = "No" if invoice.claimInvoice ==0 else "Yes"
-            sheet.cell(row = row_index, column = 5).value = invoice.supplierDetails.name
-            sheet.cell(row = row_index, column = 6).value = invoice.supplierDetails.GSTIN
+            sheet.cell(row = row_index, column = 5).value = invoice.supplier.name
+            sheet.cell(row = row_index, column = 6).value = invoice.supplier.GSTIN
 
             for j, item_key in enumerate(item_keys):
                 sheet.cell(row = row_index, column = 7+j).value = product[item_key]

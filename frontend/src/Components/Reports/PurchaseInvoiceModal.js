@@ -197,10 +197,10 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
               Invoice Status: {invoiceStatus()}
             </Title>
             <Title level={5} style={{ margin: "0" }}>
-              Supplier: {invoice.supplierDetails?.name}
+              Supplier: {invoice.supplier?.name}
             </Title>
             <Title level={5} style={{ margin: "0" }}>
-              GSTIN: {invoice.supplierDetails?.GSTIN}
+              GSTIN: {invoice.supplier?.GSTIN}
             </Title>
           </div >
           <Title level={5} style={{ margin: "0" }}>

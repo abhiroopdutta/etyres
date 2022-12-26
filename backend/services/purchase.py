@@ -1,5 +1,5 @@
 import csv	
-from models import ClaimItem, Product, Purchase, ProductItem, SupplierDetail, Supplier, PurchasePayment
+from models import ClaimItem, Product, Purchase, ProductItem, Supplier, PurchasePayment
 import glob, os
 import datetime
 from itertools import repeat
@@ -178,20 +178,18 @@ class PurchaseService():
 
             
             if ("supplier_GSTIN" in invoice):
-                supplier_details = SupplierDetail(
-                    name = invoice["supplier_name"],
-                    GSTIN = invoice["supplier_GSTIN"],
-                )
+                supplier_name = invoice["supplier_name"]
+                supplier_GSTIN = invoice["supplier_GSTIN"]
             else:
-                supplier_details = SupplierDetail(
-                name = "Apollo Tyres",
-                GSTIN = "09AAACA6990Q1ZW",
-            )
+                supplier_name = "Apollo Tyres"
+                supplier_GSTIN = "09AAACA6990Q1ZW"
 
             # if new supplier then add to supplier collection
-            supplierFound = Supplier.objects(GSTIN=supplier_details.GSTIN).first()
+            supplierFound = Supplier.objects(GSTIN=supplier_GSTIN).first()
             if (supplierFound is None):
-                supplier_service.create_supplier(GSTIN=supplier_details.GSTIN, name=supplier_details.name)
+                supplier = supplier_service.create_supplier(GSTIN=supplier_GSTIN, name=supplier_name)
+            else:
+                supplier = supplierFound
 
             payment = PurchasePayment(creditNote = 0.0, bank = 0.0, cash = 0.0)
             purchase_invoice = Purchase(
@@ -203,7 +201,7 @@ class PurchaseService():
                 claimItems = claim_items,
                 invoiceTotal = invoice_total,
                 items = items,
-                supplierDetails = supplier_details,
+                supplier = supplier,
                 payment = payment,
                 ).save()
         return (jsonify("stock updated, invoice saved"), 200)
@@ -233,9 +231,11 @@ class PurchaseService():
         if (invoiceStatus):
             query &= Q(invoiceStatus__in=invoiceStatus)
         if (supplierName):
-            query &= Q(supplierDetails__name__icontains=supplierName)
+            suppliersFilteredByName = Supplier.objects(Q(name__icontains=supplierName))
+            query &=  Q(supplier__in=suppliersFilteredByName)
         if (supplierGSTIN):
-            query &= Q(supplierDetails__GSTIN__icontains=supplierGSTIN)      
+            supplierFilteredByGSTIN = Supplier.objects(Q(GSTIN__icontains=supplierGSTIN))
+            query &= Q(supplier__in=supplierFilteredByGSTIN)
         if (claimInvoice):
             if (claimInvoice == "true"):
                 query &= Q(claimInvoice=True)

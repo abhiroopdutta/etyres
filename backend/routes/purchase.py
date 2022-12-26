@@ -2,15 +2,21 @@ import flask_smorest
 from flask import request, views
 import marshmallow_mongoengine as mamo
 import marshmallow as ma
-from models import Purchase
+from models import Purchase, Supplier
 from services.purchase import purchase_service
 
 blp = flask_smorest.Blueprint("purchase", "purchase", url_prefix="/api/purchases", description="Operations related to purchases")
+
+class SupplierDetailSchema(mamo.ModelSchema):
+    class Meta:
+        model = Supplier
+        exclude = ['id']
 
 class PurchaseSchema(mamo.ModelSchema):
     class Meta:
         model = Purchase
         exclude = ['id']
+    supplier = ma.fields.Nested("SupplierDetailSchema")
 
 class PurchaseQuerySchema(ma.Schema):
     invoiceNumber = ma.fields.Int()

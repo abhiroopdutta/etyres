@@ -110,8 +110,8 @@ function PurchaseTable({ exportToExcel }) {
     },
     {
       title: "Supplier Name",
-      dataIndex: ["supplierDetails", "name"],
-      key: ["supplierDetails", "name"],
+      dataIndex: ["supplier", "name"],
+      key: ["supplier", "name"],
       ...getSearchMenu("supplierName", searchInputRef, setQuery),
       filteredValue: query.supplierName ? [query.supplierName] : null,
       render: (supplierName, invoice) =>
@@ -119,8 +119,8 @@ function PurchaseTable({ exportToExcel }) {
     },
     {
       title: "Supplier GSTIN",
-      dataIndex: ["supplierDetails", "GSTIN"],
-      key: ["supplierDetails", "GSTIN"],
+      dataIndex: ["supplier", "GSTIN"],
+      key: ["supplier", "GSTIN"],
       ...getSearchMenu("supplierGSTIN", searchInputRef, setQuery),
       filteredValue: query.supplierGSTIN ? [query.supplierGSTIN] : null,
       render: (supplierGSTIN, invoice) =>

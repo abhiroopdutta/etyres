@@ -32,10 +32,6 @@ class ClaimItem(db.EmbeddedDocument):
     itemCode = db.StringField(required=True)
     claimNumber = db.IntField(required=True)
 
-class SupplierDetail(db.EmbeddedDocument):
-    name = db.StringField()
-    GSTIN = db.StringField()
-
 class PurchasePayment(db.EmbeddedDocument):
     creditNote = db.FloatField(required=True)
     bank = db.FloatField(required=True)
@@ -48,7 +44,7 @@ class Purchase(db.Document):
     invoiceTotal = db.FloatField(required=True)
     specialDiscount = db.StringField(required=True)  
     claimInvoice = db.BooleanField(Required=True)
-    supplierDetails = db.EmbeddedDocumentField(SupplierDetail)
+    supplier = db.ReferenceField(Supplier)
     claimItems = db.ListField(db.EmbeddedDocumentField(ClaimItem))
     items = db.ListField(db.EmbeddedDocumentField(ProductItem))
     payment = db.EmbeddedDocumentField(PurchasePayment)
@@ -66,7 +62,6 @@ class CustomerDetail(db.EmbeddedDocument):
     state = db.StringField()
     vehicleNumber = db.StringField()
     contact = db.StringField()
-
 
 class ServiceItem(db.EmbeddedDocument):
     name = db.StringField(required=True)
