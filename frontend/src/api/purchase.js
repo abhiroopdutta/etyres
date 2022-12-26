@@ -21,6 +21,9 @@ export function useCreatePurchaseInvoice({ onSuccess }) {
             queryClient.invalidateQueries({
                 queryKey: ["purchaseInvoiceList"],
             });
+            queryClient.invalidateQueries({
+                queryKey: ["supplierList"],
+            });
             onSuccess(response, postBody);
         }
     });
@@ -68,7 +71,7 @@ export function usePurchaseInvoiceList({ query, onSuccess }) {
 
 export function useSupplierList() {
     return useQuery({
-        queryKey: ["suppliers"],
+        queryKey: ["supplierList"],
         queryFn: getSuppliers,
         select: (data) => data.data.map(supplier => ({
             label: supplier.name,
