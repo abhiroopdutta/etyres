@@ -7,6 +7,7 @@ const getSaleInvoiceByNumber = (invoiceNumber) => axios.get(`/api/sales/invoices
 const createSaleInvoice = (postBody) => axios.post(`/api/sales/invoices`, postBody)
 const updateSaleInvoice = (invoiceNumber, postBody) => axios.patch(`/api/sales/invoices/${invoiceNumber}`, postBody);
 const getNewSaleInvoiceNumber = () => axios.get(`/api/sales/new-invoice-number`);
+const getCustomers = () => axios.get(`/api/customers`);
 
 export function useCreateSaleInvoice({ onSuccess }) {
     const queryClient = useQueryClient();
@@ -80,5 +81,18 @@ export function useNewSaleInvoiceNumber({ enabled }) {
         select: (data) => data.data.invoiceNumber,
         placeholder: 0,
         enabled: enabled,
+    });
+}
+
+export function useCustomerList() {
+    return useQuery({
+        queryKey: ["customerList"],
+        queryFn: getCustomers,
+        select: (data) => data.data.map(customer => ({
+            ...customer,
+            label: customer.contact,
+            value: customer.contact,
+        })),
+        placeholder: [],
     });
 }

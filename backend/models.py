@@ -63,6 +63,15 @@ class CustomerDetail(db.EmbeddedDocument):
     vehicleNumber = db.StringField()
     contact = db.StringField()
 
+class Customer(db.Document):
+    name = db.StringField(required=True)
+    address = db.StringField()
+    GSTIN = db.StringField()
+    stateCode = db.StringField()
+    state = db.StringField()
+    vehicleNumber = db.StringField()
+    contact = db.StringField(required=True, unique=True)
+
 class ServiceItem(db.EmbeddedDocument):
     name = db.StringField(required=True)
     HSN = db.StringField(required=True)
@@ -78,6 +87,7 @@ class Sale(db.Document):
     invoiceTotal = db.IntField(required=True)
     invoiceRoundOff = db.FloatField(required=True)
     customerDetails = db.EmbeddedDocumentField(CustomerDetail)
+    customer = db.ReferenceField(Customer)
     productItems =  db.ListField(db.EmbeddedDocumentField(ProductItem))
     serviceItems = db.ListField(db.EmbeddedDocumentField(ServiceItem))
     payment = db.EmbeddedDocumentField(Payment)
