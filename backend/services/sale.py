@@ -1,10 +1,11 @@
-from models import CustomerDetail, Product, ProductItem, Purchase, Sale, ServiceItem
+from models import CustomerDetail, Product, ProductItem, Purchase, Sale, ServiceItem, Customer
 import datetime
 from flask import jsonify
 from services.transaction import transaction_service
 from models import Sale, Product
 from mongoengine import Q
 import datetime
+from services.customer import customer_service
 
 class SaleService:
     # if services in cart and IGST invoice, then error, fix this in future
@@ -45,11 +46,29 @@ class SaleService:
             name = customer_details["name"],
             address = customer_details["address"],
             GSTIN = customer_details["GSTIN"],
-            stateCode = customer_details["stateCode"],
-            state = customer_details["state"],
             vehicleNumber = customer_details["vehicleNumber"],
             contact = customer_details["contact"]
             )
+
+        # if new customer then add to customer collection
+        customerFound = Customer.objects(contact=customer_details["contact"]).first()
+        if (customerFound is None):
+            customer = customer_service.create_customer(
+                customer_details["contact"],
+                customer_details["name"], 
+                customer_details["address"], 
+                customer_details["GSTIN"], 
+                customer_details["vehicleNumber"],
+            )
+        else:
+            customer_service.update_customer(
+                customer_details["contact"],
+                customer_details["name"], 
+                customer_details["address"], 
+                customer_details["GSTIN"], 
+                customer_details["vehicleNumber"],
+            )
+            customer = customerFound
 
         product_items = []
         if products:
@@ -95,6 +114,7 @@ class SaleService:
             invoiceTotal = invoice_total,
             invoiceRoundOff = invoice_round_off,
             customerDetails = customerDetails,
+            customer = customer,
             productItems = product_items,
             serviceItems = service_items,
             payment = payment
