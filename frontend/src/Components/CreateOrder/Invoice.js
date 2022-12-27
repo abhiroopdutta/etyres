@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useReactToPrint } from "react-to-print";
 import { dayjsLocal } from "../dayjsUTCLocal";
 import "./Invoice.css";
-import { Modal, Button } from "antd";
+import { Modal, Button, AutoComplete } from "antd";
 import {
   PrinterFilled,
   CloseCircleFilled,
@@ -11,7 +11,9 @@ import {
 import gstStateCodes from "./gstStateCodes.json";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
-import { useCreateSaleInvoice, useNewSaleInvoiceNumber, useUpdateSaleInvoice } from "../../api/sale";
+import { useCreateSaleInvoice, useNewSaleInvoiceNumber, useUpdateSaleInvoice, useCustomerList } from "../../api/sale";
+import { DebounceInput } from 'react-debounce-input';
+
 const { confirm } = Modal;
 
 function getTodaysDate() {
@@ -48,11 +50,11 @@ function Invoice({
     address: "",
     GSTIN: "",
     POS: "09",
-    stateCode: "",
-    state: "",
     vehicleNumber: "",
     contact: "",
   });
+  const [customerOptions, setCustomerOptions] = useState([]);
+  const { isLoading: isLoadingCustomers, data: customers } = useCustomerList();
   const [payment, setPayment] = useState({ cash: 0, card: 0, UPI: 0 });
   let totalPaid = payment.cash + payment.card + payment.UPI;
   const [taxTable, setTaxTable] = useState({
@@ -176,8 +178,6 @@ function Invoice({
         name: "",
         address: "",
         GSTIN: "",
-        stateCode: "",
-        state: "",
         vehicleNumber: "",
         contact: "",
         POS: "09"
@@ -284,6 +284,35 @@ function Invoice({
     e.preventDefault();
   };
 
+  const handleSearchCustomer = (searchText) => {
+
+    if (!isLoadingCustomers) {
+      setCustomerOptions(
+        searchText.length < 4 ? [] :
+          customers.filter((customer) => customer.label.toLowerCase().match(searchText.toLowerCase())),
+      );
+    }
+
+  };
+
+  const handleSetCustomerContact = (value) => {
+    setCustomerDetails((customerDetails) => ({
+      ...customerDetails,
+      contact: value,
+    }));
+  };
+
+  const onSelectCustomer = (value, option) => {
+    setCustomerDetails({
+      name: option.name,
+      address: option.address,
+      GSTIN: option.GSTIN,
+      POS: "09",
+      vehicleNumber: option.vehicleNumber,
+      contact: option.contact,
+    });
+  };
+
   return (
     <div
       className={`invoice ${visible ? "open" : "close"} ${modalClosing ? "closing" : ""}`}
@@ -380,16 +409,19 @@ function Invoice({
             />
             <br />
             <label htmlFor="contact">Contact: </label>
-            <input
-              id="contact"
-              name="contact"
-              className="contact"
-              type="text"
-              value={customerDetails.contact}
-              onChange={handleCustomerDetails}
+            <AutoComplete
+              style={{ width: "87%" }}
               disabled={updateMode}
-              placeholder={updateMode ? null : "Customer Contact No."}
+              id="contact"
+              className="contact"
+              value={customerDetails.contact}
+              options={customerOptions}
+              children={<DebounceInput placeholder={updateMode ? null : "Customer Contact No."} debounceTimeout={300} />}
+              onSelect={onSelectCustomer}
+              onSearch={handleSearchCustomer}
+              onChange={handleSetCustomerContact}
             />
+            <br />
             <label htmlFor="GSTIN">GSTIN: </label>
             <input
               id="GSTIN"

@@ -22,6 +22,9 @@ export function useCreateSaleInvoice({ onSuccess }) {
                 queryKey: ['products'],
                 exact: true,
             });
+            queryClient.invalidateQueries({
+                queryKey: ["customerList"],
+            });
             onSuccess(response, postBody);
         }
     });
