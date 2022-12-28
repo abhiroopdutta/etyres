@@ -14,6 +14,10 @@ class TransactionSchema(mamo.ModelSchema):
         model = Transaction
         exclude = ['id']
 
+class TransactionResponseSchema(ma.Schema):
+    data = ma.fields.Nested(TransactionSchema(many=True))
+    balance = ma.fields.Float()
+
 class TransactionQuerySchema(ma.Schema):
     header = ma.fields.Str()
     status = ma.fields.List(ma.fields.Str(), validate=ma.validate.ContainsOnly(["due", "paid"]))
@@ -25,13 +29,13 @@ class TransactionQuerySchema(ma.Schema):
 @blp.route('')
 class TransactionList(views.MethodView):
     @blp.arguments(TransactionQuerySchema, location="query")
-    @blp.response(200, TransactionSchema(many=True))
+    @blp.response(200, TransactionResponseSchema)
     @blp.paginate()
     def get(self, args, pagination_parameters):
         '''List all transactions'''
         result = transaction_service.get_transactions(**args, page=pagination_parameters.page, page_size=pagination_parameters.page_size)
         pagination_parameters.item_count = result["count"]
-        return result["data"]
+        return {"data": result["data"], "balance": result["balance"]}
 
     def post(self):
         '''Create a transaction'''

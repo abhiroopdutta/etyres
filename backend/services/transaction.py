@@ -72,6 +72,7 @@ class TransactionService:
             else:
                 balance += transaction.amount
     
+        results["balance"] = balance
         results["data"] = all_results[page_start:page_end]
         results["count"]= all_results.count()
         return results
