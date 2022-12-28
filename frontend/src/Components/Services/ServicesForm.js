@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Input, Form, Layout, Col, Row, Typography, Divider, message } from "antd";
+import { Button, Input, Form, Layout, Col, Row, Typography, Divider, message, Select } from "antd";
 import { DatePicker } from "../Antdesign_dayjs_components";
 import {
     FileAddOutlined,
@@ -7,6 +7,7 @@ import {
 } from "@ant-design/icons";
 import { dayjsLocal } from "../dayjsUTCLocal";
 import { useCreateServiceInvoice } from "../../api/service";
+const { Option } = Select;
 const { Title } = Typography;
 
 function ServicesForm() {
@@ -109,6 +110,7 @@ function ServicesForm() {
         }
         createInvoice({
             invoiceDate: values.invoiceDate.format("YYYY-MM-DD"),
+            paymentMode: values.paymentMode,
             invoiceTotal: serviceTotal,
             vehicleNumber: values.vehicleNumber,
             vehicleDesc: values.vehicleDesc,
@@ -135,7 +137,7 @@ function ServicesForm() {
                 wrapperCol={{ span: 16 }}
                 onFinish={handleCreateInvoice}
                 form={form}
-                initialValues={{ invoiceDate: dayjsLocal() }}
+                initialValues={{ invoiceDate: dayjsLocal(), paymentMode: "cash" }}
             >
                 <Form.Item
                     label="Invoice Date"
@@ -144,6 +146,18 @@ function ServicesForm() {
                     rules={[{ required: true, message: 'Please enter invoice date!' }]}
                 >
                     <DatePicker />
+                </Form.Item>
+                <Form.Item
+                    label="Payment mode"
+                    name="paymentMode"
+                    style={{ margin: "10px 0" }}
+                    rules={[{ required: true, message: 'Please select one!' }]}
+                >
+                    <Select
+                    >
+                        <Option value="cash">Cash</Option>
+                        <Option value="UPI">UPI</Option>
+                    </Select>
                 </Form.Item>
                 <Form.Item
                     label="Vehicle No."

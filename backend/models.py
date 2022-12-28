@@ -113,6 +113,7 @@ class NoTaxItem(db.EmbeddedDocument):
 class NoTaxSale(db.Document):
     invoiceNumber = db.IntField(required=True, unique=True) 
     invoiceDate = db.DateTimeField(required=False, default=datetime.datetime.now)
+    paymentMode = db.StringField(required=True)
     invoiceTotal = db.IntField(required=True)
     vehicleNumber = db.StringField(required=False)
     vehicleDesc = db.StringField(required=False)

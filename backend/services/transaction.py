@@ -76,4 +76,9 @@ class TransactionService:
         results["count"]= all_results.count()
         return results
 
+    def delete_transaction(self, transactionFrom, transactionTo, reference_id):
+        #last digit is 0 since there can always be only 1 transaction for any notax invoice
+        transaction_found = Transaction.objects.get(transactionId=f"{transactionFrom}_{transactionTo}_{reference_id}_0")
+        transaction_found.delete()
+
 transaction_service = TransactionService()

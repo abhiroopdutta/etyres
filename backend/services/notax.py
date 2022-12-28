@@ -2,9 +2,10 @@ from models import NoTaxSale, NoTaxItem
 import datetime
 from mongoengine import Q
 from models import NoTaxSale, NoTaxItem
+from services.transaction import transaction_service
 
 class NoTaxSaleService:
-    def create_invoice(self, invoiceDate, invoiceTotal, noTaxItems, vehicleNumber = "", vehicleDesc = ""):
+    def create_invoice(self, invoiceDate, paymentMode, invoiceTotal, noTaxItems, vehicleNumber = "", vehicleDesc = ""):
         prev_invoice = NoTaxSale.objects().order_by('-_id').first()
         if prev_invoice is None:
             invoice_number = 1
@@ -27,10 +28,21 @@ class NoTaxSaleService:
                 )
             )
 
+        transaction_service.create_transaction(
+            transactionFrom = "06",
+            transactionTo = "07" if paymentMode == "cash" else "08",
+            dateTime = datetime.datetime.now(),
+            status = "paid",
+            paymentMode = paymentMode,
+            amount = invoiceTotal,
+            reference_id = invoice_number,
+        )
+
         NoTaxSale(
             invoiceNumber = invoice_number,
             invoiceDate = invoice_date,
             invoiceTotal = invoiceTotal,
+            paymentMode = paymentMode,
             vehicleNumber = vehicleNumber,
             vehicleDesc = vehicleDesc,
             serviceItems = no_tax_items,
@@ -71,6 +83,11 @@ class NoTaxSaleService:
 
     def delete_invoice(self, invoice_number):
         invoice_to_delete = NoTaxSale.objects.get(invoiceNumber = invoice_number)
+        transaction_service.delete_transaction(
+            transactionFrom = "06", 
+            transactionTo = "07" if invoice_to_delete.paymentMode == "cash" else "08",
+            reference_id = invoice_number
+        )
         invoice_to_delete.delete()
 
 notax_service = NoTaxSaleService()
