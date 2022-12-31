@@ -925,7 +925,8 @@ def stock_report(reports_dir):
     ]
     products = Product.objects(Q(category__in=category_required_list))
     file_base_dir = reports_dir
-    filename = (str(datetime.datetime.now())+"stock_report.xlsx").replace()
+    filename = (str(datetime.datetime.now())+"stock_report.xlsx")
+    filename = ''.join(filter(str.isalnum, filename))
     wb = openpyxl.Workbook() 
     sheet = wb.active
 
