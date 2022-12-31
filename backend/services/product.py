@@ -84,7 +84,7 @@ class ProductService:
         for product in Product.objects():
             product.update(stock = 0)
 
-        for invoice in Purchase.objects:
+        for invoice in Purchase.objects(invoiceStatus__ne="cancelled"):
             for product in invoice.items:
                 product_found = Product.objects(itemCode=product.itemCode).first()
                 if product_found is None:
@@ -93,7 +93,7 @@ class ProductService:
                 new_stock = product_found.stock + product.quantity
                 Product.objects(itemCode=product.itemCode).first().update(stock=new_stock) 
         
-        for invoice in Sale.objects:
+        for invoice in Sale.objects(invoiceStatus__ne="cancelled"):
             for product in invoice.productItems:
                 product_found = Product.objects(itemCode=product.itemCode).first()
                 if product_found is None:
