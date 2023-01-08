@@ -1,23 +1,19 @@
-import "./AddItem.css";
-import { useState } from "react";
 import React from "react";
-import { message, Button } from "antd";
+import { message, Button, Modal, Form, Input, Layout, Select } from "antd";
 import { useCreateProduct } from "../../api/product";
+const { Option } = Select;
 
 function roundToTwo(num) {
   return +(Math.round(num + "e+2") + "e-2");
 }
 
 function AddItem({
+  visible,
   invoiceNumber,
   item,
   toggleModal,
   dispatchInvoicesWithNewItems,
 }) {
-  const [vehicleType, setVehicleType] = useState("passenger car");
-  const [costPrice, setCostPrice] = useState(
-    roundToTwo(item.item_total / item.quantity)
-  );
   const { mutate: createProduct, isLoading: isLoadingCreateProduct } = useCreateProduct({
     onSuccess: () => {
       toggleModal(false);
@@ -38,73 +34,103 @@ function AddItem({
     toggleModal(false);
   };
 
-  const handleCostPrice = (e) => {
-    setCostPrice(e.target.value);
-  };
-
-  const handleVehicleType = (e) => {
-    setVehicleType(e.target.value);
-  };
-
-  const handleAddtoInventory = () => {
+  const handleAddtoInventory = (formData) => {
     let newItem = {
-      vehicle_type: vehicleType,
-      item_desc: item.item_desc,
-      item_code: item.item_code,
-      cost_price: costPrice,
+      vehicle_type: formData.vehicleType,
+      item_desc: formData.itemDesc,
+      item_code: formData.itemCode,
+      cost_price: formData.costPrice,
     };
     createProduct(newItem);
   };
+
   return (
-    <div className="add-item-modal" onClick={handleCloseModal}>
-      <div
-        className="add-item-modal-content"
-        onClick={(e) => e.stopPropagation()}
+    <Modal
+      visible={visible}
+      centered
+      destroyOnClose
+      footer={null}
+      title="Add item to inventory"
+      bodyStyle={{
+        backgroundColor: "var(--lighter)",
+        borderRadius: "12px"
+      }}
+      onCancel={handleCloseModal}
+    >
+      <Layout
+        style={{
+          margin: "15px auto 0 auto",
+        }}
       >
-        <header className="add-item-header">
-          <strong>Add Item to inventory</strong>
-          <button className="close-new-item-modal" onClick={handleCloseModal}>
-            X
-          </button>
-        </header>
+        <Form
+          name="basic"
+          labelCol={{ span: 8 }}
+          wrapperCol={{ span: 16 }}
+          labelAlign="left"
+          onFinish={handleAddtoInventory}
+          autoComplete="off"
+          initialValues={{
+            remember: false,
+            itemDesc: item?.item_desc,
+            itemCode: item?.item_code,
+            costPrice: roundToTwo(item?.item_total / item?.quantity),
+            vehicleType: "passenger car",
+          }}
+        >
 
-        <section className="add-item-body">
-          <strong>{item.item_desc}</strong>
-          <strong>{item.item_code}</strong>
-          <label htmlFor="cost-price">Cost Price:</label>
-          <input
-            type="text"
-            id="cost-price"
-            name="cost-price"
-            value={costPrice}
-            onChange={handleCostPrice}
-          />
-          <label htmlFor="vehicle-type">Category</label>
-          <select
-            id="vehicle-type"
-            name="vehicle-type"
-            onChange={handleVehicleType}
+          <Form.Item
+            label="Item Desc"
+            name="itemDesc"
           >
-            <option value="passenger car">PCR</option>
-            <option value="2 wheeler">2 Wheeler</option>
-            <option value="3 wheeler">3 Wheeler</option>
-            <option value="scv">SCV</option>
-            <option value="tubeless valve">Tubeless Valve</option>
-          </select>
-        </section>
+            <Input
+              disabled
+            />
+          </Form.Item>
+          <Form.Item
+            label="Item Code"
+            name="itemCode"
+          >
+            <Input
+              disabled
+            />
+          </Form.Item>
+          <Form.Item
+            label="Vehicle Type"
+            name="vehicleType"
+            rules={[{ required: true, message: 'Please input vehicleType!' }]}
+          >
+            <Select >
+              <Option value="passenger car">PCR</Option>
+              <Option value="2 wheeler">2 Wheeler</Option>
+              <Option value="3 wheeler">3 Wheeler</Option>
+              <Option value="scv">SCV</Option>
+              <Option value="tubeless valve">Tubeless Valve</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item
+            label="Cost Price"
+            name="costPrice"
+            rules={[{ required: true, message: 'Please input cost price!' }]}
+          >
+            <Input />
+          </Form.Item>
 
-        <footer className="add-item-footer">
-          <Button
-            type="default"
-            className="add-item-modal-button"
-            loading={isLoadingCreateProduct}
-            onClick={handleAddtoInventory}
-          >
-            Add to Inventory
-          </Button>
-        </footer>
-      </div>
-    </div>
+          <Form.Item wrapperCol={{ offset: 8, span: 16 }} style={{
+            margin: "0",
+          }}>
+            <Button
+              loading={isLoadingCreateProduct}
+              type="primary"
+              htmlType="submit"
+            >
+              Add to Inventory
+            </Button>
+          </Form.Item>
+
+        </Form>
+
+      </Layout>
+    </Modal>
   );
 }
 

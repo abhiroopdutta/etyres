@@ -2,18 +2,11 @@ import { useState } from "react";
 import "./InvoiceWithNewItems.css";
 import AddItem from "./AddItem";
 import React from "react";
-import { useTransition, animated } from "@react-spring/web";
 import { Button } from "antd";
 
 function InvoiceWithNewItems({ invoice, dispatchInvoicesWithNewItems }) {
   const [showModal, setShowModal] = useState(false);
   const [item, setItem] = useState();
-  const transitions = useTransition(showModal, {
-    config: { mass: 1, tension: 500, friction: 40, clamp: true },
-    from: { opacity: 0 },
-    enter: { opacity: 1 },
-    leave: { opacity: 0 },
-  });
 
   const toggleModal = (state) => {
     setShowModal(state);
@@ -68,18 +61,16 @@ function InvoiceWithNewItems({ invoice, dispatchInvoicesWithNewItems }) {
         </table>
       </div>
 
-      {transitions((styles, showModal) =>
-        showModal ? (
-          <animated.div style={styles}>
-            <AddItem
-              invoiceNumber={invoice.invoice_number}
-              item={item}
-              toggleModal={toggleModal}
-              dispatchInvoicesWithNewItems={dispatchInvoicesWithNewItems}
-            />
-          </animated.div>
-        ) : null
-      )}
+      {
+        <div>
+          <AddItem
+            visible={showModal}
+            invoiceNumber={invoice.invoice_number}
+            item={item}
+            toggleModal={toggleModal}
+            dispatchInvoicesWithNewItems={dispatchInvoicesWithNewItems}
+          />
+        </div>}
     </div>
   );
 }

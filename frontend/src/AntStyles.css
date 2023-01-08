@@ -182,6 +182,11 @@ tr.ant-table-expanded-row > td {
   background-color: var(--light-yellow);
 }
 
+.ant-input:disabled {
+  background-color: var(--lighter);
+  color: var(--darkest);
+}
+
 .ant-input::placeholder,
 .ant-picker-input input::placeholder {
   /* Chrome, Firefox, Opera, Safari 10.1+ */
