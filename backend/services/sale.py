@@ -76,7 +76,9 @@ class SaleService:
                 #update products table first
                 oldstock = Product.objects(itemCode=product["itemCode"]).first().stock
                 new_stock = oldstock - product["quantity"]
-                if (new_stock < 0):
+                #services have negative stock, since services technically have infinite stock
+                #negative stock represents the number of items sold
+                if (new_stock < 0 and product["itemCode"][0] != "S"):
                     print(f'Error! {product["itemDesc"]}: {product["itemCode"]} out of stock!')
                     return "Error! Item out of stock!", 400
 
@@ -94,18 +96,7 @@ class SaleService:
                 )
                 product_items.append(product_item)
 
-        service_items = []
-        if services:
-            for service in services:
-                service_item = ServiceItem(
-                    name = service["itemDesc"], 
-                    HSN = service["HSN"], 
-                    ratePerItem = service["ratePerItem"], 
-                    quantity = service["quantity"], 
-                    CGST = service["CGST"], 
-                    SGST = service["SGST"], 
-                )
-                service_items.append(service_item)
+
 
         Sale(
             invoiceNumber = invoice_number, 
@@ -116,7 +107,7 @@ class SaleService:
             customerDetails = customerDetails,
             customer = customer,
             productItems = product_items,
-            serviceItems = service_items,
+            serviceItems = [],
             payment = payment
             ).save()
 
