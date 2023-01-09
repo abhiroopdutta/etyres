@@ -3,6 +3,7 @@ import { CartContext } from "./CartContext";
 import "./Tyre.css";
 import TyreImg from "./tyre-img.png";
 import tubeImg from "./tube.png";
+import serviceImg from "./service.png";
 import { Button } from "antd";
 import {
   ShoppingCartOutlined,
@@ -13,7 +14,15 @@ function Tyre({ tyreData }) {
   const { tyresContext } = useContext(CartContext);
   const [cart, setCart] = tyresContext;
   // eslint-disable-next-line
-
+  let src = () => {
+    if (tyreData.category === "service") {
+      return serviceImg;
+    }
+    if (["U", "Y", "W"].includes(tyreData.itemCode[1])) {
+      return tubeImg;
+    }
+    return TyreImg;
+  };
   const addToCart = (tyreData) => {
     //create cart tyre object
     const cartTyreData = {
@@ -58,9 +67,7 @@ function Tyre({ tyreData }) {
       <div className="product-title">{tyreData.itemDesc}</div>
       <div className="product-image">
         <img
-          src={
-            ["U", "Y", "W"].includes(tyreData.itemCode[1]) ? tubeImg : TyreImg
-          }
+          src={src()}
           alt="tyre"
           width="80"
           height="120"
