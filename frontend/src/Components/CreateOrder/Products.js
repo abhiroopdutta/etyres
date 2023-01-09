@@ -21,9 +21,13 @@ function Products() {
     });
   }
 
+  //return products with stock greater than 0, make an exception for services
   let stockAndSizeFiltered = sizeFiltered;
   if (filters.inStock) {
     stockAndSizeFiltered = sizeFiltered.filter((i) => {
+      if (i.category === "service") {
+        return true;
+      }
       return i.stock > 0;
     });
   }

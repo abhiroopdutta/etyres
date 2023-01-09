@@ -10,10 +10,9 @@ import {
 
 //object deconstruction in props
 function Tyre({ tyreData }) {
-  const { tyresContext, servicesContext } = useContext(CartContext);
+  const { tyresContext } = useContext(CartContext);
   const [cart, setCart] = tyresContext;
   // eslint-disable-next-line
-  const [services, setServices] = servicesContext;
 
   const addToCart = (tyreData) => {
     //create cart tyre object
