@@ -911,19 +911,7 @@ def export_sales_report(reports_dir, invoices):
     return filename
 
 def stock_report(reports_dir):
-    category_required_list = [
-    "passenger_car_tyre", 
-    "passenger_car_tube", 
-    "2_wheeler_tyre",
-    "2_wheeler_tube",
-    "3_wheeler_tyre",
-    "3_wheeler_tube",
-    "scv_tyre",
-    "scv_tube",
-    "tubeless_valve",
-    "loose_tube/flaps_tube"
-    ]
-    products = Product.objects(Q(category__in=category_required_list))
+    products = Product.objects()
     file_base_dir = reports_dir
     filename = (str(datetime.datetime.now())+"stock_report.xlsx")
     filename = ''.join(filter(str.isalnum, filename))
