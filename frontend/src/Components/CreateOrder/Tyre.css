@@ -1,6 +1,6 @@
 .product {
   display: grid;
-  grid-template-columns: 80px 220px;
+  grid-template-columns: 80px 260px;
   border-bottom: 3px solid var(--default);
 }
 
