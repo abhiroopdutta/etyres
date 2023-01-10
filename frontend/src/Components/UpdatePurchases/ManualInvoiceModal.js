@@ -22,7 +22,7 @@ function itemsReducer(stockItems, action) {
         }
         case "DELETE_ITEM": {
             if (stockItems.length > 1) {
-                return stockItems.filter((element) => element.key !== action.key)
+                return stockItems.filter((element) => element.key !== action.key);
             }
             return stockItems;
         }
@@ -33,7 +33,7 @@ function itemsReducer(stockItems, action) {
                 itemCode: null,
                 quantity: 1,
                 itemTotal: 0,
-            }]
+            }];
         }
 
         case "UPDATE_ITEM_FIELD": {
@@ -122,7 +122,7 @@ function ManualInvoiceModal({ visible, hideInvoice }) {
 
     const handlePurchaseType = (selectedValue) => {
         setPurchaseType(selectedValue);
-    }
+    };
 
     const handleClose = () => {
         dispatchStockItems({ type: "RESET" });
@@ -139,10 +139,6 @@ function ManualInvoiceModal({ visible, hideInvoice }) {
             onCancel={handleClose}
             footer={null}
             title="Create purchase invoice"
-            bodyStyle={{
-                backgroundColor: "var(--lighter)",
-                borderRadius: "12px"
-            }}
             width={1000}
         >
 

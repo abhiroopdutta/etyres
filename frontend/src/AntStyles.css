@@ -144,6 +144,10 @@ tr.ant-table-expanded-row > td {
 .ant-modal-title {
   color: var(--lightest);
 }
+.ant-modal-body {
+  background-color: var(--lighter);
+  border-radius: 12px;
+}
 
 .ant-layout {
   background-color: transparent;

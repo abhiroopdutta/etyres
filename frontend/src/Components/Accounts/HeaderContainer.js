@@ -21,7 +21,7 @@ function HeaderContainer({ headers, selectedHeader, setSelectedHeader }) {
     };
 
     const handleAddHeader = (formData) => {
-        createHeader(formData)
+        createHeader(formData);
     };
 
     const handleSetSelectedHeader = (header) => {
@@ -73,10 +73,6 @@ function HeaderContainer({ headers, selectedHeader, setSelectedHeader }) {
                 onCancel={closeModal}
                 footer={null}
                 title="Add Header"
-                bodyStyle={{
-                    backgroundColor: "var(--lighter)",
-                    borderRadius: "12px"
-                }}
             >
                 <Layout
                     style={{

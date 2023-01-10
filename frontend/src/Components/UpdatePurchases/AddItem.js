@@ -51,10 +51,6 @@ function AddItem({
       destroyOnClose
       footer={null}
       title="Add item to inventory"
-      bodyStyle={{
-        backgroundColor: "var(--lighter)",
-        borderRadius: "12px"
-      }}
       onCancel={handleCloseModal}
     >
       <Layout

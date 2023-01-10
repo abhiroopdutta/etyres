@@ -184,15 +184,13 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
       onCancel={hideInvoice}
       footer={null}
       width={900}
+      title={`Invoice No. ${invoice.invoiceNumber} `}
     >
       <Layout
-        style={{
-          margin: "15px auto",
-        }}
+
       >
         <Space style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <Title level={4} >Invoice No. {invoice.invoiceNumber} </Title>
             <Title level={5} style={{ margin: "0" }}>
               Invoice Status: {invoiceStatus()}
             </Title>

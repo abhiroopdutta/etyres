@@ -91,10 +91,6 @@ function Accounts() {
                 onCancel={closeModal}
                 footer={null}
                 title="Add new transaction"
-                bodyStyle={{
-                    backgroundColor: "var(--lighter)",
-                    borderRadius: "12px"
-                }}
             >
                 <Layout
                     style={{
