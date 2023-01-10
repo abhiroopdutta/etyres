@@ -35,7 +35,6 @@ function Products() {
 
   const handleChange = (e) => {
     setFilters({ ...filters, tyreSize: e.target.value });
-    console.log(e.target.value);
   };
 
   const handleInStock = () => {

@@ -5,7 +5,7 @@ import React from "react";
 function Navbar() {
   return (
     <nav className="navBar">
-      <Link to="/create_order">
+      <Link to="/create-order">
         <h1 className="nav-header">ETyres</h1>
       </Link>
       <div className="nav-links-container">
