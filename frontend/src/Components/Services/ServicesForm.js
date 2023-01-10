@@ -1,61 +1,103 @@
-import React, { useState } from "react";
-import { Button, Input, Form, Layout, Col, Row, Typography, Divider, message, Select } from "antd";
+import React, { useReducer } from "react";
+import { Button, Input, Form, Layout, Typography, Divider, message, Select, Space } from "antd";
 import { DatePicker } from "../Antdesign_dayjs_components";
 import {
     FileAddOutlined,
-    ClearOutlined
+    ClearOutlined,
+    DeleteOutlined,
+    PlusOutlined
 } from "@ant-design/icons";
 import { dayjsLocal } from "../dayjsUTCLocal";
 import { useCreateServiceInvoice } from "../../api/service";
 const { Option } = Select;
 const { Title } = Typography;
+function itemsReducer(items, action) {
+    switch (action.type) {
+        case "RESET": {
+            return [{
+                key: 1,
+                service: null,
+                price: 0,
+                quantity: 1,
+            }];
+        }
+        case "DELETE_ITEM": {
+            if (items.length > 1) {
+                return items.filter((element) => element.key !== action.key);
+            }
+            return items;
+        }
 
+        case "ADD_ITEM": {
+            return [...items, {
+                key: items.length + 1,
+                service: null,
+                price: 0,
+                quantity: 1,
+            }];
+        }
+
+        case "UPDATE_ITEM_FIELD": {
+            return items.map((element) => {
+                if (element.key === action.key) {
+                    return {
+                        ...element,
+                        [action.field]: action.value,
+                    };
+                }
+                return element;
+            });
+        }
+
+        default:
+            return items;
+    }
+};
 function ServicesForm() {
     const [form] = Form.useForm();
-    const [noTaxItems, setNoTaxItems] = useState([
+    const serviceOptions = [
         {
             label: "Fitting",
-            name: "fitting",
-            quantity: 0,
-            price: 0,
+            value: "fitting",
         },
         {
             label: "Balancing",
-            name: "balancing",
-            quantity: 0,
-            price: 0,
+            value: "balancing",
         },
         {
             label: "Weight",
-            name: "weight",
-            quantity: 0,
-            price: 0,
+            value: "weight",
         },
         {
             label: "Alignment",
-            name: "alignment",
-            quantity: 0,
-            price: 0,
+            value: "alignment",
         },
         {
             label: "Puncture",
-            name: "puncture",
-            quantity: 0,
-            price: 0,
+            value: "puncture",
         },
         {
             label: "Air/Nitrogen",
-            name: "air",
-            quantity: 0,
-            price: 0,
+            value: "air",
         },
         {
             label: "Old Tyre",
-            name: "oldTyre",
-            quantity: 0,
-            price: 0,
+            value: "oldTyre",
         },
-    ]);
+        {
+            label: "Valve (2W)",
+            value: "valve",
+        },
+    ];
+    const [items, dispatchItems] = useReducer(itemsReducer, [{
+        key: 1,
+        name: null,
+        price: 0,
+        quantity: 1,
+    }]);
+    let filteredServiceOptions = serviceOptions.filter((option) => {
+        return !items.map(item => item.service?.value).includes(option.value);
+    });
     const { mutate: createInvoice, isLoading: isLoadingCreateInvoice } = useCreateServiceInvoice({
         onSuccess: (response) => {
             message.success(
@@ -65,46 +107,21 @@ function ServicesForm() {
         },
         onError: (response) => message.error(response.response.data.status, 3),
     });
-    let serviceTotal = Math.round(noTaxItems.reduce(
+
+    let serviceTotal = Math.round(items.reduce(
         (serviceTotal, service) =>
             serviceTotal + service.price * service.quantity,
         0
     ));
 
-    const handleServicesPrice = (e) => {
-        let fieldName = e.target.getAttribute("fieldname");
-        let value = fieldName === "price" ? Number(e.target.value) : e.target.value ? parseInt(e.target.value) : 0
-        setNoTaxItems((noTaxItems) =>
-            noTaxItems.map((service) => {
-                if (service.name === e.target.name) {
-                    const updatedService = {
-                        ...service,
-                        [fieldName]: value,
-                    };
-                    return updatedService;
-                }
-                return service;
-            })
-        );
-    };
-
     const handleFocus = (e) => e.target.select();
 
     const emptyCart = () => {
         form.resetFields();
-        setNoTaxItems((noTaxItems) =>
-            noTaxItems.map((service) => {
-                return {
-                    ...service,
-                    quantity: 0,
-                    price: 0,
-                };
-            })
-        );
+        dispatchItems({ type: "RESET" });
     };
-
     const handleCreateInvoice = (values) => {
-        if (noTaxItems.every((item) => (item.quantity === 0 || item.price === 0))) {
+        if (items.every((item) => (item.quantity === 0 || item.price === 0))) {
             message.error("No items added! Please add atleast one item with non zero price, quantity.", 3);
             return;
         }
@@ -114,10 +131,10 @@ function ServicesForm() {
             invoiceTotal: serviceTotal,
             vehicleNumber: values.vehicleNumber,
             vehicleDesc: values.vehicleDesc,
-            noTaxItems: noTaxItems.filter((item) => item.quantity > 0),
+            noTaxItems: items.map(item => ({ ...item, name: item.service.value })),
         });
     };
-
+    console.log(items);
     return (
         <Layout style={{ backgroundColor: "var(--lighter)", borderRadius: "12px", padding: "22px", marginBottom: "22px" }}>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -175,53 +192,95 @@ function ServicesForm() {
                     <Input placeholder="ex - Santro" />
                 </Form.Item>
             </Form>
+            <Title level={5}>Items</Title>
+            <Divider style={{ margin: "5px 0 15px 0", border: "1px solid var(--dark)" }} />
+
             <Form
                 name="noTaxItems-form"
-                labelAlign="right"
             >
-                {noTaxItems.map((service) =>
-                    <React.Fragment key={service.name}>
-                        <Row>
-                            <Col>
-                                <h4 style={{ margin: "0" }}>{service.label}</h4>
-                            </Col>
-                        </Row>
-                        <Row gutter={20}>
-                            <Col lg={12}>
-                                <Form.Item label="Price"
-                                    style={{ margin: "8px 0" }}
-                                >
-                                    <Input
-                                        name={service.name}
-                                        fieldname="price"
-                                        value={service.price}
-                                        onChange={handleServicesPrice}
-                                        onFocus={handleFocus}
-                                        type="number"
-                                        min="0"
-                                        addonBefore="&#8377;"
-                                    />
-                                </Form.Item>
-                            </Col>
-                            <Col lg={12}>
-                                <Form.Item label="Qty"
-                                    style={{ margin: "8px 0" }}
-                                >
-                                    <Input
-                                        name={service.name}
-                                        fieldname="quantity"
-                                        value={service.quantity}
-                                        onChange={handleServicesPrice}
-                                        onFocus={handleFocus}
-                                        type="number"
-                                        min="0"
-                                        step="1"
-                                    />
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                    </React.Fragment>
+                {items.map(({ key, service, price, quantity }) =>
+                    <Space
+                        key={key}
+                        style={{
+                            display: 'flex',
+                            alignItems: "flex-start",
+                            columnGap: "15px"
+                        }}
+                    >
+                        <Form.Item
+                            rules={[{ required: true, message: 'Please input service name!' }]}
+                        >
+                            <Select
+                                placeholder="Select a service"
+                                style={{ minWidth: "140px" }}
+                                value={service}
+                                onChange={(value, option) => dispatchItems({
+                                    type: "UPDATE_ITEM_FIELD",
+                                    key: key,
+                                    field: "service",
+                                    value: option,
+                                })}
+                                options={filteredServiceOptions}
+                            >
+                            </Select>
+                        </Form.Item>
+                        <Form.Item
+                        >
+                            <Input
+                                placeholder="Price"
+                                onFocus={handleFocus}
+                                type="number"
+                                min="0"
+                                addonBefore="&#8377;"
+                                value={price}
+                                onChange={(e) => dispatchItems({
+                                    type: "UPDATE_ITEM_FIELD",
+                                    key: key,
+                                    field: "price",
+                                    value: Number(e.target.value)
+                                })}
+                            />
+                        </Form.Item>
+                        <Form.Item
+                            value={quantity}
+                        >
+                            <Input
+                                placeholder="Quantity"
+                                onFocus={handleFocus}
+                                type="number"
+                                min="0"
+                                step="1"
+                                value={quantity}
+                                onChange={(e) => dispatchItems({
+                                    type: "UPDATE_ITEM_FIELD",
+                                    key: key,
+                                    field: "quantity",
+                                    value: e.target.value === "" ? 1 : parseInt(e.target.value)
+                                })}
+                            />
+                        </Form.Item>
+
+                        <Button
+                            icon={<DeleteOutlined style={{ color: "var(--lightest)" }} />}
+                            style={{ maxWidth: "50px" }}
+                            onClick={() => dispatchItems({ type: "DELETE_ITEM", key: key })}
+                        >
+                        </Button>
+                    </Space>
                 )}
+                <Button
+                    style={{
+                        backgroundColor: "var(--lighter)",
+                        color: "var(--darkest)",
+                        border: "1px dashed var(--darkest)"
+                    }}
+                    onClick={() => dispatchItems({ type: "ADD_ITEM" })}
+                    block
+                    icon={<PlusOutlined />}
+                >
+                    Add item
+                </Button>
+
             </Form>
             <Title style={{ margin: "10px 0" }} level={3}>TOTAL: &#x20B9;{serviceTotal}</Title>
             <Button
