@@ -6,6 +6,7 @@ import {
   Layout,
   Typography,
   Tag,
+  message
 } from "antd";
 import {
   EditFilled,
@@ -68,6 +69,13 @@ function SalesTable({ exportToExcel, isReportLoading }) {
   };
 
   const handleExport = (exportType) => {
+    if (exportType == "gstr1" && (query.start == "" || query.end == "")) {
+      message.warning(
+        "Please select date filter for GSTR1 Report",
+        3
+      );
+      return;
+    }
     exportToExcel({
       reportType: "sale",
       exportType: exportType,
