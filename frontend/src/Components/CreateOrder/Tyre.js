@@ -1,9 +1,10 @@
 import React, { useContext } from "react";
 import { CartContext } from "./CartContext";
 import "./Tyre.css";
-import TyreImg from "./tyre-img.png";
-import tubeImg from "./tube.png";
+import tyreImg from "./tyre.png";
+import tubeImg from "./tube.webp";
 import serviceImg from "./service.png";
+import valveImg from "./valve.png";
 import { Button } from "antd";
 import {
   ShoppingCartOutlined,
@@ -18,10 +19,13 @@ function Tyre({ tyreData }) {
     if (tyreData.category === "service") {
       return serviceImg;
     }
+    if (tyreData.itemCode === "RR100TR414A") {
+      return valveImg;
+    }
     if (["U", "Y", "W"].includes(tyreData.itemCode[1])) {
       return tubeImg;
     }
-    return TyreImg;
+    return tyreImg;
   };
   const addToCart = (tyreData) => {
     //create cart tyre object
