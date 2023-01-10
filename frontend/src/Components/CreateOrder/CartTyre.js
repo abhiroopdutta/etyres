@@ -1,6 +1,9 @@
 import React, { useContext } from "react";
 import { CartContext } from "./CartContext";
-import "./CartTyre.css";
+import { Input, Form, Col, Row, Button } from "antd";
+import {
+  DeleteOutlined,
+} from "@ant-design/icons";
 
 //object deconstruction in props
 function CartTyre({ tyreData }) {
@@ -60,45 +63,61 @@ function CartTyre({ tyreData }) {
   };
 
   return (
-    <div className="cart-tyre">
-      <div className="cart-tyre-name">{tyreData.itemDesc}</div>
-      <div className="cart-tyre-details">
-        <div className="cart-tyre-CP">CP: {tyreData.costPrice}</div>
-        <div className="cart-tyre-price">
-          <label htmlFor="price">Price: </label>
-          <input
-            className="cart-tyre-price-input"
-            type="number"
-            min="1"
-            value={tyreData.price}
-            onChange={handlePrice}
-            onFocus={handleFocus}
-            onWheel={(e) => e.target.blur()}
-          />
-        </div>
-        <div className="cart-tyre-quantity">
-          <label htmlFor="quantity">Qty: </label>
-          <input
-            className="cart-tyre-quantity-input"
-            type="number"
-            step="1"
-            min="1"
-            value={tyreData.quantity}
-            onChange={handleQuantity}
-            onFocus={handleFocus}
-            onWheel={(e) => e.target.blur()}
-          />
-        </div>
-        <div>
-          <button
-            className="cart-tyre-button"
-            onClick={() => removeFromCart(tyreData)}
+    <>
+      <Row>
+        <Col>
+          <h4 >{tyreData.itemDesc}</h4>
+        </Col>
+      </Row>
+      <Row gutter={20} style={{ display: "flex", justifyContent: "space-between" }}>
+        <Col >
+          <Form.Item label="Price"
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 18 }}
+            labelAlign="left"
+            style={{ maxWidth: "200px" }}
           >
-            &#x2715;
-          </button>
-        </div>
-      </div>
-    </div>
+            <Input
+              fieldname="price"
+              value={tyreData.price}
+              onChange={handlePrice}
+              onFocus={handleFocus}
+              type="number"
+              min="0"
+              addonBefore="&#8377;"
+            />
+          </Form.Item>
+        </Col>
+        <Col >
+          <Form.Item label="Qty"
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 18 }}
+            style={{ maxWidth: "150px" }}
+          >
+            <Input
+              fieldname="quantity"
+              value={tyreData.quantity}
+              onChange={handleQuantity}
+              onFocus={handleFocus}
+              type="number"
+              min="0"
+              step="1"
+            />
+          </Form.Item>
+        </Col>
+        <Col>
+          <Form.Item
+          >
+            <Button
+              icon={<DeleteOutlined />}
+              style={{ maxWidth: "50px" }}
+              onClick={() => removeFromCart(tyreData)}
+            >
+            </Button>
+          </Form.Item>
+        </Col>
+      </Row >
+    </>
   );
 }
 

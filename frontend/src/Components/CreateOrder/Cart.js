@@ -139,7 +139,7 @@ function Cart() {
 
         <div className="cart-products">
           {products.length === 0 ?
-            <h3>Empty Cart, please add products to order.</h3>
+            <h3 className="empty-cart-msg">Empty Cart, please add products to order.</h3>
             : products.map((product) => (
               <CartTyre tyreData={product} key={product.itemCode} />
             ))}{" "}
