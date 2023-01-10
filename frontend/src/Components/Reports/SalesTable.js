@@ -20,7 +20,7 @@ import { getDropDownMenu } from "../TableDropDownFilter";
 const { Content } = Layout;
 const { Title, Text } = Typography;
 
-function SalesTable({ exportToExcel }) {
+function SalesTable({ exportToExcel, isReportLoading }) {
   const [query, setQuery] = useState({
     invoiceNumber: "",
     start: "",
@@ -64,7 +64,7 @@ function SalesTable({ exportToExcel }) {
       setQuery(oldState => ({
         ...oldState,
         page: pagination.current,
-      }))
+      }));
   };
 
   const handleExport = (exportType) => {
@@ -222,6 +222,7 @@ function SalesTable({ exportToExcel }) {
             size="small"
             style={{ width: 100, marginRight: "10px" }}
             icon={<DownloadOutlined />}
+            loading={isReportLoading.gstr1}
           >
             GSTR1
           </Button>
@@ -231,6 +232,7 @@ function SalesTable({ exportToExcel }) {
             size="small"
             style={{ width: 100 }}
             icon={<DownloadOutlined />}
+            loading={isReportLoading.regular}
           >
             Export
           </Button>

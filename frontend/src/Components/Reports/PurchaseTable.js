@@ -20,7 +20,7 @@ import { getDropDownMenu } from "../TableDropDownFilter.js";
 const { Content } = Layout;
 const { Title, Text } = Typography;
 
-function PurchaseTable({ exportToExcel }) {
+function PurchaseTable({ exportToExcel, isReportLoading }) {
   const [query, setQuery] = useState({
     invoiceNumber: "",
     start: "",
@@ -31,7 +31,7 @@ function PurchaseTable({ exportToExcel }) {
     claimInvoice: "",
     page: 1,
     page_size: 5,
-  })
+  });
   const searchInputRef = useRef();
   const [showInvoice, setShowInvoice] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState({});
@@ -222,6 +222,7 @@ function PurchaseTable({ exportToExcel }) {
           size="small"
           style={{ width: 100 }}
           icon={<DownloadOutlined />}
+          loading={isReportLoading.regular}
         >
           Export
         </Button>

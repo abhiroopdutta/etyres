@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Layout, Typography, Button, Modal } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
 import SalesTable from "../Components/Reports/SalesTable";
@@ -20,7 +20,21 @@ function Reports() {
       });
     },
   });
+  const [reportLoadingInfo, setReportLoadingInfo] = useState({
+    sale: { regular: false, gstr1: false },
+    purchase: { regular: false },
+    stock: { regular: false }
+  });
   const handleGenerateFile = (reportReqInfo) => {
+
+    setReportLoadingInfo(prevState => ({
+      ...prevState,
+      [reportReqInfo.reportType]: {
+        ...[reportReqInfo.reportType],
+        [reportReqInfo.exportType]: true,
+      },
+    }));
+
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -39,6 +53,13 @@ function Reports() {
         })
           .then((response) => response.blob())
           .then((blob) => {
+            setReportLoadingInfo(prevState => ({
+              ...prevState,
+              [reportReqInfo.reportType]: {
+                ...[reportReqInfo.reportType],
+                [reportReqInfo.exportType]: false,
+              },
+            }));
             // Create blob link to download
             const url = window.URL.createObjectURL(new Blob([blob]));
             const link = document.createElement("a");
@@ -97,13 +118,13 @@ function Reports() {
       }}
     >
       <div className="sales-table">
-        <SalesTable exportToExcel={handleGenerateFile} />
+        <SalesTable exportToExcel={handleGenerateFile} isReportLoading={reportLoadingInfo.sale} />
       </div>
       <br />
       <br />
 
       <div className="purchase-table">
-        <PurchaseTable exportToExcel={handleGenerateFile} />
+        <PurchaseTable exportToExcel={handleGenerateFile} isReportLoading={reportLoadingInfo.purchase} />
       </div>
       <br />
 
@@ -114,13 +135,10 @@ function Reports() {
           onClick={() => {
             handleGenerateFile({
               reportType: "stock",
-              filters: {},
-              sorters: {},
-              pageRequest: {},
-              maxItemsPerPage: {},
-              export: true,
+              exportType: "regular",
             });
           }}
+          loading={reportLoadingInfo.stock.regular}
         >
           Export Current Stock Report
         </Button>
