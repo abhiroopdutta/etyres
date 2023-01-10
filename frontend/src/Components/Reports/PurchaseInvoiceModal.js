@@ -227,7 +227,7 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
         />
         <Space style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", padding: "15px 0px 0px 0px" }}>
           <Button
-            icon={<DeleteOutlined />}
+            icon={<DeleteOutlined style={{ color: "var(--lightest)" }} />}
             onClick={showConfirm}
             disabled={invoice.invoiceStatus === "cancelled"}
             loading={isLoadingUpdateInvoiceStatus}

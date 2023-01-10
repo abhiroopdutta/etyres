@@ -89,7 +89,7 @@ function StockPurchaseTable({ items, dispatchItems, options, filterOptions, setF
                 })}
             />,
         action: item.key === 1 ? null : <Button
-            icon={<DeleteOutlined />}
+            icon={<DeleteOutlined style={{ color: "var(--lightest)" }} />}
             onClick={() => dispatchItems({
                 type: "DELETE_ITEM",
                 key: item.key,
@@ -111,7 +111,7 @@ function StockPurchaseTable({ items, dispatchItems, options, filterOptions, setF
                 &#x20B9;{roundToTwo(items?.reduce((invoiceTotal, item) => invoiceTotal + item.itemTotal, 0))}
             </h3>,
         action: ""
-    }
+    };
 
     const handleSearch = (newValue, key) => {
         if (newValue) {
@@ -162,7 +162,7 @@ function StockPurchaseTable({ items, dispatchItems, options, filterOptions, setF
                         }
                         dispatchItems({
                             type: "ADD_ITEM"
-                        })
+                        });
                     }
                     }
                 >

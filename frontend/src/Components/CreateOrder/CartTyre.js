@@ -109,7 +109,7 @@ function CartTyre({ tyreData }) {
           <Form.Item
           >
             <Button
-              icon={<DeleteOutlined />}
+              icon={<DeleteOutlined style={{ color: "var(--lightest)" }} />}
               style={{ maxWidth: "50px" }}
               onClick={() => removeFromCart(tyreData)}
             >
