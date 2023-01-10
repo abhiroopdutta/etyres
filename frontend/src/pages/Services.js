@@ -13,7 +13,7 @@ function Services() {
             }}
         >
             <Row gutter={30}>
-                <Col lg={7}>
+                <Col xl={10} xxl={7}>
                     <ServicesForm />
                 </Col>
                 <Col flex={"auto"}>
