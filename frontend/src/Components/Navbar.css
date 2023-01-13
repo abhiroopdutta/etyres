@@ -34,7 +34,8 @@
 }
 
 /* Change the color of links on hover */
-.nav-links-container a:hover {
+.nav-links-container a:hover,
+.nav-links-container .active {
   background-color: var(--lighter);
   color: var(--darkest);
 }
