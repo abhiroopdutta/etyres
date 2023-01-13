@@ -9,10 +9,6 @@ function Products() {
   const [filters, setFilters] = useState({ tyreSize: "", inStock: true });
   const { isLoading, data: tyres, } = useProductList({});
 
-  if (isLoading) {
-    return null;
-  }
-
   let searchResults = tyres;
   let sizeFiltered = tyres;
   if (filters.tyreSize.length > 0) {
@@ -24,7 +20,7 @@ function Products() {
   //return products with stock greater than 0, make an exception for services
   let stockAndSizeFiltered = sizeFiltered;
   if (filters.inStock) {
-    stockAndSizeFiltered = sizeFiltered.filter((i) => {
+    stockAndSizeFiltered = sizeFiltered?.filter((i) => {
       if (i.category === "service") {
         return true;
       }
@@ -76,9 +72,11 @@ function Products() {
         </div>
       </div>
       <div className="product-items">
-        {searchResults.map((tyre) => (
-          <Tyre tyreData={tyre} key={tyre.itemCode} />
-        ))}
+        {isLoading ?
+          null :
+          searchResults.map((tyre) => (
+            <Tyre tyreData={tyre} key={tyre.itemCode} />
+          ))}
       </div>
     </div >
   );
