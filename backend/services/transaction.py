@@ -4,9 +4,16 @@ import re
 from models import Transaction
 from mongoengine import Q
 import datetime
+from services.header import header_service
 
 class TransactionService:
     def create_transaction(self, transactionFrom, transactionTo, dateTime, amount, status, paymentMode, description="", reference_id = ""):
+
+        # check if header exists, else create all initial headers (seed data)
+        headerFound = header_service.get_header(transactionFrom)
+        if headerFound is None:
+            header_service.seed_headers()
+
         query = Q(transactionId__startswith=f"{transactionFrom}_{transactionTo}_{reference_id}")
         previous_transaction = Transaction.objects(query).order_by('-_id').first()
         
