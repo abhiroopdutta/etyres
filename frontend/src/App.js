@@ -7,14 +7,14 @@ import UpdateStock from "./pages/UpdatePurchases";
 import Reports from "./pages/Reports";
 import Accounts from "./pages/Accounts";
 import Services from "./pages/Services";
-import './AntStyles.css'
+import './AntStyles.css';
 import {
   QueryClient,
   QueryClientProvider,
-} from '@tanstack/react-query'
+} from '@tanstack/react-query';
 
 // Create a client
-const queryClient = new QueryClient()
+const queryClient = new QueryClient();
 
 function App() {
   return (
@@ -23,11 +23,11 @@ function App() {
         <div className="App">
           <Navbar />
           <Switch>
-            <Route path="/create-order" component={CreateOrder}></Route>
-            <Route path="/update-stock" component={UpdateStock}></Route>
+            <Route path="/" component={CreateOrder} exact></Route>
+            <Route path="/update-purchase" component={UpdateStock}></Route>
             <Route path="/reports" component={Reports}></Route>
             <Route path="/accounts" component={Accounts}></Route>
-            <Route path="/Services" component={Services}></Route>
+            <Route path="/services" component={Services}></Route>
           </Switch>
         </div>
       </Router>

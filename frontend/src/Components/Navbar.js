@@ -5,15 +5,15 @@ import React from "react";
 function Navbar() {
   return (
     <nav className="navBar">
-      <Link to="/create-order">
+      <Link to="/">
         <h1 className="nav-header">ETyres</h1>
       </Link>
       <div className="nav-links-container">
-        <Link className="nav-link" to="/create-order">
+        <Link className="nav-link" to="/">
           Create Order
         </Link>
-        <Link className="nav-link" to="/update-stock">
-          Update Purchases
+        <Link className="nav-link" to="/update-purchase">
+          Update Purchase
         </Link>
         <Link className="nav-link" to="/reports">
           Reports
@@ -21,7 +21,7 @@ function Navbar() {
         <Link className="nav-link" to="/accounts">
           Accounts
         </Link>
-        <Link className="nav-link" to="/Services">
+        <Link className="nav-link" to="/services">
           Services
         </Link>
       </div>
