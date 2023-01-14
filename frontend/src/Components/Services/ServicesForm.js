@@ -134,7 +134,6 @@ function ServicesForm() {
             noTaxItems: items.map(item => ({ ...item, name: item.service.value })),
         });
     };
-    console.log(items);
     return (
         <Layout style={{ backgroundColor: "var(--lighter)", borderRadius: "12px", padding: "22px", marginBottom: "22px" }}>
             <div style={{ display: "flex", justifyContent: "space-between" }}>

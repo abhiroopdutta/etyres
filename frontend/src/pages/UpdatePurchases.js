@@ -79,7 +79,6 @@ function invoicesWithNewItemsReducer(invoices, action) {
     }
 
     case "UPDATE_ITEM_STATUS": {
-      console.log(action);
       return invoices.map((invoice) => {
         if (invoice.invoice_number === action.invoiceNumber) {
           const updatedInvoice = {
@@ -288,10 +287,6 @@ function UpdateStock() {
     });
     setExistingInvoices([]);
   }
-
-  console.log("invoices", invoices);
-  console.log("invoices with new items", invoicesWithNewItems);
-  console.log("existing invoices", existingInvoices);
 
   return (
     <div className="update-stock">
