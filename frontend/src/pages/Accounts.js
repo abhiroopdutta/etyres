@@ -9,7 +9,6 @@ const { TextArea } = Input;
 
 function Accounts() {
     const [visible, setVisible] = useState(false);
-    const [paymentModes, setPaymentModes] = useState(["cash", "card", "UPI", "bankTransfer", "creditNote"]);
     const [selectedHeader, setSelectedHeader] = useState();
 
     const { data: headers } = useHeaderList({
@@ -17,6 +16,10 @@ function Accounts() {
         onError: (err) => Modal.error({ content: err.message }),
     });
 
+    const [form] = Form.useForm();
+    const headerOptions = headers?.filter(header => {
+        return !["02", "03", "06"].includes(header.code);
+    }).map(header => ({ label: header.name, value: header.code }));
     const { mutate: createTransaction, isLoading: isLoadingCreateTransaction } = useCreateTransaction({
         onSuccess: (response) => {
             setVisible(false);
@@ -31,26 +34,30 @@ function Accounts() {
         setVisible(true);
     };
 
-    const handleFilterPaymentModes = (changedFields, allFields) => {
-        let fromFieldValue = allFields.find((field) => field.name[0] === "transactionFrom")?.value;
-        let toFieldValue = allFields.find((field) => field.name[0] === "transactionTo")?.value;
-        let fromFieldType = headers.find(header => header.code === fromFieldValue)?.type;
-        let toFieldType = headers.find(header => header.code === toFieldValue)?.type;
-        if (fromFieldType === "cash" || toFieldType === "cash") {
-            setPaymentModes(["cash"]);
-            return;
-        }
-        else {
-            setPaymentModes(["cash", "card", "UPI", "bankTransfer", "creditNote"]);
-        }
-    };
+    const transactionFrom = Form.useWatch('transactionFrom', form);
+    const transactionTo = Form.useWatch('transactionTo', form);
+    let transactionFromType = headers?.find(header => header.code === transactionFrom?.value)?.type;
+    let transactionToType = headers?.find(header => header.code === transactionTo?.value)?.type;
+    let paymentOptions;
+    if (transactionFromType === "cash" || transactionToType === "cash") {
+        paymentOptions = ["cash"];
+    }
+    else {
+        paymentOptions = ["cash", "card", "UPI", "bankTransfer", "creditNote"];
+    }
 
     const handleAddTransaction = (formData) => {
+        if (formData.transactionFrom.value === formData.transactionTo.value) {
+            message.warning("Transaction cannot take place between same header!", 3);
+            return;
+        }
         createTransaction({
             ...formData,
+            transactionFrom: formData.transactionFrom.value,
+            transactionTo: formData.transactionTo.value,
             dateTime: dayjsLocal(formData["dateTime"]).format("YYYY-MM-DD HH:mm:ss")
         });
-
+        form.resetFields();
     };
 
     return (
@@ -98,22 +105,20 @@ function Accounts() {
                     }}
                 >
                     <Form
+                        form={form}
                         name="basic"
                         labelCol={{ span: 8 }}
                         wrapperCol={{ span: 16 }}
                         onFinish={handleAddTransaction}
                         autoComplete="off"
                         initialValues={{ remember: false, status: "paid", description: "" }}
-                        onFieldsChange={handleFilterPaymentModes}
                     >
                         <Form.Item
                             label="From"
                             name="transactionFrom"
                             rules={[{ required: true, message: 'Please select one!' }]}
                         >
-                            <Select >
-                                {headers?.map((header) =>
-                                    <Option key={header.code} value={header.code}>{header.name}</Option>)}
+                            <Select options={headerOptions} labelInValue>
                             </Select>
                         </Form.Item>
                         <Form.Item
@@ -121,9 +126,7 @@ function Accounts() {
                             name="transactionTo"
                             rules={[{ required: true, message: 'Please select one!' }]}
                         >
-                            <Select >
-                                {headers?.map((header) =>
-                                    <Option key={header.code} value={header.code}>{header.name}</Option>)}
+                            <Select options={headerOptions} labelInValue>
                             </Select>
                         </Form.Item>
                         <Form.Item
@@ -150,7 +153,7 @@ function Accounts() {
                         >
                             <Select
                             >
-                                {paymentModes.map((paymentMode) =>
+                                {paymentOptions.map((paymentMode) =>
                                     <Option key={paymentMode} value={paymentMode}>{paymentMode}</Option>
                                 )}
                             </Select>
