@@ -698,7 +698,7 @@ function Invoice({
         <Button
           size="large"
           type="primary"
-          onClick={onCancel}
+          onClick={() => setModalClosing(true)}
           icon={<CloseCircleFilled />}
         />
         <Button
