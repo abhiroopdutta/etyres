@@ -50,14 +50,6 @@
   font-size: 16px;
 }
 
-.product-filters {
-  display: flex;
-  /* background-color: lime; */
-  justify-content: flex-start;
-  align-items: flex-end;
-  column-gap: 15px;
-}
-
 .product-items {
   /* background-color: rgb(240, 72, 72); */
   display: flex;

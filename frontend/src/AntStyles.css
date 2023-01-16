@@ -216,3 +216,32 @@ tr.ant-table-expanded-row > td {
   font-weight: 300;
   font-size: 16px;
 }
+
+.ant-tag-checkable {
+  border: 2px solid var(--default);
+  color: var(--darkest);
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 8px;
+}
+
+.ant-tag-checkable:not(.ant-tag-checkable-checked):hover {
+  color: var(--darkest);
+  background-color: var(--lighter);
+}
+
+.ant-tag-checkable-checked {
+  color: var(--lightest);
+  background-color: var(--darker);
+  border-color: var(--darker);
+}
+.ant-tag-checkable-checked:active {
+  color: var(--darkest);
+  background-color: var(--lighter);
+}
+
+.ant-tag-checkable:active {
+  color: var(--darkest);
+  background-color: var(--lighter);
+}
