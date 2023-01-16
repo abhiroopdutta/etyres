@@ -13,6 +13,9 @@ import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useCreateSaleInvoice, useNewSaleInvoiceNumber, useUpdateSaleInvoice, useCustomerList } from "../../api/sale";
 import { DebounceInput } from 'react-debounce-input';
+import GSTTable from "./GSTTable";
+import IGSTTable from "./IGSTTable";
+import ShopDetails from "./ShopDetails";
 
 const { confirm } = Modal;
 
@@ -43,7 +46,7 @@ function Invoice({
 }) {
   const { data: invoiceNumber } = useNewSaleInvoiceNumber({
     enabled: !savedInvoiceNumber,
-  })
+  });
   const [invoiceDate, setInvoiceDate] = useState(getTodaysDate());
   const [customerDetails, setCustomerDetails] = useState({
     name: "",
@@ -58,8 +61,8 @@ function Invoice({
   const [payment, setPayment] = useState({ cash: 0, card: 0, UPI: 0 });
   let totalPaid = payment.cash + payment.card + payment.UPI;
   const [taxTable, setTaxTable] = useState({
-    GSTTable: null,
-    IGSTTable: null
+    GSTData: null,
+    IGSTData: null
   });
   const { mutate: fetchInvoiceTable } = useMutation({
     mutationFn: postBody => {
@@ -67,11 +70,11 @@ function Invoice({
     },
     onSuccess: (response) =>
       setTaxTable({
-        GSTTable: response.data.GST_table,
-        IGSTTable: response.data.IGST_table
+        GSTData: response.data.GST_table,
+        IGSTData: response.data.IGST_table
       })
-  })
-  let { GSTTable, IGSTTable } = taxTable;
+  });
+  let { GSTData, IGSTData } = taxTable;
   const { isLoading: isLoadingPlaceOrder, mutate: placeOrder } = useCreateSaleInvoice({
     onSuccess: (response, postBody) => {
       Modal.success({
@@ -158,9 +161,9 @@ function Invoice({
     }
     let total;
     if (IGSTRender) {
-      total = IGSTTable?.invoiceTotal;
+      total = IGSTData?.invoiceTotal;
     } else {
-      total = GSTTable?.invoiceTotal;
+      total = GSTData?.invoiceTotal;
     }
     due = total - totalPaid;
     if (due === 0) {
@@ -184,8 +187,8 @@ function Invoice({
       });
       setPayment({ cash: 0, card: 0, UPI: 0 });
       setTaxTable({
-        GSTTable: null,
-        IGSTTable: null
+        GSTData: null,
+        IGSTData: null
       });
     }
     setModalClosing(false);
@@ -213,15 +216,15 @@ function Invoice({
       payment: payment,
     };
     if (!IGSTRender) {
-      invoiceData["invoiceTotal"] = GSTTable["invoiceTotal"];
-      invoiceData["productItems"] = GSTTable["products"];
-      invoiceData["serviceItems"] = GSTTable["services"];
-      invoiceData["invoiceRoundOff"] = GSTTable["invoiceRoundOff"];
+      invoiceData["invoiceTotal"] = GSTData["invoiceTotal"];
+      invoiceData["productItems"] = GSTData["products"];
+      invoiceData["serviceItems"] = GSTData["services"];
+      invoiceData["invoiceRoundOff"] = GSTData["invoiceRoundOff"];
     } else {
-      invoiceData["invoiceTotal"] = IGSTTable["invoiceTotal"];
-      invoiceData["productItems"] = IGSTTable["products"];
-      invoiceData["serviceItems"] = IGSTTable["services"];
-      invoiceData["invoiceRoundOff"] = IGSTTable["invoiceRoundOff"];
+      invoiceData["invoiceTotal"] = IGSTData["invoiceTotal"];
+      invoiceData["productItems"] = IGSTData["products"];
+      invoiceData["serviceItems"] = IGSTData["services"];
+      invoiceData["invoiceRoundOff"] = IGSTData["invoiceRoundOff"];
     }
 
     placeOrder(invoiceData);
@@ -354,17 +357,8 @@ function Invoice({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="invoice-header">
-          <header className="shop-details">
-            <h4>EUREKA TYRES - APOLLO PV ZONE</h4>
-            <address>
-              GSTIN: 09FWTPD4101B1ZT, State: Uttar Pradesh, Code:09
-            </address>
-            <address>
-              <address>52/42/6A, Tashkand Marg, Civil Lines, Allahabad</address>
-            </address>
-            <address>Uttar Pradesh - 211001 | Contact: +91 94355 55596</address>
-          </header>
 
+          <ShopDetails section="header" />
           <header className="invoice-details">
             <h4> Tax Invoice # {updateMode ? savedInvoiceNumber : invoiceNumber}</h4>
             <h4>
@@ -464,165 +458,7 @@ function Invoice({
           </div>
         </form>
 
-        {IGSTRender ? (
-          <div className="IGST">
-            <table className="IGST-table">
-              <thead>
-                <tr>
-                  <th className="particulars">Particulars</th>
-                  <th className="HSNCode">HSN</th>
-                  <th className="Qty">Qty</th>
-                  <th className="Rate-per-item">Rate per Item</th>
-                  <th className="taxable-value">Taxable value</th>
-                  <th>IGST</th>
-                  <th className="value">Value</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {IGSTTable?.products.map((tyre, index) => (
-                  <tr key={tyre.itemCode}>
-                    <td>{tyre.itemDesc}</td>
-                    <td>{tyre.HSN}</td>
-                    <td>{tyre.quantity}</td>
-                    <td>{tyre.ratePerItem}</td>
-                    <td>{tyre.taxableValue}</td>
-                    <td className="IGST-cell">
-                      {String(tyre.IGSTAmount) +
-                        " (" +
-                        String(Math.round(tyre.IGST * 100)) +
-                        "%)"}
-                    </td>
-                    <td>{tyre.value}</td>
-                  </tr>
-                ))}
-              </tbody>
-
-              <tfoot>
-                <tr>
-                  <th>Net Amount</th>
-                  <td>-</td>
-                  <td>{IGSTTable?.total.quantity}</td>
-                  <td>-</td>
-                  <td>{IGSTTable?.total.taxableValue}</td>
-                  <td>{IGSTTable?.total.IGSTAmount}</td>
-                  <td>{IGSTTable?.total.value}</td>
-                </tr>
-              </tfoot>
-            </table>
-            <div className="rounding-table-container">
-              <table className="rounding-table">
-                <thead>
-                  <tr>
-                    <td>Round Off</td>
-                    <td>{IGSTTable?.invoiceRoundOff}</td>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th>TOTAL</th>
-                    <th>&#x20B9;{IGSTTable?.invoiceTotal}</th>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        ) : (
-          <div className="GST">
-            <table className="GST-table">
-              <thead>
-                <tr>
-                  <th className="particulars">Particulars</th>
-                  <th className="HSNCode">HSN</th>
-                  <th className="Qty">Qty</th>
-                  <th className="Rate-per-item">Rate per Item</th>
-                  <th className="taxable-value">Taxable value</th>
-                  <th>CGST</th>
-                  <th>SGST</th>
-                  <th className="value">Value</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {GSTTable?.products.map((tyre, index) => (
-                  <tr key={tyre.itemCode}>
-                    <td>{tyre.itemDesc}</td>
-                    <td>{tyre.HSN}</td>
-                    <td>{tyre.quantity}</td>
-                    <td>{tyre.ratePerItem}</td>
-                    <td>{tyre.taxableValue}</td>
-                    <td>
-                      {String(tyre.CGSTAmount) +
-                        " (" +
-                        String(Math.round(tyre.CGST * 100)) +
-                        "%)"}
-                    </td>
-                    <td>
-                      {String(tyre.SGSTAmount) +
-                        " (" +
-                        String(Math.round(tyre.SGST * 100)) +
-                        "%)"}
-                    </td>
-                    <td>{tyre.value}</td>
-                  </tr>
-                ))}
-
-                {GSTTable?.services.map((service, index) => (
-                  <tr key={service.itemDesc}>
-                    <td>{service.itemDesc}</td>
-                    <td>{service.HSN}</td>
-                    <td>{service.quantity}</td>
-                    <td>{service.ratePerItem}</td>
-                    <td>{service.taxableValue}</td>
-                    <td>
-                      {String(service.CGSTAmount) +
-                        " (" +
-                        String(Math.round(service.CGST * 100)) +
-                        "%)"}
-                    </td>
-                    <td>
-                      {String(service.SGSTAmount) +
-                        " (" +
-                        String(Math.round(service.SGST * 100)) +
-                        "%)"}
-                    </td>
-                    <td>{service.value}</td>
-                  </tr>
-                ))}
-              </tbody>
-
-              <tfoot>
-                <tr>
-                  <th>Net Amount</th>
-                  <td>-</td>
-                  <td>{GSTTable?.total.quantity}</td>
-                  <td>-</td>
-                  <td>{GSTTable?.total.taxableValue}</td>
-                  <td>{GSTTable?.total.CGSTAmount}</td>
-                  <td>{GSTTable?.total.SGSTAmount}</td>
-                  <td>{GSTTable?.total.value}</td>
-                </tr>
-              </tfoot>
-            </table>
-            <div className="rounding-table-container">
-              <table className="rounding-table">
-                <thead>
-                  <tr>
-                    <td>Round off</td>
-                    <td>{GSTTable?.invoiceRoundOff}</td>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  <tr>
-                    <th>TOTAL</th>
-                    <th>&#x20B9; {GSTTable?.invoiceTotal}</th>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+        {IGSTRender ? <IGSTTable data={IGSTData} /> : <GSTTable data={GSTData} />}
 
         <form id="invoice-form" onSubmit={handleSubmission}>
           <div className="payment-input-list-container">
@@ -672,26 +508,7 @@ function Invoice({
 
         <br />
         <br />
-        <footer>
-          <section>
-            <div className="bank-name">
-              Bank of Maharashtra A/c No. 60386889626
-            </div>
-            <div className="signatory-name">For EUREKA TYRES</div>
-            <br />
-            <div className="bank-details">
-              RTGS-NEFT-IFSC Code - MAHB0001291
-            </div>
-            <div className="signature"></div>
-          </section>
-          <br />
-          <br />
-          <section>
-            <div className="eoe">E. &#38; O. E.</div>
-            <div className="signatory">Authorised Signatory</div>
-            <div style={{ clear: "both" }}></div>
-          </section>
-        </footer>
+        <ShopDetails section="footer" />
       </div>
 
       <div className="right-buttons-container">
