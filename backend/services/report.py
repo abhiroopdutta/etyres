@@ -39,7 +39,7 @@ def prepare_gstr1_report(start_date, end_date):
                 "customerDetails.GSTIN": { "$ne": "" } 
             }
         },
-        # Stage 2: Concat products[]+services[] to form items, drop unnecessary fields
+        # Stage 2: Concat products[] to form items, drop unnecessary fields
         { 
             "$project": 
             {   
@@ -49,7 +49,7 @@ def prepare_gstr1_report(start_date, end_date):
                 "invoiceTotal": 1,
                 "customerName": "$customerDetails.name",
                 "customerGSTIN": "$customerDetails.GSTIN",
-                "items": { "$concatArrays": [ "$productItems", "$serviceItems" ] }
+                "items": "$productItems"
             } 
         },
         # Stage 3: Unwind (denormalize) items list
@@ -67,7 +67,6 @@ def prepare_gstr1_report(start_date, end_date):
                 "customerGSTIN": 1,
 
                 #new computed fields from items
-                #even though IGST may not exist in service items, it still works, how?
                 "itemRate": {"$round": [{"$multiply": [{ "$sum": [ "$items.CGST", "$items.SGST", "$items.IGST" ] }, 100.00]}, 2]},
                 "taxableValue": {"$round": [{ "$multiply": [ "$items.ratePerItem", "$items.quantity" ] }, 2]}
             } 
@@ -178,12 +177,12 @@ def prepare_gstr1_report(start_date, end_date):
                 "customerDetails.GSTIN": { "$eq": "" } 
             }
         },
-        # Stage 2: Concat products[]+services[] to form items, drop unnecessary fields
+        # Stage 2: drop unnecessary fields
         { 
             "$project": 
             {   
                 "_id": 0,
-                "items": { "$concatArrays": [ "$productItems", "$serviceItems" ] }
+                "items": "$productItems"
             } 
         },
         # Stage 3: Unwind (denormalize) items list
@@ -195,7 +194,6 @@ def prepare_gstr1_report(start_date, end_date):
             "$project": 
             {   
                 #new computed fields from items
-                #even though IGST may not exist in service items, it still works, how?
                 "itemRate": {"$round": [{"$multiply": [{ "$sum": [ "$items.CGST", "$items.SGST", "$items.IGST" ] }, 100.00]}, 2]},
                 "taxableValue": {"$round": [{ "$multiply": [ "$items.ratePerItem", "$items.quantity" ] }, 2]}
             } 
@@ -241,12 +239,12 @@ def prepare_gstr1_report(start_date, end_date):
                 "invoiceStatus": "paid",
             }
         },
-        # Stage 2: Concat products[]+services[] to form items, drop unnecessary fields
+        # Stage 2: drop unnecessary fields
         { 
             "$project": 
             {   
                 "_id": 0,
-                "items": { "$concatArrays": [ "$productItems", "$serviceItems" ] }
+                "items": "$productItems"
             } 
         },
         # Stage 3: Unwind (denormalize) items list
@@ -268,7 +266,6 @@ def prepare_gstr1_report(start_date, end_date):
             "$project": 
             {   
                 #new computed fields from items
-                #even though IGST may not exist in service items, it still works, how?
                 "hsn": "$items.HSN",
                 "rate": {"$round": [{"$multiply": [{ "$sum": [ "$items.CGST", "$items.SGST", "$items.IGST" ] }, 100.00]}, 2]},
                 "quantity": "$items.quantity",
@@ -283,7 +280,6 @@ def prepare_gstr1_report(start_date, end_date):
             "$project": 
             {   
                 #new computed fields from items
-                #even though IGST may not exist in service items, it still works, how?
                 "hsn": 1,
                 "rate": 1,
                 "quantity": 1,
@@ -824,16 +820,15 @@ def export_sales_report(reports_dir, invoices):
     #find a better way to do the following, instead of using base index, use sheet.max_row ?
     base_index = 0
     for invoice in invoices:
-        gst_tables = compute_gst_tables(invoice.productItems, invoice.serviceItems)
+        gst_tables = compute_gst_tables(invoice.productItems)
         tax_table = gst_tables["GST_table"]
         # if (invoice.customerDetails.POS.startswith("09")):
         #     tax_table = gst_tables["GST_table"]
         # else:
         #     tax_table = gst_tables["IGST_table"]
         products = tax_table["products"]
-        services = tax_table["services"]
 
-        total_items = len(products) + len(services)
+        total_items = len(products)
         for i, product in enumerate(products):
             row_index = i+2+base_index
             sheet.cell(row = row_index, column = 1).value = invoice.invoiceNumber
@@ -846,16 +841,6 @@ def export_sales_report(reports_dir, invoices):
             
             sheet.cell(row = row_index, column = 5+len(item_keys)).value = compute_size(product["itemDesc"])
             
-        for i, service in enumerate(services):
-            row_index = i+2+base_index+len(products)
-            sheet.cell(row = row_index, column = 1).value = invoice.invoiceNumber
-            sheet.cell(row = row_index, column = 2).value = invoice.invoiceDate.strftime("%d/%m/%Y")
-            sheet.cell(row = row_index, column = 3).value = invoice.customerDetails.name
-            sheet.cell(row = row_index, column = 4).value = invoice.customerDetails.GSTIN
-
-            for j, item_key in enumerate(item_keys):
-                sheet.cell(row = row_index, column = 5+j).value = service[item_key]
-
         base_index += total_items
 
     total_row_index = sheet.max_row

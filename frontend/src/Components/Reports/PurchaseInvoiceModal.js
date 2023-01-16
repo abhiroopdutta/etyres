@@ -52,7 +52,6 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
     if (invoice?.items?.length > 0) {
       fetchInvoiceTable({
         products: invoice.items,
-        services: [],
       });
     }
     if (invoice.payment) {

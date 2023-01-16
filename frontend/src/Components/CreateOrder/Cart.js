@@ -116,7 +116,6 @@ function Cart() {
                 onCancel={hideInvoice}
                 updateMode={true}
                 products={savedInvoice.productItems}
-                services={[]}
                 updateInvoiceInParent={setUpdatedInvoiceNumber}
                 savedInvoiceNumber={savedInvoice.invoiceNumber}
                 savedInvoiceDate={dayjsUTC(
@@ -130,7 +129,6 @@ function Cart() {
                 onCancel={hideInvoice}
                 updateMode={false}
                 products={products}
-                services={[]}
                 updateInvoiceInParent={setUpdatedInvoiceNumber}
               />
             }

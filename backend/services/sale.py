@@ -1,4 +1,4 @@
-from models import CustomerDetail, Product, ProductItem, Purchase, Sale, ServiceItem, Customer
+from models import CustomerDetail, Product, ProductItem, Sale, Customer
 import datetime
 from flask import jsonify
 from services.transaction import transaction_service
@@ -17,12 +17,11 @@ class SaleService:
         invoice_total = invoice["invoiceTotal"]
         invoice_round_off = invoice["invoiceRoundOff"]
         products = invoice["productItems"]
-        services = invoice["serviceItems"]
         customer_details = invoice["customerDetails"]
         payment = invoice["payment"]
 
         # If empty invoice, then error code = 1
-        if not products and not services:
+        if not products:
             print("Error! invoice is empty")
             return "Error! invoice is empty", 400
 
@@ -107,7 +106,6 @@ class SaleService:
             customerDetails = customerDetails,
             customer = customer,
             productItems = product_items,
-            serviceItems = [],
             payment = payment
             ).save()
 

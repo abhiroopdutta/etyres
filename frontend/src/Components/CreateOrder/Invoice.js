@@ -36,7 +36,6 @@ function Invoice({
   onCancel,
   updateMode,
   products,
-  services,
   savedInvoiceNumber,
   savedInvoiceDate,
   savedInvoiceStatus,
@@ -131,16 +130,12 @@ function Invoice({
 
   useEffect(() => {
     let productItems = products ?? [];
-    let serviceItems = services ?? [];
-    if (productItems.length > 0 || serviceItems.some(item => item.quantity > 0)) {
+    if (productItems.length > 0) {
       fetchInvoiceTable({
         products: productItems,
-        services: serviceItems.filter((service) => {
-          return service.quantity > 0;
-        }),
       });
     }
-  }, [products, services]);
+  }, [products]);
 
   if (
     customerDetails.POS === "0" ||
@@ -218,12 +213,10 @@ function Invoice({
     if (!IGSTRender) {
       invoiceData["invoiceTotal"] = GSTData["invoiceTotal"];
       invoiceData["productItems"] = GSTData["products"];
-      invoiceData["serviceItems"] = GSTData["services"];
       invoiceData["invoiceRoundOff"] = GSTData["invoiceRoundOff"];
     } else {
       invoiceData["invoiceTotal"] = IGSTData["invoiceTotal"];
       invoiceData["productItems"] = IGSTData["products"];
-      invoiceData["serviceItems"] = IGSTData["services"];
       invoiceData["invoiceRoundOff"] = IGSTData["invoiceRoundOff"];
     }
 

@@ -266,7 +266,6 @@ function SalesTable({ exportToExcel, isReportLoading }) {
           onCancel={hideInvoice}
           updateMode={true}
           products={selectedInvoice.productItems}
-          services={selectedInvoice.serviceItems}
           savedInvoiceNumber={selectedInvoice.invoiceNumber}
           savedInvoiceDate={dayjsUTC(
             selectedInvoice.invoiceDate
