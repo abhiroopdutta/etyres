@@ -69,7 +69,7 @@ services:
     command: gunicorn --reload --bind 0.0.0.0:5000 app:app
     container_name: flask-api
     ports:
-      - "5000:5000"
+      - "8000:5000"
     environment:
       MONGODB_HOST: mongodb
       TZ: "Asia/Kolkata"
