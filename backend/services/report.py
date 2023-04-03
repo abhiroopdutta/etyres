@@ -701,7 +701,7 @@ def export_purchase_report(reports_dir, invoices):
     #find a better way to do the following, instead of using base index, use sheet.max_row ?
     base_index = 0
     for invoice in invoices:
-        gst_tables = compute_gst_tables(invoice.items, [])
+        gst_tables = compute_gst_tables(invoice.items)
         tax_table = gst_tables["GST_table"]
         products = tax_table["products"]
 
