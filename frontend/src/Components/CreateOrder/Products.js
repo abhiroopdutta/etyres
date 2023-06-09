@@ -21,7 +21,7 @@ const tagsData = [
   },
   {
     label: "Flaps",
-    filterFn: (itemCode) => itemCode[1] === "V",
+    filterFn: (itemCode) => ["V", "X"].includes(itemCode[1]),
   },
   {
     label: "Valves",
