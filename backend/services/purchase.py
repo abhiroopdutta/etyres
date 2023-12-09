@@ -9,6 +9,15 @@ from services.transaction import transaction_service
 from services.supplier import supplier_service
 
 class PurchaseService():
+    DEFAULT_SUPPLIER = {
+        "name": "Apollo Tyres",
+        "GSTIN": "09AAACA6990Q1ZW",
+    }
+
+    SHOP_DETAILS = {
+        "GSTIN": "09FWTPD4101B1ZT",
+    }
+
     def read_purchase_file(self, file):
         invoice = {
             "invoice_number" : "",
@@ -41,6 +50,8 @@ class PurchaseService():
             "type": None,
             "invoice_number": invoice_number,
             "invoice_date": datetime.datetime.now().strftime("%Y-%m-%d"),
+            "supplier_name": self.DEFAULT_SUPPLIER["name"],
+            "supplier_GSTIN": self.DEFAULT_SUPPLIER["GSTIN"],
             "special_discount": False,
             "special_discount_type": "",
             "claim_invoice": False,
@@ -125,36 +136,48 @@ class PurchaseService():
             #only process this invoice if it doesn't exist in DB
             if(Purchase.objects(invoiceNumber=invoice["invoice_number"]).first() is not None):
                 return (jsonify("Error! Invoice already exists!"), 400)
+            
+            supplier_name = invoice["supplier_name"]
+            supplier_GSTIN = invoice["supplier_GSTIN"]
+            ISGT_invoice = self.SHOP_DETAILS["GSTIN"][:2] != supplier_GSTIN[:2]
                 
             items = []
             claim_items = []
             for item in invoice["items"]:
+                #update products table first
+                existingProduct = Product.objects(itemCode=item["item_code"]).first()
+                oldstock = existingProduct.stock
+                new_stock = oldstock + item["quantity"]
+                if(invoice["overwrite_price_list"]):
+                    #its not cost price, its item total, divide it by quantity first then update
+                    cost_price = round(item["item_total"]/item["quantity"], 2)
+                    existingProduct.update(stock=new_stock, costPrice=cost_price)
+                else:
+                    existingProduct.update(stock=new_stock)
 
-                    #update products table first
-                    existingProduct = Product.objects(itemCode=item["item_code"]).first()
-                    oldstock = existingProduct.stock
-                    new_stock = oldstock + item["quantity"]
-                    if(invoice["overwrite_price_list"]):
-                        #its not cost price, its item total, divide it by quantity first then update
-                        cost_price = round(item["item_total"]/item["quantity"], 2)
-                        existingProduct.update(stock=new_stock, costPrice=cost_price)
-                    else:
-                        existingProduct.update(stock=new_stock)
+                rate_per_item = round((item["item_total"]/item["quantity"])/(1.0 + existingProduct.GST), 2)
 
-                    rate_per_item = round((item["item_total"]/item["quantity"])/(1.0 + existingProduct.GST), 2)
+                CGST = round((existingProduct.GST/2), 2)
+                SGST = round((existingProduct.GST/2), 2)
+                IGST = 0.0
+                if ISGT_invoice:
+                    CGST = 0.0
+                    SGST = 0.0
+                    IGST = existingProduct.GST
 
-                    new_item = ProductItem(
-                        itemDesc = existingProduct.itemDesc, 
-                        itemCode = existingProduct.itemCode, 
-                        HSN = existingProduct.HSN, 
-                        ratePerItem = rate_per_item,
-                        quantity = item["quantity"], 
-                        CGST = round((existingProduct.GST/2), 2), 
-                        SGST = round((existingProduct.GST/2), 2),
-                        IGST = 0.0
-                    )
+                print(CGST, SGST, IGST)
+                new_item = ProductItem(
+                    itemDesc = existingProduct.itemDesc, 
+                    itemCode = existingProduct.itemCode, 
+                    HSN = existingProduct.HSN, 
+                    ratePerItem = rate_per_item,
+                    quantity = item["quantity"], 
+                    CGST = CGST, 
+                    SGST = SGST,
+                    IGST = IGST
+                )
 
-                    items.append(new_item)
+                items.append(new_item)
 
             invoice_number = invoice["invoice_number"]
             claim_invoice = invoice["claim_invoice"]
@@ -175,14 +198,6 @@ class PurchaseService():
                 invoice_date = datetime.datetime.now()
             else:
                 invoice_date = datetime.datetime.strptime(invoice["invoice_date"] + " " + "11:30:00", '%Y-%m-%d %H:%M:%S')
-
-            
-            if ("supplier_GSTIN" in invoice):
-                supplier_name = invoice["supplier_name"]
-                supplier_GSTIN = invoice["supplier_GSTIN"]
-            else:
-                supplier_name = "Apollo Tyres"
-                supplier_GSTIN = "09AAACA6990Q1ZW"
 
             # if new supplier then add to supplier collection
             supplierFound = Supplier.objects(GSTIN=supplier_GSTIN).first()

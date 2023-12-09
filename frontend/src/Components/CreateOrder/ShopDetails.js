@@ -1,12 +1,12 @@
 import "./Invoice.css";
-import shopInfo from "./shopDetails.json";
+import shopInfo from "../../shopDetails.json";
 export default function ShopDetails({ section }) {
     if (section === "header") {
         return (
             <header className="shop-details">
                 <h4>{shopInfo.name}</h4>
                 <address>
-                    {shopInfo.gstInfo}
+                    {`GSTIN: ${shopInfo.gstInfo.GSTIN},  State: ${shopInfo.gstInfo.state}, Code: ${shopInfo.gstInfo.code}`}
                     <br />
                     {shopInfo.address}
                     <br />

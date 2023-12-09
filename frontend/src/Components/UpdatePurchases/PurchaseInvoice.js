@@ -50,28 +50,41 @@ function PurchaseInvoice({ invoice, dispatchInvoices }) {
         </div>
       </header>
       <hr className="purchase-invoice-hr" />
-
-      {priceDifference && invoice.special_discount ? (
-        <div className="special-discount">
-          <label htmlFor={"special_discount_type" + invoice.invoice_number}>
-            Discount Type:
+      <section
+        className="supplier-details"
+        onChange={(e) =>
+          dispatchInvoices({
+            type: "UPDATE_INVOICE_FIELD",
+            invoiceNumber: invoice.invoice_number,
+            field: e.target.className,
+            value: e.target.value,
+          })
+        }
+      >
+        <div>
+          <label htmlFor={"supplier_name" + invoice.invoice_number}>
+            Supplier:
           </label>
           <input
             type="text"
-            value={invoice.special_discount_type}
-            id={"special_discount_type" + invoice.invoice_number}
-            onChange={(e) =>
-              dispatchInvoices({
-                type: "UPDATE_INVOICE_FIELD",
-                invoiceNumber: invoice.invoice_number,
-                field: "special_discount_type",
-                value: e.target.value,
-              })
-            }
-            placeholder="ex - LVD"
+            defaultValue={invoice.supplier_name}
+            id={"supplier_name" + invoice.invoice_number}
+            className="supplier_name"
           />
         </div>
-      ) : null}
+        <div>
+          <label htmlFor={"supplier_GSTIN" + invoice.invoice_number}>
+            GSTIN:
+          </label>
+          <input
+            type="text"
+            defaultValue={invoice.supplier_GSTIN}
+            id={"supplier_GSTIN" + invoice.invoice_number}
+            className="supplier_GSTIN"
+          />
+        </div>
+      </section>
+      <hr className="purchase-invoice-hr" />
       {priceDifference > 0 ? (
         <section
           className="claim-overwrite"
@@ -139,6 +152,27 @@ function PurchaseInvoice({ invoice, dispatchInvoices }) {
           </label>
           <br />
         </section>
+      ) : null}
+      {priceDifference && invoice.special_discount ? (
+        <div className="special-discount">
+          <label htmlFor={"special_discount_type" + invoice.invoice_number}>
+            Discount Type:
+          </label>
+          <input
+            type="text"
+            value={invoice.special_discount_type}
+            id={"special_discount_type" + invoice.invoice_number}
+            onChange={(e) =>
+              dispatchInvoices({
+                type: "UPDATE_INVOICE_FIELD",
+                invoiceNumber: invoice.invoice_number,
+                field: "special_discount_type",
+                value: e.target.value,
+              })
+            }
+            placeholder="ex - LVD"
+          />
+        </div>
       ) : null}
 
       <div className="purchase-invoice-table-wrapper">

@@ -6,6 +6,7 @@ import { Modal, Typography, Button } from "antd";
 import { useTransition, animated } from "@react-spring/web";
 import ManualInvoiceModal from "../Components/UpdatePurchases/ManualInvoiceModal.js";
 import { useCreatePurchaseInvoice } from "../api/purchase";
+import { regexGSTINPattern } from "../utils.js";
 
 const { Title } = Typography;
 
@@ -225,9 +226,7 @@ function UpdateStock() {
 
   const handleUpdateStock = () => {
     //if price not matching, and user hasn't selected claim or overwrite price, then do not post
-    let selectOneError = false;
-    let claimNumberError = false;
-    let specialDiscountError = false;
+    let validationError = false;
     for (let i = 0; i < invoices.length; i++) {
       let priceDiff =
         Math.round(invoices[i].invoice_total) -
@@ -238,7 +237,7 @@ function UpdateStock() {
         !invoices[i].overwrite_price_list &&
         !invoices[i].special_discount
       ) {
-        selectOneError = true;
+        validationError = true;
         Modal.warning({
           content: `Invoice number: ${invoices[i].invoice_number}, select either claim invoice or special discount or overwrite price list`,
         });
@@ -250,7 +249,7 @@ function UpdateStock() {
             invoices[i].claim_items[j].claim_number === "" ||
             invoices[i].claim_items[j].claim_number === 0
           ) {
-            claimNumberError = true;
+            validationError = true;
             Modal.warning({
               content: `Invoice number: ${invoices[i].invoice_number}, Please fill claim number`,
             });
@@ -263,14 +262,35 @@ function UpdateStock() {
         invoices[i].special_discount &&
         invoices[i].special_discount_type.trim() === ""
       ) {
-        specialDiscountError = true;
+        validationError = true;
         Modal.warning({
           content: `Invoice number: ${invoices[i].invoice_number}, Please fill special discount name`,
         });
         break;
       }
+
+      if (
+        !invoices[i].supplier_name.trim()
+      ) {
+        validationError = true;
+        Modal.warning({
+          content: `Invoice number: ${invoices[i].invoice_number}, Supplier Name cannot be blank.`,
+        });
+        break;
+      }
+
+      const gstinRegex = new RegExp(regexGSTINPattern())
+      if (
+        !gstinRegex.test(invoices[i].supplier_GSTIN)
+      ) {
+        validationError = true;
+        Modal.warning({
+          content: `Invoice number: ${invoices[i].invoice_number}, Invalid GSTIN`,
+        });
+        break;
+      }
     }
-    if (!selectOneError && !claimNumberError && !specialDiscountError) {
+    if (!validationError) {
       createInvoice(invoices);
     }
   };

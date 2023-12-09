@@ -1,6 +1,10 @@
 {
   "name": "EUREKA TYRES - APOLLO PV ZONE",
-  "gstInfo": "GSTIN: 09FWTPD4101B1ZT, State: Uttar Pradesh, Code:09",
+  "gstInfo": {
+    "GSTIN": "09FWTPD4101B1ZT",
+    "state": "Uttar Pradesh",
+    "code": "09"
+  },
   "address": "52/42/6A, Tashkand Marg, Civil Lines, Allahabad",
   "contact": "Uttar Pradesh - 211001 | Contact: +91 94355 55596",
   "bank": "Punjab National Bank A/c No. 2003108700000283",

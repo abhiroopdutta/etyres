@@ -1,3 +1,5 @@
+import gstStateCodes from "./gstStateCodes.json";
+
 export function stringifyQuery(queryObj) {
     let queryParams = new URLSearchParams();
     for (let [key, value] of Object.entries(queryObj)) {
@@ -38,4 +40,13 @@ export function transformData(result, pageSize) {
 
 export function roundToTwo(num) {
     return +(Math.round(num + "e+2") + "e-2");
+}
+
+export function regexGSTINPattern() {
+    let regexStateCode = "(";
+    for (let stateCode in gstStateCodes) {
+        regexStateCode += stateCode + "|";
+    }
+    const regexGSTINPattern = regexStateCode.replace(/.$/, ")") + "[A-Z]{5}\\d{4}[A-Z]{1}[A-Z\\d]{1}[Z]{1}[A-Z\\d]{1}";
+    return regexGSTINPattern;
 }

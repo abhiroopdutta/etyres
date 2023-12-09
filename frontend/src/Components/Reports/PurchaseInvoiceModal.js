@@ -9,11 +9,14 @@ import { dayjsUTC } from "../dayjsUTCLocal";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useUpdatePurchaseInvoice } from "../../api/purchase";
+import shopInfo from "../../shopDetails.json";
 const { confirm } = Modal;
 
 const { Title } = Typography;
 
 function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
+  const IGSTInvoice = invoice?.supplier?.GSTIN.slice(0, 2) !== shopInfo.gstInfo.GSTIN.slice(0, 2);
+
   const { isLoadingUpdateInvoiceStatus, mutate: updateInvoiceStatus } = useUpdatePurchaseInvoice({
     onSuccess: (response, postBody) => {
       Modal.success({
@@ -31,8 +34,9 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
     mutationFn: postBody => {
       return axios.post('/api/get_gst_tables', postBody);
     },
-    onSuccess: (response) =>
-      setTaxTable(response.data.GST_table)
+    onSuccess: (response) => {
+      setTaxTable(response.data);
+    }
   });
   const [payment, setPayment] = useState({ creditNote: 0.0, cash: 0.0, bank: 0.0 });
   let totalPaid = payment.creditNote + payment.bank + payment.cash;
@@ -94,27 +98,34 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
         dataIndex: "taxableValue",
         key: "taxableValue",
       },
-      {
+      ...IGSTInvoice ? [] : [{
         title: "CGST",
         dataIndex: "CGST",
         key: "CGST",
         render: (CGST, item) =>
           `${item.CGSTAmount} (${Math.round(CGST * 100)}%)`,
-      },
-      {
+      }],
+      ...IGSTInvoice ? [] : [{
         title: "SGST",
         dataIndex: "SGST",
         key: "SGST",
         render: (SGST, item) =>
           `${item.SGSTAmount} (${Math.round(SGST * 100)}%)`,
-      },
+      }],
+      ...IGSTInvoice ? [{
+        title: "IGST",
+        dataIndex: "IGST",
+        key: "IGST",
+        render: (IGST, item) =>
+          `${item.IGSTAmount} (${Math.round(IGST * 100)}%)`,
+      }] : [],
       {
         title: "Value",
         dataIndex: "value",
         key: "value",
       },
     ],
-    []
+    [IGSTInvoice]
   );
   const claimColumns = useMemo(
     () => [
@@ -216,7 +227,10 @@ function PurchaseInvoiceModal({ invoice, visible, hideInvoice }) {
 
         <Table
           columns={invoice.claimInvoice ? claimColumns : columns}
-          dataSource={invoice.claimInvoice ? invoice.claimItems : taxTable?.products}
+          dataSource={
+            invoice.claimInvoice ? invoice.claimItems :
+              IGSTInvoice ?
+                taxTable?.IGST_table.products : taxTable?.GST_table.products}
           rowKey={(item) =>
             invoice.claimInvoice ? item.claimNumber : item.itemCode
           }

@@ -95,7 +95,9 @@ table.purchase-invoice-table tr:last-child td {
   padding: 0px 0px 8px 0px;
 }
 
-.special-discount input {
+.special-discount input,
+.supplier-details input
+{
   margin: 5px;
   padding-left: 2px;
   max-width: 240px;
@@ -114,4 +116,9 @@ table.purchase-invoice-table tr:last-child td {
   margin: 5px;
   padding-left: 2px;
   max-width: 240px;
+}
+
+.supplier-details {
+  display: flex;
+  flex-direction: column;
 }

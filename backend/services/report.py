@@ -19,6 +19,13 @@ def get_gst_state_codes():
 	f.close()
 	return gst_state_codes
 
+def get_shop_details():
+	file_path = "/app/services/shopDetails.json"
+	f = open(file_path, "r")
+	shop_details = json.loads(f.read())
+	f.close()
+	return shop_details
+
 # helper function for export_gstr1_report
 def round_to_two(sheet, value):
     cell = WriteOnlyCell(sheet, value=round(value, 2))
@@ -674,8 +681,8 @@ def export_purchase_report(reports_dir, invoices):
         "CGST Amt", 
         "SGST Rate", 
         "SGST Amt", 
-        # "IGST Rate", 
-        # "IGST Amt", 
+        "IGST Rate", 
+        "IGST Amt", 
         "Total",
         "size"]
 
@@ -690,8 +697,8 @@ def export_purchase_report(reports_dir, invoices):
         "CGSTAmount",
         "SGST",
         "SGSTAmount",
-        # "IGST",
-        # "IGSTAmount",
+        "IGST",
+        "IGSTAmount",
         "value",
     ]
     
@@ -702,7 +709,13 @@ def export_purchase_report(reports_dir, invoices):
     base_index = 0
     for invoice in invoices:
         gst_tables = compute_gst_tables(invoice.items)
+        shop_GSTIN = get_shop_details()["gstInfo"]["GSTIN"]
+        ISGT_invoice = shop_GSTIN[:2] != invoice.supplier.GSTIN[:2]
+        
         tax_table = gst_tables["GST_table"]
+        if ISGT_invoice:
+            tax_table = gst_tables["IGST_table"]
+
         products = tax_table["products"]
 
         total_items = len(products)
@@ -738,9 +751,12 @@ def export_purchase_report(reports_dir, invoices):
     # total SGST
     total_SGST = '= SUM(P2:P'+str(total_row_index)+')'
     sheet.cell(row=total_row_index+1, column=16).value = total_SGST
+    # total IGST
+    total_IGST = '= SUM(R2:R'+str(total_row_index)+')'
+    sheet.cell(row=total_row_index+1, column=18).value = total_IGST
     # total 
-    total = '= SUM(Q2:Q'+str(total_row_index)+')'
-    sheet.cell(row=total_row_index+1, column=17).value = total
+    total = '= SUM(S2:S'+str(total_row_index)+')'
+    sheet.cell(row=total_row_index+1, column=19).value = total
 
     for i in range(2, sheet.max_row+1):
         sheet.cell(row=i, column=6).number_format = FORMAT_NUMBER

@@ -8,7 +8,7 @@ import {
   CloseCircleFilled,
   ExclamationCircleOutlined,
 } from "@ant-design/icons";
-import gstStateCodes from "./gstStateCodes.json";
+import gstStateCodes from "../../gstStateCodes.json";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useCreateSaleInvoice, useNewSaleInvoiceNumber, useUpdateSaleInvoice, useCustomerList } from "../../api/sale";
