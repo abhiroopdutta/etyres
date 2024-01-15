@@ -7,6 +7,7 @@ from flask import jsonify
 from mongoengine import Q
 from services.transaction import transaction_service
 from services.supplier import supplier_service
+import pandas as pd
 
 class PurchaseService():
     DEFAULT_SUPPLIER = {
@@ -24,22 +25,20 @@ class PurchaseService():
             "items" : []
         }
 
-        with open(file) as f:
-            reader = csv.DictReader(f, delimiter="\t")
-            for row in reader:
-                invoice["invoice_number"] = str(row["Invoice No."]).strip()
+        data = pd.read_excel(file).to_dict('records')
+        for row in data:
+            invoice["invoice_number"] = str(row["InvoiceNo"]).strip()
 
-                invoice["items"].append({
-                    "item_code": str(row["Material"]).strip()[:-2], 
-                    "item_desc": str(row["Material Desc."]).strip(),
-                    "quantity": int(row["Qty."]),
-                    "taxable_value": float(row["Net Amt."].replace(",", "")),
-                    "tax": float(row["Tax"].replace(",", "")),
-                    "item_total": float(row["Invoice Amt."].replace(",", "")),
-                    "not_found_in_inventory": False
-                    })
+            invoice["items"].append({
+                "item_code": str(row["Material"]).strip()[:-2], 
+                "item_desc": str(row["MaterialDesc"]).strip(),
+                "quantity": int(row["InvoiceQuantity"]),
+                "taxable_value": float(row["NetAmount"]),
+                "tax": float(row["TaxAmount"]),
+                "item_total": float(row["InvoiceAmount"]),
+                "not_found_in_inventory": False
+                })
 
-        os.remove(file)
         return invoice
 
     # returns invoice with invoice["type"] = 2 for already existing invoice
@@ -113,9 +112,8 @@ class PurchaseService():
         invoices = []
         invoices_already_exist = []
         invoices_with_new_products = []
-        files = glob.glob(directory + "*.xls")
+        files = glob.glob(directory + "*.xlsx")
         for file in files:
-
             invoice = self.read_purchase_file(file)
             processed_invoice = self.process_invoice(**invoice)
             if processed_invoice["type"] == 0:
