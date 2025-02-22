@@ -3,11 +3,13 @@ import { CartContext } from "./CartContext";
 import CartTyre from "./CartTyre";
 import "./Cart.css";
 import Invoice from "./Invoice";
-import { message, Button } from "antd";
+import { message, Button, Modal } from "antd";
 import { dayjsUTC } from "../dayjsUTCLocal";
 import { useSaleInvoice } from "../../api/sale";
+import { ExclamationCircleFilled } from '@ant-design/icons';
 
 function Cart() {
+  const { confirm } = Modal;
   const { tyresContext } = useContext(CartContext);
   const [products, setProducts] = tyresContext;
   let cartTotal = 0;
@@ -87,14 +89,25 @@ function Cart() {
     }, 0);
 
     if (tubeCount < tubeTyreCount) {
-      message.error(
-        "You have added Tube Type Tyres without Tubes, please add tubes",
-        3
-      );
+      showConfirm();
       return;
     }
     setPreviewInvoice(true);
     return;
+  };
+
+  const showConfirm = () => {
+    confirm({
+      title: 'Tube tyres without tube',
+      icon: <ExclamationCircleFilled />,
+      content: 'You have added tube tyres without tube, proceed?',
+      onOk() {
+        setPreviewInvoice(true);
+      },
+      onCancel() {
+        return;
+      },
+    });
   };
 
   return (
