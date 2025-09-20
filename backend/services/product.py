@@ -5,15 +5,15 @@ from flask import jsonify
 hsn_gst = {
     "tyre": {
         "HSN": "4011",
-        "GST": 0.28
+        "GST": 0.18
     },
     "tube": {
         "HSN": "4013",
-        "GST": 0.28
+        "GST": 0.18
     },
     "flap": {
         "HSN": "4012",
-        "GST": 0.28
+        "GST": 0.18
     },
     "valve": {
         "HSN": "8481",
