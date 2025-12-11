@@ -81,26 +81,48 @@ class ProductService:
         return products
 
     def reset_products_stock(self):
-        for product in Product.objects():
-            product.update(stock = 0)
+        # Bulk reset all products stock to 0
+        Product.objects().update(stock=0)
 
+        # Dictionary to track stock changes by itemCode
+        stock_changes = {}
+        # Set to track which products we've verified exist
+        verified_products = set()
+
+        # Process purchases - add to stock
         for invoice in Purchase.objects(invoiceStatus__ne="cancelled"):
             for product in invoice.items:
-                product_found = Product.objects(itemCode=product.itemCode).first()
-                if product_found is None:
-                    print(f'Item from Purchase Invoice No. {invoice.invoiceNumber} not found in Product table:  {product.itemDesc}, {product.itemCode}, ')
-                    return jsonify("Failure"), 400
-                new_stock = product_found.stock + product.quantity
-                Product.objects(itemCode=product.itemCode).first().update(stock=new_stock) 
-        
+                # Only check if product exists once per unique itemCode
+                if product.itemCode not in verified_products:
+                    product_found = Product.objects(itemCode=product.itemCode).first()
+                    if product_found is None:
+                        print(f'Item from Purchase Invoice No. {invoice.invoiceNumber} not found in Product table:  {product.itemDesc}, {product.itemCode}, ')
+                        return jsonify("Failure"), 400
+                    verified_products.add(product.itemCode)
+
+                if product.itemCode not in stock_changes:
+                    stock_changes[product.itemCode] = 0
+                stock_changes[product.itemCode] += product.quantity
+
+        # Process sales - subtract from stock
         for invoice in Sale.objects(invoiceStatus__ne="cancelled"):
             for product in invoice.productItems:
-                product_found = Product.objects(itemCode=product.itemCode).first()
-                if product_found is None:
-                    print(f'Item from Sale Invoice No. {invoice.invoiceNumber} not found in Product table:  {product.itemDesc}, {product.itemCode}, ')
-                    return jsonify("Failure"), 400
-                new_stock = product_found.stock - product.quantity
-                Product.objects(itemCode=product.itemCode).first().update(stock=new_stock)
+                # Only check if product exists once per unique itemCode
+                if product.itemCode not in verified_products:
+                    product_found = Product.objects(itemCode=product.itemCode).first()
+                    if product_found is None:
+                        print(f'Item from Sale Invoice No. {invoice.invoiceNumber} not found in Product table:  {product.itemDesc}, {product.itemCode}, ')
+                        return jsonify("Failure"), 400
+                    verified_products.add(product.itemCode)
+
+                if product.itemCode not in stock_changes:
+                    stock_changes[product.itemCode] = 0
+                stock_changes[product.itemCode] -= product.quantity
+
+        # Apply all stock changes in one pass
+        for item_code, stock_change in stock_changes.items():
+            Product.objects(itemCode=item_code).update(stock=stock_change)
+
         return jsonify("Success! Stock reset"), 200 
 
 product_service = ProductService()
