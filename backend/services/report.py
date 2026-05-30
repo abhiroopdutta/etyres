@@ -8,7 +8,7 @@ from openpyxl.styles.numbers import FORMAT_PERCENTAGE, FORMAT_NUMBER, FORMAT_NUM
 from openpyxl.cell import WriteOnlyCell
 from gsttable import compute_gst_tables
 from services.product import compute_size
-from models import Product, Sale
+from models import Product, Sale, Purchase
 from services.sale import sale_service
 from services.purchase import purchase_service
 
@@ -960,6 +960,79 @@ def stock_report(reports_dir):
     return filename
 
 class ReportService:
+    def get_item_history(self, item_code):
+        product = Product.objects(itemCode=item_code).first()
+        if product is None:
+            raise Exception(f"Product with item code {item_code} not found")
+
+        events = []
+
+        purchases = Purchase.objects(items__itemCode=item_code)
+        for purchase in purchases:
+            quantity = sum(item.quantity for item in purchase.items if item.itemCode == item_code)
+            rate = next((item.ratePerItem for item in purchase.items if item.itemCode == item_code), 0)
+            supplier_name = ""
+            supplier_GSTIN = ""
+            try:
+                supplier_name = purchase.supplier.name
+                supplier_GSTIN = purchase.supplier.GSTIN
+            except:
+                pass
+
+            events.append({
+                "type": "purchase",
+                "invoiceNumber": purchase.invoiceNumber,
+                "invoiceDate": purchase.invoiceDate.isoformat(),
+                "invoiceStatus": purchase.invoiceStatus,
+                "quantity": quantity,
+                "ratePerItem": rate,
+                "claimInvoice": purchase.claimInvoice,
+                "partyName": supplier_name,
+                "partyDetail": supplier_GSTIN,
+            })
+
+        sales = Sale.objects(productItems__itemCode=item_code)
+        for sale in sales:
+            quantity = sum(item.quantity for item in sale.productItems if item.itemCode == item_code)
+            rate = next((item.ratePerItem for item in sale.productItems if item.itemCode == item_code), 0)
+            customer_name = ""
+            customer_contact = ""
+            if sale.customerDetails:
+                customer_name = sale.customerDetails.name or ""
+                customer_contact = sale.customerDetails.contact or ""
+
+            events.append({
+                "type": "sale",
+                "invoiceNumber": sale.invoiceNumber,
+                "invoiceDate": sale.invoiceDate.isoformat(),
+                "invoiceStatus": sale.invoiceStatus,
+                "quantity": quantity,
+                "ratePerItem": rate,
+                "claimInvoice": False,
+                "partyName": customer_name,
+                "partyDetail": customer_contact,
+            })
+
+        events.sort(key=lambda e: (e["invoiceDate"], 0 if e["type"] == "purchase" else 1))
+
+        running_stock = 0
+        for event in events:
+            if event["invoiceStatus"] != "cancelled":
+                if event["type"] == "purchase":
+                    running_stock += event["quantity"]
+                else:
+                    running_stock -= event["quantity"]
+            event["runningStock"] = running_stock
+
+        return {
+            "product": {
+                "itemCode": product.itemCode,
+                "itemDesc": product.itemDesc,
+                "currentStock": product.stock,
+            },
+            "history": events,
+        }
+
     def create_report(self, reports_dir, report_req_info):
         os.makedirs(reports_dir, exist_ok = True) #make the dir if it doesn't exist
         if report_req_info["reportType"] == "stock":

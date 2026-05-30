@@ -3,6 +3,7 @@ import { Layout, Typography, Button, Modal } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
 import SalesTable from "../Components/Reports/SalesTable";
 import PurchaseTable from "../Components/Reports/PurchaseTable";
+import ItemHistory from "../Components/Reports/ItemHistory";
 import { dayjsLocal } from "../Components/dayjsUTCLocal";
 import { useUpdateProductList } from "../api/product";
 const { Title } = Typography;
@@ -125,6 +126,12 @@ function Reports() {
 
       <div className="purchase-table">
         <PurchaseTable exportToExcel={handleGenerateFile} isReportLoading={reportLoadingInfo.purchase} />
+      </div>
+      <br />
+      <br />
+
+      <div className="item-history">
+        <ItemHistory />
       </div>
       <br />
 

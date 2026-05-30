@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { stringifyQuery, transformData } from '../utils';
 
 const getPurchaseInvoices = (query) => axios.get(`/api/purchases/invoices?${query}`);
+const getPurchaseInvoiceByNumber = (invoiceNumber) => axios.get(`/api/purchases/invoices/${invoiceNumber}`);
 const createPurchaseInvoice = (postBody) => axios.post(`/api/purchases/invoices`, postBody)
 const updatePurchaseInvoice = (invoiceNumber, postBody) => axios.patch(`/api/purchases/invoices/${invoiceNumber}`, postBody);
 const getSuppliers = () => axios.get(`/api/suppliers`);
@@ -66,6 +67,15 @@ export function usePurchaseInvoiceList({ query, onSuccess }) {
         select: (result) => transformData(result, query.page_size),
         onSuccess: (result) => onSuccess(result),
         keepPreviousData: true,
+    });
+}
+
+export function usePurchaseInvoice({ invoiceNumber, enabled }) {
+    return useQuery({
+        queryKey: ["purchaseInvoice", invoiceNumber],
+        queryFn: () => getPurchaseInvoiceByNumber(invoiceNumber),
+        select: (data) => data.data,
+        enabled: enabled,
     });
 }
 

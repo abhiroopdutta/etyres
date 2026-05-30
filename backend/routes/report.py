@@ -13,6 +13,16 @@ class ReportList(views.MethodView):
         filename = report_service.create_report(reports_dir, data)
         return jsonify(filename)
 
+@blp.route('/item-history/<item_code>')
+class ItemHistory(views.MethodView):
+    def get(self, item_code):
+        '''Get complete purchase/sale history for a product'''
+        try:
+            result = report_service.get_item_history(item_code)
+            return jsonify(result)
+        except Exception as e:
+            flask_smorest.abort(404, message=str(e))
+
 @blp.route('/<report_name>')
 class Report(views.MethodView):
     def get(self, report_name):

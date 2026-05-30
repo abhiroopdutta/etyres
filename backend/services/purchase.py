@@ -219,6 +219,9 @@ class PurchaseService():
                 ).save()
         return (jsonify("stock updated, invoice saved"), 200)
 
+    def get_invoice(self, invoice_number):
+        return Purchase.objects.get(invoiceNumber=invoice_number)
+
     def get_invoices(
         self,
         invoiceNumber= "",

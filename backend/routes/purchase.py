@@ -46,6 +46,14 @@ class PurchaseInvoiceList(views.MethodView):
 
 @blp.route('/invoices/<invoice_number>')
 class PurchaseInvoice(views.MethodView):
+    @blp.response(200, PurchaseSchema)
+    def get(self, invoice_number):
+        '''Get purchase invoice'''
+        try:
+            return purchase_service.get_invoice(int(invoice_number))
+        except:
+            flask_smorest.abort(400, message="Invalid invoice number, invoice not found")
+
     @blp.arguments(PurchaseSchema(only=("invoiceStatus", "payment")))
     def patch(self, args, invoice_number):
         '''Update invoice payment or cancel an invoice, thus updating its status'''
