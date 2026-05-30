@@ -1,6 +1,10 @@
 import flask_smorest
 from flask import request, views, send_from_directory, jsonify
+from models import Product
 from services.report import report_service
+import logging
+
+logger = logging.getLogger(__name__)
 blp = flask_smorest.Blueprint("report", "report", url_prefix="/api/reports", description="Operations related to reports")
 
 reports_dir = "/app/tempdata/sales_report/"
@@ -20,8 +24,11 @@ class ItemHistory(views.MethodView):
         try:
             result = report_service.get_item_history(item_code)
             return jsonify(result)
+        except Product.DoesNotExist:
+            flask_smorest.abort(404, message="Item not found")
         except Exception as e:
-            flask_smorest.abort(404, message=str(e))
+            logger.exception("Unexpected error fetching item history for %s", item_code)
+            flask_smorest.abort(500, message="Internal server error")
 
 @blp.route('/<report_name>')
 class Report(views.MethodView):

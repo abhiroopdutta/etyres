@@ -3,6 +3,9 @@ from flask import request, views
 import marshmallow_mongoengine as mamo
 import marshmallow as ma
 from models import Purchase, Supplier
+import logging
+
+logger = logging.getLogger(__name__)
 from services.purchase import purchase_service
 
 blp = flask_smorest.Blueprint("purchase", "purchase", url_prefix="/api/purchases", description="Operations related to purchases")
@@ -50,9 +53,13 @@ class PurchaseInvoice(views.MethodView):
     def get(self, invoice_number):
         '''Get purchase invoice'''
         try:
-            return purchase_service.get_invoice(int(invoice_number))
-        except:
-            flask_smorest.abort(400, message="Invalid invoice number, invoice not found")
+            invoice_number = int(invoice_number)
+        except ValueError:
+            flask_smorest.abort(400, message="Invalid invoice number")
+        try:
+            return purchase_service.get_invoice(invoice_number)
+        except Purchase.DoesNotExist:
+            flask_smorest.abort(404, message="Invoice not found")
 
     @blp.arguments(PurchaseSchema(only=("invoiceStatus", "payment")))
     def patch(self, args, invoice_number):

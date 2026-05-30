@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Layout, Typography, Select, Table, Tag, Button, Space } from "antd";
 import { EyeOutlined, DownloadOutlined } from "@ant-design/icons";
 import { dayjsUTC } from "../dayjsUTCLocal";
@@ -38,14 +38,20 @@ function ItemHistory() {
     enabled: !!selectedSaleInvoiceNumber,
   });
 
-  let scrollBarWidth = window.innerWidth - document.body.clientWidth;
-  if (showSaleInvoice) {
-    document.body.style.overflowY = "hidden";
-    document.body.style.width = `calc(100% - ${scrollBarWidth}px)`;
-  } else {
-    document.body.style.overflowY = "scroll";
-    document.body.style.width = `100%`;
-  }
+  useEffect(() => {
+    if (showSaleInvoice) {
+      const scrollBarWidth = window.innerWidth - document.body.clientWidth;
+      document.body.style.overflowY = "hidden";
+      document.body.style.width = `calc(100% - ${scrollBarWidth}px)`;
+    } else {
+      document.body.style.overflowY = "scroll";
+      document.body.style.width = "100%";
+    }
+    return () => {
+      document.body.style.overflowY = "scroll";
+      document.body.style.width = "100%";
+    };
+  }, [showSaleInvoice]);
 
   const handleInvoiceClick = (record) => {
     if (record.type === "purchase") {
@@ -184,7 +190,7 @@ function ItemHistory() {
           filterOption={(input, option) =>
             option.label.toLowerCase().includes(input.toLowerCase()) ||
             option.value.toLowerCase().includes(input.toLowerCase()) ||
-            (option.size && option.size.toString().match(input))
+            (option.size && option.size.toString().toLowerCase().includes(input.toLowerCase()))
           }
           onChange={(value) => setSelectedItemCode(value)}
           style={{ width: 400 }}

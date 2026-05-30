@@ -8,7 +8,7 @@ from openpyxl.styles.numbers import FORMAT_PERCENTAGE, FORMAT_NUMBER, FORMAT_NUM
 from openpyxl.cell import WriteOnlyCell
 from gsttable import compute_gst_tables
 from services.product import compute_size
-from models import Product, Sale, Purchase
+from models import Product, Sale, Purchase, Supplier
 from services.sale import sale_service
 from services.purchase import purchase_service
 
@@ -963,7 +963,7 @@ class ReportService:
     def get_item_history(self, item_code):
         product = Product.objects(itemCode=item_code).first()
         if product is None:
-            raise Exception(f"Product with item code {item_code} not found")
+            raise Product.DoesNotExist(f"Product with item code {item_code} not found")
 
         events = []
 
@@ -976,7 +976,7 @@ class ReportService:
             try:
                 supplier_name = purchase.supplier.name
                 supplier_GSTIN = purchase.supplier.GSTIN
-            except:
+            except Supplier.DoesNotExist:
                 pass
 
             events.append({
