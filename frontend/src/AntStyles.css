@@ -131,6 +131,23 @@ tr.ant-table-expanded-row > td {
   color: var(--darkest);
 }
 
+.btn-view-invoice {
+  color: var(--darkest);
+  gap: 6px;
+}
+
+.btn-view-invoice-text {
+  margin-left: 4px;
+}
+
+.btn-view-invoice:hover {
+  color: var(--darkest) !important;
+}
+
+.btn-view-invoice:hover .btn-view-invoice-text {
+  text-decoration: underline !important;
+}
+
 .ant-modal-content {
   border-radius: 12px;
   background-color: var(--lightest);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Layout, Typography, Select, Table, Tag, Button, Space } from "antd";
-import { EyeOutlined, DownloadOutlined } from "@ant-design/icons";
+import { EyeFilled, DownloadOutlined } from "@ant-design/icons";
 import { dayjsUTC } from "../dayjsUTCLocal";
 import { useProductList } from "../../api/product";
 import { useItemHistory } from "../../api/report";
@@ -123,12 +123,13 @@ function ItemHistory() {
       key: "invoiceNumber",
       render: (invoiceNumber, record) => (
         <Button
-          type="link"
+          type="text"
           size="small"
-          icon={<EyeOutlined />}
+          icon={<EyeFilled />}
+          className="btn-view-invoice"
           onClick={() => handleInvoiceClick(record)}
         >
-          {invoiceNumber}
+          <span className="btn-view-invoice-text">{invoiceNumber}</span>
         </Button>
       ),
     },

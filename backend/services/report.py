@@ -1025,6 +1025,8 @@ class ReportService:
                     running_stock -= event["quantity"]
             event["runningStock"] = running_stock
 
+        events.reverse()
+
         return {
             "product": {
                 "itemCode": product.itemCode,
