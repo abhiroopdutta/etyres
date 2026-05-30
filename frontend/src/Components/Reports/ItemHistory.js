@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Layout, Typography, Select, Table, Tag, Button, Space } from "antd";
-import { EyeOutlined } from "@ant-design/icons";
+import { EyeOutlined, DownloadOutlined } from "@ant-design/icons";
 import { dayjsUTC } from "../dayjsUTCLocal";
 import { useProductList } from "../../api/product";
 import { useItemHistory } from "../../api/report";
@@ -65,6 +65,35 @@ function ItemHistory() {
   const hideSaleInvoice = () => {
     setShowSaleInvoice(false);
     setSelectedSaleInvoiceNumber(null);
+  };
+
+  const handleExportCSV = () => {
+    if (!historyData) return;
+    const headers = ["Date", "Type", "Invoice No.", "Party", "Qty In", "Qty Out", "Rate", "Status", "Running Stock"];
+    const rows = historyData.history.map((row) => [
+      dayjsUTC(row.invoiceDate).format("DD/MM/YYYY"),
+      row.claimInvoice ? "Claim" : row.type === "purchase" ? "Purchase" : "Sale",
+      row.invoiceNumber,
+      row.partyName,
+      row.type === "purchase" ? row.quantity : "",
+      row.type === "sale" ? row.quantity : "",
+      row.ratePerItem,
+      row.invoiceStatus,
+      row.runningStock,
+    ]);
+    const csvContent = [
+      `Item: ${historyData.product.itemDesc} (${historyData.product.itemCode}) - Current Stock: ${historyData.product.currentStock}`,
+      headers.join(","),
+      ...rows.map((r) => r.join(",")),
+    ].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `item_history_${selectedItemCode}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode.removeChild(link);
   };
 
   const columns = [
@@ -169,6 +198,14 @@ function ItemHistory() {
             <Text>
               Current Stock: <Text strong>{historyData.product.currentStock}</Text>
             </Text>
+            <Button
+              icon={<DownloadOutlined />}
+              size="small"
+              onClick={handleExportCSV}
+              disabled={!historyData.history?.length}
+            >
+              Export CSV
+            </Button>
           </Space>
         )}
 
