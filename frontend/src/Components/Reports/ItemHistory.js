@@ -46,8 +46,8 @@ function ItemHistory() {
     document.body.style.overflowY = "hidden";
     document.body.style.width = `calc(100% - ${scrollBarWidth}px)`;
     return () => {
-      document.body.style.overflowY = originalOverflow || "auto";
-      document.body.style.width = originalWidth || "100%";
+      document.body.style.overflowY = originalOverflow;
+      document.body.style.width = originalWidth;
     };
   }, [showSaleInvoice]);
 
