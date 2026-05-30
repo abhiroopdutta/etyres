@@ -974,9 +974,10 @@ class ReportService:
             supplier_name = ""
             supplier_GSTIN = ""
             try:
-                supplier_name = purchase.supplier.name
-                supplier_GSTIN = purchase.supplier.GSTIN
-            except Supplier.DoesNotExist:
+                if purchase.supplier is not None:
+                    supplier_name = purchase.supplier.name
+                    supplier_GSTIN = purchase.supplier.GSTIN
+            except Exception:
                 pass
 
             events.append({

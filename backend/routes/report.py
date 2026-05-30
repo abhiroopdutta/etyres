@@ -26,7 +26,7 @@ class ItemHistory(views.MethodView):
             return jsonify(result)
         except Product.DoesNotExist:
             flask_smorest.abort(404, message="Item not found")
-        except Exception as e:
+        except Exception:
             logger.exception("Unexpected error fetching item history for %s", item_code)
             flask_smorest.abort(500, message="Internal server error")
 

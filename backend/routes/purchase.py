@@ -38,9 +38,13 @@ class PurchaseInvoiceList(views.MethodView):
     @blp.paginate()
     def get(self, args, pagination_parameters):
         '''List all purchase invoices'''
-        result = purchase_service.get_invoices(**args, page=pagination_parameters.page, page_size=pagination_parameters.page_size)
-        pagination_parameters.item_count = result["count"]
-        return result["data"]
+        try:
+            result = purchase_service.get_invoices(**args, page=pagination_parameters.page, page_size=pagination_parameters.page_size)
+            pagination_parameters.item_count = result["count"]
+            return result["data"]
+        except Exception:
+            logger.exception("Unexpected error fetching purchase invoices")
+            flask_smorest.abort(500, message="Internal server error")
 
     #Todo: Add marshmallow validation schema for arg
     def post(self):

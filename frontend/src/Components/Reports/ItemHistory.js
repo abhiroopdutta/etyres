@@ -39,17 +39,15 @@ function ItemHistory() {
   });
 
   useEffect(() => {
-    if (showSaleInvoice) {
-      const scrollBarWidth = window.innerWidth - document.body.clientWidth;
-      document.body.style.overflowY = "hidden";
-      document.body.style.width = `calc(100% - ${scrollBarWidth}px)`;
-    } else {
-      document.body.style.overflowY = "scroll";
-      document.body.style.width = "100%";
-    }
+    if (!showSaleInvoice) return;
+    const originalOverflow = document.body.style.overflowY;
+    const originalWidth = document.body.style.width;
+    const scrollBarWidth = window.innerWidth - document.body.clientWidth;
+    document.body.style.overflowY = "hidden";
+    document.body.style.width = `calc(100% - ${scrollBarWidth}px)`;
     return () => {
-      document.body.style.overflowY = "scroll";
-      document.body.style.width = "100%";
+      document.body.style.overflowY = originalOverflow || "auto";
+      document.body.style.width = originalWidth || "100%";
     };
   }, [showSaleInvoice]);
 
