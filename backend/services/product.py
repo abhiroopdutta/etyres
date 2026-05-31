@@ -1,8 +1,11 @@
+import logging
 from collections import defaultdict
 from models import Product, Purchase, Sale
 import re
 from flask import jsonify
 from pymongo import UpdateOne
+
+logger = logging.getLogger(__name__)
 
 hsn_gst = {
     "tyre": {
@@ -94,7 +97,7 @@ class ProductService:
             for invoice in model.objects(invoiceStatus__ne="cancelled").only(items_field, "invoiceNumber"):
                 for product in getattr(invoice, items_field):
                     if product.itemCode not in all_product_codes:
-                        print(f'Item from {label} Invoice No. {invoice.invoiceNumber} not found in Product table:  {product.itemDesc}, {product.itemCode}, ')
+                        logger.error("Item from %s Invoice No. %s not found in Product table: %s, %s", label, invoice.invoiceNumber, product.itemDesc, product.itemCode)
                         return jsonify("Failure"), 400
                     stock_changes[product.itemCode] += sign * product.quantity
 

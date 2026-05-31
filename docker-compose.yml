@@ -18,7 +18,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    command: gunicorn --bind 0.0.0.0:5000 app:app
+    command: gunicorn --bind 0.0.0.0:5000 --timeout 120 app:app
     image: abhiroopdutta/etyres:flask-dev-latest
     container_name: flask-api
     ports:
