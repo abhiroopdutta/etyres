@@ -1,6 +1,8 @@
+from collections import defaultdict
 from models import Product, Purchase, Sale
 import re
 from flask import jsonify
+from pymongo import UpdateOne
 
 hsn_gst = {
     "tyre": {
@@ -81,48 +83,28 @@ class ProductService:
         return products
 
     def reset_products_stock(self):
-        # Bulk reset all products stock to 0
-        Product.objects().update(stock=0)
+        all_product_codes = set(Product.objects().distinct("itemCode"))
+        stock_changes = defaultdict(int)
 
-        # Dictionary to track stock changes by itemCode
-        stock_changes = {}
-        # Set to track which products we've verified exist
-        verified_products = set()
-
-        # Process purchases - add to stock
-        for invoice in Purchase.objects(invoiceStatus__ne="cancelled"):
-            for product in invoice.items:
-                # Only check if product exists once per unique itemCode
-                if product.itemCode not in verified_products:
-                    product_found = Product.objects(itemCode=product.itemCode).first()
-                    if product_found is None:
-                        print(f'Item from Purchase Invoice No. {invoice.invoiceNumber} not found in Product table:  {product.itemDesc}, {product.itemCode}, ')
+        invoice_sources = [
+            (Purchase, "items", +1, "Purchase"),
+            (Sale, "productItems", -1, "Sale"),
+        ]
+        for model, items_field, sign, label in invoice_sources:
+            for invoice in model.objects(invoiceStatus__ne="cancelled").only(items_field, "invoiceNumber"):
+                for product in getattr(invoice, items_field):
+                    if product.itemCode not in all_product_codes:
+                        print(f'Item from {label} Invoice No. {invoice.invoiceNumber} not found in Product table:  {product.itemDesc}, {product.itemCode}, ')
                         return jsonify("Failure"), 400
-                    verified_products.add(product.itemCode)
+                    stock_changes[product.itemCode] += sign * product.quantity
 
-                if product.itemCode not in stock_changes:
-                    stock_changes[product.itemCode] = 0
-                stock_changes[product.itemCode] += product.quantity
+        bulk_ops = [
+            UpdateOne({"itemCode": code}, {"$set": {"stock": stock_changes.get(code, 0)}})
+            for code in all_product_codes
+        ]
+        if bulk_ops:
+            Product._get_collection().bulk_write(bulk_ops, ordered=False)
 
-        # Process sales - subtract from stock
-        for invoice in Sale.objects(invoiceStatus__ne="cancelled"):
-            for product in invoice.productItems:
-                # Only check if product exists once per unique itemCode
-                if product.itemCode not in verified_products:
-                    product_found = Product.objects(itemCode=product.itemCode).first()
-                    if product_found is None:
-                        print(f'Item from Sale Invoice No. {invoice.invoiceNumber} not found in Product table:  {product.itemDesc}, {product.itemCode}, ')
-                        return jsonify("Failure"), 400
-                    verified_products.add(product.itemCode)
-
-                if product.itemCode not in stock_changes:
-                    stock_changes[product.itemCode] = 0
-                stock_changes[product.itemCode] -= product.quantity
-
-        # Apply all stock changes in one pass
-        for item_code, stock_change in stock_changes.items():
-            Product.objects(itemCode=item_code).update(stock=stock_change)
-
-        return jsonify("Success! Stock reset"), 200 
+        return jsonify("Success! Stock reset"), 200
 
 product_service = ProductService()
