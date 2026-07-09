@@ -836,15 +836,17 @@ def export_sales_report(reports_dir, invoices):
     for i, column_header in enumerate(column_headers):
         sheet.cell(row=1, column=i+1).value = column_header
 
+    shop_state_code = get_shop_details()["gstInfo"]["code"]
+
     #find a better way to do the following, instead of using base index, use sheet.max_row ?
     base_index = 0
     for invoice in invoices:
         gst_tables = compute_gst_tables(invoice.productItems)
-        tax_table = gst_tables["GST_table"]
-        # if (invoice.customerDetails.POS.startswith("09")):
-        #     tax_table = gst_tables["GST_table"]
-        # else:
-        #     tax_table = gst_tables["IGST_table"]
+        #IGST invoice when place of supply (stateCode) is outside the shop's home state.
+        #older invoices without stateCode fall back to GST.
+        customer_state_code = invoice.customerDetails.stateCode
+        IGST_invoice = bool(customer_state_code) and customer_state_code != shop_state_code
+        tax_table = gst_tables["IGST_table"] if IGST_invoice else gst_tables["GST_table"]
         products = tax_table["products"]
 
         total_items = len(products)

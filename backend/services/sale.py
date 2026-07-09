@@ -45,6 +45,7 @@ class SaleService:
             name = customer_details["name"],
             address = customer_details["address"],
             GSTIN = customer_details["GSTIN"],
+            stateCode = customer_details.get("POS", ""),
             vehicleNumber = customer_details["vehicleNumber"],
             contact = customer_details["contact"]
             )

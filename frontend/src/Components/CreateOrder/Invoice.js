@@ -16,6 +16,7 @@ import { DebounceInput } from 'react-debounce-input';
 import GSTTable from "./GSTTable";
 import IGSTTable from "./IGSTTable";
 import ShopDetails from "./ShopDetails";
+import shopInfo from "../../shopDetails.json";
 
 const { confirm } = Modal;
 
@@ -51,7 +52,7 @@ function Invoice({
     name: "",
     address: "",
     GSTIN: "",
-    POS: "09",
+    POS: shopInfo.gstInfo.code,
     vehicleNumber: "",
     contact: "",
   });
@@ -112,12 +113,13 @@ function Invoice({
   //Get invoice number from backend
   useEffect(() => {
     if (updateMode) {
-      setCustomerDetails(savedCustomerDetails);
+      //stored invoices carry place of supply in stateCode; map it back to POS.
+      //older invoices without stateCode fall back to home state (rendered as GST).
+      setCustomerDetails({
+        ...savedCustomerDetails,
+        POS: savedCustomerDetails.stateCode || shopInfo.gstInfo.code,
+      });
       setPayment(savedPayment);
-      //Saved invoices that have been incorrectly marked as IGST sale
-      //will be shown as GST sale but CGST, SGST will show 0
-      //correction can be done in such invoices by 
-      //adding the field POS=savedCustomerDetails.GSTIN.slice(0,2)
     }
   }, [
     updateMode,
@@ -137,14 +139,11 @@ function Invoice({
     }
   }, [products]);
 
-  if (
-    customerDetails.POS === "0" ||
-    customerDetails.POS?.startsWith("09") ||
-    !customerDetails.POS
-  ) {
-    IGSTRender = false;
-  } else {
+  //IGST applies when the place of supply is outside the shop's home state
+  if (customerDetails.POS && customerDetails.POS !== shopInfo.gstInfo.code) {
     IGSTRender = true;
+  } else {
+    IGSTRender = false;
   }
 
   let due;
@@ -178,7 +177,7 @@ function Invoice({
         GSTIN: "",
         vehicleNumber: "",
         contact: "",
-        POS: "09"
+        POS: shopInfo.gstInfo.code
       });
       setPayment({ cash: 0, card: 0, UPI: 0 });
       setTaxTable({
@@ -303,7 +302,7 @@ function Invoice({
       name: option.name,
       address: option.address,
       GSTIN: option.GSTIN,
-      POS: "09",
+      POS: option.GSTIN ? option.GSTIN.slice(0, 2) : shopInfo.gstInfo.code,
       vehicleNumber: option.vehicleNumber,
       contact: option.contact,
     });
@@ -439,9 +438,9 @@ function Invoice({
               id="POS"
               name="POS"
               className="POS"
-              value="09" //disabling this input temporarily
+              value={customerDetails.POS}
               onChange={handleCustomerDetails}
-              disabled
+              disabled={updateMode}
             >
               {Object.keys(gstStateCodes).map((item) =>
                 <option value={item} key={item}>
